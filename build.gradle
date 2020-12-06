@@ -16,7 +16,7 @@ application {
     mainClass = mainClassName
     applicationDefaultJvmArgs = [
             // the cli is short lived, so let's enable a fast JVM startup
-            '-Xshare:on', '-XX:TieredStopAtLevel=1'
+            '-XX:TieredStopAtLevel=1'
     ]
 }
 
