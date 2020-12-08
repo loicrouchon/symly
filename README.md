@@ -1,5 +1,13 @@
 # Linky
 
+## What is linky useful for?
+
+*TO BE WRITTEN*
+
+## Usage
+
+*TO BE WRITTEN*
+
 ## Pre-requisites
 
 * JDK 11
