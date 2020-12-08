@@ -1,4 +1,7 @@
-module org.acme.commandomode {
+module linky {
+    requires java.base;
+    requires static lombok;
+
     requires info.picocli;
-    requires lombok;
+    opens org.linky.cli to info.picocli;
 }

@@ -13,6 +13,7 @@ java {
 }
 def mainClassName = 'org.linky.cli.Main'
 application {
+    mainModule = 'linky'
     mainClass = mainClassName
     applicationDefaultJvmArgs = [
             // the cli is short lived, so let's enable a fast JVM startup
@@ -45,6 +46,25 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     testImplementation "org.assertj:assertj-core:3.14.0"
 }
+
+task buildNativePackage(type: Exec) {
+    workingDir "${buildDir}"
+
+    commandLine "jpackage",
+            "--name",
+            "${project.name}",
+            "--app-version",
+            "${project.version}",
+            "--module-path",
+            "install/${project.name}/lib",
+            "-m",
+            "${project.name}/${mainClassName}",
+            "--license-file",
+            "../LICENSE",
+            "--dest",
+            "."
+}
+buildNativePackage.dependsOn installDist
 
 task buildNativeImage(type: Exec) {
     workingDir "${buildDir}/libs"

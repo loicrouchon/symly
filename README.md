@@ -44,6 +44,19 @@ here:
 
 Once unzipped/untarred, the application can be run using the same `bin/link`/`bin/linky.bat` launch script as above.
 
+### Creating a native package containing the JVM
+
+#### Prerequisites
+* A JDK 14 or above is required
+
+The `buildNativePackage` task allow to build a native package installer that will contain the application as well as the JRE.
+
+```shell script
+./gradlew clean buildNativePackage
+```
+The native package will be located in `build` and can be installed with regular system package manager.
+
+
 ### Creating a native executable
 
 #### Prerequisites
