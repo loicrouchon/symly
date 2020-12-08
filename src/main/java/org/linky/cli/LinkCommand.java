@@ -4,10 +4,12 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.linky.Result;
 import org.linky.files.FilesMutatorService;
 import org.linky.files.FilesMutatorServiceImpl;
 import org.linky.files.FilesReaderService;
 import org.linky.files.NoOpFilesMutatorService;
+import org.linky.links.Action;
 import org.linky.links.Link;
 import org.linky.links.Links;
 import org.linky.links.SourceReader;
@@ -47,8 +49,12 @@ public class LinkCommand implements Runnable {
     @Override
     public void run() {
         CliConsole console = CliConsole.console();
+        console.printf("Creating links ");
+        if (dryRun) {
+            console.printf("(dry-run mode) ");
+        }
         console.printf(
-                "Creating links from %s to %s%n",
+                "from %s to %s%n",
                 sources.stream()
                         .map(Path::toAbsolutePath)
                         .map(Path::normalize)
@@ -63,7 +69,7 @@ public class LinkCommand implements Runnable {
     private Links computeLinks() {
         Links links = new Links(destination);
         for (Path source : sources) {
-            final SourceReader reader = new SourceReader(source);
+            SourceReader reader = new SourceReader(source);
             reader.read().forEach(path -> links.add(path, source));
         }
         return links;
@@ -81,32 +87,54 @@ public class LinkCommand implements Runnable {
             FilesReaderService filesReaderService,
             FilesMutatorService filesMutatorService) {
         for (Link link : links.list()) {
-            Link.LinkingStatus status = link.create(filesReaderService, filesMutatorService);
-            printStatus(console, link, status);
-            if (!status.getStatus().isSuccessful()) {
-                throw new LinkyExecutionException(String.format("Unable to create link %s", link));
+            Action action = link.synchronizeAction(filesReaderService);
+            Result<Path, Action.Code> result = action.apply(filesMutatorService);
+            printStatus(console, action, result);
+            if (!dryRun) {
+                result.orThrow(() -> new LinkyExecutionException(String.format("Unable to create link %s", link)));
             }
         }
     }
 
-    private void printStatus(CliConsole console, Link link, Link.LinkingStatus status) {
-        console.printf("[%s] %s", status.getStatus(), link);
-        switch (status.getStatus()) {
-            case UPDATED:
-                console.printf(" - updated from %s%n", status.getDetails());
+    private void printStatus(CliConsole console, Action action, Result<Path, Action.Code> result) {
+        result.accept(
+                previousLink -> printAction(console, action, previousLink),
+                error -> printError(console, action, error)
+        );
+    }
+
+    private void printAction(CliConsole console, Action action, Path previousLink) {
+        Link link = action.getLink();
+        console.printf("[%-" + Action.Name.MAX_LENGTH + "s] %s%n", action.getName(), link);
+        if (action.getName().equals(Action.Name.UPDATE_LINK)) {
+            if (previousLink != null) {
+                console.printf("> Previous link target was %s%n", previousLink);
+            } else {
+                throw new IllegalStateException(
+                        "Expecting a previous link to be found for " + link.getFrom());
+            }
+        }
+    }
+
+    private void printError(CliConsole console, Action action, Action.Code error) {
+        printAction(console, action, error.getPreviousPath());
+        String details;
+        Link link = action.getLink();
+        switch (error.getState()) {
+            case INVALID_DESTINATION:
+                details = String.format("Destination %s does not exist", link.getTo());
+                break;
+            case CONFLICT:
+                details = String.format(
+                        "Regular file %s already exist. To overwrite it, use the --replace-file option.",
+                        link.getFrom());
                 break;
             case ERROR:
-                console.printf(" - %s%n", status.getDetails());
+                details = String.format("An error occurred during linkage: - %s", error.getDetails());
                 break;
-            case INVALID_DESTINATION:
-                console.printf(" - destination does not exist%n");
-                break;
-            case CREATED:
-            case UP_TO_DATE:
-            case CONFLICT:
             default:
-                console.printf("%n");
-                break;
+                throw new UnsupportedOperationException("Unknown error " + error.getState());
         }
+        console.eprintf("> ERROR: %s%n", details);
     }
 }
