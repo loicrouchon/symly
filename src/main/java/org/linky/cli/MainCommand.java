@@ -2,7 +2,6 @@ package org.linky.cli;
 
 import static picocli.CommandLine.Command;
 
-import java.io.Console;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
@@ -12,7 +11,8 @@ import picocli.CommandLine.Spec;
         description = "linky create links",
         version = "0.1",
         subcommands = {
-                LinkCommand.class
+                LinkCommand.class,
+                StatusCommand.class,
         }
 )
 public class MainCommand implements Runnable {

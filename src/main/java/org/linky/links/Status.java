@@ -35,5 +35,7 @@ public class Status {
         LINK_CONFLICT,
         FILE_CONFLICT,
         MISSING;
+
+        public static final int MAX_LENGTH = 13;
     }
 }

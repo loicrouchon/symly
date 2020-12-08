@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.linky.cli.LinkyExecutionException;
 
 @RequiredArgsConstructor
-public class SourceReader {
+class SourceReader {
 
     private final Path source;
 

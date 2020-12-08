@@ -1,10 +1,7 @@
 package org.linky.links;
 
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
@@ -27,5 +24,14 @@ public class Links {
                 .map(e -> new Link(e.getKey(), e.getValue()))
                 .sorted(Comparator.comparing(Link::getFrom))
                 .collect(Collectors.toList());
+    }
+
+    public static Links from(Path destination, List<Path> sources) {
+        Links links = new Links(destination);
+        for (Path source : sources) {
+            SourceReader reader = new SourceReader(source);
+            reader.read().forEach(path -> links.add(path, source));
+        }
+        return links;
     }
 }

@@ -9,14 +9,17 @@ import org.linky.files.FilesMutatorService;
 import org.linky.files.FilesMutatorServiceImpl;
 import org.linky.files.FilesReaderService;
 import org.linky.files.NoOpFilesMutatorService;
-import org.linky.links.*;
+import org.linky.links.Action;
+import org.linky.links.Link;
+import org.linky.links.Links;
+import org.linky.links.Status;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(
         name = "link",
-        description = "link"
+        description = "Synchronize the links status"
 )
 @RequiredArgsConstructor
 public class LinkCommand implements Runnable {
@@ -57,19 +60,10 @@ public class LinkCommand implements Runnable {
                         .map(Path::normalize)
                         .collect(Collectors.toList()),
                 destination.toAbsolutePath().normalize());
-        Links links = computeLinks();
+        Links links = Links.from(destination, sources);
         FilesReaderService reader = new FilesReaderService();
         FilesMutatorService mutator = getFilesMutatorService();
         createLinks(console, links, reader, mutator);
-    }
-
-    private Links computeLinks() {
-        Links links = new Links(destination);
-        for (Path source : sources) {
-            SourceReader reader = new SourceReader(source);
-            reader.read().forEach(path -> links.add(path, source));
-        }
-        return links;
     }
 
     private FilesMutatorService getFilesMutatorService() {
