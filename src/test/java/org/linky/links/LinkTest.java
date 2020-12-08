@@ -34,10 +34,12 @@ class LinkTest {
         fileDoesNotExist(from);
         symlinkTargets(to, toRealPath);
         //when
-        Action action = link.synchronizeAction(filesReaderService);
+        Status status = link.status(filesReaderService);
+        Action action = status.toAction();
         //then
+        assertThat(status.getType()).isEqualTo(Status.Type.MISSING);
         assertThat(action).isInstanceOf(CreateLinkAction.class);
-        assertThat(action.getName()).isEqualTo(Action.Name.CREATE);
+        assertThat(action.getType()).isEqualTo(Action.Type.CREATE);
     }
 
     @Test
@@ -48,10 +50,12 @@ class LinkTest {
         fileExists(from);
         symlinkTargets(to, toRealPath);
         //when
-        Action action = link.synchronizeAction(filesReaderService);
+        Status status = link.status(filesReaderService);
+        Action action = status.toAction();
         //then
-        assertThat(action).isInstanceOf(ReplaceFileAction.class);
-        assertThat(action.getName()).isEqualTo(Action.Name.REPLACE_FILE);
+        assertThat(status.getType()).isEqualTo(Status.Type.FILE_CONFLICT);
+        assertThat(action).isInstanceOf(ConflictAction.class);
+        assertThat(action.getType()).isEqualTo(Action.Type.CONFLICT);
     }
 
     @Test
@@ -62,10 +66,12 @@ class LinkTest {
         symlinkExists(from, Path.of("fromRealPath"));
         symlinkTargets(to, toRealPath);
         //when
-        Action action = link.synchronizeAction(filesReaderService);
+        Status status = link.status(filesReaderService);
+        Action action = status.toAction();
         //then
+        assertThat(status.getType()).isEqualTo(Status.Type.LINK_CONFLICT);
         assertThat(action).isInstanceOf(UpdateLinkAction.class);
-        assertThat(action.getName()).isEqualTo(Action.Name.UPDATE_LINK);
+        assertThat(action.getType()).isEqualTo(Action.Type.UPDATE);
     }
 
     @Test
@@ -76,10 +82,12 @@ class LinkTest {
         symlinkExists(from, toRealPath);
         symlinkTargets(to, toRealPath);
         //when
-        Action action = link.synchronizeAction(filesReaderService);
+        Status status = link.status(filesReaderService);
+        Action action = status.toAction();
         //then
+        assertThat(status.getType()).isEqualTo(Status.Type.UP_TO_DATE);
         assertThat(action).isInstanceOf(NoOpAction.class);
-        assertThat(action.getName()).isEqualTo(Action.Name.UP_TO_DATE);
+        assertThat(action.getType()).isEqualTo(Action.Type.UP_TO_DATE);
     }
 
     private void fileDoesNotExist(Path path) {

@@ -8,10 +8,10 @@ import org.linky.files.FilesMutatorService;
 import org.linky.files.FilesReaderService;
 
 @RequiredArgsConstructor
-public class ReplaceFileAction implements Action {
+public class ConflictAction implements Action {
 
     @Getter
-    private final Name name;
+    private final Type type;
     @Getter
     private final Link link;
     private final FilesReaderService filesReaderService;

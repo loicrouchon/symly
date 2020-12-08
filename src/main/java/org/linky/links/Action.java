@@ -8,35 +8,35 @@ import org.linky.files.FilesReaderService;
 
 public interface Action {
 
-    Name getName();
+    Type getType();
 
     Link getLink();
 
     Result<Path, Code> apply(FilesMutatorService filesMutatorService);
 
     static Action upToDate(Link link, FilesReaderService filesReaderService) {
-        return new NoOpAction(Name.UP_TO_DATE, link, filesReaderService);
+        return new NoOpAction(Type.UP_TO_DATE, link, filesReaderService);
     }
 
-    static Action updateLink(Link link, FilesReaderService filesReaderService) {
-        return new UpdateLinkAction(Name.UPDATE_LINK, link, filesReaderService);
+    static Action replace(Link link, FilesReaderService filesReaderService) {
+        return new UpdateLinkAction(Type.UPDATE, link, filesReaderService);
     }
 
-    static Action replaceFile(Link link, FilesReaderService filesReaderService) {
-        return new ReplaceFileAction(Name.REPLACE_FILE, link, filesReaderService);
+    static Action conflict(Link link, FilesReaderService filesReaderService) {
+        return new ConflictAction(Type.CONFLICT, link, filesReaderService);
     }
 
-    static Action createLink(Link link, FilesReaderService filesReaderService) {
-        return new CreateLinkAction(Name.CREATE, link, filesReaderService);
+    static Action create(Link link, FilesReaderService filesReaderService) {
+        return new CreateLinkAction(Type.CREATE, link, filesReaderService);
     }
 
-    enum Name {
+    enum Type {
         UP_TO_DATE,
-        UPDATE_LINK,
-        REPLACE_FILE,
+        UPDATE,
+        CONFLICT,
         CREATE;
 
-        public static final int MAX_LENGTH = 12;
+        public static final int MAX_LENGTH = 10;
     }
 
     @Value
@@ -49,7 +49,7 @@ public interface Action {
         public enum State {
             CONFLICT,
             INVALID_DESTINATION,
-            ERROR;
+            ERROR
         }
     }
 }

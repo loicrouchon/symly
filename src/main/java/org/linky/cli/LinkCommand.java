@@ -9,10 +9,7 @@ import org.linky.files.FilesMutatorService;
 import org.linky.files.FilesMutatorServiceImpl;
 import org.linky.files.FilesReaderService;
 import org.linky.files.NoOpFilesMutatorService;
-import org.linky.links.Action;
-import org.linky.links.Link;
-import org.linky.links.Links;
-import org.linky.links.SourceReader;
+import org.linky.links.*;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -87,12 +84,10 @@ public class LinkCommand implements Runnable {
             FilesReaderService filesReaderService,
             FilesMutatorService filesMutatorService) {
         for (Link link : links.list()) {
-            Action action = link.synchronizeAction(filesReaderService);
+            Status status = link.status(filesReaderService);
+            Action action = status.toAction();
             Result<Path, Action.Code> result = action.apply(filesMutatorService);
             printStatus(console, action, result);
-            if (!dryRun) {
-                result.orThrow(() -> new LinkyExecutionException(String.format("Unable to create link %s", link)));
-            }
         }
     }
 
@@ -105,8 +100,8 @@ public class LinkCommand implements Runnable {
 
     private void printAction(CliConsole console, Action action, Path previousLink) {
         Link link = action.getLink();
-        console.printf("[%-" + Action.Name.MAX_LENGTH + "s] %s%n", action.getName(), link);
-        if (action.getName().equals(Action.Name.UPDATE_LINK)) {
+        console.printf("[%-" + Action.Type.MAX_LENGTH + "s] %s%n", action.getType(), link);
+        if (action.getType().equals(Action.Type.UPDATE)) {
             if (previousLink != null) {
                 console.printf("> Previous link target was %s%n", previousLink);
             } else {
@@ -135,6 +130,10 @@ public class LinkCommand implements Runnable {
             default:
                 throw new UnsupportedOperationException("Unknown error " + error.getState());
         }
-        console.eprintf("> ERROR: %s%n", details);
+        if (dryRun) {
+            console.eprintf("> %s%n", details);
+        } else {
+            throw new LinkyExecutionException(String.format("Unable to create link %s%n> %s%n", link, details));
+        }
     }
 }

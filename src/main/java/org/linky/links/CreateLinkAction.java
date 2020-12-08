@@ -2,7 +2,6 @@ package org.linky.links;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Optional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.linky.Result;
@@ -13,7 +12,7 @@ import org.linky.files.FilesReaderService;
 public class CreateLinkAction implements Action {
 
     @Getter
-    private final Name name;
+    private final Type type;
     @Getter
     private final Link link;
     private final FilesReaderService filesReaderService;

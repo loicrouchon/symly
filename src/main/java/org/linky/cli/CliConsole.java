@@ -28,6 +28,10 @@ class CliConsole {
         return out;
     }
 
+    public PrintWriter ewriter() {
+        return err;
+    }
+
     public static CliConsole console() {
         return CLI_CONSOLE;
     }

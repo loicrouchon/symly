@@ -11,22 +11,23 @@ public class Link {
     Path from;
     Path to;
 
-    public Action synchronizeAction(FilesReaderService filesReaderService) {
+    public Status status(FilesReaderService filesReaderService) {
         if (filesReaderService.exists(from)) {
             if (filesReaderService.isSymbolicLink(from)) {
                 Path fromRealDestination = filesReaderService.toRealPath(from);
                 if (Objects.equals(fromRealDestination, filesReaderService.toRealPath(to))) {
-                    return Action.upToDate(this, filesReaderService);
+                    return new Status(Status.Type.UP_TO_DATE, this, filesReaderService);
                 }
-                return Action.updateLink(this, filesReaderService);
+                return new Status(Status.Type.LINK_CONFLICT, this, filesReaderService);
             }
-            return Action.replaceFile(this, filesReaderService);
+            return new Status(Status.Type.FILE_CONFLICT, this, filesReaderService);
         }
-        return Action.createLink(this, filesReaderService);
+        return new Status(Status.Type.MISSING, this, filesReaderService);
     }
 
     @Override
     public String toString() {
         return from + " -> " + to;
     }
+
 }

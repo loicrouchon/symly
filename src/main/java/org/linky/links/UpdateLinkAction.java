@@ -12,7 +12,7 @@ import org.linky.files.FilesReaderService;
 public class UpdateLinkAction implements Action {
 
     @Getter
-    private final Name name;
+    private final Type type;
     @Getter
     private final Link link;
     private final FilesReaderService filesReaderService;
