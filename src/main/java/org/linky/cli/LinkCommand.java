@@ -19,7 +19,8 @@ import picocli.CommandLine.Option;
 
 @Command(
         name = "link",
-        description = "Synchronize the links status"
+        aliases = {"ln"},
+        description = "Synchronizes the links status"
 )
 @RequiredArgsConstructor
 public class LinkCommand implements Runnable {

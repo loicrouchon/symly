@@ -14,6 +14,7 @@ import picocli.CommandLine.Option;
 
 @Command(
         name = "status",
+        aliases = {"st"},
         description = "Displays the current synchronization status"
 )
 @RequiredArgsConstructor
