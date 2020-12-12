@@ -1,15 +1,17 @@
 package org.linky.cli;
 
+import static picocli.CommandLine.Help;
+import static picocli.CommandLine.Spec;
+
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import org.linky.files.FilesReaderService;
 import org.linky.links.Link;
 import org.linky.links.Links;
 import org.linky.links.Status;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 
 @Command(
@@ -17,14 +19,16 @@ import picocli.CommandLine.Option;
         aliases = {"st"},
         description = "Displays the current synchronization status"
 )
-@RequiredArgsConstructor
 public class StatusCommand implements Runnable {
+
+    @Spec
+    CommandSpec spec;
 
     @Option(
             names = {"-d", "--destination"},
             description = "Destination directory in which links will be created",
             required = true,
-            showDefaultValue = CommandLine.Help.Visibility.ALWAYS
+            showDefaultValue = Help.Visibility.ALWAYS
     )
     Path destination;
 
@@ -36,8 +40,18 @@ public class StatusCommand implements Runnable {
     )
     List<Path> sources;
 
+    private final FilesReaderService filesReaderService;
+    private final Validators validators;
+
+    public StatusCommand() {
+        filesReaderService = new FilesReaderService();
+        validators = new Validators(filesReaderService);
+    }
+
     @Override
     public void run() {
+        Arg.of(spec, "--destination").validate(validators::directoryExists, destination);
+        Arg.of(spec, "--sources").validate(validators::directoryExists, sources);
         CliConsole console = CliConsole.console();
         console.printf(
                 "Checking links status from %s to %s%n",
@@ -47,18 +61,17 @@ public class StatusCommand implements Runnable {
                         .collect(Collectors.toList()),
                 destination.toAbsolutePath().normalize());
         Links links = Links.from(destination, sources);
-        FilesReaderService reader = new FilesReaderService();
-        checkStatus(console, links, reader);
+        checkStatus(console, links);
     }
 
-    private void checkStatus(CliConsole console, Links links, FilesReaderService filesReaderService) {
+    private void checkStatus(CliConsole console, Links links) {
         for (Link link : links.list()) {
             Status status = link.status(filesReaderService);
-            printStatus(console, status, filesReaderService);
+            printStatus(console, status);
         }
     }
 
-    private void printStatus(CliConsole console, Status status, FilesReaderService filesReaderService) {
+    private void printStatus(CliConsole console, Status status) {
         Link link = status.getLink();
         console.printf("[%-" + Status.Type.MAX_LENGTH + "s] %s%n", status.getType(), link);
         if (status.getType() == Status.Type.LINK_CONFLICT) {

@@ -3,7 +3,6 @@ package org.linky.cli;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import org.linky.Result;
 import org.linky.files.FilesMutatorService;
 import org.linky.files.FilesMutatorServiceImpl;
@@ -15,15 +14,19 @@ import org.linky.links.Links;
 import org.linky.links.Status;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.Spec;
 
 @Command(
         name = "link",
         aliases = {"ln"},
         description = "Synchronizes the links status"
 )
-@RequiredArgsConstructor
 public class LinkCommand implements Runnable {
+
+    @Spec
+    CommandSpec spec;
 
     @Option(
             names = {"-d", "--destination"},
@@ -47,8 +50,18 @@ public class LinkCommand implements Runnable {
     )
     boolean dryRun;
 
+    private final FilesReaderService filesReaderService;
+    private final Validators validators;
+
+    public LinkCommand() {
+        filesReaderService = new FilesReaderService();
+        validators = new Validators(filesReaderService);
+    }
+
     @Override
     public void run() {
+        Arg.of(spec, "--destination").validate(validators::directoryExists, destination);
+        Arg.of(spec, "--sources").validate(validators::directoryExists, sources);
         CliConsole console = CliConsole.console();
         console.printf("Creating links ");
         if (dryRun) {
@@ -62,9 +75,8 @@ public class LinkCommand implements Runnable {
                         .collect(Collectors.toList()),
                 destination.toAbsolutePath().normalize());
         Links links = Links.from(destination, sources);
-        FilesReaderService reader = new FilesReaderService();
         FilesMutatorService mutator = getFilesMutatorService();
-        createLinks(console, links, reader, mutator);
+        createLinks(console, links, mutator);
     }
 
     private FilesMutatorService getFilesMutatorService() {
@@ -76,7 +88,6 @@ public class LinkCommand implements Runnable {
 
     private void createLinks(CliConsole console,
             Links links,
-            FilesReaderService filesReaderService,
             FilesMutatorService filesMutatorService) {
         for (Link link : links.list()) {
             Status status = link.status(filesReaderService);
