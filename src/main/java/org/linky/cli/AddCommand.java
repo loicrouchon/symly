@@ -62,8 +62,12 @@ public class AddCommand extends ValidatedCommand {
                 Constraint.ofArg("from", from, "must not be a symbolic link", not(fsReader::isSymbolicLink)),
                 Constraint.ofArg("to", to, "must be an existing directory", fsReader::isDirectory),
                 Constraint.ofArg("file", file, "must exists", fsReader::exists),
-                Constraint.of("<file> must be a subpath of <from>", () -> file.startsWith(from)),
-                Constraint.of("<file> must not exist in <to>", () -> !fsReader.exists(destinationFile))
+                Constraint.of(
+                        String.format("<file> (%s) must be a subpath of <from> (%s)", file, from),
+                        () -> file.startsWith(from)),
+                Constraint.of(
+                        String.format("<file> (%s) must not exist in <to> (%s)", name, to),
+                        () -> !fsReader.exists(destinationFile))
         );
     }
 
