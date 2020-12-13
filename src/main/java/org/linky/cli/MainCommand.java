@@ -16,7 +16,7 @@ import picocli.CommandLine.Spec;
                 AddCommand.class,
         }
 )
-public class MainCommand implements Runnable {
+class MainCommand implements Runnable {
 
     @Option(names = {"-v", "--verbose"}, description = "Be verbose.")
     private boolean verbose = false;

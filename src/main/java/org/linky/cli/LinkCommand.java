@@ -23,7 +23,7 @@ import picocli.CommandLine.Option;
         aliases = {"ln"},
         description = "Synchronizes the links status"
 )
-public class LinkCommand extends ValidatedCommand {
+class LinkCommand extends ValidatedCommand {
 
     @Option(
             names = {"-d", "--destination"},
@@ -49,7 +49,7 @@ public class LinkCommand extends ValidatedCommand {
 
     private final FileSystemReader fsReader;
 
-    public LinkCommand() {
+    LinkCommand() {
         fsReader = new FileSystemReader();
     }
 

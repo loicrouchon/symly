@@ -24,7 +24,7 @@ import picocli.CommandLine.Parameters;
         description = "Adds a file to a source by moving it and linking itreplaces the original source by a link to the move destination"
 )
 @RequiredArgsConstructor
-public class AddCommand extends ValidatedCommand {
+class AddCommand extends ValidatedCommand {
 
     @Option(
             names = {"-f", "--from"},
@@ -49,7 +49,7 @@ public class AddCommand extends ValidatedCommand {
     private Path name;
     private Path destinationFile;
 
-    public AddCommand() {
+    AddCommand() {
         fsReader = new FileSystemReader();
     }
 

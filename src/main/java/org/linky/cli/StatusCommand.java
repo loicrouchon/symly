@@ -19,7 +19,7 @@ import picocli.CommandLine.Option;
         aliases = {"st"},
         description = "Displays the current synchronization status"
 )
-public class StatusCommand extends ValidatedCommand {
+class StatusCommand extends ValidatedCommand {
 
     @Option(
             names = {"-d", "--destination"},
@@ -39,7 +39,7 @@ public class StatusCommand extends ValidatedCommand {
 
     private final FileSystemReader fsReader;
 
-    public StatusCommand() {
+    StatusCommand() {
         fsReader = new FileSystemReader();
     }
 
