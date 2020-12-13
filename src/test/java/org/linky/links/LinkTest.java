@@ -1,25 +1,18 @@
 package org.linky.links;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.lenient;
 
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.linky.files.FileSystemReader;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.linky.files.IoMock;
 
-@ExtendWith(MockitoExtension.class)
 class LinkTest {
 
     private final Path from = Path.of("from");
     private final Path to = Path.of("to");
     private final Path toRealPath = Path.of("realPath");
 
-    @Mock
-    private FileSystemReader fsReader;
+    private final IoMock ioMock = new IoMock();
 
     @Test
     void toString_shouldDisplayLink() {
@@ -31,10 +24,10 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        fileDoesNotExist(from);
-        symlinkTargets(to, toRealPath);
+        ioMock.fileDoesNotExist(from);
+        ioMock.symlinkTargets(to, toRealPath);
         //when
-        Status status = link.status(fsReader);
+        Status status = link.status(ioMock.fsReader);
         Action action = status.toAction();
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.MISSING);
@@ -47,10 +40,10 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        fileExists(from);
-        symlinkTargets(to, toRealPath);
+        ioMock.fileExists(from);
+        ioMock.symlinkTargets(to, toRealPath);
         //when
-        Status status = link.status(fsReader);
+        Status status = link.status(ioMock.fsReader);
         Action action = status.toAction();
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.FILE_CONFLICT);
@@ -63,10 +56,10 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        symlinkExists(from, Path.of("fromRealPath"));
-        symlinkTargets(to, toRealPath);
+        ioMock.symlinkExists(from, Path.of("fromRealPath"));
+        ioMock.symlinkTargets(to, toRealPath);
         //when
-        Status status = link.status(fsReader);
+        Status status = link.status(ioMock.fsReader);
         Action action = status.toAction();
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.LINK_CONFLICT);
@@ -79,33 +72,14 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        symlinkExists(from, toRealPath);
-        symlinkTargets(to, toRealPath);
+        ioMock.symlinkExists(from, toRealPath);
+        ioMock.symlinkTargets(to, toRealPath);
         //when
-        Status status = link.status(fsReader);
+        Status status = link.status(ioMock.fsReader);
         Action action = status.toAction();
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.UP_TO_DATE);
         assertThat(action).isInstanceOf(NoOpAction.class);
         assertThat(action.getType()).isEqualTo(Action.Type.UP_TO_DATE);
-    }
-
-    private void fileDoesNotExist(Path path) {
-        given(fsReader.exists(path)).willReturn(false);
-    }
-
-    private void fileExists(Path path) {
-        given(fsReader.exists(path)).willReturn(true);
-        given(fsReader.isSymbolicLink(path)).willReturn(false);
-    }
-
-    private void symlinkExists(Path path, Path target) {
-        given(fsReader.exists(path)).willReturn(true);
-        given(fsReader.isSymbolicLink(path)).willReturn(true);
-        symlinkTargets(path, target);
-    }
-
-    private void symlinkTargets(Path path, Path target) {
-        lenient().when(fsReader.toRealPath(path)).thenReturn(target);
     }
 }
