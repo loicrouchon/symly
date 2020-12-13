@@ -1,14 +1,17 @@
 package org.linky.cli;
 
+import lombok.RequiredArgsConstructor;
 import picocli.CommandLine;
 import picocli.CommandLine.IExecutionExceptionHandler;
 import picocli.CommandLine.ParseResult;
 
+@RequiredArgsConstructor
 class ExceptionHandler implements IExecutionExceptionHandler {
+
+    private final CliConsole console;
 
     @Override
     public int handleExecutionException(Exception ex, CommandLine commandLine, ParseResult parseResult) {
-        CliConsole console = CliConsole.console();
         console.eprintf("%n");
         if (ex instanceof LinkyExecutionException) {
             console.eprintf("%s%n", ex.getMessage());

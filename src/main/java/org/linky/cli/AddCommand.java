@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.linky.Result;
 import org.linky.cli.validation.Constraint;
 import org.linky.files.FileSystemReader;
+import org.linky.files.FileSystemWriter;
 import org.linky.files.FileSystemWriterImpl;
 import org.linky.links.Action;
 import org.linky.links.Configuration;
@@ -44,18 +45,20 @@ class AddCommand extends ValidatedCommand {
     @Parameters(index = "0", description = "File or directory to be moved from <from> to <to>")
     Path file;
 
+    private final CliConsole console;
     private final FileSystemReader fsReader;
+    private final FileSystemWriter fsWriter;
 
     private Path name;
     private Path destinationFile;
 
     AddCommand() {
-        fsReader = new FileSystemReader();
+        this(CliConsole.console(), new FileSystemReader(), new FileSystemWriterImpl());
     }
 
     @Override
     protected Collection<Constraint> constraints() {
-        name = from.relativize(file).normalize();
+        name = from.toAbsolutePath().relativize(file.toAbsolutePath()).normalize();
         destinationFile = to.resolve(name).toAbsolutePath().normalize();
         return List.of(
                 Constraint.ofArg("from", from, "must be an existing directory", fsReader::isDirectory),
@@ -73,29 +76,27 @@ class AddCommand extends ValidatedCommand {
 
     @Override
     protected void execute() {
-        CliConsole console = CliConsole.console();
         console.printf(
                 "Moving %s from %s to %s and creating link%n",
                 name,
                 from.toAbsolutePath().normalize(),
                 to.toAbsolutePath().normalize());
-        add(console, file, destinationFile);
+        add(file, destinationFile);
     }
 
-    private void add(CliConsole console, Path originalFile, Path destinationFile) {
-        FileSystemWriterImpl fsWriter = new FileSystemWriterImpl();
+    private void add(Path originalFile, Path destinationFile) {
         Path destinationDirectory = destinationFile.getParent();
         if (!fsReader.exists(destinationDirectory)) {
-            createParentDirectory(fsWriter, destinationDirectory);
+            createParentDirectory(destinationDirectory);
         }
-        moveFile(originalFile, destinationFile, fsWriter);
+        moveFile(originalFile, destinationFile);
         if (fsReader.isDirectory(destinationFile)) {
-            createSymlinkMarker(destinationFile, fsWriter);
+            createSymlinkMarker(destinationFile);
         }
-        createLink(console, originalFile, destinationFile, fsWriter);
+        createLink(originalFile, destinationFile);
     }
 
-    private void createParentDirectory(FileSystemWriterImpl fsWriter, Path destinationDirectory) {
+    private void createParentDirectory(Path destinationDirectory) {
         try {
             fsWriter.createDirectories(destinationDirectory);
         } catch (IOException e) {
@@ -105,7 +106,7 @@ class AddCommand extends ValidatedCommand {
         }
     }
 
-    private void moveFile(Path originalFile, Path destinationFile, FileSystemWriterImpl fsWriter) {
+    private void moveFile(Path originalFile, Path destinationFile) {
         try {
             fsWriter.move(originalFile, destinationFile);
         } catch (IOException e) {
@@ -114,7 +115,7 @@ class AddCommand extends ValidatedCommand {
         }
     }
 
-    private void createSymlinkMarker(Path destinationFile, FileSystemWriterImpl fsWriter) {
+    private void createSymlinkMarker(Path destinationFile) {
         Path symlinkMarker = Configuration.symlinkMarker(destinationFile);
         try {
             fsWriter.createEmptyFile(symlinkMarker);
@@ -124,8 +125,7 @@ class AddCommand extends ValidatedCommand {
         }
     }
 
-    private void createLink(CliConsole console, Path originalFile, Path destinationFile,
-            FileSystemWriterImpl fsWriter) {
+    private void createLink(Path originalFile, Path destinationFile) {
         Link link = Link.of(originalFile, destinationFile);
         Result<Path, Action.Code> linkResult = link
                 .status(fsReader)

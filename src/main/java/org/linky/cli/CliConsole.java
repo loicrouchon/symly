@@ -1,7 +1,9 @@
 package org.linky.cli;
 
 import java.io.PrintWriter;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 class CliConsole {
 
     private static final CliConsole CLI_CONSOLE = new CliConsole();
@@ -10,8 +12,7 @@ class CliConsole {
     private final PrintWriter err;
 
     private CliConsole() {
-        out = new PrintWriter(System.out);
-        err = new PrintWriter(System.err);
+        this(new PrintWriter(System.out), new PrintWriter(System.err));
     }
 
     public void printf(String format, Object... args) {
