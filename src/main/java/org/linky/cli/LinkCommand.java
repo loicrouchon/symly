@@ -60,8 +60,8 @@ public class LinkCommand implements Runnable {
 
     @Override
     public void run() {
-        Arg.of(spec, "--destination").validate(validators::directoryExists, destination);
-        Arg.of(spec, "--sources").validate(validators::directoryExists, sources);
+        Arg.of(spec, "--destination").validate(destination, validators::directoryExists);
+        Arg.of(spec, "--sources").validate(sources, validators::directoryExists);
         CliConsole console = CliConsole.console();
         console.printf("Creating links ");
         if (dryRun) {

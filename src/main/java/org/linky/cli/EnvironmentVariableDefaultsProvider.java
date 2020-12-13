@@ -6,7 +6,10 @@ import picocli.CommandLine.IDefaultValueProvider;
 
 public class EnvironmentVariableDefaultsProvider implements IDefaultValueProvider {
 
-    private static final Map<String, String> OPTIONS_TO_ENV_VAR = Map.of("--destination", "HOME");
+    private static final Map<String, String> OPTIONS_TO_ENV_VAR = Map.of(
+            "--destination", "HOME",
+            "--from", "HOME"
+    );
 
     @Override
     public String defaultValue(CommandLine.Model.ArgSpec argSpec) {

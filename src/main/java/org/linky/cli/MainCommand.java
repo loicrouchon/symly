@@ -13,6 +13,7 @@ import picocli.CommandLine.Spec;
         subcommands = {
                 LinkCommand.class,
                 StatusCommand.class,
+                AddCommand.class,
         }
 )
 public class MainCommand implements Runnable {

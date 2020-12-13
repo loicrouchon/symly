@@ -38,7 +38,7 @@ class SourceReader {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-            if (Files.exists(dir.resolve(".symlink"))) {
+            if (Files.exists(Configuration.symlinkMarker(dir))) {
                 paths.add(dir);
                 return FileVisitResult.SKIP_SUBTREE;
             }

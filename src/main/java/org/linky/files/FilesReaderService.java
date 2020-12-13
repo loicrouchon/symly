@@ -11,6 +11,10 @@ public class FilesReaderService {
         return Files.exists(path);
     }
 
+    public boolean isDirectory(Path path) {
+        return Files.isDirectory(path);
+    }
+
     public boolean isSymbolicLink(Path path) {
         return Files.isSymbolicLink(path);
     }
