@@ -3,8 +3,8 @@ package org.linky.links;
 import java.nio.file.Path;
 import lombok.Value;
 import org.linky.Result;
-import org.linky.files.FilesMutatorService;
-import org.linky.files.FilesReaderService;
+import org.linky.files.FileSystemReader;
+import org.linky.files.FileSystemWriter;
 
 public interface Action {
 
@@ -12,22 +12,22 @@ public interface Action {
 
     Link getLink();
 
-    Result<Path, Code> apply(FilesMutatorService filesMutatorService);
+    Result<Path, Code> apply(FileSystemWriter fsWriter);
 
-    static Action upToDate(Link link, FilesReaderService filesReaderService) {
-        return new NoOpAction(Type.UP_TO_DATE, link, filesReaderService);
+    static Action upToDate(Link link, FileSystemReader fsReader) {
+        return new NoOpAction(Type.UP_TO_DATE, link, fsReader);
     }
 
-    static Action replace(Link link, FilesReaderService filesReaderService) {
-        return new UpdateLinkAction(Type.UPDATE, link, filesReaderService);
+    static Action replace(Link link, FileSystemReader fsReader) {
+        return new UpdateLinkAction(Type.UPDATE, link, fsReader);
     }
 
-    static Action conflict(Link link, FilesReaderService filesReaderService) {
-        return new ConflictAction(Type.CONFLICT, link, filesReaderService);
+    static Action conflict(Link link, FileSystemReader fsReader) {
+        return new ConflictAction(Type.CONFLICT, link, fsReader);
     }
 
-    static Action create(Link link, FilesReaderService filesReaderService) {
-        return new CreateLinkAction(Type.CREATE, link, filesReaderService);
+    static Action create(Link link, FileSystemReader fsReader) {
+        return new CreateLinkAction(Type.CREATE, link, fsReader);
     }
 
     enum Type {

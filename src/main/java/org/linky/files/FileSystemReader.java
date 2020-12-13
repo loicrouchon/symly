@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.linky.cli.LinkyExecutionException;
 
-public class FilesReaderService {
+public class FileSystemReader {
 
     public boolean exists(Path path) {
         return Files.exists(path);

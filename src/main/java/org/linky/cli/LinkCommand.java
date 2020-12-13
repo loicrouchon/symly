@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.linky.Result;
 import org.linky.cli.validation.Constraint;
-import org.linky.files.FilesMutatorService;
-import org.linky.files.FilesMutatorServiceImpl;
-import org.linky.files.FilesReaderService;
-import org.linky.files.NoOpFilesMutatorService;
+import org.linky.files.FileSystemReader;
+import org.linky.files.FileSystemWriter;
+import org.linky.files.FileSystemWriterImpl;
+import org.linky.files.NoOpFileSystemWriter;
 import org.linky.links.Action;
 import org.linky.links.Link;
 import org.linky.links.Links;
@@ -47,18 +47,18 @@ public class LinkCommand extends ValidatedCommand {
     )
     boolean dryRun;
 
-    private final FilesReaderService filesReaderService;
+    private final FileSystemReader fsReader;
 
     public LinkCommand() {
-        filesReaderService = new FilesReaderService();
+        fsReader = new FileSystemReader();
     }
 
     @Override
     protected Collection<Constraint> constraints() {
         return List.of(
                 Constraint.ofArg("destination", destination, "must be an existing directory",
-                        filesReaderService::isDirectory),
-                Constraint.ofArg("sources", sources, "must be an existing directory", filesReaderService::isDirectory)
+                        fsReader::isDirectory),
+                Constraint.ofArg("sources", sources, "must be an existing directory", fsReader::isDirectory)
         );
     }
 
@@ -77,24 +77,24 @@ public class LinkCommand extends ValidatedCommand {
                         .collect(Collectors.toList()),
                 destination.toAbsolutePath().normalize());
         Links links = Links.from(destination, sources);
-        FilesMutatorService mutator = getFilesMutatorService();
+        FileSystemWriter mutator = getFilesMutatorService();
         createLinks(console, links, mutator);
     }
 
-    private FilesMutatorService getFilesMutatorService() {
+    private FileSystemWriter getFilesMutatorService() {
         if (dryRun) {
-            return new NoOpFilesMutatorService();
+            return new NoOpFileSystemWriter();
         }
-        return new FilesMutatorServiceImpl();
+        return new FileSystemWriterImpl();
     }
 
     private void createLinks(CliConsole console,
             Links links,
-            FilesMutatorService filesMutatorService) {
+            FileSystemWriter fsWriter) {
         for (Link link : links.list()) {
-            Status status = link.status(filesReaderService);
+            Status status = link.status(fsReader);
             Action action = status.toAction();
-            Result<Path, Action.Code> result = action.apply(filesMutatorService);
+            Result<Path, Action.Code> result = action.apply(fsWriter);
             printStatus(console, action, result);
         }
     }

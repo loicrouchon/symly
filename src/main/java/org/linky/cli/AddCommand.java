@@ -9,8 +9,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.linky.Result;
 import org.linky.cli.validation.Constraint;
-import org.linky.files.FilesMutatorServiceImpl;
-import org.linky.files.FilesReaderService;
+import org.linky.files.FileSystemReader;
+import org.linky.files.FileSystemWriterImpl;
 import org.linky.links.Action;
 import org.linky.links.Configuration;
 import org.linky.links.Link;
@@ -44,13 +44,13 @@ public class AddCommand extends ValidatedCommand {
     @Parameters(index = "0", description = "File or directory to be moved from <from> to <to>")
     Path file;
 
-    private final FilesReaderService filesReaderService;
+    private final FileSystemReader fsReader;
 
     private Path name;
     private Path destinationFile;
 
     public AddCommand() {
-        filesReaderService = new FilesReaderService();
+        fsReader = new FileSystemReader();
     }
 
     @Override
@@ -58,12 +58,12 @@ public class AddCommand extends ValidatedCommand {
         name = from.relativize(file).normalize();
         destinationFile = to.resolve(name).toAbsolutePath().normalize();
         return List.of(
-                Constraint.ofArg("from", from, "must be an existing directory", filesReaderService::isDirectory),
-                Constraint.ofArg("from", from, "must not be a symbolic link", not(filesReaderService::isSymbolicLink)),
-                Constraint.ofArg("to", to, "must be an existing directory", filesReaderService::isDirectory),
-                Constraint.ofArg("file", file, "must exists", filesReaderService::exists),
+                Constraint.ofArg("from", from, "must be an existing directory", fsReader::isDirectory),
+                Constraint.ofArg("from", from, "must not be a symbolic link", not(fsReader::isSymbolicLink)),
+                Constraint.ofArg("to", to, "must be an existing directory", fsReader::isDirectory),
+                Constraint.ofArg("file", file, "must exists", fsReader::exists),
                 Constraint.of("<file> must be a subpath of <from>", () -> file.startsWith(from)),
-                Constraint.of("<file> must not exist in <to>", () -> !filesReaderService.exists(destinationFile))
+                Constraint.of("<file> must not exist in <to>", () -> !fsReader.exists(destinationFile))
         );
     }
 
@@ -79,21 +79,21 @@ public class AddCommand extends ValidatedCommand {
     }
 
     private void add(CliConsole console, Path originalFile, Path destinationFile) {
-        FilesMutatorServiceImpl filesMutatorService = new FilesMutatorServiceImpl();
+        FileSystemWriterImpl fsWriter = new FileSystemWriterImpl();
         Path destinationDirectory = destinationFile.getParent();
-        if (!filesReaderService.exists(destinationDirectory)) {
-            createParentDirectory(filesMutatorService, destinationDirectory);
+        if (!fsReader.exists(destinationDirectory)) {
+            createParentDirectory(fsWriter, destinationDirectory);
         }
-        moveFile(originalFile, destinationFile, filesMutatorService);
-        if (filesReaderService.isDirectory(destinationFile)) {
-            createSymlinkMarker(destinationFile, filesMutatorService);
+        moveFile(originalFile, destinationFile, fsWriter);
+        if (fsReader.isDirectory(destinationFile)) {
+            createSymlinkMarker(destinationFile, fsWriter);
         }
-        createLink(console, originalFile, destinationFile, filesMutatorService);
+        createLink(console, originalFile, destinationFile, fsWriter);
     }
 
-    private void createParentDirectory(FilesMutatorServiceImpl filesMutatorService, Path destinationDirectory) {
+    private void createParentDirectory(FileSystemWriterImpl fsWriter, Path destinationDirectory) {
         try {
-            filesMutatorService.createDirectories(destinationDirectory);
+            fsWriter.createDirectories(destinationDirectory);
         } catch (IOException e) {
             throw new LinkyExecutionException(String.format(
                     "Unable to create destination directory %s%n> %s%n", destinationDirectory,
@@ -101,19 +101,19 @@ public class AddCommand extends ValidatedCommand {
         }
     }
 
-    private void moveFile(Path originalFile, Path destinationFile, FilesMutatorServiceImpl filesMutatorService) {
+    private void moveFile(Path originalFile, Path destinationFile, FileSystemWriterImpl fsWriter) {
         try {
-            filesMutatorService.move(originalFile, destinationFile);
+            fsWriter.move(originalFile, destinationFile);
         } catch (IOException e) {
             throw new LinkyExecutionException(String.format(
                     "Unable to move %s to %s%n> %s%n", originalFile, destinationFile, e.getMessage()));
         }
     }
 
-    private void createSymlinkMarker(Path destinationFile, FilesMutatorServiceImpl filesMutatorService) {
+    private void createSymlinkMarker(Path destinationFile, FileSystemWriterImpl fsWriter) {
         Path symlinkMarker = Configuration.symlinkMarker(destinationFile);
         try {
-            filesMutatorService.createEmptyFile(symlinkMarker);
+            fsWriter.createEmptyFile(symlinkMarker);
         } catch (IOException e) {
             throw new LinkyExecutionException(String.format(
                     "Unable to create directory symlink marker %s%n> %s%n", symlinkMarker, e.getMessage()));
@@ -121,12 +121,12 @@ public class AddCommand extends ValidatedCommand {
     }
 
     private void createLink(CliConsole console, Path originalFile, Path destinationFile,
-            FilesMutatorServiceImpl filesMutatorService) {
+            FileSystemWriterImpl fsWriter) {
         Link link = Link.of(originalFile, destinationFile);
         Result<Path, Action.Code> linkResult = link
-                .status(filesReaderService)
+                .status(fsReader)
                 .toAction()
-                .apply(filesMutatorService);
+                .apply(fsWriter);
         linkResult.accept(
                 previousPath -> console.printf("[MOVED] %s%n", link),
                 errorCode -> {

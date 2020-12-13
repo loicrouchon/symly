@@ -7,7 +7,7 @@ import static org.mockito.Mockito.lenient;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.linky.files.FilesReaderService;
+import org.linky.files.FileSystemReader;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,7 +19,7 @@ class LinkTest {
     private final Path toRealPath = Path.of("realPath");
 
     @Mock
-    private FilesReaderService filesReaderService;
+    private FileSystemReader fsReader;
 
     @Test
     void toString_shouldDisplayLink() {
@@ -34,7 +34,7 @@ class LinkTest {
         fileDoesNotExist(from);
         symlinkTargets(to, toRealPath);
         //when
-        Status status = link.status(filesReaderService);
+        Status status = link.status(fsReader);
         Action action = status.toAction();
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.MISSING);
@@ -50,7 +50,7 @@ class LinkTest {
         fileExists(from);
         symlinkTargets(to, toRealPath);
         //when
-        Status status = link.status(filesReaderService);
+        Status status = link.status(fsReader);
         Action action = status.toAction();
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.FILE_CONFLICT);
@@ -66,7 +66,7 @@ class LinkTest {
         symlinkExists(from, Path.of("fromRealPath"));
         symlinkTargets(to, toRealPath);
         //when
-        Status status = link.status(filesReaderService);
+        Status status = link.status(fsReader);
         Action action = status.toAction();
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.LINK_CONFLICT);
@@ -82,7 +82,7 @@ class LinkTest {
         symlinkExists(from, toRealPath);
         symlinkTargets(to, toRealPath);
         //when
-        Status status = link.status(filesReaderService);
+        Status status = link.status(fsReader);
         Action action = status.toAction();
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.UP_TO_DATE);
@@ -91,21 +91,21 @@ class LinkTest {
     }
 
     private void fileDoesNotExist(Path path) {
-        given(filesReaderService.exists(path)).willReturn(false);
+        given(fsReader.exists(path)).willReturn(false);
     }
 
     private void fileExists(Path path) {
-        given(filesReaderService.exists(path)).willReturn(true);
-        given(filesReaderService.isSymbolicLink(path)).willReturn(false);
+        given(fsReader.exists(path)).willReturn(true);
+        given(fsReader.isSymbolicLink(path)).willReturn(false);
     }
 
     private void symlinkExists(Path path, Path target) {
-        given(filesReaderService.exists(path)).willReturn(true);
-        given(filesReaderService.isSymbolicLink(path)).willReturn(true);
+        given(fsReader.exists(path)).willReturn(true);
+        given(fsReader.isSymbolicLink(path)).willReturn(true);
         symlinkTargets(path, target);
     }
 
     private void symlinkTargets(Path path, Path target) {
-        lenient().when(filesReaderService.toRealPath(path)).thenReturn(target);
+        lenient().when(fsReader.toRealPath(path)).thenReturn(target);
     }
 }

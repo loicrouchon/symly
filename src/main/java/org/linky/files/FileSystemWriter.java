@@ -3,7 +3,7 @@ package org.linky.files;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public interface FilesMutatorService {
+public interface FileSystemWriter {
 
     void deleteIfExists(Path path) throws IOException;
 

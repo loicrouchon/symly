@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.linky.cli.validation.Constraint;
-import org.linky.files.FilesReaderService;
+import org.linky.files.FileSystemReader;
 import org.linky.links.Link;
 import org.linky.links.Links;
 import org.linky.links.Status;
@@ -37,18 +37,18 @@ public class StatusCommand extends ValidatedCommand {
     )
     List<Path> sources;
 
-    private final FilesReaderService filesReaderService;
+    private final FileSystemReader fsReader;
 
     public StatusCommand() {
-        filesReaderService = new FilesReaderService();
+        fsReader = new FileSystemReader();
     }
 
     @Override
     protected Collection<Constraint> constraints() {
         return List.of(
                 Constraint.ofArg("destination", destination, "must be an existing directory",
-                        filesReaderService::isDirectory),
-                Constraint.ofArg("sources", sources, "must be an existing directory", filesReaderService::isDirectory)
+                        fsReader::isDirectory),
+                Constraint.ofArg("sources", sources, "must be an existing directory", fsReader::isDirectory)
         );
     }
 
@@ -68,7 +68,7 @@ public class StatusCommand extends ValidatedCommand {
 
     private void checkStatus(CliConsole console, Links links) {
         for (Link link : links.list()) {
-            Status status = link.status(filesReaderService);
+            Status status = link.status(fsReader);
             printStatus(console, status);
         }
     }
@@ -77,7 +77,7 @@ public class StatusCommand extends ValidatedCommand {
         Link link = status.getLink();
         console.printf("[%-" + Status.Type.MAX_LENGTH + "s] %s%n", status.getType(), link);
         if (status.getType() == Status.Type.LINK_CONFLICT) {
-            Path realPath = filesReaderService.toRealPath(link.getFrom());
+            Path realPath = fsReader.toRealPath(link.getFrom());
             console.printf("> Symbolic link conflict. Current target us %s%n", realPath);
         }
     }

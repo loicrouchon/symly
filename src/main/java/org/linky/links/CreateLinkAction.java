@@ -5,8 +5,8 @@ import java.nio.file.Path;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.linky.Result;
-import org.linky.files.FilesMutatorService;
-import org.linky.files.FilesReaderService;
+import org.linky.files.FileSystemReader;
+import org.linky.files.FileSystemWriter;
 
 @RequiredArgsConstructor
 public class CreateLinkAction implements Action {
@@ -15,18 +15,18 @@ public class CreateLinkAction implements Action {
     private final Type type;
     @Getter
     private final Link link;
-    private final FilesReaderService filesReaderService;
+    private final FileSystemReader fsReader;
 
     @Override
-    public Result<Path, Code> apply(FilesMutatorService filesMutatorService) {
-        if (!filesReaderService.exists(link.getTo())) {
+    public Result<Path, Code> apply(FileSystemWriter fsWriter) {
+        if (!fsReader.exists(link.getTo())) {
             return Result.error(new Code(Code.State.INVALID_DESTINATION, null, null));
         }
         try {
-            if (!filesReaderService.exists(link.getFrom().getParent())) {
-                filesMutatorService.createDirectories(link.getFrom().getParent());
+            if (!fsReader.exists(link.getFrom().getParent())) {
+                fsWriter.createDirectories(link.getFrom().getParent());
             }
-            filesMutatorService.createSymbolicLink(link.getFrom(), link.getTo());
+            fsWriter.createSymbolicLink(link.getFrom(), link.getTo());
             return Result.success(null);
         } catch (IOException e) {
             return Result.error(new Code(Code.State.ERROR, "Unable to create link " + e.getMessage(), null));

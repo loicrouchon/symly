@@ -2,7 +2,7 @@ package org.linky.files;
 
 import java.nio.file.Path;
 
-public class NoOpFilesMutatorService implements FilesMutatorService {
+public class NoOpFileSystemWriter implements FileSystemWriter {
 
     @Override
     public void deleteIfExists(Path path) {

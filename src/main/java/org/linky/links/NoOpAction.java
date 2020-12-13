@@ -4,8 +4,8 @@ import java.nio.file.Path;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.linky.Result;
-import org.linky.files.FilesMutatorService;
-import org.linky.files.FilesReaderService;
+import org.linky.files.FileSystemReader;
+import org.linky.files.FileSystemWriter;
 
 @RequiredArgsConstructor
 public class NoOpAction implements Action {
@@ -14,11 +14,11 @@ public class NoOpAction implements Action {
     private final Type type;
     @Getter
     private final Link link;
-    private final FilesReaderService filesReaderService;
+    private final FileSystemReader fsReader;
 
     @Override
-    public Result<Path, Code> apply(FilesMutatorService filesMutatorService) {
-        Path currentLink = filesReaderService.toRealPath(link.getFrom());
+    public Result<Path, Code> apply(FileSystemWriter fsWriter) {
+        Path currentLink = fsReader.toRealPath(link.getFrom());
         return Result.success(currentLink);
     }
 }

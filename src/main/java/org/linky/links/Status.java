@@ -2,7 +2,7 @@ package org.linky.links;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.linky.files.FilesReaderService;
+import org.linky.files.FileSystemReader;
 
 @RequiredArgsConstructor
 public class Status {
@@ -13,18 +13,18 @@ public class Status {
     @Getter
     private final Link link;
 
-    private final FilesReaderService filesReaderService;
+    private final FileSystemReader fsReader;
 
     public Action toAction() {
         switch (type) {
             case UP_TO_DATE:
-                return Action.upToDate(link, filesReaderService);
+                return Action.upToDate(link, fsReader);
             case LINK_CONFLICT:
-                return Action.replace(link, filesReaderService);
+                return Action.replace(link, fsReader);
             case FILE_CONFLICT:
-                return Action.conflict(link, filesReaderService);
+                return Action.conflict(link, fsReader);
             case MISSING:
-                return Action.create(link, filesReaderService);
+                return Action.create(link, fsReader);
             default:
                 throw new UnsupportedOperationException("Unknown Status type " + type);
         }

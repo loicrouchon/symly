@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class FilesMutatorServiceImpl implements FilesMutatorService {
+public class FileSystemWriterImpl implements FileSystemWriter {
 
     @Override
     public void deleteIfExists(Path path) throws IOException {
