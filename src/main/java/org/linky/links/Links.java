@@ -21,7 +21,7 @@ public class Links {
     public Collection<Link> list() {
         return linksMap.entrySet()
                 .stream()
-                .map(e -> new Link(e.getKey(), e.getValue()))
+                .map(e -> Link.of(e.getKey(), e.getValue()))
                 .sorted(Comparator.comparing(Link::getFrom))
                 .collect(Collectors.toList());
     }

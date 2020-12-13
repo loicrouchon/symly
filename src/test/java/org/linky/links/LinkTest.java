@@ -23,13 +23,13 @@ class LinkTest {
 
     @Test
     void toString_shouldDisplayLink() {
-        assertThat(new Link(from, to)).hasToString("from -> to");
+        assertThat(Link.of(from, to)).hasToString("from -> to");
     }
 
     @Test
     void synchronizeAction_shouldReturnCreateLinkAction_whenItDoesNotExist() {
         //given
-        Link link = new Link(from, to);
+        Link link = Link.of(from, to);
         //and
         fileDoesNotExist(from);
         symlinkTargets(to, toRealPath);
@@ -45,7 +45,7 @@ class LinkTest {
     @Test
     void synchronizeAction_shouldReturnReplaceFileAction_whenARegularFileAlreadyExist() {
         //given
-        Link link = new Link(from, to);
+        Link link = Link.of(from, to);
         //and
         fileExists(from);
         symlinkTargets(to, toRealPath);
@@ -61,7 +61,7 @@ class LinkTest {
     @Test
     void synchronizeAction_shouldReturnUpdateLinkAction_whenSymlinkIsNotUpToDate() {
         //given
-        Link link = new Link(from, to);
+        Link link = Link.of(from, to);
         //and
         symlinkExists(from, Path.of("fromRealPath"));
         symlinkTargets(to, toRealPath);
@@ -77,7 +77,7 @@ class LinkTest {
     @Test
     void synchronizeAction_shouldReturnNoOpAction_whenSymlinkIsUpToDate() {
         //given
-        Link link = new Link(from, to);
+        Link link = Link.of(from, to);
         //and
         symlinkExists(from, toRealPath);
         symlinkTargets(to, toRealPath);

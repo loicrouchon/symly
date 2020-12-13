@@ -122,7 +122,7 @@ public class AddCommand extends ValidatedCommand {
 
     private void createLink(CliConsole console, Path originalFile, Path destinationFile,
             FilesMutatorServiceImpl filesMutatorService) {
-        Link link = new Link(originalFile, destinationFile);
+        Link link = Link.of(originalFile, destinationFile);
         Result<Path, Action.Code> linkResult = link
                 .status(filesReaderService)
                 .toAction()

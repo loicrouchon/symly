@@ -2,10 +2,12 @@ package org.linky.links;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.linky.files.FilesReaderService;
 
 @Value
+@RequiredArgsConstructor(staticName = "of")
 public class Link {
 
     Path from;
