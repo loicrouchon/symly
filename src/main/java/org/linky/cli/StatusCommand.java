@@ -1,17 +1,17 @@
 package org.linky.cli;
 
 import static picocli.CommandLine.Help;
-import static picocli.CommandLine.Spec;
 
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.linky.cli.validation.Constraint;
 import org.linky.files.FilesReaderService;
 import org.linky.links.Link;
 import org.linky.links.Links;
 import org.linky.links.Status;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 
 @Command(
@@ -19,10 +19,7 @@ import picocli.CommandLine.Option;
         aliases = {"st"},
         description = "Displays the current synchronization status"
 )
-public class StatusCommand implements Runnable {
-
-    @Spec
-    CommandSpec spec;
+public class StatusCommand extends ValidatedCommand {
 
     @Option(
             names = {"-d", "--destination"},
@@ -33,7 +30,7 @@ public class StatusCommand implements Runnable {
     Path destination;
 
     @Option(
-            names = {"-s", "--source"},
+            names = {"-s", "--sources"},
             description = "Source directories containing files to link in destination",
             required = true,
             arity = "1..*"
@@ -41,17 +38,22 @@ public class StatusCommand implements Runnable {
     List<Path> sources;
 
     private final FilesReaderService filesReaderService;
-    private final Validators validators;
 
     public StatusCommand() {
         filesReaderService = new FilesReaderService();
-        validators = new Validators(filesReaderService);
     }
 
     @Override
-    public void run() {
-        Arg.of(spec, "--destination").validate(destination, validators::directoryExists);
-        Arg.of(spec, "--sources").validate(sources, validators::directoryExists);
+    protected Collection<Constraint> constraints() {
+        return List.of(
+                Constraint.ofArg("destination", destination, "must be an existing directory",
+                        filesReaderService::isDirectory),
+                Constraint.ofArg("sources", sources, "must be an existing directory", filesReaderService::isDirectory)
+        );
+    }
+
+    @Override
+    public void execute() {
         CliConsole console = CliConsole.console();
         console.printf(
                 "Checking links status from %s to %s%n",

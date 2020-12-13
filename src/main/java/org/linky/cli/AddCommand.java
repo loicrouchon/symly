@@ -1,11 +1,14 @@
 package org.linky.cli;
 
-import static picocli.CommandLine.Spec;
+import static java.util.function.Predicate.not;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.linky.Result;
+import org.linky.cli.validation.Constraint;
 import org.linky.files.FilesMutatorServiceImpl;
 import org.linky.files.FilesReaderService;
 import org.linky.links.Action;
@@ -13,7 +16,6 @@ import org.linky.links.Configuration;
 import org.linky.links.Link;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
@@ -22,10 +24,7 @@ import picocli.CommandLine.Parameters;
         description = "Adds a file to a source by moving it and linking itreplaces the original source by a link to the move destination"
 )
 @RequiredArgsConstructor
-public class AddCommand implements Runnable {
-
-    @Spec
-    CommandSpec spec;
+public class AddCommand extends ValidatedCommand {
 
     @Option(
             names = {"-f", "--from"},
@@ -46,24 +45,30 @@ public class AddCommand implements Runnable {
     Path file;
 
     private final FilesReaderService filesReaderService;
-    private final Validators validators;
+
+    private Path name;
+    private Path destinationFile;
 
     public AddCommand() {
         filesReaderService = new FilesReaderService();
-        validators = new Validators(filesReaderService);
     }
 
     @Override
-    public void run() {
-        Path name = from.relativize(file).normalize();
-        Path destinationFile = to.resolve(name).toAbsolutePath().normalize();
-        Arg.of(spec, "from").validate(from, validators::directoryExists/*, isNotSymbolicLink*/);
-        Arg.of(spec, "to").validate(to, validators::directoryExists);
-        Arg.of(spec, "path").validate(file, Validator.combine(
-                validators::exists,
-                p -> validators.isSubPathOf(p, from),
-                p -> validators.doesNotExists(destinationFile)
-        ));
+    protected Collection<Constraint> constraints() {
+        name = from.relativize(file).normalize();
+        destinationFile = to.resolve(name).toAbsolutePath().normalize();
+        return List.of(
+                Constraint.ofArg("from", from, "must be an existing directory", filesReaderService::isDirectory),
+                Constraint.ofArg("from", from, "must not be a symbolic link", not(filesReaderService::isSymbolicLink)),
+                Constraint.ofArg("to", to, "must be an existing directory", filesReaderService::isDirectory),
+                Constraint.ofArg("file", file, "must exists", filesReaderService::exists),
+                Constraint.of("<file> must be a subpath of <from>", () -> file.startsWith(from)),
+                Constraint.of("<file> must not exist in <to>", () -> !filesReaderService.exists(destinationFile))
+        );
+    }
+
+    @Override
+    protected void execute() {
         CliConsole console = CliConsole.console();
         console.printf(
                 "Moving %s from %s to %s and creating link%n",
@@ -77,29 +82,46 @@ public class AddCommand implements Runnable {
         FilesMutatorServiceImpl filesMutatorService = new FilesMutatorServiceImpl();
         Path destinationDirectory = destinationFile.getParent();
         if (!filesReaderService.exists(destinationDirectory)) {
-            try {
-                filesMutatorService.createDirectories(destinationDirectory);
-            } catch (IOException e) {
-                throw new LinkyExecutionException(String.format(
-                        "Unable to create destination directory %s%n> %s%n", destinationDirectory,
-                        e.getMessage()));
-            }
+            createParentDirectory(filesMutatorService, destinationDirectory);
         }
+        moveFile(originalFile, destinationFile, filesMutatorService);
+        if (filesReaderService.isDirectory(destinationFile)) {
+            createSymlinkMarker(destinationFile, filesMutatorService);
+        }
+        createLink(console, originalFile, destinationFile, filesMutatorService);
+    }
+
+    private void createParentDirectory(FilesMutatorServiceImpl filesMutatorService, Path destinationDirectory) {
+        try {
+            filesMutatorService.createDirectories(destinationDirectory);
+        } catch (IOException e) {
+            throw new LinkyExecutionException(String.format(
+                    "Unable to create destination directory %s%n> %s%n", destinationDirectory,
+                    e.getMessage()));
+        }
+    }
+
+    private void moveFile(Path originalFile, Path destinationFile, FilesMutatorServiceImpl filesMutatorService) {
         try {
             filesMutatorService.move(originalFile, destinationFile);
         } catch (IOException e) {
             throw new LinkyExecutionException(String.format(
                     "Unable to move %s to %s%n> %s%n", originalFile, destinationFile, e.getMessage()));
         }
-        if (filesReaderService.isDirectory(destinationFile)) {
-            Path symlinkMarker = Configuration.symlinkMarker(destinationFile);
-            try {
-                filesMutatorService.createEmptyFile(symlinkMarker);
-            } catch (IOException e) {
-                throw new LinkyExecutionException(String.format(
-                        "Unable to create directory symlink marker %s%n> %s%n", symlinkMarker, e.getMessage()));
-            }
+    }
+
+    private void createSymlinkMarker(Path destinationFile, FilesMutatorServiceImpl filesMutatorService) {
+        Path symlinkMarker = Configuration.symlinkMarker(destinationFile);
+        try {
+            filesMutatorService.createEmptyFile(symlinkMarker);
+        } catch (IOException e) {
+            throw new LinkyExecutionException(String.format(
+                    "Unable to create directory symlink marker %s%n> %s%n", symlinkMarker, e.getMessage()));
         }
+    }
+
+    private void createLink(CliConsole console, Path originalFile, Path destinationFile,
+            FilesMutatorServiceImpl filesMutatorService) {
         Link link = new Link(originalFile, destinationFile);
         Result<Path, Action.Code> linkResult = link
                 .status(filesReaderService)

@@ -29,5 +29,4 @@ public class Link {
     public String toString() {
         return from + " -> " + to;
     }
-
 }

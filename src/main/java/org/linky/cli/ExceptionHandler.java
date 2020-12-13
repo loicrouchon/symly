@@ -4,7 +4,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.IExecutionExceptionHandler;
 import picocli.CommandLine.ParseResult;
 
-public class ExceptionHandler implements IExecutionExceptionHandler {
+class ExceptionHandler implements IExecutionExceptionHandler {
 
     @Override
     public int handleExecutionException(Exception ex, CommandLine commandLine, ParseResult parseResult) {
