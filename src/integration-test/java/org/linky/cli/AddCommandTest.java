@@ -3,27 +3,21 @@ package org.linky.cli;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.linky.files.FileSystemWriter;
-import org.linky.files.IoMock;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.linky.files.Env;
+import org.linky.files.FileSystemReader;
+import org.linky.files.FileSystemWriterImpl;
+import org.linky.files.TemporaryFolderTest;
 
-@ExtendWith(MockitoExtension.class)
-class AddCommandTest {
-
-    private final IoMock ioMock = new IoMock();
-
-    @Mock
-    private FileSystemWriter fsWriter;
+class AddCommandTest extends TemporaryFolderTest {
 
     private TestCommand<AddCommand> app;
 
     @BeforeEach
     public void before() {
-        app = new TestCommand<>(console -> new AddCommand(console, ioMock.fsReader, fsWriter));
+        app = new TestCommand<>(console -> new AddCommand(console, new FileSystemReader(), new FileSystemWriterImpl()));
     }
 
     @Test
@@ -37,12 +31,14 @@ class AddCommandTest {
 
     @Test
     void addCommand_shouldProvideCorrectDefaults() {
-        //given/when
+        //given
+        Env env = getEnv();
+        //when
         Execution<AddCommand> execution = app.run("add");
         //then
-        assertThat(execution.command.from).isEqualTo(Path.of("/home/user"));
-        assertThat(execution.command.to).isNull();
-        assertThat(execution.command.file).isNull();
+        Assertions.assertThat(execution.command.from).isEqualTo(env.home());
+        Assertions.assertThat(execution.command.to).isNull();
+        Assertions.assertThat(execution.command.file).isNull();
     }
 
     @Test
@@ -50,19 +46,20 @@ class AddCommandTest {
         //given/when
         Execution<AddCommand> execution = app.run("add", "-f", "from/dir", "-t", "to/dir", "some/file");
         //then
-        assertThat(execution.command.from).isEqualTo(Path.of("from/dir"));
-        assertThat(execution.command.to).isEqualTo(Path.of("to/dir"));
-        assertThat(execution.command.file).isEqualTo(Path.of("some/file"));
+        Assertions.assertThat(execution.command.from).isEqualTo(Path.of("from/dir"));
+        Assertions.assertThat(execution.command.to).isEqualTo(Path.of("to/dir"));
+        Assertions.assertThat(execution.command.file).isEqualTo(Path.of("some/file"));
     }
 
     @Test
     void addCommand_shouldFail_whenDirectoryDoesNotExist() {
         //given
-        ioMock.fileDoesNotExist(Path.of("/home/user"));
+        Env env = getEnv()
+                .withHome("home/user");
         //when
         Execution<AddCommand> execution = app.run("add", "-t", "to/dir", "/home/user/some/file");
         //then
-        execution.assertThatValidationFailedWithMessage(
-                "Argument <from> (/home/user): must be an existing directory");
+        execution.assertThatValidationFailedWithMessage(String.format(
+                "Argument <from> (%s): must be an existing directory", env.home()));
     }
 }

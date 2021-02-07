@@ -9,10 +9,10 @@ class FileTreeTest extends TemporaryFolderTest {
 
     @Test
     void fromPath_shouldContainFileEntry_whenFileExist() {
-        //given
-        createFiles("hello", "world", "my/name/is");
-        //when
-        FileTree tree = rootFileTree();
+        //given/when
+        FileTree tree = getEnv()
+                .withFiles("hello", "world", "my/name/is")
+                .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
                 "hello",
@@ -23,11 +23,11 @@ class FileTreeTest extends TemporaryFolderTest {
 
     @Test
     void fromPath_shouldContainLinkEntry_whenTargetPathIsAnExistingFile() {
-        //given
-        createSymbolicLink("hello", "world");
-        createFiles("world");
-        //when
-        FileTree tree = rootFileTree();
+        //given/when
+        FileTree tree = getEnv()
+                .withSymbolicLink("hello", "world")
+                .withFiles("world")
+                .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
                 "hello -> world",
@@ -37,11 +37,11 @@ class FileTreeTest extends TemporaryFolderTest {
 
     @Test
     void fromPath_shouldContainLinkEntry_whenTargetPathIsAnExistingDirectory() {
-        //given
-        createSymbolicLink("hello", "some/dir");
-        createDirectories("some/dir");
-        //when
-        FileTree tree = rootFileTree();
+        //given/when
+        FileTree tree = getEnv()
+                .withSymbolicLink("hello", "some/dir")
+                .withDirectories("some/dir")
+                .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
                 "hello -> some/dir"
@@ -50,10 +50,10 @@ class FileTreeTest extends TemporaryFolderTest {
 
     @Test
     void fromPath_shouldContainLinkEntry_whenTargetPathDoesNotExist() {
-        //given
-        createSymbolicLink("hello", "anyone");
-        //when
-        FileTree tree = rootFileTree();
+        //given/when
+        FileTree tree = getEnv()
+                .withSymbolicLink("hello", "anyone")
+                .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
                 "hello -> anyone"
@@ -62,14 +62,14 @@ class FileTreeTest extends TemporaryFolderTest {
 
     @Test
     void fromPath_shouldNotContainDirectoryEntries() {
-        //given
-        createSymbolicLink("hello1", "world");
-        createSymbolicLink("hello2", "some/dir");
-        createSymbolicLink("hello3", "some/dir/other/dir");
-        createFiles("world");
-        createDirectories("some/dir/other/dir", "another/dir");
-        //when
-        FileTree tree = rootFileTree();
+        //given/when
+        FileTree tree = getEnv()
+                .withSymbolicLink("hello1", "world")
+                .withSymbolicLink("hello2", "some/dir")
+                .withSymbolicLink("hello3", "some/dir/other/dir")
+                .withFiles("world")
+                .withDirectories("some/dir/other/dir", "another/dir")
+                .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
                 "hello1 -> world",
@@ -81,11 +81,11 @@ class FileTreeTest extends TemporaryFolderTest {
 
     @Test
     void fromPath_shouldReferenceLinksOutsideItself() {
-        //given
-        createFiles("real-hello", "world", "my/name/is", "tree/toto");
-        createSymbolicLink("tree/hello", "real-hello");
-        //when
-        FileTree tree = fileTree("tree");
+        //given/when
+        FileTree tree = getEnv()
+                .withFiles("real-hello", "world", "my/name/is", "tree/toto")
+                .withSymbolicLink("tree/hello", "real-hello")
+                .getFileTree("tree");
         //then
         assertThat(tree.getLayout()).containsExactly(
                 "hello -> ../real-hello",
@@ -101,9 +101,11 @@ class FileTreeTest extends TemporaryFolderTest {
                 "how/are/you -> doing/today"
         ));
         //when
-        initial.create(workingDir);
+        FileTree tree = getEnv()
+                .create(initial)
+                .getRootFileTree();
         //then
-        assertThat(rootFileTree().getLayout()).containsExactly(
+        assertThat(tree.getLayout()).containsExactly(
                 "hello/world",
                 "how/are/you -> doing/today"
         );

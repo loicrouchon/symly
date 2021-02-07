@@ -24,12 +24,28 @@ application {
 compileJava {
     options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
 }
-
-test {
-    useJUnitPlatform()
+task copyDependencies(type: Copy) {
+    from configurations.default
+    into 'build/libs'
 }
 repositories {
     mavenCentral()
+}
+
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-test/java')
+        }
+        resources.srcDir file('src/integration-test/resources')
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
 dependencies {
@@ -38,6 +54,8 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    integrationTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+    integrationTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     def picocliVersion = "4.5.2"
     implementation "info.picocli:picocli:${picocliVersion}"
@@ -47,10 +65,36 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     testImplementation "org.assertj:assertj-core:3.14.0"
+//    integrationTestImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+//    integrationTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+//    integrationTestImplementation "org.assertj:assertj-core:3.14.0"
     def mockitoVersion = '3.6.28'
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+
+    integrationTestImplementation sourceSets.main.output
+    integrationTestImplementation sourceSets.test.output
+//    integrationTestCompile sourceSets.test.dep
 }
+
+
+task integrationTest(type: Test) {
+    useJUnitPlatform()
+    description = 'Runs integration tests.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
+}
+integrationTest.dependsOn copyDependencies
+integrationTest.dependsOn jar
+check.dependsOn integrationTest
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
 
 task buildNativePackage(type: Exec) {
     workingDir "${buildDir}"

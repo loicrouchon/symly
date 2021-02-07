@@ -14,6 +14,11 @@ class Execution<T> {
     private final String out;
     private final String err;
 
+    public void didNotFail() {
+        assertThat(err).isEmpty();
+        assertThat(exitCode).isZero();
+    }
+
     public void assertThatValidationFailedWithMessage(String message) {
         assertThat(err).contains(message);
         assertThat(out).isEmpty();

@@ -56,8 +56,7 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        ioMock.symlinkExists(from, Path.of("fromRealPath"));
-        ioMock.symlinkTargets(to, toRealPath);
+        ioMock.symlinkExists(from, Path.of("something"));
         //when
         Status status = link.status(ioMock.fsReader);
         Action action = status.toAction();
@@ -72,8 +71,7 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        ioMock.symlinkExists(from, toRealPath);
-        ioMock.symlinkTargets(to, toRealPath);
+        ioMock.symlinkExists(from, to);
         //when
         Status status = link.status(ioMock.fsReader);
         Action action = status.toAction();

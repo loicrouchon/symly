@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.linky.cli.validation.Constraint;
 import org.linky.files.FileSystemReader;
 import org.linky.links.Link;
@@ -19,6 +20,7 @@ import picocli.CommandLine.Option;
         aliases = {"st"},
         description = "Displays the current synchronization status"
 )
+@RequiredArgsConstructor
 class StatusCommand extends ValidatedCommand {
 
     @Option(
@@ -37,10 +39,11 @@ class StatusCommand extends ValidatedCommand {
     )
     List<Path> sources;
 
+    private final CliConsole console;
     private final FileSystemReader fsReader;
 
-    StatusCommand() {
-        fsReader = new FileSystemReader();
+    public StatusCommand() {
+        this(CliConsole.console(), new FileSystemReader());
     }
 
     @Override
@@ -54,7 +57,6 @@ class StatusCommand extends ValidatedCommand {
 
     @Override
     public void execute() {
-        CliConsole console = CliConsole.console();
         console.printf(
                 "Checking links status from %s to %s%n",
                 sources.stream()

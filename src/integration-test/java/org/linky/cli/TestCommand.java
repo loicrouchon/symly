@@ -13,11 +13,10 @@ class TestCommand<T> {
     private final Function<CliConsole, T> commandBuilder;
 
     public Execution<T> run(String... args) {
-        System.setProperty("HOME", "/home/user");
         T command = commandBuilder.apply(console);
         TestCommandFactory factory = new TestCommandFactory(Map.of(command.getClass(), command));
         int exitCode = Main.runCommand(factory, console, args);
-        return new Execution<T>(command, exitCode, console.stdOut(), console.stdErr());
+        return new Execution<>(command, exitCode, console.stdOut(), console.stdErr());
     }
 
     @RequiredArgsConstructor
@@ -35,6 +34,5 @@ class TestCommand<T> {
             }
             return defaultFactory.create(cls);
         }
-
     }
 }

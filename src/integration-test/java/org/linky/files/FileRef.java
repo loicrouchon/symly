@@ -12,8 +12,14 @@ interface FileRef {
     static FileRef of(Path root, Path path) {
         Path currentPath = root.relativize(path);
         if (Files.isSymbolicLink(path)) {
-            Path destinationPath = root.relativize(FileTestUtils.readSymbolicLink(path));
-            return LinkFileRef.of(currentPath, destinationPath);
+            Path target = FileTestUtils.readSymbolicLink(path);
+            Path targetPath;
+            if (target.isAbsolute()) {
+                targetPath = root.relativize(target);
+            } else {
+                targetPath = target;
+            }
+            return LinkFileRef.of(currentPath, targetPath);
         }
         return SimpleFileRef.of(currentPath);
     }

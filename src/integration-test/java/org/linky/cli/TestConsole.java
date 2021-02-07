@@ -12,7 +12,7 @@ class TestConsole extends CliConsole {
         this(new StringWriter(), new StringWriter());
     }
 
-    private TestConsole(StringWriter out, StringWriter err) {
+    TestConsole(StringWriter out, StringWriter err) {
         super(new PrintWriter(out), new PrintWriter(err));
         this.out = out;
         this.err = err;

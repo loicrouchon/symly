@@ -4,11 +4,13 @@ import java.util.Map;
 import picocli.CommandLine;
 import picocli.CommandLine.IDefaultValueProvider;
 
-class EnvironmentVariableDefaultsProvider implements IDefaultValueProvider {
+public class EnvironmentVariableDefaultsProvider implements IDefaultValueProvider {
+
+    public static final String USER_HOME ="user.home";
 
     private static final Map<String, String> OPTIONS_TO_VAR_NAME = Map.of(
-            "--destination", "HOME",
-            "--from", "HOME"
+            "--destination", USER_HOME,
+            "--from", USER_HOME
     );
 
     @Override
