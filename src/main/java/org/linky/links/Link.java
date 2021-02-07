@@ -14,14 +14,14 @@ public class Link {
     Path to;
 
     public Status status(FileSystemReader fsReader) {
-        if (fsReader.exists(from)) {
-            if (fsReader.isSymbolicLink(from)) {
-                Path fromRealDestination = fsReader.toRealPath(from);
-                if (Objects.equals(fromRealDestination, fsReader.toRealPath(to))) {
-                    return new Status(Status.Type.UP_TO_DATE, this, fsReader);
-                }
-                return new Status(Status.Type.LINK_CONFLICT, this, fsReader);
+        if (fsReader.isSymbolicLink(from)) {
+            Path fromRealDestination = fsReader.readSymbolicLink(from);
+            if (Objects.equals(fromRealDestination, to)) {
+                return new Status(Status.Type.UP_TO_DATE, this, fsReader);
             }
+            return new Status(Status.Type.LINK_CONFLICT, this, fsReader);
+        }
+        if (fsReader.exists(from)) {
             return new Status(Status.Type.FILE_CONFLICT, this, fsReader);
         }
         return new Status(Status.Type.MISSING, this, fsReader);

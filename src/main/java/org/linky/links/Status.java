@@ -2,8 +2,10 @@ package org.linky.links;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.linky.files.FileSystemReader;
 
+@ToString
 @RequiredArgsConstructor
 public class Status {
 

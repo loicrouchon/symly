@@ -29,6 +29,7 @@ public class CreateLinkAction implements Action {
             fsWriter.createSymbolicLink(link.getFrom(), link.getTo());
             return Result.success(null);
         } catch (IOException e) {
+            e.printStackTrace();
             return Result.error(new Code(Code.State.ERROR, "Unable to create link " + e.getMessage(), null));
         }
     }

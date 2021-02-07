@@ -118,6 +118,7 @@ class AddCommand extends ValidatedCommand {
     private void createSymlinkMarker(Path destinationFile) {
         Path symlinkMarker = Configuration.symlinkMarker(destinationFile);
         try {
+            // Move existing or create empty
             fsWriter.createEmptyFile(symlinkMarker);
         } catch (IOException e) {
             throw new LinkyExecutionException(String.format(

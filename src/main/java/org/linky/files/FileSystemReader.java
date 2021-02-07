@@ -19,11 +19,12 @@ public class FileSystemReader {
         return Files.isSymbolicLink(path);
     }
 
-    public Path toRealPath(Path link) {
+    public Path readSymbolicLink(Path link) {
         try {
-            return link.toRealPath();
+            return Files.readSymbolicLink(link);
         } catch (IOException e) {
-            throw new LinkyExecutionException(String.format("Unable to read link %s real path", link), e);
+            throw new LinkyExecutionException(String.format(
+                    "Unable to read link %s real path: %s", link, e.getMessage()), e);
         }
     }
 }
