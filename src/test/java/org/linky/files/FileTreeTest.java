@@ -2,6 +2,7 @@ package org.linky.files;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class FileTreeTest extends TemporaryFolderTest {
@@ -89,6 +90,22 @@ class FileTreeTest extends TemporaryFolderTest {
         assertThat(tree.getLayout()).containsExactly(
                 "hello -> ../real-hello",
                 "toto"
+        );
+    }
+
+    @Test
+    void create_shouldCreate_filesInTheTree() {
+        //given
+        FileTree initial = FileTree.of(List.of(
+                "hello/world",
+                "how/are/you -> doing/today"
+        ));
+        //when
+        initial.create(workingDir);
+        //then
+        assertThat(rootFileTree().getLayout()).containsExactly(
+                "hello/world",
+                "how/are/you -> doing/today"
         );
     }
 }
