@@ -32,7 +32,7 @@ public class IoMock {
     }
 
     public void symlinkTargets(Path path, Path target) {
-        lenient().when(fsReader.toRealPath(path)).thenReturn(target);
+        lenient().when(fsReader.readSymbolicLink(path)).thenReturn(target);
     }
 
 }
