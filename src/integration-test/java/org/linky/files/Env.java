@@ -7,8 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-import org.linky.cli.ProcessExecution;
+import org.linky.cli.Execution;
 
 public class Env {
 
@@ -19,6 +18,7 @@ public class Env {
     private Path home;
     private Path workingDirectory;
     private Map<String, String> properties = new HashMap<>();
+    private long timeout = 5L;
 
     public Env(Path root) throws IOException {
         this.root = root.toRealPath();
@@ -109,42 +109,7 @@ public class Env {
         }
     }
 
-    public ProcessExecution run(String... args) {
-        try {
-            List<String> command = buildCommand(properties, args);
-            System.out.println(command);
-            Process process = new ProcessBuilder()
-                    .directory(workingDirectory.toFile())
-                    .command(command)
-                    .start();
-            boolean finished = process.waitFor(5L, TimeUnit.SECONDS);
-            if (!finished) {
-                process.destroy();
-                fail("Process did not finish in time");
-            }
-            ProcessExecution processExecution = new ProcessExecution(process);
-            process.destroy();
-            return processExecution;
-        } catch (InterruptedException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private List<String> buildCommand(Map<String, String> properties, String[] args) throws IOException {
-        String java = String.format("%s/bin/java", System.getProperty("java.home"));
-        String classpath = classpath();
-        String mainClass = "org.linky.cli.Main";
-        List<String> command = new ArrayList<>();
-        command.add(java);
-        properties.forEach((key, value) -> command.add(String.format("-D%s=%s", key, value)));
-        command.add("-cp");
-        command.add(classpath);
-        command.add(mainClass);
-        command.addAll(Arrays.asList(args));
-        return command;
-    }
-
-    private String classpath() {
-        return Path.of("build/libs/*").toAbsolutePath().toString();
+    public Execution run(String... args) {
+        return Command.run(workingDirectory, properties, args, timeout);
     }
 }

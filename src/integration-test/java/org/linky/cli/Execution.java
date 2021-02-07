@@ -1,27 +1,28 @@
 package org.linky.cli;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.Getter;
 
-import lombok.RequiredArgsConstructor;
+@Getter
+public class Execution {
 
-@RequiredArgsConstructor
-class Execution<T> {
-
-    private static final int VALIDATION_FAILED_CODE = 2;
-
-    final T command;
+    private final List<String> stdOut;
+    private final List<String> stdErr;
     private final int exitCode;
-    private final String out;
-    private final String err;
 
-    public void didNotFail() {
-        assertThat(err).isEmpty();
-        assertThat(exitCode).isZero();
+    public Execution(Process process) {
+        stdOut = lines(process.getInputStream());
+        stdErr = lines(process.getErrorStream());
+        exitCode = process.exitValue();
     }
 
-    public void assertThatValidationFailedWithMessage(String message) {
-        assertThat(err).contains(message);
-        assertThat(out).isEmpty();
-        assertThat(exitCode).isEqualTo(VALIDATION_FAILED_CODE);
+    private static List<String> lines(InputStream inputStream) {
+        return new BufferedReader(new InputStreamReader(inputStream))
+                .lines()
+                .collect(Collectors.toList());
     }
 }

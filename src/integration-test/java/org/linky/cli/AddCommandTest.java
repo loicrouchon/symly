@@ -2,54 +2,62 @@ package org.linky.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.file.Path;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.linky.files.Env;
-import org.linky.files.FileSystemReader;
-import org.linky.files.FileSystemWriterImpl;
-import org.linky.files.TemporaryFolderTest;
+import org.linky.files.IntegrationTest;
 
-class AddCommandTest extends TemporaryFolderTest {
-
-    private TestCommand<AddCommand> app;
-
-    @BeforeEach
-    public void before() {
-        app = new TestCommand<>(console -> new AddCommand(console, new FileSystemReader(), new FileSystemWriterImpl()));
-    }
+class AddCommandTest extends IntegrationTest {
 
     @Test
     void addCommand_shouldFail_whenRequiredArgsAreMissing() {
-        //given/when
-        Execution<AddCommand> execution = app.run("add");
+        //given
+        Env env = getEnv();
+        //when
+        Execution execution = env.run("add");
         //then
-        execution.assertThatValidationFailedWithMessage(
+        assertThat(execution.getStdErr()).contains(
+                "Missing required options and parameters: '--to=<to>', '<file>'");
+        assertThat(execution.getExitCode()).isEqualTo(2);
+    }
+
+    @Test
+    @Disabled
+    void addCommand_shouldProvideCorrectDefaults() {
+        //given
+        Env env = getEnv()
+                .withDirectories("to/dir")
+                .withFiles("some/file");
+        //when
+        Execution execution = env.run("add", "-t", "to/dir", "some/file");
+        //then
+        assertThat(execution.getStdErr()).isEmpty();
+        assertThat(execution.getExitCode()).isZero();
+        assertThat(execution.getStdOut()).contains(
                 "Missing required options and parameters: '--to=<to>', '<file>'");
     }
 
     @Test
-    void addCommand_shouldProvideCorrectDefaults() {
-        //given
-        Env env = getEnv();
-        //when
-        Execution<AddCommand> execution = app.run("add");
-        //then
-        Assertions.assertThat(execution.command.from).isEqualTo(env.home());
-        Assertions.assertThat(execution.command.to).isNull();
-        Assertions.assertThat(execution.command.file).isNull();
-    }
-
-    @Test
     void addCommand_shouldParseArguments_whenArgumentsArePassed() {
-        //given/when
-        Execution<AddCommand> execution = app.run("add", "-f", "from/dir", "-t", "to/dir", "some/file");
+        //given
+        Env env = getEnv()
+                .withDirectories("from/dir", "to/dir")
+                .withFiles("from/dir/some/file");
+        //when
+        Execution execution = env.run("add", "-f", "from/dir", "-t", "to/dir", "from/dir/some/file");
         //then
-        Assertions.assertThat(execution.command.from).isEqualTo(Path.of("from/dir"));
-        Assertions.assertThat(execution.command.to).isEqualTo(Path.of("to/dir"));
-        Assertions.assertThat(execution.command.file).isEqualTo(Path.of("some/file"));
+        assertThat(execution.getStdErr()).isEmpty();
+        assertThat(execution.getExitCode()).isZero();
+        assertThat(execution.getStdOut()).contains(
+                String.format(
+                        "Moving some/file from %s to %s and creating link",
+                        env.path("from/dir"), env.path("to/dir")),
+                String.format(
+                        "[MOVED] from/dir/some/file -> %s",
+                        env.path("to/dir/some/file")));
     }
+    // TODO add tests where some/file does not exist
+    // TODO add tests where some/file is not a subfile of from/dir
 
     @Test
     void addCommand_shouldFail_whenDirectoryDoesNotExist() {
@@ -57,9 +65,10 @@ class AddCommandTest extends TemporaryFolderTest {
         Env env = getEnv()
                 .withHome("home/user");
         //when
-        Execution<AddCommand> execution = app.run("add", "-t", "to/dir", "/home/user/some/file");
+        Execution execution = env.run("add", "-t", "to/dir", "/home/user/some/file");
         //then
-        execution.assertThatValidationFailedWithMessage(String.format(
+        assertThat(execution.getStdErr()).contains(String.format(
                 "Argument <from> (%s): must be an existing directory", env.home()));
+        assertThat(execution.getExitCode()).isEqualTo(2);
     }
 }

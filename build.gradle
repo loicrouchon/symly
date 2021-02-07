@@ -79,7 +79,6 @@ dependencies {
 
 
 task integrationTest(type: Test) {
-    useJUnitPlatform()
     description = 'Runs integration tests.'
     group = 'verification'
 

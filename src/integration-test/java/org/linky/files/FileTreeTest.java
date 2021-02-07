@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class FileTreeTest extends TemporaryFolderTest {
+class FileTreeTest extends IntegrationTest {
 
     @Test
     void fromPath_shouldContainFileEntry_whenFileExist() {
