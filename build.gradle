@@ -24,9 +24,8 @@ application {
 compileJava {
     options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
 }
-task copyDependencies(type: Copy) {
-    from configurations.default
-    into 'build/libs'
+test {
+    useJUnitPlatform()
 }
 repositories {
     mavenCentral()
@@ -65,20 +64,21 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     testImplementation "org.assertj:assertj-core:3.14.0"
-//    integrationTestImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
-//    integrationTestRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-//    integrationTestImplementation "org.assertj:assertj-core:3.14.0"
     def mockitoVersion = '3.6.28'
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
     integrationTestImplementation sourceSets.main.output
     integrationTestImplementation sourceSets.test.output
-//    integrationTestCompile sourceSets.test.dep
 }
 
 
+task copyDependencies(type: Copy) {
+    from configurations.default
+    into 'build/libs'
+}
 task integrationTest(type: Test) {
+    useJUnitPlatform()
     description = 'Runs integration tests.'
     group = 'verification'
 
@@ -89,11 +89,6 @@ task integrationTest(type: Test) {
 integrationTest.dependsOn copyDependencies
 integrationTest.dependsOn jar
 check.dependsOn integrationTest
-
-tasks.withType(Test) {
-    useJUnitPlatform()
-}
-
 
 task buildNativePackage(type: Exec) {
     workingDir "${buildDir}"
