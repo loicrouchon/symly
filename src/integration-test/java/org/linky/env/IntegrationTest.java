@@ -1,4 +1,4 @@
-package org.linky.files;
+package org.linky.env;
 
 import lombok.Getter;
 import org.junit.jupiter.api.AfterEach;

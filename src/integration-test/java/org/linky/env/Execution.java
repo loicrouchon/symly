@@ -1,4 +1,4 @@
-package org.linky.cli;
+package org.linky.env;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

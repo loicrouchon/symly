@@ -3,8 +3,9 @@ package org.linky.cli;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-import org.linky.files.Env;
-import org.linky.files.IntegrationTest;
+import org.linky.env.Env;
+import org.linky.env.Execution;
+import org.linky.env.IntegrationTest;
 
 class StatusCommandTest extends IntegrationTest {
 

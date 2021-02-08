@@ -1,17 +1,19 @@
-package org.linky.files;
-
-import static org.assertj.core.api.Assertions.fail;
+package org.linky.env;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import org.linky.cli.Execution;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+import org.linky.files.FileTestUtils;
+import org.linky.files.FileTree;
+import org.linky.files.RIOException;
 
 public class Env {
 
-    private static final String USER_DIR = "user.dir";
     private static final String USER_HOME = "user.home";
 
     private final Path root;
@@ -85,9 +87,13 @@ public class Env {
         return FileTree.fromPath(path(path));
     }
 
+    public Execution run(String... args) {
+        return new Command(workingDirectory, properties).run(args, timeout);
+    }
+
     public void delete() {
-        try {
-            boolean allDeleted = Files.walk(root)
+        try (Stream<Path> walker = Files.walk(root)) {
+            boolean allDeleted = walker
                     .sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .allMatch(File::delete);
@@ -107,9 +113,5 @@ public class Env {
         } catch (IOException e) {
             throw new RIOException(e);
         }
-    }
-
-    public Execution run(String... args) {
-        return Command.run(workingDirectory, properties, args, timeout);
     }
 }
