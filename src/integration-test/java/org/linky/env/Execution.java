@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RequiredArgsConstructor
 public class Execution {
 
@@ -24,6 +26,25 @@ public class Execution {
 
     public List<String> stdErr() {
         return this.stdErr;
+    }
+
+    public void assertThatSucceededWith(String message) {
+        assertThat(stdErr).isEmpty();
+        assertThat(stdOut).contains(message);
+        assertThat(exitCode).isZero();
+    }
+
+    public void assertThatSucceededWith(String message, Object... objects) {
+        assertThatSucceededWith(String.format(message, objects));
+    }
+
+    public void assertThatFailedWith(String message) {
+        assertThat(stdErr).contains(message);
+        assertThat(exitCode).isEqualTo(2);
+    }
+
+    public void assertThatFailedWith(String message, Object... objects) {
+        assertThatFailedWith(String.format(message, objects));
     }
 
     public static Execution of(Process process) {
