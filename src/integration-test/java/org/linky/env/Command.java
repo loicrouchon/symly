@@ -36,7 +36,7 @@ public class Command {
                 process.destroyForcibly();
                 fail(commandFailureMessage("Command did not finish in time", command));
             }
-            return new Execution(process);
+            return Execution.of(process);
         } catch (InterruptedException | IOException e) {
             Thread.interrupted();
             fail(commandFailureMessage("Command execution failed with: " + e.getMessage(), command));

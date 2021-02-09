@@ -17,9 +17,9 @@ class AddCommandTest extends IntegrationTest {
         //when
         Execution execution = env.run("add");
         //then
-        assertThat(execution.getStdErr()).contains(
+        assertThat(execution.stdErr()).contains(
                 "Missing required options and parameters: '--to=<to>', '<file>'");
-        assertThat(execution.getExitCode()).isEqualTo(2);
+        assertThat(execution.exitCode()).isEqualTo(2);
     }
 
     @Test
@@ -32,9 +32,9 @@ class AddCommandTest extends IntegrationTest {
         //when
         Execution execution = env.run("add", "-t", "to/dir", "some/file");
         //then
-        assertThat(execution.getStdErr()).isEmpty();
-        assertThat(execution.getExitCode()).isZero();
-        assertThat(execution.getStdOut()).contains(
+        assertThat(execution.stdErr()).isEmpty();
+        assertThat(execution.exitCode()).isZero();
+        assertThat(execution.stdOut()).contains(
                 "Missing required options and parameters: '--to=<to>', '<file>'");
     }
 
@@ -47,9 +47,9 @@ class AddCommandTest extends IntegrationTest {
         //when
         Execution execution = env.run("add", "-f", "from/dir", "-t", "to/dir", "from/dir/some/file");
         //then
-        assertThat(execution.getStdErr()).isEmpty();
-        assertThat(execution.getExitCode()).isZero();
-        assertThat(execution.getStdOut()).contains(
+        assertThat(execution.stdErr()).isEmpty();
+        assertThat(execution.exitCode()).isZero();
+        assertThat(execution.stdOut()).contains(
                 String.format(
                         "Moving some/file from %s to %s and creating link",
                         env.path("from/dir"), env.path("to/dir")),
@@ -68,8 +68,8 @@ class AddCommandTest extends IntegrationTest {
         //when
         Execution execution = env.run("add", "-t", "to/dir", "/home/user/some/file");
         //then
-        assertThat(execution.getStdErr()).contains(String.format(
+        assertThat(execution.stdErr()).contains(String.format(
                 "Argument <from> (%s): must be an existing directory", env.home()));
-        assertThat(execution.getExitCode()).isEqualTo(2);
+        assertThat(execution.exitCode()).isEqualTo(2);
     }
 }

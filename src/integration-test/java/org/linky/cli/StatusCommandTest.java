@@ -14,8 +14,8 @@ class StatusCommandTest extends IntegrationTest {
         //given/when
         Execution execution = getEnv().run("status");
         //then
-        assertThat(execution.getStdErr()).contains("Missing required option: '--sources=<sources>'");
-        assertThat(execution.getExitCode()).isEqualTo(2);
+        assertThat(execution.stdErr()).contains("Missing required option: '--sources=<sources>'");
+        assertThat(execution.exitCode()).isEqualTo(2);
     }
 
     @Test
@@ -26,9 +26,9 @@ class StatusCommandTest extends IntegrationTest {
         //when
         Execution execution = env.run("status", "-s", "to/dir", "/home/user/some/file");
         //then
-        assertThat(execution.getStdErr()).contains(String.format(
+        assertThat(execution.stdErr()).contains(String.format(
                 "Argument <destination> (%s): must be an existing directory", env.home()));
-        assertThat(execution.getExitCode()).isEqualTo(2);
+        assertThat(execution.exitCode()).isEqualTo(2);
     }
 
     @Test
@@ -38,9 +38,9 @@ class StatusCommandTest extends IntegrationTest {
         //when
         Execution execution = env.run("status", "-s", "to/dir", "/home/user/some/file");
         //then
-        assertThat(execution.getStdErr()).contains(String.format(
+        assertThat(execution.stdErr()).contains(String.format(
                 "Argument <sources> (%s): must be an existing directory", "to/dir"));
-        assertThat(execution.getExitCode()).isEqualTo(2);
+        assertThat(execution.exitCode()).isEqualTo(2);
     }
 
     @Test
@@ -52,10 +52,10 @@ class StatusCommandTest extends IntegrationTest {
         Execution execution = env
                 .run("status", "-s", "from/dir");
         //then
-        assertThat(execution.getStdErr()).isEmpty();
-        assertThat(execution.getStdOut()).contains(String.format("Checking links status from [%s] to %s",
+        assertThat(execution.stdErr()).isEmpty();
+        assertThat(execution.stdOut()).contains(String.format("Checking links status from [%s] to %s",
                 env.path("from/dir"), env.home()));
-        assertThat(execution.getExitCode()).isZero();
+        assertThat(execution.exitCode()).isZero();
     }
 
     @Test
@@ -66,9 +66,9 @@ class StatusCommandTest extends IntegrationTest {
         //when
         Execution execution = env.run("status", "-s", "from/dir", "from/other-dir", "-d", "to/dir");
         //then
-        assertThat(execution.getStdErr()).isEmpty();
-        assertThat(execution.getStdOut()).contains(String.format("Checking links status from [%s, %s] to %s",
+        assertThat(execution.stdErr()).isEmpty();
+        assertThat(execution.stdOut()).contains(String.format("Checking links status from [%s, %s] to %s",
                 env.path("from/dir"), env.path("from/other-dir"), env.path("to/dir")));
-        assertThat(execution.getExitCode()).isZero();
+        assertThat(execution.exitCode()).isZero();
     }
 }
