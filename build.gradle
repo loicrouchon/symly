@@ -74,7 +74,7 @@ dependencies {
 
 
 task copyDependencies(type: Copy) {
-    from configurations.default
+    from configurations.runtimeClasspath
     into 'build/libs'
 }
 task integrationTest(type: Test) {
