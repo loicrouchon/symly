@@ -1,6 +1,7 @@
 package org.linky.env;
 
-import static org.assertj.core.api.Assertions.fail;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -9,8 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+
+import static org.assertj.core.api.Assertions.fail;
 
 @RequiredArgsConstructor
 public class Command {

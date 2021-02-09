@@ -19,8 +19,8 @@ public class Env {
     private final Path root;
     private Path home;
     private Path workingDirectory;
-    private Map<String, String> properties = new HashMap<>();
-    private long timeout = 5L;
+    private final Map<String, String> properties = new HashMap<>();
+    private final long timeout = 5L;
 
     public Env(Path root) throws IOException {
         this.root = root.toRealPath();
