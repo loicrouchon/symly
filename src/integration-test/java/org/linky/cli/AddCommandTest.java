@@ -13,7 +13,7 @@ class AddCommandTest extends IntegrationTest {
     @Test
     void addCommand_shouldFail_whenRequiredArgsAreMissing() {
         //given
-        Env env = getEnv();
+        Env env = env();
         //when
         Execution execution = env.run("add");
         //then
@@ -26,7 +26,7 @@ class AddCommandTest extends IntegrationTest {
     @Disabled
     void addCommand_shouldProvideCorrectDefaults() {
         //given
-        Env env = getEnv()
+        Env env = env()
                 .withDirectories("to/dir")
                 .withFiles("some/file");
         //when
@@ -41,7 +41,7 @@ class AddCommandTest extends IntegrationTest {
     @Test
     void addCommand_shouldParseArguments_whenArgumentsArePassed() {
         //given
-        Env env = getEnv()
+        Env env = env()
                 .withDirectories("from/dir", "to/dir")
                 .withFiles("from/dir/some/file");
         //when
@@ -63,7 +63,7 @@ class AddCommandTest extends IntegrationTest {
     @Test
     void addCommand_shouldFail_whenDirectoryDoesNotExist() {
         //given
-        Env env = getEnv()
+        Env env = env()
                 .withHome("home/user");
         //when
         Execution execution = env.run("add", "-t", "to/dir", "/home/user/some/file");

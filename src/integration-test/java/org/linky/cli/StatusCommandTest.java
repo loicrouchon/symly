@@ -12,7 +12,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void addCommand_shouldFail_whenRequiredArgsAreMissing() {
         //given/when
-        Execution execution = getEnv().run("status");
+        Execution execution = env().run("status");
         //then
         assertThat(execution.stdErr()).contains("Missing required option: '--sources=<sources>'");
         assertThat(execution.exitCode()).isEqualTo(2);
@@ -21,7 +21,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void addCommand_shouldFail_whenDestinationDirectoryDoesNotExist() {
         //given
-        Env env = getEnv()
+        Env env = env()
                 .withHome("home/user");
         //when
         Execution execution = env.run("status", "-s", "to/dir", "/home/user/some/file");
@@ -34,7 +34,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void addCommand_shouldFail_whenSourceDirectoryDoesNotExist() {
         //given
-        Env env = getEnv();
+        Env env = env();
         //when
         Execution execution = env.run("status", "-s", "to/dir", "/home/user/some/file");
         //then
@@ -46,7 +46,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void addCommand_shouldProvideCorrectDefaults() {
         //given
-        Env env = getEnv()
+        Env env = env()
                 .withDirectories("from/dir");
         //when
         Execution execution = env
@@ -61,7 +61,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void addCommand_shouldParseArguments_whenArgumentsArePassed() {
         //given
-        Env env = getEnv()
+        Env env = env()
                 .withDirectories("from/dir", "from/other-dir", "to/dir");
         //when
         Execution execution = env.run("status", "-s", "from/dir", "from/other-dir", "-d", "to/dir");

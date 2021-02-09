@@ -1,24 +1,22 @@
 package org.linky.env;
 
-import lombok.Getter;
+import java.util.ArrayList;
+import java.util.Collection;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 public abstract class IntegrationTest {
 
-    @Getter
-    private Env env;
+    private final Collection<Env> envs = new ArrayList<>();
 
-    @BeforeEach
-    public final void setUpTemporaryEnvironment() {
-        env = Env.of();
+    public Env env() {
+        Env env = Env.of();
+        envs.add(env);
+        return env;
     }
 
     @AfterEach
     public final void tearDownTemporaryEnvironment() {
-        if (env != null) {
-            env.delete();
-            env = null;
-        }
+        envs.forEach(Env::delete);
+        envs.clear();
     }
 }
