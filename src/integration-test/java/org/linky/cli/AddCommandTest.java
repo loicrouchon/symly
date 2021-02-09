@@ -11,7 +11,7 @@ import org.linky.env.IntegrationTest;
 class AddCommandTest extends IntegrationTest {
 
     @Test
-    void addCommand_shouldFail_whenRequiredArgsAreMissing() {
+    void shouldFail_whenRequiredArgsAreMissing() {
         //given
         Env env = env();
         //when
@@ -24,7 +24,7 @@ class AddCommandTest extends IntegrationTest {
 
     @Test
     @Disabled
-    void addCommand_shouldProvideCorrectDefaults() {
+    void shouldProvideCorrectDefaults() {
         //given
         Env env = env()
                 .withDirectories("to/dir")
@@ -39,7 +39,7 @@ class AddCommandTest extends IntegrationTest {
     }
 
     @Test
-    void addCommand_shouldParseArguments_whenArgumentsArePassed() {
+    void shouldParseArguments_whenArgumentsArePassed() {
         //given
         Env env = env()
                 .withDirectories("from/dir", "to/dir")
@@ -61,7 +61,7 @@ class AddCommandTest extends IntegrationTest {
     // TODO add tests where some/file is not a subfile of from/dir
 
     @Test
-    void addCommand_shouldFail_whenDirectoryDoesNotExist() {
+    void shouldFail_whenDirectoryDoesNotExist() {
         //given
         Env env = env()
                 .withHome("home/user");

@@ -10,7 +10,7 @@ import org.linky.env.IntegrationTest;
 class StatusCommandTest extends IntegrationTest {
 
     @Test
-    void addCommand_shouldFail_whenRequiredArgsAreMissing() {
+    void shouldFail_whenRequiredArgsAreMissing() {
         //given/when
         Execution execution = env().run("status");
         //then
@@ -19,7 +19,7 @@ class StatusCommandTest extends IntegrationTest {
     }
 
     @Test
-    void addCommand_shouldFail_whenDestinationDirectoryDoesNotExist() {
+    void shouldFail_whenDestinationDirectoryDoesNotExist() {
         //given
         Env env = env()
                 .withHome("home/user");
@@ -32,7 +32,7 @@ class StatusCommandTest extends IntegrationTest {
     }
 
     @Test
-    void addCommand_shouldFail_whenSourceDirectoryDoesNotExist() {
+    void shouldFail_whenSourceDirectoryDoesNotExist() {
         //given
         Env env = env();
         //when
@@ -44,7 +44,7 @@ class StatusCommandTest extends IntegrationTest {
     }
 
     @Test
-    void addCommand_shouldProvideCorrectDefaults() {
+    void shouldProvideCorrectDefaults() {
         //given
         Env env = env()
                 .withDirectories("from/dir");
@@ -59,7 +59,7 @@ class StatusCommandTest extends IntegrationTest {
     }
 
     @Test
-    void addCommand_shouldParseArguments_whenArgumentsArePassed() {
+    void shouldParseArguments_whenArgumentsArePassed() {
         //given
         Env env = env()
                 .withDirectories("from/dir", "from/other-dir", "to/dir");
