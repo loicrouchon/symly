@@ -1,5 +1,6 @@
 plugins {
     id 'application'
+    id 'idea'
 }
 
 group = 'org.linky'
@@ -40,6 +41,14 @@ sourceSets {
         }
         resources.srcDir file('src/integration-test/resources')
     }
+}
+
+project.idea.module {
+    // Mark integration tests are test sources for Intellij IDEA
+    sourceDirs -= project.sourceSets.integrationTest.java.srcDirs
+    sourceDirs -= project.sourceSets.integrationTest.java.srcDirs
+    testSourceDirs += project.sourceSets.integrationTest.java.srcDirs
+    testSourceDirs += project.sourceSets.integrationTest.java.srcDirs
 }
 
 configurations {
