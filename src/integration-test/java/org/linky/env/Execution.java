@@ -18,7 +18,6 @@ public class Execution {
 
     @NonNull
     private final Path workingDir;
-    @NonNull
     private final int exitCode;
     @NonNull
     private final List<String> stdOut;
