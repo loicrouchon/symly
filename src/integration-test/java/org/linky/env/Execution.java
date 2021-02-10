@@ -56,7 +56,7 @@ public class Execution {
                 .collect(Collectors.toList());
     }
 
-    public ExitCodeAssert assertThat() {
+    public ExitCodeAssert thenItShould() {
         return new ExitCodeAssert(this);
     }
 
@@ -66,12 +66,12 @@ public class Execution {
         @NonNull
         private final Execution execution;
 
-        public OutputAssert succeeds() {
+        public OutputAssert succeed() {
             Assertions.assertThat(execution.exitCode()).isZero();
             return new OutputAssert(execution);
         }
 
-        public OutputAssert fails() {
+        public OutputAssert fail() {
             Assertions.assertThat(execution.exitCode()).isEqualTo(2);
             return new OutputAssert(execution);
         }

@@ -1,22 +1,40 @@
 package org.linky.env;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.nio.file.Path;
+import java.util.Objects;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class IntegrationTest {
 
-    private final Collection<Env> envs = new ArrayList<>();
+    private Env env;
 
-    public Env env() {
-        Env env = Env.of();
-        envs.add(env);
-        return env;
+    @BeforeEach
+    final void setUpTemporaryEnvironment() {
+        env = Env.of();
     }
 
     @AfterEach
-    public final void tearDownTemporaryEnvironment() {
-        envs.forEach(Env::delete);
-        envs.clear();
+    final void tearDownTemporaryEnvironment() {
+        if (env != null) {
+            env.delete();
+            env = null;
+        }
+    }
+
+    protected Env givenCleanEnv() {
+        return Objects.requireNonNull(env);
+    }
+
+    protected Path path(String path) {
+        return env.path(path);
+    }
+
+    protected Path home() {
+        return env.home();
+    }
+
+    protected Execution whenRunningCommand(String... command) {
+        return env.run(command);
     }
 }
