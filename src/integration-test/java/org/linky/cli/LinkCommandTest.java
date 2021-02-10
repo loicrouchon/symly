@@ -17,7 +17,7 @@ class LinkCommandTest extends IntegrationTest {
         execution.assertThat()
                 .fails()
                 .withErrorMessage("Missing required option: '--sources=<sources>'")
-                .andLayout(env)
+                .andLayout()
                 .isEmpty();
     }
 
@@ -32,7 +32,7 @@ class LinkCommandTest extends IntegrationTest {
         execution.assertThat()
                 .fails()
                 .withErrorMessage("Argument <destination> (%s): must be an existing directory", env.home())
-                .andLayout(env)
+                .andLayout()
                 .isEmpty();
     }
 
@@ -46,7 +46,7 @@ class LinkCommandTest extends IntegrationTest {
         execution.assertThat()
                 .fails()
                 .withErrorMessage("Argument <sources> (%s): must be an existing directory", "to/dir")
-                .andLayout(env)
+                .andLayout()
                 .isEmpty();
     }
 
@@ -61,7 +61,7 @@ class LinkCommandTest extends IntegrationTest {
         execution.assertThat()
                 .succeeds()
                 .withMessage("Creating links from [%s] to %s", env.path("from/dir"), env.home())
-                .andLayout(env)
+                .andLayout()
                 .isEmpty();
     }
 
@@ -76,7 +76,7 @@ class LinkCommandTest extends IntegrationTest {
         execution.assertThat()
                 .succeeds()
                 .withMessage("Creating links from [%s, %s] to %s", env.path("from/dir"), env.path("from/other-dir"), env.path("to/dir"))
-                .andLayout(env)
+                .andLayout()
                 .isEmpty();
     }
 }

@@ -1,22 +1,33 @@
 package org.linky.env;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import org.assertj.core.api.Assertions;
-import org.assertj.core.api.ListAssert;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.ListAssert;
+import org.linky.files.FileTree;
 
 @RequiredArgsConstructor
 public class Execution {
 
+    @NonNull
+    private final Path workingDir;
+    @NonNull
     private final int exitCode;
+    @NonNull
     private final List<String> stdOut;
+    @NonNull
     private final List<String> stdErr;
+
+    public Path workingDir() {
+        return workingDir;
+    }
 
     public int exitCode() {
         return this.exitCode;
@@ -30,8 +41,9 @@ public class Execution {
         return this.stdErr;
     }
 
-    public static Execution of(Process process) {
+    public static Execution of(Path workingDirectory, Process process) {
         return new Execution(
+                workingDirectory,
                 process.exitValue(),
                 lines(process.getInputStream()),
                 lines(process.getErrorStream())
@@ -44,13 +56,14 @@ public class Execution {
                 .collect(Collectors.toList());
     }
 
-
     public ExitCodeAssert assertThat() {
         return new ExitCodeAssert(this);
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ExitCodeAssert {
+
+        @NonNull
         private final Execution execution;
 
         public OutputAssert succeeds() {
@@ -67,8 +80,9 @@ public class Execution {
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class OutputAssert {
-        private final Execution execution;
 
+        @NonNull
+        private final Execution execution;
 
         public OutputAssert withMessage(String message) {
             Assertions.assertThat(execution.stdOut()).contains(message);
@@ -88,8 +102,8 @@ public class Execution {
             return withErrorMessage(String.format(message, objects));
         }
 
-        public ListAssert<String> andLayout(Env env) {
-            return Assertions.assertThat(env.getRootFileTree().getLayout());
+        public ListAssert<String> andLayout() {
+            return Assertions.assertThat(FileTree.fromPath(execution.workingDir()).getLayout());
         }
     }
 }
