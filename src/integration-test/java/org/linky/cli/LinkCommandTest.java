@@ -30,8 +30,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldFail_whenDestinationDirectoryDoesNotExist() {
         //given
-        given(env)
-                .withHome("home/doesnotexist");
+        given(env).withHome("home/doesnotexist");
         //when/then
         whenRunningCommand("link", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
@@ -42,7 +41,9 @@ class LinkCommandTest extends IntegrationTest {
 
     @Test
     void shouldFail_whenSourceDirectoryDoesNotExist() {
-        //given/when/then
+        //given
+        given(env);
+        //when/then
         whenRunningCommand("link", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .fail()
@@ -53,7 +54,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldProvideCorrectDefaults() {
         //given
-        env
+        given(env)
                 .withDirectories("from/dir");
         //when/then
         whenRunningCommand("link", "-s", "from/dir")
@@ -66,7 +67,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldParseArguments_whenArgumentsArePassed() {
         //given
-        env
+        given(env)
                 .withDirectories("from/dir", "from/other-dir", "to/dir");
         //when/then
         whenRunningCommand("link", "-s", "from/dir", "from/other-dir", "-d", "to/dir")
@@ -79,7 +80,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkFile_whenDestinationFileDoesNotExist() {
         //given
-        env
+        given(env)
                 .withFiles(
                         "home/user/from/dir/file",
                         "home/user/from/dir/nested/file"
@@ -100,7 +101,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkLink_whenDestinationLinkDoesNotExist() {
         //given
-        env
+        given(env)
                 .withFiles("opt/file")
                 .withSymbolicLink("home/user/from/dir/link", "opt/file")
                 .withSymbolicLink("home/user/from/dir/nested/link", "opt/file");
@@ -120,7 +121,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldNotLinkDirectory_whenDirectorySymlinkDoesNotExist() {
         //given
-        env
+        given(env)
                 .withDirectories("home/user/from/dir/sub/dir");
 
         //when/then
@@ -133,7 +134,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkDirectory_whenDirectorySymlinkExists() {
         //given
-        env
+        given(env)
                 .withFiles("home/user/from/dir/sub/dir/.symlink");
 
         //when/then
