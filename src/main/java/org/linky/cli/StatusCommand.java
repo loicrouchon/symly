@@ -51,7 +51,8 @@ class StatusCommand extends ValidatedCommand {
         return List.of(
                 Constraint.ofArg("destination", destination, "must be an existing directory",
                         fsReader::isDirectory),
-                Constraint.ofArg("sources", sources, "must be an existing directory", fsReader::isDirectory)
+                Constraint.ofArg("sources", sources, "must be an existing directory",
+                        fsReader::isDirectory)
         );
     }
 

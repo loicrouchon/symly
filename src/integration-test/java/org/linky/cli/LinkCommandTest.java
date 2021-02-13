@@ -36,7 +36,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .fail()
-                .withErrorMessage(msg.destinationDoesNotExist(home().toString()))
+                .withErrorMessage(msg.destinationDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(Diff.unchanged());
     }
 
@@ -59,7 +59,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-s", "from/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.creatingLinks(List.of("from/dir"), home().toString()))
+                .withMessage(msg.creatingLinks(List.of("from/dir"), env.home().toString()))
                 .withFileTreeDiff(Diff.unchanged());
     }
 
