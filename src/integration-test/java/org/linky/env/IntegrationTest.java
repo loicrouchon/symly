@@ -23,7 +23,11 @@ public abstract class IntegrationTest {
     }
 
     protected Env givenCleanEnv() {
-        return Objects.requireNonNull(env);
+        return getEnv();
+    }
+
+    protected Env getEnv() {
+        return env;
     }
 
     protected Path path(String path) {
