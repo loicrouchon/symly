@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.linky.files.FileTree;
 
 @RequiredArgsConstructor
 public class Command {
@@ -20,15 +21,18 @@ public class Command {
     private static final String MAIN_CLASS = "org.linky.cli.Main";
 
     @NonNull
-    private final Path workingDirectory;
+    private final Path rootDir;
+    @NonNull
+    private final Path workingDir;
     @NonNull
     private final Map<String, String> systemProperties;
 
     public Execution run(String[] args, long timeout) {
+        FileTree rootFileTreeSnapshot = FileTree.fromPath(rootDir);
         List<String> command = command(systemProperties, args);
         try {
             Process process = new ProcessBuilder()
-                    .directory(workingDirectory.toFile())
+                    .directory(workingDir.toFile())
                     .command(command)
                     .start();
             boolean finished = process.waitFor(timeout, TimeUnit.SECONDS);
@@ -36,7 +40,7 @@ public class Command {
                 process.destroyForcibly();
                 fail(commandFailureMessage("Command did not finish in time", command));
             }
-            return Execution.of(workingDirectory, process);
+            return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, process);
         } catch (InterruptedException | IOException e) {
             fail(commandFailureMessage("Command execution failed with: " + e.getMessage(), command));
             throw new IllegalStateException("unreachable");
@@ -57,6 +61,6 @@ public class Command {
     private String commandFailureMessage(String message, List<String> command) {
         return String.format(
                 "%s%n\tworking directory:%n\t\t%s%n\tCommand:%n\t\t%s",
-                message, workingDirectory, command);
+                message, workingDir, command);
     }
 }

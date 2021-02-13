@@ -2,6 +2,7 @@ package org.linky.cli;
 
 import org.junit.jupiter.api.Test;
 import org.linky.env.IntegrationTest;
+import org.linky.files.FileTree;
 
 @SuppressWarnings("java:S2699")
 class StatusCommandTest extends IntegrationTest {
@@ -15,8 +16,7 @@ class StatusCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage("Missing required option: '--sources=<sources>'")
-                .andLayout()
-                .isEmpty();
+                .withFileTreeDiff(FileTree.Diff.unchanged());
     }
 
     @Test
@@ -31,8 +31,7 @@ class StatusCommandTest extends IntegrationTest {
                 .withErrorMessage(
                         "Argument <destination> (%s): must be an existing directory",
                         home())
-                .andLayout()
-                .isEmpty();
+                .withFileTreeDiff(FileTree.Diff.unchanged());
     }
 
     @Test
@@ -46,8 +45,7 @@ class StatusCommandTest extends IntegrationTest {
                 .withErrorMessage(
                         "Argument <sources> (%s): must be an existing directory",
                         "to/dir")
-                .andLayout()
-                .isEmpty();
+                .withFileTreeDiff(FileTree.Diff.unchanged());
     }
 
     @Test
@@ -63,8 +61,7 @@ class StatusCommandTest extends IntegrationTest {
                         "Checking links status from [%s] to %s",
                         path("from/dir"),
                         home())
-                .andLayout()
-                .isEmpty();
+                .withFileTreeDiff(FileTree.Diff.unchanged());
     }
 
     @Test
@@ -81,7 +78,6 @@ class StatusCommandTest extends IntegrationTest {
                         path("from/dir"),
                         path("from/other-dir"),
                         path("to/dir"))
-                .andLayout()
-                .isEmpty();
+                .withFileTreeDiff(FileTree.Diff.unchanged());
     }
 }

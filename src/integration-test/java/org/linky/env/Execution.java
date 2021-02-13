@@ -1,5 +1,7 @@
 package org.linky.env;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -9,13 +11,17 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.assertj.core.api.Assertions;
 import org.assertj.core.api.ListAssert;
 import org.linky.files.FileTree;
+import org.linky.files.FileTree.Diff;
 
 @RequiredArgsConstructor
 public class Execution {
 
+    @NonNull
+    private final FileTree snapshot;
+    @NonNull
+    private final Path rootDir;
     @NonNull
     private final Path workingDir;
     private final int exitCode;
@@ -23,6 +29,10 @@ public class Execution {
     private final List<String> stdOut;
     @NonNull
     private final List<String> stdErr;
+
+    private Diff fileSystemEntriesDiff() {
+        return snapshot.diff(FileTree.fromPath(rootDir));
+    }
 
     public Path workingDir() {
         return workingDir;
@@ -40,9 +50,12 @@ public class Execution {
         return this.stdErr;
     }
 
-    public static Execution of(Path workingDirectory, Process process) {
+    public static Execution of(FileTree rootFileTreeSnapshot, Path rootDir,
+            Path workingDir, Process process) {
         return new Execution(
-                workingDirectory,
+                rootFileTreeSnapshot,
+                rootDir,
+                workingDir,
                 process.exitValue(),
                 lines(process.getInputStream()),
                 lines(process.getErrorStream())
@@ -66,7 +79,7 @@ public class Execution {
         private final Execution execution;
 
         public OutputAssert succeed() {
-            Assertions.assertThat(execution.exitCode())
+            assertThat(execution.exitCode())
                     .withFailMessage(
                             "Execution exited with code %s%nand errors %s",
                             execution.exitCode(),
@@ -76,7 +89,7 @@ public class Execution {
         }
 
         public OutputAssert fail() {
-            Assertions.assertThat(execution.exitCode())
+            assertThat(execution.exitCode())
                     .withFailMessage(
                             "Command exited with code %s%nand errors %s",
                             execution.exitCode(),
@@ -94,7 +107,7 @@ public class Execution {
         private final Execution execution;
 
         public OutputAssert withMessage(String message) {
-            Assertions.assertThat(execution.stdOut()).contains(message);
+            assertThat(execution.stdOut()).contains(message);
             return this;
         }
 
@@ -103,7 +116,7 @@ public class Execution {
         }
 
         public OutputAssert withErrorMessage(String message) {
-            Assertions.assertThat(execution.stdErr()).contains(message);
+            assertThat(execution.stdErr()).contains(message);
             return this;
         }
 
@@ -111,8 +124,15 @@ public class Execution {
             return withErrorMessage(String.format(message, objects));
         }
 
-        public ListAssert<String> andLayout() {
-            return Assertions.assertThat(FileTree.fromPath(execution.workingDir()).getLayout());
+        public void withFileTreeDiff(Diff diff) {
+            Diff actual = execution.fileSystemEntriesDiff();
+            assertThat(actual.getCreated()).containsExactlyInAnyOrderElementsOf(diff.getCreated());
+            assertThat(actual.getDeleted()).containsExactlyInAnyOrderElementsOf(diff.getDeleted());
         }
+
+        public ListAssert<String> andWorkingDirLayout() {
+            return assertThat(FileTree.fromPath(execution.workingDir()).getLayout());
+        }
+
     }
 }

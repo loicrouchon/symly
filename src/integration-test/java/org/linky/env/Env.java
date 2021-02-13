@@ -80,15 +80,19 @@ public class Env {
     }
 
     public FileTree getRootFileTree() {
-        return getFileTree(".");
+        return getFileTree(root);
     }
 
     public FileTree getFileTree(String path) {
-        return FileTree.fromPath(path(path));
+        return getFileTree(path(path));
+    }
+
+    private FileTree getFileTree(Path path) {
+        return FileTree.fromPath(path);
     }
 
     public Execution run(String... args) {
-        return new Command(workingDirectory, properties).run(args, timeout);
+        return new Command(root, workingDirectory, properties).run(args, timeout);
     }
 
     public void delete() {

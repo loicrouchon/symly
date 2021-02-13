@@ -3,6 +3,7 @@ package org.linky.cli;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.linky.env.IntegrationTest;
+import org.linky.files.FileTree.Diff;
 
 @SuppressWarnings("java:S2699")
 class AddCommandTest extends IntegrationTest {
@@ -16,12 +17,11 @@ class AddCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage("Missing required options and parameters: '--to=<to>', '<file>'")
-                .andLayout()
-                .isEmpty();
+                .withFileTreeDiff(Diff.unchanged());
     }
 
     @Test
-    @Disabled
+    @Disabled("not yet implemented")
     void shouldProvideCorrectDefaults() {
         //given
         givenCleanEnv()
@@ -31,7 +31,8 @@ class AddCommandTest extends IntegrationTest {
         whenRunningCommand("add", "-t", "to/dir", "some/file")
                 .thenItShould()
                 .fail()
-                .withErrorMessage("Missing required options and parameters: '--to=<to>', '<file>'");
+                .withErrorMessage("Missing required options and parameters: '--to=<to>', '<file>'")
+                .withFileTreeDiff(Diff.unchanged());
     }
 
     @Test
@@ -67,7 +68,6 @@ class AddCommandTest extends IntegrationTest {
                 .withErrorMessage(
                         "Argument <from> (%s): must be an existing directory",
                         home())
-                .andLayout()
-                .isEmpty();
+                .withFileTreeDiff(Diff.unchanged());
     }
 }

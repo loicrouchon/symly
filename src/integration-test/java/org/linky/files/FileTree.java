@@ -5,14 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
 @RequiredArgsConstructor
 public class FileTree {
@@ -59,6 +57,35 @@ public class FileTree {
                     .map(path -> FileRef.of(root, path)));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public Diff diff(FileTree other) {
+        Set<String> currentLayout = getLayout().collect(Collectors.toSet());
+        Set<String> otherLayout = other.getLayout().collect(Collectors.toSet());
+        Set<String> created = diff(currentLayout, otherLayout);
+        Set<String> deleted = diff(otherLayout, currentLayout);
+        return new Diff(created, deleted);
+    }
+
+    public Set<String> diff(Set<String> a, Set<String> b) {
+        Set<String> set = new HashSet<>(b);
+        set.removeAll(a);
+        return set;
+    }
+
+    @Value
+    public static class Diff {
+
+        Set<String> created;
+        Set<String> deleted;
+
+        public static Diff unchanged() {
+            return new Diff(Set.of(), Set.of());
+        }
+
+        public static Diff ofNewEntries(String... entries) {
+            return new Diff(Set.of(entries), Set.of());
         }
     }
 }
