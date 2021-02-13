@@ -66,12 +66,22 @@ public class Execution {
         private final Execution execution;
 
         public OutputAssert succeed() {
-            Assertions.assertThat(execution.exitCode()).isZero();
+            Assertions.assertThat(execution.exitCode())
+                    .withFailMessage(
+                            "Execution exited with code %s%nand errors %s",
+                            execution.exitCode(),
+                            execution.stdErr())
+                    .isZero();
             return new OutputAssert(execution);
         }
 
         public OutputAssert fail() {
-            Assertions.assertThat(execution.exitCode()).isEqualTo(2);
+            Assertions.assertThat(execution.exitCode())
+                    .withFailMessage(
+                            "Command exited with code %s%nand errors %s",
+                            execution.exitCode(),
+                            execution.stdErr())
+                    .isEqualTo(2);
             return new OutputAssert(execution);
         }
 
