@@ -1,7 +1,6 @@
 package org.linky.env;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -10,8 +9,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import static org.assertj.core.api.Assertions.fail;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class Command {
@@ -39,7 +38,6 @@ public class Command {
             }
             return Execution.of(workingDirectory, process);
         } catch (InterruptedException | IOException e) {
-            Thread.interrupted();
             fail(commandFailureMessage("Command execution failed with: " + e.getMessage(), command));
             throw new IllegalStateException("unreachable");
         }
