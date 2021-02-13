@@ -3,6 +3,7 @@ package org.linky.cli;
 import org.junit.jupiter.api.Test;
 import org.linky.env.IntegrationTest;
 
+@SuppressWarnings("java:S2699")
 class StatusCommandTest extends IntegrationTest {
 
     @Test

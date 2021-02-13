@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.linky.env.Env;
 import org.linky.env.IntegrationTest;
 
+@SuppressWarnings("java:S2699")
 class LinkCommandTest extends IntegrationTest {
 
     private LinkMessageFactory msg;
