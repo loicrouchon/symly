@@ -1,18 +1,29 @@
 package org.linky.env;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class IntegrationTest {
 
     private Env env;
 
-    protected Env givenCleanEnv() {
-        if (env == null) {
-            env = Env.of();
-            return env;
+    @BeforeEach
+    final void setUpTemporaryEnvironment() {
+        env = Env.of();
+    }
+
+    @AfterEach
+    final void tearDownTemporaryEnvironment() {
+        if (env != null) {
+            env.delete();
+            env = null;
         }
-        throw new IllegalStateException("Only one temporary environment can be created per test.");
+    }
+
+    protected Env givenCleanEnv() {
+        return Objects.requireNonNull(env);
     }
 
     protected Path path(String path) {
@@ -25,13 +36,5 @@ public abstract class IntegrationTest {
 
     protected Execution whenRunningCommand(String... command) {
         return env.run(command);
-    }
-
-    @AfterEach
-    final void tearDownTemporaryEnvironment() {
-        if (env != null) {
-            env.delete();
-            env = null;
-        }
     }
 }
