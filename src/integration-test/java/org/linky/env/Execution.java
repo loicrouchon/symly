@@ -129,10 +129,5 @@ public class Execution {
             assertThat(actual.getCreated()).containsExactlyInAnyOrderElementsOf(diff.getCreated());
             assertThat(actual.getDeleted()).containsExactlyInAnyOrderElementsOf(diff.getDeleted());
         }
-
-        public ListAssert<String> andWorkingDirLayout() {
-            return assertThat(FileTree.fromPath(execution.workingDir()).getLayout());
-        }
-
     }
 }

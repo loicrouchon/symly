@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.linky.env.Env;
 import org.linky.env.IntegrationTest;
@@ -14,45 +13,36 @@ import org.linky.files.FileTree.Diff;
 @SuppressWarnings("java:S2699")
 class LinkCommandTest extends IntegrationTest {
 
-    private LinkMessageFactory msg;
-
-    @BeforeEach
-    void initializeMessageFactory() {
-        msg = new LinkMessageFactory(getEnv());
-    }
+    private final LinkMessageFactory msg = new LinkMessageFactory(env);
 
     @Test
     void shouldFail_whenRequiredArgsAreMissing() {
         //given
-        givenCleanEnv();
+        given(env);
         //when/then
         whenRunningCommand("link")
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.missingSources())
-                .andWorkingDirLayout()
-                .isEmpty();
+                .withFileTreeDiff(Diff.unchanged());
     }
 
     @Test
     void shouldFail_whenDestinationDirectoryDoesNotExist() {
         //given
-        givenCleanEnv()
+        given(env)
                 .withHome("home/doesnotexist");
         //when/then
         whenRunningCommand("link", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.destinationDoesNotExist(home().toString()))
-                .andWorkingDirLayout()
-                .isEmpty();
+                .withFileTreeDiff(Diff.unchanged());
     }
 
     @Test
     void shouldFail_whenSourceDirectoryDoesNotExist() {
-        //given
-        givenCleanEnv();
-        //when/then
+        //given/when/then
         whenRunningCommand("link", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .fail()
@@ -63,7 +53,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldProvideCorrectDefaults() {
         //given
-        givenCleanEnv()
+        env
                 .withDirectories("from/dir");
         //when/then
         whenRunningCommand("link", "-s", "from/dir")
@@ -76,7 +66,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldParseArguments_whenArgumentsArePassed() {
         //given
-        givenCleanEnv()
+        env
                 .withDirectories("from/dir", "from/other-dir", "to/dir");
         //when/then
         whenRunningCommand("link", "-s", "from/dir", "from/other-dir", "-d", "to/dir")
@@ -89,7 +79,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkFile_whenDestinationFileDoesNotExist() {
         //given
-        givenCleanEnv()
+        env
                 .withFiles(
                         "home/user/from/dir/file",
                         "home/user/from/dir/nested/file"
@@ -110,7 +100,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkLink_whenDestinationLinkDoesNotExist() {
         //given
-        givenCleanEnv()
+        env
                 .withFiles("opt/file")
                 .withSymbolicLink("home/user/from/dir/link", "opt/file")
                 .withSymbolicLink("home/user/from/dir/nested/link", "opt/file");
@@ -130,7 +120,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldNotLinkDirectory_whenDirectorySymlinkDoesNotExist() {
         //given
-        givenCleanEnv()
+        env
                 .withDirectories("home/user/from/dir/sub/dir");
 
         //when/then
@@ -143,7 +133,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkDirectory_whenDirectorySymlinkExists() {
         //given
-        givenCleanEnv()
+        env
                 .withFiles("home/user/from/dir/sub/dir/.symlink");
 
         //when/then

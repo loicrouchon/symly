@@ -10,7 +10,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void shouldFail_whenRequiredArgsAreMissing() {
         //given
-        givenCleanEnv();
+        given(env);
         //when/then
         whenRunningCommand("status")
                 .thenItShould()
@@ -22,7 +22,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void shouldFail_whenDestinationDirectoryDoesNotExist() {
         //given
-        givenCleanEnv()
+        given(env)
                 .withHome("home/doesnotexist");
         //when/then
         whenRunningCommand("status", "-s", "to/dir", "/home/user/some/file")
@@ -37,7 +37,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void shouldFail_whenSourceDirectoryDoesNotExist() {
         //given
-        givenCleanEnv();
+        given(env);
         //when/then
         whenRunningCommand("status", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
@@ -51,7 +51,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void shouldProvideCorrectDefaults() {
         //given
-        givenCleanEnv()
+        given(env)
                 .withDirectories("from/dir");
         //when/then
         whenRunningCommand("status", "-s", "from/dir")
@@ -67,7 +67,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void shouldParseArguments_whenArgumentsArePassed() {
         //given
-        givenCleanEnv()
+        given(env)
                 .withDirectories("from/dir", "from/other-dir", "to/dir");
         //when/then
         whenRunningCommand("status", "-s", "from/dir", "from/other-dir", "-d", "to/dir")

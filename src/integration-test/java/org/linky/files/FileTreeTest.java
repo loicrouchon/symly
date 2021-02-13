@@ -11,7 +11,7 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldContainFileEntry_whenFileExist() {
         //given/when
-        FileTree tree = givenCleanEnv()
+        FileTree tree = given(env)
                 .withFiles("hello", "world", "my/name/is")
                 .getRootFileTree();
         //then
@@ -25,7 +25,7 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldContainLinkEntry_whenTargetPathIsAnExistingFile() {
         //given/when
-        FileTree tree = givenCleanEnv()
+        FileTree tree = given(env)
                 .withSymbolicLink("hello", "world")
                 .withFiles("world")
                 .getRootFileTree();
@@ -39,7 +39,7 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldContainLinkEntry_whenTargetPathIsAnExistingDirectory() {
         //given/when
-        FileTree tree = givenCleanEnv()
+        FileTree tree = given(env)
                 .withSymbolicLink("hello", "some/dir")
                 .withDirectories("some/dir")
                 .getRootFileTree();
@@ -52,7 +52,7 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldContainLinkEntry_whenTargetPathDoesNotExist() {
         //given/when
-        FileTree tree = givenCleanEnv()
+        FileTree tree = given(env)
                 .withSymbolicLink("hello", "anyone")
                 .getRootFileTree();
         //then
@@ -64,7 +64,7 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldNotContainDirectoryEntries() {
         //given/when
-        FileTree tree = givenCleanEnv()
+        FileTree tree = given(env)
                 .withSymbolicLink("hello1", "world")
                 .withSymbolicLink("hello2", "some/dir")
                 .withSymbolicLink("hello3", "some/dir/other/dir")
@@ -83,7 +83,7 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldReferenceLinksOutsideItself() {
         //given/when
-        FileTree tree = givenCleanEnv()
+        FileTree tree = given(env)
                 .withFiles("real-hello", "world", "my/name/is", "tree/toto")
                 .withSymbolicLink("tree/hello", "real-hello")
                 .getFileTree("tree");
@@ -102,7 +102,7 @@ class FileTreeTest extends IntegrationTest {
                 "how/are/you -> doing/today"
         ));
         //when
-        FileTree tree = givenCleanEnv()
+        FileTree tree = given(env)
                 .create(initial)
                 .getRootFileTree();
         //then

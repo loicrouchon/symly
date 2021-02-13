@@ -11,7 +11,7 @@ class AddCommandTest extends IntegrationTest {
     @Test
     void shouldFail_whenRequiredArgsAreMissing() {
         //given
-        givenCleanEnv();
+        given(env);
         //when/then
         whenRunningCommand("add")
                 .thenItShould()
@@ -24,7 +24,7 @@ class AddCommandTest extends IntegrationTest {
     @Disabled("not yet implemented")
     void shouldProvideCorrectDefaults() {
         //given
-        givenCleanEnv()
+        given(env)
                 .withDirectories("to/dir")
                 .withFiles("some/file");
         //when/then
@@ -38,7 +38,7 @@ class AddCommandTest extends IntegrationTest {
     @Test
     void shouldParseArguments_whenArgumentsArePassed() {
         //given
-        givenCleanEnv()
+        given(env)
                 .withDirectories("from/dir", "to/dir")
                 .withFiles("from/dir/some/file");
         //when/then
@@ -59,7 +59,7 @@ class AddCommandTest extends IntegrationTest {
     @Test
     void shouldFail_whenDirectoryDoesNotExist() {
         //given
-        givenCleanEnv()
+        given(env)
                 .withHome("home/doesnotexist");
         //when/then
         whenRunningCommand("add", "-t", "to/dir", "/home/user/some/file")

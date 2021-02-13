@@ -2,31 +2,22 @@ package org.linky.env;
 
 import java.nio.file.Path;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 public abstract class IntegrationTest {
 
-    private Env env;
-
-    @BeforeEach
-    final void setUpTemporaryEnvironment() {
-        env = Env.of();
-    }
+    protected final Env env = Env.of();
 
     @AfterEach
     final void tearDownTemporaryEnvironment() {
-        if (env != null) {
-            env.delete();
-            env = null;
-        }
+        env.delete();
     }
 
-    protected Env givenCleanEnv() {
-        return getEnv();
-    }
-
-    protected Env getEnv() {
+    protected static Env given(Env env) {
         return env;
+    }
+
+    protected Execution whenRunningCommand(String... command) {
+        return env.run(command);
     }
 
     protected Path path(String path) {
@@ -35,9 +26,5 @@ public abstract class IntegrationTest {
 
     protected Path home() {
         return env.home();
-    }
-
-    protected Execution whenRunningCommand(String... command) {
-        return env.run(command);
     }
 }
