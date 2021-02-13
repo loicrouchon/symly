@@ -22,7 +22,7 @@ class LinkCommandTest extends IntegrationTest {
     void shouldFail_whenDestinationDirectoryDoesNotExist() {
         //given
         givenCleanEnv()
-                .withHome("home/user");
+                .withHome("home/doesnotexist");
         //when/then
         whenRunningCommand("link", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()

@@ -58,7 +58,7 @@ class AddCommandTest extends IntegrationTest {
     void shouldFail_whenDirectoryDoesNotExist() {
         //given
         givenCleanEnv()
-                .withHome("home/user");
+                .withHome("home/doesnotexist");
         //when/then
         whenRunningCommand("add", "-t", "to/dir", "/home/user/some/file")
                 .thenItShould()

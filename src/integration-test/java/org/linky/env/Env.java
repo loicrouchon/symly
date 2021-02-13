@@ -24,7 +24,7 @@ public class Env {
 
     public Env(Path root) throws IOException {
         this.root = root.toRealPath();
-        withHome("home");
+        withHome("home/user");
         withWorkingDir(".");
     }
 
