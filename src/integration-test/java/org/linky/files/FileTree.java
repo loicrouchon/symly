@@ -1,16 +1,12 @@
 package org.linky.files;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
+import lombok.*;
 
 @RequiredArgsConstructor
 public class FileTree {
@@ -26,10 +22,6 @@ public class FileTree {
 
     public Stream<String> getLayout() {
         return layout.stream().map(FileRef::toString);
-    }
-
-    public void assertLayoutIsIdenticalTo(FileTree expected) {
-        assertThat(layout).containsExactlyElementsOf(expected.layout);
     }
 
     @Override
@@ -75,17 +67,24 @@ public class FileTree {
     }
 
     @Value
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Diff {
 
-        Set<String> created;
-        Set<String> deleted;
+        private static final Diff EMPTY = new Diff(Set.of(), Set.of());
 
-        public static Diff unchanged() {
-            return new Diff(Set.of(), Set.of());
+        Set<String> newPaths;
+        Set<String> removedPaths;
+
+        public Diff withNewPaths(String... newPaths) {
+            return new Diff(Set.of(newPaths), removedPaths);
         }
 
-        public static Diff ofNewEntries(String... entries) {
-            return new Diff(Set.of(entries), Set.of());
+        public Diff withRemovedPaths(String... removedPaths) {
+            return new Diff(newPaths, Set.of(removedPaths));
+        }
+
+        public static Diff empty() {
+            return EMPTY;
         }
     }
 }

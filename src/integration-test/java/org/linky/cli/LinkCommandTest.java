@@ -24,7 +24,7 @@ class LinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.missingSources())
-                .withFileTreeDiff(Diff.unchanged());
+                .withFileTreeDiff(Diff.empty());
     }
 
     @Test
@@ -36,7 +36,7 @@ class LinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.destinationDoesNotExist(env.home().toString()))
-                .withFileTreeDiff(Diff.unchanged());
+                .withFileTreeDiff(Diff.empty());
     }
 
     @Test
@@ -48,7 +48,7 @@ class LinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.sourceDoesNotExist("to/dir"))
-                .withFileTreeDiff(Diff.unchanged());
+                .withFileTreeDiff(Diff.empty());
     }
 
     @Test
@@ -61,7 +61,7 @@ class LinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.creatingLinks(List.of("from/dir"), env.home().toString()))
-                .withFileTreeDiff(Diff.unchanged());
+                .withFileTreeDiff(Diff.empty());
     }
 
     @Test
@@ -74,7 +74,7 @@ class LinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.creatingLinks(List.of("from/dir", "from/other-dir"), "to/dir"))
-                .withFileTreeDiff(Diff.unchanged());
+                .withFileTreeDiff(Diff.empty());
     }
 
     @Test
@@ -85,14 +85,13 @@ class LinkCommandTest extends IntegrationTest {
                         "home/user/from/dir/file",
                         "home/user/from/dir/nested/file"
                 );
-
         //when/then
         whenRunningCommand("link", "-s", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.createLink("home/user/file", "home/user/from/dir/file"))
                 .withMessage(msg.createLink("home/user/nested/file", "home/user/from/dir/nested/file"))
-                .withFileTreeDiff(Diff.ofNewEntries(
+                .withFileTreeDiff(Diff.empty().withNewPaths(
                         "home/user/file -> home/user/from/dir/file",
                         "home/user/nested/file -> home/user/from/dir/nested/file"
                 ));
@@ -105,14 +104,13 @@ class LinkCommandTest extends IntegrationTest {
                 .withFiles("opt/file")
                 .withSymbolicLink("home/user/from/dir/link", "opt/file")
                 .withSymbolicLink("home/user/from/dir/nested/link", "opt/file");
-
         //when/then
         whenRunningCommand("link", "-s", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.createLink("home/user/link", "home/user/from/dir/link"))
                 .withMessage(msg.createLink("home/user/nested/link", "home/user/from/dir/nested/link"))
-                .withFileTreeDiff(Diff.ofNewEntries(
+                .withFileTreeDiff(Diff.empty().withNewPaths(
                         "home/user/link -> home/user/from/dir/link",
                         "home/user/nested/link -> home/user/from/dir/nested/link"
                 ));
@@ -123,12 +121,11 @@ class LinkCommandTest extends IntegrationTest {
         //given
         given(env)
                 .withDirectories("home/user/from/dir/sub/dir");
-
         //when/then
         whenRunningCommand("link", "-s", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
-                .withFileTreeDiff(Diff.unchanged());
+                .withFileTreeDiff(Diff.empty());
     }
 
     @Test
@@ -136,19 +133,18 @@ class LinkCommandTest extends IntegrationTest {
         //given
         given(env)
                 .withFiles("home/user/from/dir/sub/dir/.symlink");
-
         //when/then
         whenRunningCommand("link", "-s", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.createLink("home/user/sub/dir", "home/user/from/dir/sub/dir"))
-                .withFileTreeDiff(Diff.ofNewEntries(
+                .withFileTreeDiff(Diff.empty().withNewPaths(
                         "home/user/sub/dir -> home/user/from/dir/sub/dir"
                 ));
     }
 
     @RequiredArgsConstructor
-    public static class LinkMessageFactory {
+    private static class LinkMessageFactory {
 
         @NonNull
         private final Env env;

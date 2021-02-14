@@ -24,7 +24,7 @@ class StatusCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.missingSources())
-                .withFileTreeDiff(FileTree.Diff.unchanged());
+                .withFileTreeDiff(FileTree.Diff.empty());
     }
 
     @Test
@@ -37,7 +37,7 @@ class StatusCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.destinationDoesNotExist(env.home().toString()))
-                .withFileTreeDiff(FileTree.Diff.unchanged());
+                .withFileTreeDiff(FileTree.Diff.empty());
     }
 
     @Test
@@ -49,7 +49,7 @@ class StatusCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.sourceDoesNotExist("to/dir"))
-                .withFileTreeDiff(FileTree.Diff.unchanged());
+                .withFileTreeDiff(FileTree.Diff.empty());
     }
 
     @Test
@@ -62,7 +62,7 @@ class StatusCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks(List.of("from/dir"), "home/user"))
-                .withFileTreeDiff(FileTree.Diff.unchanged());
+                .withFileTreeDiff(FileTree.Diff.empty());
     }
 
     @Test
@@ -75,11 +75,11 @@ class StatusCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks(List.of("from/dir", "from/other-dir"), "to/dir"))
-                .withFileTreeDiff(FileTree.Diff.unchanged());
+                .withFileTreeDiff(FileTree.Diff.empty());
     }
 
     @RequiredArgsConstructor
-    public static class StatusMessageFactory {
+    private static class StatusMessageFactory {
 
         @NonNull
         private final Env env;

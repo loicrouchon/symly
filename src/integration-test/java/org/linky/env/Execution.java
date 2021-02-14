@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.assertj.core.api.ListAssert;
 import org.linky.files.FileTree;
 import org.linky.files.FileTree.Diff;
 
@@ -126,8 +125,8 @@ public class Execution {
 
         public void withFileTreeDiff(Diff diff) {
             Diff actual = execution.fileSystemEntriesDiff();
-            assertThat(actual.getCreated()).containsExactlyInAnyOrderElementsOf(diff.getCreated());
-            assertThat(actual.getDeleted()).containsExactlyInAnyOrderElementsOf(diff.getDeleted());
+            assertThat(actual.getNewPaths()).containsExactlyInAnyOrderElementsOf(diff.getNewPaths());
+            assertThat(actual.getRemovedPaths()).containsExactlyInAnyOrderElementsOf(diff.getRemovedPaths());
         }
     }
 }

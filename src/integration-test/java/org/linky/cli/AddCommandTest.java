@@ -21,7 +21,7 @@ class AddCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.missingArguments())
-                .withFileTreeDiff(Diff.unchanged());
+                .withFileTreeDiff(Diff.empty());
     }
 
     @Test
@@ -34,7 +34,7 @@ class AddCommandTest extends IntegrationTest {
                 .thenItShould()
                 .fail()
                 .withErrorMessage(msg.argumentFromIsNotADirectory("home/doesnotexist"))
-                .withFileTreeDiff(Diff.unchanged());
+                .withFileTreeDiff(Diff.empty());
     }
 
     @Test
@@ -52,7 +52,7 @@ class AddCommandTest extends IntegrationTest {
     }
 
     @RequiredArgsConstructor
-    public static class AddMessageFactory {
+    private static class AddMessageFactory {
 
         @NonNull
         private final Env env;
