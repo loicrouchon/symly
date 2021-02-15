@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.Assertions;
 import org.linky.files.FileTree;
 import org.linky.files.FileTree.Diff;
 
@@ -83,7 +84,9 @@ public class Execution {
         private final Execution execution;
 
         public OutputAssert succeed() {
-            return assertExitCodeIs(SUCCESS);
+            OutputAssert outputAssert = assertExitCodeIs(SUCCESS);
+            assertThat(execution.stdErr()).isEmpty();
+            return outputAssert;
         }
 
         public OutputAssert failWithConfigurationError() {
@@ -138,8 +141,12 @@ public class Execution {
 
         public void withFileTreeDiff(Diff diff) {
             Diff actual = execution.fileSystemEntriesDiff();
-            assertThat(actual.getNewPaths()).containsExactlyInAnyOrderElementsOf(diff.getNewPaths());
-            assertThat(actual.getRemovedPaths()).containsExactlyInAnyOrderElementsOf(diff.getRemovedPaths());
+            assertThat(actual.getNewPaths())
+                    .describedAs("Should create the following file system entries")
+                    .containsExactlyInAnyOrderElementsOf(diff.getNewPaths());
+            assertThat(actual.getRemovedPaths())
+                    .describedAs("Should remove the following file system entries")
+                    .containsExactlyInAnyOrderElementsOf(diff.getRemovedPaths());
         }
     }
 }

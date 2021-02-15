@@ -89,8 +89,8 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-s", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.createLink("home/user/file", "home/user/from/dir/file"))
-                .withMessage(msg.createLink("home/user/nested/file", "home/user/from/dir/nested/file"))
+                .withMessage(msg.linkActionCreate("home/user/file", "home/user/from/dir/file"))
+                .withMessage(msg.linkActionCreate("home/user/nested/file", "home/user/from/dir/nested/file"))
                 .withFileTreeDiff(Diff.empty().withNewPaths(
                         "home/user/file -> home/user/from/dir/file",
                         "home/user/nested/file -> home/user/from/dir/nested/file"
@@ -108,8 +108,8 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-s", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.createLink("home/user/link", "home/user/from/dir/link"))
-                .withMessage(msg.createLink("home/user/nested/link", "home/user/from/dir/nested/link"))
+                .withMessage(msg.linkActionCreate("home/user/link", "home/user/from/dir/link"))
+                .withMessage(msg.linkActionCreate("home/user/nested/link", "home/user/from/dir/nested/link"))
                 .withFileTreeDiff(Diff.empty().withNewPaths(
                         "home/user/link -> home/user/from/dir/link",
                         "home/user/nested/link -> home/user/from/dir/nested/link"
@@ -137,14 +137,14 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-s", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.createLink("home/user/sub/dir", "home/user/from/dir/sub/dir"))
+                .withMessage(msg.linkActionCreate("home/user/sub/dir", "home/user/from/dir/sub/dir"))
                 .withFileTreeDiff(Diff.empty().withNewPaths(
                         "home/user/sub/dir -> home/user/from/dir/sub/dir"
                 ));
     }
 
     @Test
-    void shouldNotLinkFile_whenDestinationFileAlreadyExist() {
+    void shouldNotLinkFile_whenLinkDestinationIsAnExistingFile() {
         //given
         given(env)
                 .withFiles(
@@ -155,8 +155,55 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-s", "home/user/from/dir")
                 .thenItShould()
                 .failWithError()
-                .withErrorMessages(msg.cannotCreateLink("home/user/file", "home/user/from/dir/file"))
-                .withMessage(msg.createLinkConflict("home/user/file", "home/user/from/dir/file"))
+                .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/from/dir/file"))
+                .withMessage(msg.linkActionConflict("home/user/file", "home/user/from/dir/file"))
+                .withFileTreeDiff(Diff.empty());
+    }
+
+    @Test
+    void shouldNotLinkFile_whenLinkDestinationIsAnExistingDirectory() {
+        //given
+        given(env)
+                .withDirectories("home/user/file")
+                .withFiles("home/user/from/dir/file");
+        //when/then
+        whenRunningCommand("link", "-s", "home/user/from/dir")
+                .thenItShould()
+                .failWithError()
+                .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/from/dir/file"))
+                .withMessage(msg.linkActionConflict("home/user/file", "home/user/from/dir/file"))
+                .withFileTreeDiff(Diff.empty());
+    }
+
+    @Test
+    void shouldUpdateLink_whenLinkDestinationIsAnExistingLink() {
+        //given
+        given(env)
+                .withSymbolicLink("home/user/file", "home/user/other-file")
+                .withFiles("home/user/from/dir/file");
+        //when/then
+        whenRunningCommand("link", "-s", "home/user/from/dir")
+                .thenItShould()
+                .succeed()
+                .withMessages(msg.linkActionUpdate("home/user/file", "home/user/from/dir/file",
+                        "home/user/other-file"))
+                .withFileTreeDiff(Diff.empty()
+                        .withNewPaths("home/user/file -> home/user/from/dir/file")
+                        .withRemovedPaths("home/user/file -> home/user/other-file")
+                );
+    }
+
+    @Test
+    void shouldNotUpdateLinkFile_whenLinkIsAlreadyUpToDate() {
+        //given
+        given(env)
+                .withSymbolicLink("home/user/file", "home/user/from/dir/file")
+                .withFiles("home/user/from/dir/file");
+        //when/then
+        whenRunningCommand("link", "-s", "home/user/from/dir")
+                .thenItShould()
+                .succeed()
+                .withMessage(msg.linkActionUpToDate("home/user/file", "home/user/from/dir/file"))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -188,15 +235,30 @@ class LinkCommandTest extends IntegrationTest {
                     env.path(to));
         }
 
-        public String createLink(String from, String to) {
-            return String.format("[CREATE    ] %s -> %s", env.path(from), env.path(to));
+        public String linkActionCreate(String from, String to) {
+            return action("[CREATE    ]", from, to);
         }
 
-        public String createLinkConflict(String from, String to) {
-            return String.format("[CONFLICT  ] %s -> %s", env.path(from), env.path(to));
+        public String linkActionConflict(String from, String to) {
+            return action("[CONFLICT  ]", from, to);
         }
 
-        public List<String> cannotCreateLink(String from, String to) {
+        public List<String> linkActionUpdate(String from, String to, String previousTo) {
+            return List.of(
+                    action("[UPDATE    ]", from, to),
+                    String.format("> Previous link target was %s", env.path(previousTo))
+            );
+        }
+
+        public String linkActionUpToDate(String from, String to) {
+            return action("[UP_TO_DATE]", from, to);
+        }
+
+        public String action(String action, String from, String to) {
+            return String.format("%s %s -> %s", action, env.path(from), env.path(to));
+        }
+
+        public List<String> cannotCreateLinkError(String from, String to) {
             return List.of(
                     String.format("Unable to create link %s -> %s", env.path(from), env.path(to)),
                     String.format(
