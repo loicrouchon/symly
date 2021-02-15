@@ -22,7 +22,7 @@ class LinkCommandTest extends IntegrationTest {
         //when/then
         whenRunningCommand("link")
                 .thenItShould()
-                .fail()
+                .failWithConfigurationError()
                 .withErrorMessage(msg.missingSources())
                 .withFileTreeDiff(Diff.empty());
     }
@@ -34,7 +34,7 @@ class LinkCommandTest extends IntegrationTest {
         //when/then
         whenRunningCommand("link", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
-                .fail()
+                .failWithConfigurationError()
                 .withErrorMessage(msg.destinationDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(Diff.empty());
     }
@@ -46,7 +46,7 @@ class LinkCommandTest extends IntegrationTest {
         //when/then
         whenRunningCommand("link", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
-                .fail()
+                .failWithConfigurationError()
                 .withErrorMessage(msg.sourceDoesNotExist("to/dir"))
                 .withFileTreeDiff(Diff.empty());
     }
@@ -143,6 +143,23 @@ class LinkCommandTest extends IntegrationTest {
                 ));
     }
 
+    @Test
+    void shouldNotLinkFile_whenDestinationFileAlreadyExist() {
+        //given
+        given(env)
+                .withFiles(
+                        "home/user/file",
+                        "home/user/from/dir/file"
+                );
+        //when/then
+        whenRunningCommand("link", "-s", "home/user/from/dir")
+                .thenItShould()
+                .failWithError()
+                .withErrorMessages(msg.cannotCreateLink("home/user/file", "home/user/from/dir/file"))
+                .withMessage(msg.createLinkConflict("home/user/file", "home/user/from/dir/file"))
+                .withFileTreeDiff(Diff.empty());
+    }
+
     @RequiredArgsConstructor
     private static class LinkMessageFactory {
 
@@ -173,6 +190,19 @@ class LinkCommandTest extends IntegrationTest {
 
         public String createLink(String from, String to) {
             return String.format("[CREATE    ] %s -> %s", env.path(from), env.path(to));
+        }
+
+        public String createLinkConflict(String from, String to) {
+            return String.format("[CONFLICT  ] %s -> %s", env.path(from), env.path(to));
+        }
+
+        public List<String> cannotCreateLink(String from, String to) {
+            return List.of(
+                    String.format("Unable to create link %s -> %s", env.path(from), env.path(to)),
+                    String.format(
+                            "> Regular file %s already exist. To overwrite it, use the --replace-file option.",
+                            env.path(from))
+            );
         }
     }
 }

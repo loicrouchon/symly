@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
@@ -74,29 +75,39 @@ public class Execution {
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ExitCodeAssert {
 
+        private static final int SUCCESS = 0;
+        private static final int RUN_ERROR = 1;
+        private static final int CONFIGURATION_ERROR = 2;
+
         @NonNull
         private final Execution execution;
 
         public OutputAssert succeed() {
+            return assertExitCodeIs(SUCCESS);
+        }
+
+        public OutputAssert failWithConfigurationError() {
+            return assertExitCodeIs(CONFIGURATION_ERROR);
+        }
+
+        public OutputAssert failWithError() {
+            return assertExitCodeIs(RUN_ERROR);
+        }
+
+        private OutputAssert assertExitCodeIs(int exitCode) {
             assertThat(execution.exitCode())
                     .withFailMessage(
-                            "Execution exited with code %s%nand errors %s",
+                            "Command exited with code %s%nand errors:%n%s%nand output:%n%s%n",
                             execution.exitCode(),
-                            execution.stdErr())
-                    .isZero();
+                            lines(execution.stdErr()),
+                            lines(execution.stdOut()))
+                    .isEqualTo(exitCode);
             return new OutputAssert(execution);
         }
 
-        public OutputAssert fail() {
-            assertThat(execution.exitCode())
-                    .withFailMessage(
-                            "Command exited with code %s%nand errors %s",
-                            execution.exitCode(),
-                            execution.stdErr())
-                    .isEqualTo(2);
-            return new OutputAssert(execution);
+        private String lines(Collection<String> lines) {
+            return lines.stream().map(line -> "\t" + line).collect(Collectors.joining("\n"));
         }
-
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -110,8 +121,9 @@ public class Execution {
             return this;
         }
 
-        public OutputAssert withMessage(String message, Object... objects) {
-            return withMessage(String.format(message, objects));
+        public OutputAssert withMessages(List<String> messages) {
+            messages.forEach(this::withMessage);
+            return this;
         }
 
         public OutputAssert withErrorMessage(String message) {
@@ -119,8 +131,9 @@ public class Execution {
             return this;
         }
 
-        public OutputAssert withErrorMessage(String message, Object... objects) {
-            return withErrorMessage(String.format(message, objects));
+        public OutputAssert withErrorMessages(List<String> messages) {
+            messages.forEach(this::withErrorMessage);
+            return this;
         }
 
         public void withFileTreeDiff(Diff diff) {

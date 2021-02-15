@@ -22,7 +22,7 @@ class StatusCommandTest extends IntegrationTest {
         //when/then
         whenRunningCommand("status")
                 .thenItShould()
-                .fail()
+                .failWithConfigurationError()
                 .withErrorMessage(msg.missingSources())
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
@@ -35,7 +35,7 @@ class StatusCommandTest extends IntegrationTest {
         //when/then
         whenRunningCommand("status", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
-                .fail()
+                .failWithConfigurationError()
                 .withErrorMessage(msg.destinationDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
@@ -47,7 +47,7 @@ class StatusCommandTest extends IntegrationTest {
         //when/then
         whenRunningCommand("status", "-s", "to/dir", "/home/user/some/file")
                 .thenItShould()
-                .fail()
+                .failWithConfigurationError()
                 .withErrorMessage(msg.sourceDoesNotExist("to/dir"))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }

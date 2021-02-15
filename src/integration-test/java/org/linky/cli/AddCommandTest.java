@@ -19,7 +19,7 @@ class AddCommandTest extends IntegrationTest {
         //when/then
         whenRunningCommand("add")
                 .thenItShould()
-                .fail()
+                .failWithConfigurationError()
                 .withErrorMessage(msg.missingArguments())
                 .withFileTreeDiff(Diff.empty());
     }
@@ -32,7 +32,7 @@ class AddCommandTest extends IntegrationTest {
         //when/then
         whenRunningCommand("add", "-t", "to/dir", "/home/user/some/file")
                 .thenItShould()
-                .fail()
+                .failWithConfigurationError()
                 .withErrorMessage(msg.argumentFromIsNotADirectory("home/doesnotexist"))
                 .withFileTreeDiff(Diff.empty());
     }
