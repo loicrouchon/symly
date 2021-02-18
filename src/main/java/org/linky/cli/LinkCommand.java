@@ -21,7 +21,7 @@ import picocli.CommandLine.Option;
 @Command(
         name = "link",
         aliases = {"ln"},
-        description = "Synchronizes the links status"
+        description = "Synchronizes the links from the sources to the destination"
 )
 class LinkCommand extends ValidatedCommand {
 
