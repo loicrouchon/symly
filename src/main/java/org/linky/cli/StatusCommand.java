@@ -32,12 +32,12 @@ class StatusCommand extends ValidatedCommand {
     Path destination;
 
     @Option(
-            names = {"-s", "--sources"},
-            description = "Source directories containing files to link in destination",
+            names = {"-t", "--targets"},
+            description = "Target directories containing files to link in destination",
             required = true,
             arity = "1..*"
     )
-    List<TargetDirectory> sources;
+    List<TargetDirectory> targets;
 
     private final CliConsole console;
     private final FileSystemReader fsReader;
@@ -51,7 +51,7 @@ class StatusCommand extends ValidatedCommand {
         return List.of(
                 Constraint.ofArg("destination", destination, "must be an existing directory",
                         fsReader::isDirectory),
-                Constraint.ofArg("sources", sources, "must be an existing directory",
+                Constraint.ofArg("targets", targets, "must be an existing directory",
                         fsReader::isATargetDirectory)
         );
     }
@@ -60,9 +60,9 @@ class StatusCommand extends ValidatedCommand {
     public void execute() {
         console.printf(
                 "Checking links status from %s to %s%n",
-                sources,
+                targets,
                 destination.toAbsolutePath().normalize());
-        Links links = Links.from(destination, sources);
+        Links links = Links.from(destination, targets);
         checkStatus(console, links);
     }
 

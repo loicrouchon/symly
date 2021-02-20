@@ -17,7 +17,7 @@ import picocli.CommandLine.Option;
 @Command(
         name = "link",
         aliases = {"ln"},
-        description = "Synchronizes the links from the sources to the destination"
+        description = "Synchronizes the links from the target directories to the destination"
 )
 class LinkCommand extends ValidatedCommand {
 
@@ -30,12 +30,12 @@ class LinkCommand extends ValidatedCommand {
     Path destination;
 
     @Option(
-            names = {"-s", "--sources"},
-            description = "Source directories containing files to link in destination",
+            names = {"-t", "--targets"},
+            description = "Target directories containing files to link in destination",
             required = true,
             arity = "1..*"
     )
-    List<TargetDirectory> sources;
+    List<TargetDirectory> targets;
 
     @Option(
             names = {"--dry-run"},
@@ -54,7 +54,7 @@ class LinkCommand extends ValidatedCommand {
         return List.of(
                 Constraint.ofArg("destination", destination, "must be an existing directory",
                         fsReader::isDirectory),
-                Constraint.ofArg("sources", sources, "must be an existing directory",
+                Constraint.ofArg("targets", targets, "must be an existing directory",
                         fsReader::isATargetDirectory)
         );
     }
@@ -68,9 +68,9 @@ class LinkCommand extends ValidatedCommand {
         }
         console.printf(
                 "from %s to %s%n",
-                sources,
+                targets,
                 destination.toAbsolutePath().normalize());
-        Links links = Links.from(destination, sources);
+        Links links = Links.from(destination, targets);
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(console, links, mutator);
     }

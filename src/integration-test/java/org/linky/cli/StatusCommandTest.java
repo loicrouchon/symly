@@ -21,7 +21,7 @@ class StatusCommandTest extends IntegrationTest {
         whenRunningCommand("status")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.missingSources())
+                .withErrorMessage(msg.missingTargets())
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -31,7 +31,7 @@ class StatusCommandTest extends IntegrationTest {
         given(env)
                 .withHome("home/doesnotexist");
         //when/then
-        whenRunningCommand("status", "-s", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "-t", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.destinationDoesNotExist(env.home().toString()))
@@ -43,10 +43,10 @@ class StatusCommandTest extends IntegrationTest {
         //given
         given(env);
         //when/then
-        whenRunningCommand("status", "-s", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "-t", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.sourceDoesNotExist("to/dir"))
+                .withErrorMessage(msg.targetsDoesNotExist("to/dir"))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -56,7 +56,7 @@ class StatusCommandTest extends IntegrationTest {
         given(env)
                 .withDirectories("from/dir");
         //when/then
-        whenRunningCommand("status", "-s", "from/dir")
+        whenRunningCommand("status", "-t", "from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks(List.of("from/dir"), "home/user"))
@@ -69,7 +69,7 @@ class StatusCommandTest extends IntegrationTest {
         given(env)
                 .withDirectories("from/dir", "from/other-dir", "to/dir");
         //when/then
-        whenRunningCommand("status", "-s", "from/dir", "from/other-dir", "-d", "to/dir")
+        whenRunningCommand("status", "-t", "from/dir", "from/other-dir", "-d", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks(List.of("from/dir", "from/other-dir"), "to/dir"))
@@ -82,16 +82,16 @@ class StatusCommandTest extends IntegrationTest {
         @NonNull
         private final Env env;
 
-        public String missingSources() {
-            return "Missing required option: '--sources=<sources>'";
+        public String missingTargets() {
+            return "Missing required option: '--targets=<targets>'";
         }
 
         public String destinationDoesNotExist(String path) {
             return String.format("Argument <destination> (%s): must be an existing directory", path);
         }
 
-        public String sourceDoesNotExist(String path) {
-            return String.format("Argument <sources> (%s): must be an existing directory", path);
+        public String targetsDoesNotExist(String path) {
+            return String.format("Argument <targets> (%s): must be an existing directory", path);
         }
 
         public String checkingLinks(List<String> from, String to) {
