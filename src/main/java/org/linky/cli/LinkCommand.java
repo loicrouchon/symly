@@ -3,7 +3,6 @@ package org.linky.cli;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.linky.Result;
 import org.linky.cli.validation.Constraint;
 import org.linky.files.FileSystemReader;
@@ -36,7 +35,7 @@ class LinkCommand extends ValidatedCommand {
             required = true,
             arity = "1..*"
     )
-    List<Path> sources;
+    List<TargetDirectory> sources;
 
     @Option(
             names = {"--dry-run"},
@@ -55,7 +54,8 @@ class LinkCommand extends ValidatedCommand {
         return List.of(
                 Constraint.ofArg("destination", destination, "must be an existing directory",
                         fsReader::isDirectory),
-                Constraint.ofArg("sources", sources, "must be an existing directory", fsReader::isDirectory)
+                Constraint.ofArg("sources", sources, "must be an existing directory",
+                        fsReader::isATargetDirectory)
         );
     }
 
@@ -68,12 +68,9 @@ class LinkCommand extends ValidatedCommand {
         }
         console.printf(
                 "from %s to %s%n",
-                sources.stream()
-                        .map(Path::toAbsolutePath)
-                        .map(Path::normalize)
-                        .collect(Collectors.toList()),
+                sources,
                 destination.toAbsolutePath().normalize());
-        Links links = Links.from(destination, sources.stream().map(TargetDirectory::of).collect(Collectors.toList()));
+        Links links = Links.from(destination, sources);
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(console, links, mutator);
     }

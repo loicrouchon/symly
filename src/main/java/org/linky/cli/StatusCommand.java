@@ -5,7 +5,6 @@ import static picocli.CommandLine.Help;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.linky.cli.validation.Constraint;
 import org.linky.files.FileSystemReader;
@@ -38,7 +37,7 @@ class StatusCommand extends ValidatedCommand {
             required = true,
             arity = "1..*"
     )
-    List<Path> sources;
+    List<TargetDirectory> sources;
 
     private final CliConsole console;
     private final FileSystemReader fsReader;
@@ -53,7 +52,7 @@ class StatusCommand extends ValidatedCommand {
                 Constraint.ofArg("destination", destination, "must be an existing directory",
                         fsReader::isDirectory),
                 Constraint.ofArg("sources", sources, "must be an existing directory",
-                        fsReader::isDirectory)
+                        fsReader::isATargetDirectory)
         );
     }
 
@@ -61,12 +60,9 @@ class StatusCommand extends ValidatedCommand {
     public void execute() {
         console.printf(
                 "Checking links status from %s to %s%n",
-                sources.stream()
-                        .map(Path::toAbsolutePath)
-                        .map(Path::normalize)
-                        .collect(Collectors.toList()),
+                sources,
                 destination.toAbsolutePath().normalize());
-        Links links = Links.from(destination, sources.stream().map(TargetDirectory::of).collect(Collectors.toList()));
+        Links links = Links.from(destination, sources);
         checkStatus(console, links);
     }
 

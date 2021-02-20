@@ -9,17 +9,19 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.linky.cli.LinkyExecutionException;
 
-@RequiredArgsConstructor(staticName = "of")
+@Value
+@AllArgsConstructor(staticName = "of")
 public class TargetDirectory {
 
     /**
      * The {@link Path} of the target directory.
      */
-    private final Path targetDirectoryPath;
+    Path path;
 
     /**
      * @return a {@link Stream} of {@link Path} of the files present in the target.
@@ -27,13 +29,13 @@ public class TargetDirectory {
     public Stream<LinkTarget> links() {
         try {
             LinksVisitor visitor = new LinksVisitor();
-            Files.walkFileTree(targetDirectoryPath, visitor);
+            Files.walkFileTree(path, visitor);
             return visitor.getPaths()
                     .stream()
-                    .map(path -> toLinkTarget(targetDirectoryPath, path));
+                    .map(filePath -> toLinkTarget(path, filePath));
         } catch (IOException e) {
             throw new LinkyExecutionException(
-                    String.format("Unable to analyze target directory %s", targetDirectoryPath), e);
+                    String.format("Unable to analyze target directory %s", path), e);
         }
     }
 
@@ -41,6 +43,11 @@ public class TargetDirectory {
         Path name = targetDirectoryPath.relativize(linkTarget);
         Path target = linkTarget.toAbsolutePath().normalize();
         return new LinkTarget(name, target);
+    }
+
+    @Override
+    public String toString() {
+        return path.toString();
     }
 
     private static class LinksVisitor extends SimpleFileVisitor<Path> {

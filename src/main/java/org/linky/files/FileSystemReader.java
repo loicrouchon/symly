@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import org.linky.cli.LinkyExecutionException;
+import org.linky.links.TargetDirectory;
 
 public class FileSystemReader {
 
@@ -13,6 +14,10 @@ public class FileSystemReader {
 
     public boolean isDirectory(Path path) {
         return Files.isDirectory(path);
+    }
+
+    public boolean isATargetDirectory(TargetDirectory targetDirectory) {
+        return Files.isDirectory(targetDirectory.getPath());
     }
 
     public boolean isSymbolicLink(Path path) {

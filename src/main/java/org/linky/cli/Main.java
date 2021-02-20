@@ -1,5 +1,6 @@
 package org.linky.cli;
 
+import org.linky.links.TargetDirectory;
 import picocli.CommandLine;
 import picocli.CommandLine.IFactory;
 
@@ -17,6 +18,7 @@ public class Main {
         commandLine.setErr(console.ewriter());
         commandLine.setDefaultValueProvider(new EnvironmentVariableDefaultsProvider());
         commandLine.setExecutionExceptionHandler(new ExceptionHandler(console));
+        commandLine.registerConverter(TargetDirectory.class, new TargetDirectoryTypeConverter());
         return commandLine.execute(args);
     }
 }

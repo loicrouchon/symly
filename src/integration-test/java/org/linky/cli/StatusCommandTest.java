@@ -1,8 +1,6 @@
 package org.linky.cli;
 
-import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -99,10 +97,7 @@ class StatusCommandTest extends IntegrationTest {
         public String checkingLinks(List<String> from, String to) {
             return String.format(
                     "Checking links status from [%s] to %s",
-                    from.stream()
-                            .map(env::path)
-                            .map(Path::toString)
-                            .collect(Collectors.joining(", ")),
+                    String.join(", ", from),
                     env.path(to));
         }
     }
