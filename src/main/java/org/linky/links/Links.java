@@ -22,7 +22,7 @@ public class Links {
         return linksMap.entrySet()
                 .stream()
                 .map(e -> Link.of(e.getKey(), e.getValue()))
-                .sorted(Comparator.comparing(Link::getFrom))
+                .sorted(Comparator.comparing(Link::getSource))
                 .collect(Collectors.toList());
     }
 

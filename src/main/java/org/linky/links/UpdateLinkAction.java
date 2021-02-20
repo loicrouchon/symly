@@ -19,13 +19,13 @@ public class UpdateLinkAction implements Action {
 
     @Override
     public Result<Path, Code> apply(FileSystemWriter fsWriter) {
-        Path previousLink = fsReader.readSymbolicLink(link.getFrom());
-        if (!fsReader.exists(link.getTo())) {
+        Path previousLink = fsReader.readSymbolicLink(link.getSource());
+        if (!fsReader.exists(link.getTarget())) {
             return Result.error(new Code(Code.State.INVALID_DESTINATION, null, previousLink));
         }
         try {
-            fsWriter.deleteIfExists(link.getFrom());
-            fsWriter.createSymbolicLink(link.getFrom(), link.getTo());
+            fsWriter.deleteIfExists(link.getSource());
+            fsWriter.createSymbolicLink(link.getSource(), link.getTarget());
             return Result.success(previousLink);
         } catch (IOException e) {
             return Result.error(new Code(Code.State.ERROR, "Unable to update link " + e.getMessage(),

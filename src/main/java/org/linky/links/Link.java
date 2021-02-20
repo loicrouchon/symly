@@ -6,22 +6,35 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.linky.files.FileSystemReader;
 
+/**
+ * Conceptual representation of a symbolic link where:
+ * <ul>
+ *     <li>{@link #source}: is the {@link Path} of the link.</li>
+ *     <li>{@link #target}: is the {@link Path} pointed by the link.</li>
+ * </ul>
+ */
 @Value
 @RequiredArgsConstructor(staticName = "of")
 public class Link {
 
-    Path from;
-    Path to;
+    /**
+     * The {@link Path} of the link.
+     */
+    Path source;
+    /**
+     * The {@link Path} pointed by the link.
+     */
+    Path target;
 
     public Status status(FileSystemReader fsReader) {
-        if (fsReader.isSymbolicLink(from)) {
-            Path fromRealDestination = fsReader.readSymbolicLink(from);
-            if (Objects.equals(fromRealDestination, to)) {
+        if (fsReader.isSymbolicLink(source)) {
+            Path fromRealDestination = fsReader.readSymbolicLink(source);
+            if (Objects.equals(fromRealDestination, target)) {
                 return new Status(Status.Type.UP_TO_DATE, this, fsReader);
             }
             return new Status(Status.Type.LINK_CONFLICT, this, fsReader);
         }
-        if (fsReader.exists(from)) {
+        if (fsReader.exists(source)) {
             return new Status(Status.Type.FILE_CONFLICT, this, fsReader);
         }
         return new Status(Status.Type.MISSING, this, fsReader);
@@ -29,6 +42,6 @@ public class Link {
 
     @Override
     public String toString() {
-        return from + " -> " + to;
+        return source + " -> " + target;
     }
 }

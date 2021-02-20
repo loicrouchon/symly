@@ -114,7 +114,7 @@ class LinkCommand extends ValidatedCommand {
                 console.printf("> Previous link target was %s%n", previousLink);
             } else {
                 throw new IllegalStateException(
-                        "Expecting a previous link to be found for " + link.getFrom());
+                        "Expecting a previous link to be found for " + link.getSource());
             }
         }
     }
@@ -125,12 +125,12 @@ class LinkCommand extends ValidatedCommand {
         Link link = action.getLink();
         switch (error.getState()) {
             case INVALID_DESTINATION:
-                details = String.format("Destination %s does not exist", link.getTo());
+                details = String.format("Destination %s does not exist", link.getTarget());
                 break;
             case CONFLICT:
                 details = String.format(
                         "Regular file %s already exist. To overwrite it, use the --replace-file option.",
-                        link.getFrom());
+                        link.getSource());
                 break;
             case ERROR:
                 details = String.format("An error occurred during linkage: - %s", error.getDetails());
