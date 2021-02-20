@@ -13,25 +13,34 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.linky.cli.LinkyExecutionException;
 
-@RequiredArgsConstructor
-class TargetDirectoryReader {
+@RequiredArgsConstructor(staticName = "of")
+public class TargetDirectory {
 
     /**
-     * The target {@link Path} to scan.
+     * The {@link Path} of the target directory.
      */
-    private final Path target;
+    private final Path targetDirectoryPath;
 
     /**
      * @return a {@link Stream} of {@link Path} of the files present in the target.
      */
-    public Stream<Path> read() {
+    public Stream<LinkTarget> links() {
         try {
             LinksVisitor visitor = new LinksVisitor();
-            Files.walkFileTree(target, visitor);
-            return visitor.getPaths().stream();
+            Files.walkFileTree(targetDirectoryPath, visitor);
+            return visitor.getPaths()
+                    .stream()
+                    .map(path -> toLinkTarget(targetDirectoryPath, path));
         } catch (IOException e) {
-            throw new LinkyExecutionException(String.format("Unable to analyze target directory %s", target), e);
+            throw new LinkyExecutionException(
+                    String.format("Unable to analyze target directory %s", targetDirectoryPath), e);
         }
+    }
+
+    private LinkTarget toLinkTarget(Path targetDirectoryPath, Path linkTarget) {
+        Path name = targetDirectoryPath.relativize(linkTarget);
+        Path target = linkTarget.toAbsolutePath().normalize();
+        return new LinkTarget(name, target);
     }
 
     private static class LinksVisitor extends SimpleFileVisitor<Path> {

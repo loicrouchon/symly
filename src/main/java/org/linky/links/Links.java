@@ -16,32 +16,28 @@ public class Links {
      * A {@link Map} which keys are the links names as a relative {@link Path} and the values the links targets {@link
      * Path}.
      */
-    private final Map<Path, Path> linksNameToTargetMap = new HashMap<>();
+    private final Map<Path, LinkTarget> nameToTargetLinkMap = new HashMap<>();
 
     public Collection<Link> list() {
-        return linksNameToTargetMap.entrySet()
+        return nameToTargetLinkMap.values()
                 .stream()
                 .map(this::toLink)
                 .sorted(Comparator.comparing(Link::getSource))
                 .collect(Collectors.toList());
     }
 
-    private Link toLink(Map.Entry<Path, Path> entry) {
-        Path source = destination.resolve(entry.getKey()).normalize();
-        Path target = entry.getValue();
-        return Link.of(source, target);
+    private Link toLink(LinkTarget linkTarget) {
+        return linkTarget.toLink(destination);
     }
 
-    private void add(Path path, Path target) {
-        Path linkName = target.relativize(path);
-        linksNameToTargetMap.computeIfAbsent(linkName, key -> path.toAbsolutePath().normalize());
+    private void add(LinkTarget linkTarget) {
+        nameToTargetLinkMap.putIfAbsent(linkTarget.getName(), linkTarget);
     }
 
-    public static Links from(Path destination, List<Path> targets) {
+    public static Links from(Path destination, List<TargetDirectory> targetDirectories) {
         Links links = new Links(destination);
-        for (Path target : targets) {
-            TargetDirectoryReader reader = new TargetDirectoryReader(target);
-            reader.read().forEach(path -> links.add(path, target));
+        for (TargetDirectory targetDirectory : targetDirectories) {
+            targetDirectory.links().forEach(links::add);
         }
         return links;
     }

@@ -131,9 +131,59 @@ Creating links from [~/my/source] to ~
 
 ## Terminology
 
-* **Destination**: a directory in which a `source`  file structure will be linked.
-* **Link**: a [symbolic link](https://en.wikipedia.org/wiki/Symbolic_link)
-* **Source**: a directory containing a file structure to link in a `destination`.
+The terminology examples will be given by considering the following file structure:
+```
+~
+ |-- .gitconfig         -> ~/my/target/custom/.gitconfig
+ |-- .bashrc            -> ~/my/target/custom/.bashrc
+ >-- .config
+     >-- starship.toml  -> ~/my/target/defaults/config/starship.toml
+
+~/my/target
+ |-- custom
+ |   |-- .gitconfig
+ |   >-- .bashrc
+ >-- defaults
+     |-- .gitconfig
+     >-- .config
+        >-- starship.toml
+```
+
+**Destination**:
+> A directory in which a `target directory`  file structure will be linked. 
+> 
+> Example: `~`
+
+
+**Target directory**:
+> A directory containing a file structure to link in a `destination`.
+>
+> Example: `~/my/target/custom`, `~/my/target/defaults`
+
+**Link**:
+> A [symbolic link](https://en.wikipedia.org/wiki/Symbolic_link)
+> 
+> Example: `~/.gitconfig -> ~/my/target/custom/.gitconfig`
+
+**Link source**:
+> The path of the link.
+> 
+> Example: `~/.gitconfig`
+
+**Link target**:
+> The path pointed by the link.
+>
+> Example: `~/my/target/custom/.gitconfig`
+
+**Link name**:
+> The common part of the path between the link source and target. It is both
+> * The relative path of a link source to its destination.
+> * The relative path of a link target to its target.
+>
+> Example:
+> * `.gitconfig` for link `~/.gitconfig -> ~/my/target/custom/.gitconfig`
+> * `.config/starship.toml` for link `~/.config/starship.toml -> ~/my/target/defaults/config/starship.toml`
+
 
 ## Installation
 

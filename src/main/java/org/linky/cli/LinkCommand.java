@@ -10,10 +10,7 @@ import org.linky.files.FileSystemReader;
 import org.linky.files.FileSystemWriter;
 import org.linky.files.FileSystemWriterImpl;
 import org.linky.files.NoOpFileSystemWriter;
-import org.linky.links.Action;
-import org.linky.links.Link;
-import org.linky.links.Links;
-import org.linky.links.Status;
+import org.linky.links.*;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -76,7 +73,7 @@ class LinkCommand extends ValidatedCommand {
                         .map(Path::normalize)
                         .collect(Collectors.toList()),
                 destination.toAbsolutePath().normalize());
-        Links links = Links.from(destination, sources);
+        Links links = Links.from(destination, sources.stream().map(TargetDirectory::of).collect(Collectors.toList()));
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(console, links, mutator);
     }
