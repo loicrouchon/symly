@@ -40,7 +40,7 @@ public class Links {
     public static Links from(Path destination, List<Path> targets) {
         Links links = new Links(destination);
         for (Path target : targets) {
-            SourceReader reader = new SourceReader(target);
+            TargetDirectoryReader reader = new TargetDirectoryReader(target);
             reader.read().forEach(path -> links.add(path, target));
         }
         return links;

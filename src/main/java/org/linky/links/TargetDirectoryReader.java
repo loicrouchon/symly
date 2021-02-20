@@ -1,7 +1,5 @@
 package org.linky.links;
 
-import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
-
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -10,28 +8,33 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.linky.cli.LinkyExecutionException;
 
 @RequiredArgsConstructor
-class SourceReader {
+class TargetDirectoryReader {
 
-    private final Path source;
+    /**
+     * The target {@link Path} to scan.
+     */
+    private final Path target;
 
+    /**
+     * @return a {@link Stream} of {@link Path} of the files present in the target.
+     */
     public Stream<Path> read() {
         try {
-            LinkerVisitor visitor = new LinkerVisitor();
-            Files.walkFileTree(source, EnumSet.of(FOLLOW_LINKS), Integer.MAX_VALUE, visitor);
+            LinksVisitor visitor = new LinksVisitor();
+            Files.walkFileTree(target, visitor);
             return visitor.getPaths().stream();
         } catch (IOException e) {
-            throw new LinkyExecutionException(String.format("Unable to analyze source directory %s", source), e);
+            throw new LinkyExecutionException(String.format("Unable to analyze target directory %s", target), e);
         }
     }
 
-    private static class LinkerVisitor extends SimpleFileVisitor<Path> {
+    private static class LinksVisitor extends SimpleFileVisitor<Path> {
 
         @Getter
         private final Collection<Path> paths = new ArrayList<>();
