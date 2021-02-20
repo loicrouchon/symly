@@ -8,29 +8,40 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class Links {
 
+    /**
+     * The directory in which the links must be created to the targets.
+     */
     private final Path destination;
-    private final Map<Path, Path> linksMap = new HashMap<>();
-
-    public void add(Path name, Path source) {
-        Path normalizedName = destination.resolve(source.relativize(name)).normalize();
-        if (!linksMap.containsKey(normalizedName)) {
-            linksMap.put(normalizedName, name.toAbsolutePath().normalize());
-        }
-    }
+    /**
+     * A {@link Map} which keys are the links names as a relative {@link Path} and the values the links targets {@link
+     * Path}.
+     */
+    private final Map<Path, Path> linksNameToTargetMap = new HashMap<>();
 
     public Collection<Link> list() {
-        return linksMap.entrySet()
+        return linksNameToTargetMap.entrySet()
                 .stream()
-                .map(e -> Link.of(e.getKey(), e.getValue()))
+                .map(this::toLink)
                 .sorted(Comparator.comparing(Link::getSource))
                 .collect(Collectors.toList());
     }
 
-    public static Links from(Path destination, List<Path> sources) {
+    private Link toLink(Map.Entry<Path, Path> entry) {
+        Path source = destination.resolve(entry.getKey()).normalize();
+        Path target = entry.getValue();
+        return Link.of(source, target);
+    }
+
+    private void add(Path path, Path target) {
+        Path linkName = target.relativize(path);
+        linksNameToTargetMap.computeIfAbsent(linkName, key -> path.toAbsolutePath().normalize());
+    }
+
+    public static Links from(Path destination, List<Path> targets) {
         Links links = new Links(destination);
-        for (Path source : sources) {
-            SourceReader reader = new SourceReader(source);
-            reader.read().forEach(path -> links.add(path, source));
+        for (Path target : targets) {
+            SourceReader reader = new SourceReader(target);
+            reader.read().forEach(path -> links.add(path, target));
         }
         return links;
     }
