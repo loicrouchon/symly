@@ -9,24 +9,20 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Stream;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Value;
 import org.linky.cli.LinkyExecutionException;
 
-@Value
-@AllArgsConstructor(staticName = "of")
-public class TargetDirectory {
+public class TargetDirectory extends Directory {
 
-    /**
-     * The {@link Path} of the target directory.
-     */
-    Path path;
+    private TargetDirectory(Path path) {
+        super(path);
+    }
 
     /**
      * @return a {@link Stream} of {@link Path} of the files present in the target.
      */
     public Stream<LinkTarget> links() {
+        Path path = toPath();
         try {
             LinksVisitor visitor = new LinksVisitor();
             Files.walkFileTree(path, visitor);
@@ -45,9 +41,8 @@ public class TargetDirectory {
         return new LinkTarget(name, target);
     }
 
-    @Override
-    public String toString() {
-        return path.toString();
+    public static TargetDirectory of(Path path) {
+        return new TargetDirectory(path);
     }
 
     private static class LinksVisitor extends SimpleFileVisitor<Path> {

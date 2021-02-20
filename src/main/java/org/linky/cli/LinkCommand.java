@@ -22,18 +22,21 @@ import picocli.CommandLine.Option;
 class LinkCommand extends ValidatedCommand {
 
     @Option(
-            names = {"-d", "--destination"},
-            description = "Destination directory in which links will be created",
+            names = {"-s", "--source-directory"},
+            paramLabel = "<source-directory>",
+            description = "Source directory in which links will be created",
             required = true,
             showDefaultValue = CommandLine.Help.Visibility.ALWAYS
     )
-    Path destination;
+    SourceDirectory source;
 
     @Option(
-            names = {"-t", "--targets"},
+            names = {"-t", "--target-directories"},
+            paramLabel = "<target-directories>",
             description = "Target directories containing files to link in destination",
             required = true,
             arity = "1..*"
+
     )
     List<TargetDirectory> targets;
 
@@ -52,9 +55,9 @@ class LinkCommand extends ValidatedCommand {
     @Override
     protected Collection<Constraint> constraints() {
         return List.of(
-                Constraint.ofArg("destination", destination, "must be an existing directory",
-                        fsReader::isDirectory),
-                Constraint.ofArg("targets", targets, "must be an existing directory",
+                Constraint.ofArg("source-directory", source, "must be an existing directory",
+                        fsReader::isATargetDirectory),
+                Constraint.ofArg("target-directories", targets, "must be an existing directory",
                         fsReader::isATargetDirectory)
         );
     }
@@ -66,11 +69,8 @@ class LinkCommand extends ValidatedCommand {
         if (dryRun) {
             console.printf("(dry-run mode) ");
         }
-        console.printf(
-                "from %s to %s%n",
-                targets,
-                destination.toAbsolutePath().normalize());
-        Links links = Links.from(destination, targets);
+        console.printf("from %s to %s%n", targets, source);
+        Links links = Links.from(source, targets);
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(console, links, mutator);
     }

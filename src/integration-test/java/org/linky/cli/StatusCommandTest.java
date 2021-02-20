@@ -1,6 +1,8 @@
 package org.linky.cli;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -21,12 +23,12 @@ class StatusCommandTest extends IntegrationTest {
         whenRunningCommand("status")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.missingTargets())
+                .withErrorMessage(msg.missingTargetDirectories())
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
     @Test
-    void shouldFail_whenDestinationDirectoryDoesNotExist() {
+    void shouldFail_whenSourceDirectoryDoesNotExist() {
         //given
         given(env)
                 .withHome("home/doesnotexist");
@@ -34,19 +36,19 @@ class StatusCommandTest extends IntegrationTest {
         whenRunningCommand("status", "-t", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.destinationDoesNotExist(env.home().toString()))
+                .withErrorMessage(msg.sourceDirectoryDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
     @Test
-    void shouldFail_whenSourceDirectoryDoesNotExist() {
+    void shouldFail_whenTargetDirectoryDoesNotExist() {
         //given
         given(env);
         //when/then
         whenRunningCommand("status", "-t", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.targetsDoesNotExist("to/dir"))
+                .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -69,7 +71,7 @@ class StatusCommandTest extends IntegrationTest {
         given(env)
                 .withDirectories("from/dir", "from/other-dir", "to/dir");
         //when/then
-        whenRunningCommand("status", "-t", "from/dir", "from/other-dir", "-d", "to/dir")
+        whenRunningCommand("status", "-s", "to/dir", "-t", "from/dir", "from/other-dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks(List.of("from/dir", "from/other-dir"), "to/dir"))
@@ -82,22 +84,25 @@ class StatusCommandTest extends IntegrationTest {
         @NonNull
         private final Env env;
 
-        public String missingTargets() {
-            return "Missing required option: '--targets=<targets>'";
+        public String missingTargetDirectories() {
+            return "Missing required option: '--target-directories=<target-directories>'";
         }
 
-        public String destinationDoesNotExist(String path) {
-            return String.format("Argument <destination> (%s): must be an existing directory", path);
+        public String targetDirectoryDoesNotExist(String path) {
+            return String.format("Argument <target-directories> (%s): must be an existing directory", env.path(path));
         }
 
-        public String targetsDoesNotExist(String path) {
-            return String.format("Argument <targets> (%s): must be an existing directory", path);
+        public String sourceDirectoryDoesNotExist(String path) {
+            return String.format("Argument <source-directory> (%s): must be an existing directory", env.path(path));
         }
 
         public String checkingLinks(List<String> from, String to) {
             return String.format(
                     "Checking links status from [%s] to %s",
-                    String.join(", ", from),
+                    from.stream()
+                            .map(env::path)
+                            .map(Path::toString)
+                            .collect(Collectors.joining(", ")),
                     env.path(to));
         }
     }

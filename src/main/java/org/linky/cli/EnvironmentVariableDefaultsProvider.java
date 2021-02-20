@@ -6,10 +6,10 @@ import picocli.CommandLine.IDefaultValueProvider;
 
 public class EnvironmentVariableDefaultsProvider implements IDefaultValueProvider {
 
-    public static final String USER_HOME ="user.home";
+    public static final String USER_HOME = "user.home";
 
     private static final Map<String, String> OPTIONS_TO_VAR_NAME = Map.of(
-            "--destination", USER_HOME,
+            "--source-directory", USER_HOME,
             "--from", USER_HOME
     );
 

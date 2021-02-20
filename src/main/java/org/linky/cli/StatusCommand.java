@@ -8,10 +8,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.linky.cli.validation.Constraint;
 import org.linky.files.FileSystemReader;
-import org.linky.links.Link;
-import org.linky.links.Links;
-import org.linky.links.Status;
-import org.linky.links.TargetDirectory;
+import org.linky.links.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -24,15 +21,17 @@ import picocli.CommandLine.Option;
 class StatusCommand extends ValidatedCommand {
 
     @Option(
-            names = {"-d", "--destination"},
-            description = "Destination directory in which links will be created",
+            names = {"-s", "--source-directory"},
+            paramLabel = "<source-directory>",
+            description = "Source directory in which links will be created",
             required = true,
             showDefaultValue = Help.Visibility.ALWAYS
     )
-    Path destination;
+    SourceDirectory destination;
 
     @Option(
-            names = {"-t", "--targets"},
+            names = {"-t", "--target-directories"},
+            paramLabel = "<target-directories>",
             description = "Target directories containing files to link in destination",
             required = true,
             arity = "1..*"
@@ -49,19 +48,16 @@ class StatusCommand extends ValidatedCommand {
     @Override
     protected Collection<Constraint> constraints() {
         return List.of(
-                Constraint.ofArg("destination", destination, "must be an existing directory",
-                        fsReader::isDirectory),
-                Constraint.ofArg("targets", targets, "must be an existing directory",
+                Constraint.ofArg("source-directory", destination, "must be an existing directory",
+                        fsReader::isATargetDirectory),
+                Constraint.ofArg("target-directories", targets, "must be an existing directory",
                         fsReader::isATargetDirectory)
         );
     }
 
     @Override
     public void execute() {
-        console.printf(
-                "Checking links status from %s to %s%n",
-                targets,
-                destination.toAbsolutePath().normalize());
+        console.printf("Checking links status from %s to %s%n", targets, destination);
         Links links = Links.from(destination, targets);
         checkStatus(console, links);
     }

@@ -11,7 +11,7 @@ public class Links {
     /**
      * The directory in which the links must be created to the targets.
      */
-    private final Path destination;
+    private final SourceDirectory sourceDirectory;
     /**
      * A {@link Map} which keys are the links names as a relative {@link Path} and the values the links targets {@link
      * Path}.
@@ -27,15 +27,15 @@ public class Links {
     }
 
     private Link toLink(LinkTarget linkTarget) {
-        return linkTarget.toLink(destination);
+        return linkTarget.toLink(sourceDirectory);
     }
 
     private void add(LinkTarget linkTarget) {
         nameToTargetLinkMap.putIfAbsent(linkTarget.getName(), linkTarget);
     }
 
-    public static Links from(Path destination, List<TargetDirectory> targetDirectories) {
-        Links links = new Links(destination);
+    public static Links from(SourceDirectory sourceDirectory, List<TargetDirectory> targetDirectories) {
+        Links links = new Links(sourceDirectory);
         for (TargetDirectory targetDirectory : targetDirectories) {
             targetDirectory.links().forEach(links::add);
         }

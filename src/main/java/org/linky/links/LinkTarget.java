@@ -15,8 +15,8 @@ class LinkTarget {
      */
     Path target;
 
-    public Link toLink(Path destination) {
-        Path source = destination.resolve(name).normalize();
+    public Link toLink(SourceDirectory sourceDirectory) {
+        Path source = sourceDirectory.toPath().resolve(name).normalize();
         return Link.of(source, target);
     }
 }

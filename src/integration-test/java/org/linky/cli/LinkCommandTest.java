@@ -1,6 +1,8 @@
 package org.linky.cli;
 
+import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -21,19 +23,19 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.missingTargets())
+                .withErrorMessage(msg.missingTargetDirectories())
                 .withFileTreeDiff(Diff.empty());
     }
 
     @Test
-    void shouldFail_whenDestinationDirectoryDoesNotExist() {
+    void shouldFail_whenSourceDirectoryDoesNotExist() {
         //given
         given(env).withHome("home/doesnotexist");
         //when/then
         whenRunningCommand("link", "-t", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.destinationDoesNotExist(env.home().toString()))
+                .withErrorMessage(msg.sourceDirectoryDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -45,7 +47,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-t", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.targetDoesNotExist("to/dir"))
+                .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -68,7 +70,7 @@ class LinkCommandTest extends IntegrationTest {
         given(env)
                 .withDirectories("from/dir", "from/other-dir", "to/dir");
         //when/then
-        whenRunningCommand("link", "-t", "from/dir", "from/other-dir", "-d", "to/dir")
+        whenRunningCommand("link", "-s", "to/dir", "-t", "from/dir", "from/other-dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.creatingLinks(List.of("from/dir", "from/other-dir"), "to/dir"))
@@ -76,7 +78,7 @@ class LinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldLinkFile_whenDestinationFileDoesNotExist() {
+    void shouldLinkFile_whenTargetFileDoesNotExist() {
         //given
         given(env)
                 .withFiles(
@@ -96,7 +98,7 @@ class LinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldLinkLink_whenDestinationLinkDoesNotExist() {
+    void shouldLinkLink_whenTargetLinkDoesNotExist() {
         //given
         given(env)
                 .withFiles("opt/file")
@@ -142,7 +144,7 @@ class LinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldNotLinkFile_whenLinkDestinationIsAnExistingFile() {
+    void shouldNotLinkFile_whenTargetIsAnExistingFile() {
         //given
         given(env)
                 .withFiles(
@@ -159,7 +161,7 @@ class LinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldNotLinkFile_whenLinkDestinationIsAnExistingDirectory() {
+    void shouldNotLinkFile_whenTargetIsAnExistingDirectory() {
         //given
         given(env)
                 .withDirectories("home/user/file")
@@ -174,7 +176,7 @@ class LinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldUpdateLink_whenLinkDestinationIsAnExistingLink() {
+    void shouldUpdateLink_whenTargetIsAnExistingLink() {
         //given
         given(env)
                 .withSymbolicLink("home/user/file", "home/user/other-file")
@@ -211,22 +213,25 @@ class LinkCommandTest extends IntegrationTest {
         @NonNull
         private final Env env;
 
-        public String missingTargets() {
-            return "Missing required option: '--targets=<targets>'";
+        public String missingTargetDirectories() {
+            return "Missing required option: '--target-directories=<target-directories>'";
         }
 
-        public String destinationDoesNotExist(String path) {
-            return String.format("Argument <destination> (%s): must be an existing directory", path);
+        public String targetDirectoryDoesNotExist(String path) {
+            return String.format("Argument <target-directories> (%s): must be an existing directory", env.path(path));
         }
 
-        public String targetDoesNotExist(String path) {
-            return String.format("Argument <targets> (%s): must be an existing directory", path);
+        public String sourceDirectoryDoesNotExist(String path) {
+            return String.format("Argument <source-directory> (%s): must be an existing directory", env.path(path));
         }
 
         public String creatingLinks(List<String> from, String to) {
             return String.format(
                     "Creating links from [%s] to %s",
-                    String.join(", ", from),
+                    from.stream()
+                            .map(env::path)
+                            .map(Path::toString)
+                            .collect(Collectors.joining(", ")),
                     env.path(to));
         }
 
