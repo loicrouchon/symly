@@ -134,3 +134,22 @@ task buildNativeImage(type: Exec) {
             "${mainClassName}"
 }
 buildNativeImage.dependsOn installDist
+
+
+// DEBIAN packaging
+// needs a native image to be generated for a linux-amd64 target first 
+task prepareDebianPackage(type: Copy) {
+    from("packaging/linky") {
+        expand(version: project.version)
+    }
+    from("build/libs/linky") {
+        into "usr/local/bin/"
+    }
+    into "${buildDir}/packaging/debian"
+}
+
+task buildDebianPackage(type:Exec) {
+    workingDir "${buildDir}/packaging"
+    commandLine "dpkg", "--build", "debian", "."
+}
+buildDebianPackage.dependsOn prepareDebianPackage
