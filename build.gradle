@@ -19,6 +19,11 @@ application {
     ]
 }
 
+processResources {
+    filesMatching ('**/application.properties') {
+        expand(version: project.version)
+    }
+}
 compileJava {
     options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
 }
