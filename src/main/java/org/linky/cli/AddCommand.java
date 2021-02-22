@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.linky.Result;
 import org.linky.cli.validation.Constraint;
 import org.linky.files.FileSystemReader;
 import org.linky.files.FileSystemWriter;
-import org.linky.files.FileSystemWriterImpl;
 import org.linky.links.Action;
 import org.linky.links.Configuration;
 import org.linky.links.Link;
@@ -45,16 +45,15 @@ class AddCommand extends ValidatedCommand {
     @Parameters(index = "0", description = "File or directory to be moved from <from> to <to>")
     Path file;
 
+    @NonNull
     private final CliConsole console;
+    @NonNull
     private final FileSystemReader fsReader;
+    @NonNull
     private final FileSystemWriter fsWriter;
 
     private Path name;
     private Path destinationFile;
-
-    AddCommand() {
-        this(CliConsole.console(), new FileSystemReader(), new FileSystemWriterImpl());
-    }
 
     @Override
     protected Collection<Constraint> constraints() {

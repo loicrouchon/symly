@@ -2,6 +2,8 @@ package org.linky.cli;
 
 import static picocli.CommandLine.Command;
 
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -17,6 +19,7 @@ import picocli.CommandLine.Spec;
                 AddCommand.class,
         }
 )
+@RequiredArgsConstructor
 class MainCommand implements Runnable {
 
     @Option(names = {"-v", "--verbose"},
@@ -35,9 +38,11 @@ class MainCommand implements Runnable {
     @Spec
     private CommandSpec spec;
 
+    @NonNull
+    private final CliConsole console;
+
     @Override
     public void run() {
-        CliConsole console = CliConsole.console();
         CommandLine commandLine = spec.commandLine();
         if (helpRequested || !version) {
             commandLine.usage(console.writer());

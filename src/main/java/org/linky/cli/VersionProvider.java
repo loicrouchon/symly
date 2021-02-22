@@ -10,10 +10,6 @@ public class VersionProvider implements CommandLine.IVersionProvider {
     @NonNull
     private final Config config;
 
-    public VersionProvider() {
-        this(new Config());
-    }
-
     @Override
     public String[] getVersion() {
         return new String[]{

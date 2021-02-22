@@ -4,11 +4,12 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.linky.Result;
 import org.linky.cli.validation.Constraint;
 import org.linky.files.FileSystemReader;
 import org.linky.files.FileSystemWriter;
-import org.linky.files.FileSystemWriterImpl;
 import org.linky.files.NoOpFileSystemWriter;
 import org.linky.links.Action;
 import org.linky.links.Link;
@@ -23,6 +24,7 @@ import picocli.CommandLine.Option;
         aliases = {"ln"},
         description = "Synchronizes the links from the sources to the destination"
 )
+@RequiredArgsConstructor
 class LinkCommand extends ValidatedCommand {
 
     @Option(
@@ -47,11 +49,12 @@ class LinkCommand extends ValidatedCommand {
     )
     boolean dryRun;
 
+    @NonNull
+    private final CliConsole console;
+    @NonNull
     private final FileSystemReader fsReader;
-
-    LinkCommand() {
-        fsReader = new FileSystemReader();
-    }
+    @NonNull
+    private final FileSystemWriter fileSystemWriter;
 
     @Override
     protected Collection<Constraint> constraints() {
@@ -64,7 +67,6 @@ class LinkCommand extends ValidatedCommand {
 
     @Override
     public void execute() {
-        CliConsole console = CliConsole.console();
         console.printf("Creating links ");
         if (dryRun) {
             console.printf("(dry-run mode) ");
@@ -78,35 +80,33 @@ class LinkCommand extends ValidatedCommand {
                 destination.toAbsolutePath().normalize());
         Links links = Links.from(destination, sources);
         FileSystemWriter mutator = getFilesMutatorService();
-        createLinks(console, links, mutator);
+        createLinks(links, mutator);
     }
 
     private FileSystemWriter getFilesMutatorService() {
         if (dryRun) {
             return new NoOpFileSystemWriter();
         }
-        return new FileSystemWriterImpl();
+        return fileSystemWriter;
     }
 
-    private void createLinks(CliConsole console,
-            Links links,
-            FileSystemWriter fsWriter) {
+    private void createLinks(Links links, FileSystemWriter fsWriter) {
         for (Link link : links.list()) {
             Status status = link.status(fsReader);
             Action action = status.toAction();
             Result<Path, Action.Code> result = action.apply(fsWriter);
-            printStatus(console, action, result);
+            printStatus(action, result);
         }
     }
 
-    private void printStatus(CliConsole console, Action action, Result<Path, Action.Code> result) {
+    private void printStatus(Action action, Result<Path, Action.Code> result) {
         result.accept(
-                previousLink -> printAction(console, action, previousLink),
-                error -> printError(console, action, error)
+                previousLink -> printAction(action, previousLink),
+                error -> printError(action, error)
         );
     }
 
-    private void printAction(CliConsole console, Action action, Path previousLink) {
+    private void printAction(Action action, Path previousLink) {
         Link link = action.getLink();
         console.printf("[%-" + Action.Type.MAX_LENGTH + "s] %s%n", action.getType(), link);
         if (action.getType().equals(Action.Type.UPDATE)) {
@@ -119,8 +119,8 @@ class LinkCommand extends ValidatedCommand {
         }
     }
 
-    private void printError(CliConsole console, Action action, Action.Code error) {
-        printAction(console, action, error.getPreviousPath());
+    private void printError(Action action, Action.Code error) {
+        printAction(action, error.getPreviousPath());
         String details;
         Link link = action.getLink();
         switch (error.getState()) {
