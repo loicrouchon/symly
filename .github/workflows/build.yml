@@ -3,6 +3,24 @@ name: Build
 on: push
 
 jobs:
+  env:
+    name: Initialize environment
+    runs-on: ubuntu-20.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - id: version
+        name: Read application version
+        run: |
+          VERSION=$(cat gradle.properties | grep -w version | sed -e 's/^version *= *\(.*\)/\1/g')
+          echo ::set-output name=version::$VERSION
+
+      - name: Application version
+        run: echo "Application version is ${{ steps.version.outputs.version }}"
+
   build:
     name: Build & Test
     runs-on: ubuntu-20.04
@@ -43,10 +61,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: linux
+          - arch: linux-amd64
             os: ubuntu-20.04
             gu-binary: gu
-          - name: macos
+          - arch: macos-x86_64
             os: macos-latest
             gu-binary: gu
     steps:
@@ -74,8 +92,36 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: linky-${{ matrix.name }}
+          name: linky-${{ matrix.arch }}
           path: build/libs/linky
+
+  package-linux:
+    name: Linux packaging
+    runs-on: ubuntu-20.04
+    needs: [env, package]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: linky-linux-amd64
+          path: build/libs/
+
+      - name: Inspect downloaded artifact
+        run: |
+            find build/libs
+
+      # TODO use a proper version number
+      - name: Build debian package application
+        run: ./gradlew buildDebianPackage --console=plain --no-daemon
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: linky_${{ needs.env.outputs.version }}_amd64.deb
+          path: build/packaging/linky_${{ needs.env.outputs.version }}_amd64.deb
 
   release:
     # This is done as a separate task from the package step
@@ -86,7 +132,7 @@ jobs:
       tag: ${{ steps.tag.outputs.tag }}
 
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build, package]
+    needs: [build, package, package-linux]
 
     runs-on: ubuntu-20.04
     steps:
@@ -114,7 +160,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-20.04 ]
-        artifact: [ linky-linux, linky-macos ]
+        artifact: [ linky-linux-amd64, linky-macos-x86_64 ]
 
     steps:
       - name: Download artifacts
