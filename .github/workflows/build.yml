@@ -18,7 +18,7 @@ jobs:
           VERSION=$(cat gradle.properties | grep -w version | sed -e 's/^version *= *\(.*\)/\1/g')
           echo ::set-output name=version::$VERSION
 
-      - name: Application version
+      - name: Echo application version
         run: echo "Application version is ${{ steps.version.outputs.version }}"
 
   build:
@@ -109,13 +109,14 @@ jobs:
           name: linky-linux-amd64
           path: build/libs/
 
-      - name: Inspect downloaded artifact
-        run: |
-            find build/libs
-
-      # TODO use a proper version number
       - name: Build debian package application
         run: ./gradlew buildDebianPackage --console=plain --no-daemon
+
+      - name: Debian package installation verification
+        run: sudo dpkg -i build/packaging/linky_${{ needs.env.outputs.version }}_amd64.deb
+
+      - name: Debian package post-installation verification
+        run: linky --version
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
