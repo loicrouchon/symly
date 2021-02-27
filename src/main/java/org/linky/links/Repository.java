@@ -12,9 +12,9 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import org.linky.cli.LinkyExecutionException;
 
-public class TargetDirectory extends Directory {
+public class Repository extends Directory {
 
-    private TargetDirectory(Path path) {
+    private Repository(Path path) {
         super(path);
     }
 
@@ -41,8 +41,8 @@ public class TargetDirectory extends Directory {
         return new LinkTarget(name, target);
     }
 
-    public static TargetDirectory of(Path path) {
-        return new TargetDirectory(path);
+    public static Repository of(Path path) {
+        return new Repository(path);
     }
 
     private static class LinksVisitor extends SimpleFileVisitor<Path> {

@@ -1,9 +1,9 @@
 package org.linky.cli;
 
 import org.linky.cli.converters.SourceDirectoryTypeConverter;
-import org.linky.cli.converters.TargetDirectoryTypeConverter;
+import org.linky.cli.converters.RepositoryTypeConverter;
 import org.linky.links.SourceDirectory;
-import org.linky.links.TargetDirectory;
+import org.linky.links.Repository;
 import picocli.CommandLine;
 
 public class Main {
@@ -22,7 +22,7 @@ public class Main {
         commandLine.setDefaultValueProvider(new EnvironmentVariableDefaultsProvider());
         commandLine.setExecutionExceptionHandler(new ExceptionHandler(console));
         commandLine.registerConverter(SourceDirectory.class, new SourceDirectoryTypeConverter());
-        commandLine.registerConverter(TargetDirectory.class, new TargetDirectoryTypeConverter());
+        commandLine.registerConverter(Repository.class, new RepositoryTypeConverter());
         return commandLine.execute(args);
     }
 }

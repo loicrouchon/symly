@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 public class Links {
 
     /**
-     * The directory in which the links must be created to the targets.
+     * The directory in which the links must be created.
      */
     private final SourceDirectory sourceDirectory;
     /**
@@ -34,10 +34,10 @@ public class Links {
         nameToTargetLinkMap.putIfAbsent(linkTarget.getName(), linkTarget);
     }
 
-    public static Links from(SourceDirectory sourceDirectory, List<TargetDirectory> targetDirectories) {
+    public static Links from(SourceDirectory sourceDirectory, List<Repository> repositories) {
         Links links = new Links(sourceDirectory);
-        for (TargetDirectory targetDirectory : targetDirectories) {
-            targetDirectory.links().forEach(links::add);
+        for (Repository repository : repositories) {
+            repository.links().forEach(links::add);
         }
         return links;
     }

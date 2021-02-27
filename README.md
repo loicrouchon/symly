@@ -1,12 +1,12 @@
 # Linky
 
-Linky is a tool helping to replicate and maintain the file structure of a `target directory` into a
+Linky is a tool helping to replicate and maintain the file structure of a `repository` into a
 directory `source directory` by creating symbolic links.
 
-For example, consider the following directory `~/my/target`:
+For example, consider the following directory `~/my/repository`:
 
 ```
-~/my/target
+~/my/repository
  |-- .bashrc
  |-- .gitconfig
  >-- .config
@@ -15,19 +15,19 @@ For example, consider the following directory `~/my/target`:
          |-- config.fish
 ```
 
-By using linky, you can automatically create links from `~` to all files in `~/my/target`.
+By using linky, you can automatically create links from `~` to all files in `~/my/repository`.
 
 ```
-> linky link -t ~/my/target
+> linky link -r ~/my/repository
 ```
 
 This would result in the following links:
 
 ```
-~/.bashrc                   ->  ~/my/target/.bashrc
-~/.gitconfig                ->  ~/my/target/.gitconfig
-~/.config/starship.toml     ->  ~/my/target/.config/starship.toml
-~/.config/fish/config.fish  ->  ~/my/target/.config/fish/config.fish
+~/.bashrc                   ->  ~/my/repository/.bashrc
+~/.gitconfig                ->  ~/my/repository/.gitconfig
+~/.config/starship.toml     ->  ~/my/repository/.config/starship.toml
+~/.config/fish/config.fish  ->  ~/my/repository/.config/fish/config.fish
 ```
 
 ## What is linky useful for?
@@ -51,10 +51,10 @@ your `.bashrc`, other tools like `git config --global`, ... Using a file copy wo
 want to deploy your centralized files.
 
 * **Seamless integration**:
-  by using symbolic links every change to tracked files will be immediately and available in the target directory, no
+  by using symbolic links every change to tracked files will be immediately and available in the repository, no
   matter the tool used to edit the files.
 * **Synchronization/Versioning ready**:
-  Any versioning or synchronization tool can be used on the target directory. Gain instant benefit from your favorite
+  Any versioning or synchronization tool can be used on the repository. Gain instant benefit from your favorite
   tool diffs and rollbacks for your files.
 
 ### Is Linky limited to user configuration files?
@@ -70,7 +70,7 @@ linky create links
 -h, --help      Prints this help message and exits
 -v, --verbose   Be verbose.
 Commands:
-link        Synchronizes the links from the targets to the destination
+link        Synchronizes the links from the repositories to the source directory
 ```
 
 ### The `link` subcommand
@@ -78,14 +78,14 @@ link        Synchronizes the links from the targets to the destination
 The `link` subcommand is the main subcommand that will perform the linking.
 
 ```
-Usage: linky link [--dry-run] [-d=<destination>] -t=<targets>...
+Usage: linky link [--dry-run] [-d=<destination>] -t=<repositories>...
 ```
 
-* Links every file from `targets` into `source` by preserving the structure.
+* Links every file from `repositories` into `source` by preserving the structure.
 
 ```
-> tree ~/my/target
-~/my/target
+> tree ~/my/repository
+~/my/repository
  |-- .bashrc
  |-- .gitconfig
  >-- .config
@@ -93,20 +93,20 @@ Usage: linky link [--dry-run] [-d=<destination>] -t=<targets>...
      >-- fish
          |-- config.fish
 
-> linky link -t ~/my/target
+> linky link -r ~/my/repository
 
-Creating links from [~/my/target] to ~
-[CREATE] ~/.bashrc -> ~/my/target/.bashrc
-[CREATE] ~/.gitconfig -> ~/my/target/.gitconfig
-[CREATE] ~/.config/starship.toml -> ~/my/target/.config/starship.toml
-[CREATE] ~/.config/fish/config.fish -> ~/my/target/.config/fish/config.fish
+Creating links from [~/my/repository] to ~
+[CREATE] ~/.bashrc -> ~/my/repository/.bashrc
+[CREATE] ~/.gitconfig -> ~/my/repository/.gitconfig
+[CREATE] ~/.config/starship.toml -> ~/my/repository/.config/starship.toml
+[CREATE] ~/.config/fish/config.fish -> ~/my/repository/.config/fish/config.fish
 ```  
 
-* Supports multiple `targets`: The first targets defining a link has the priority, defaults are last
+* Supports multiple `repositories`: The first repository defining a link has the priority, defaults are last
 
 ```
-> tree ~/my/target
-~/my/target
+> tree ~/my/repositories
+~/my/repositories
  |-- custom
  |   |-- .gitconfig
  |   >-- .bashrc
@@ -115,28 +115,28 @@ Creating links from [~/my/target] to ~
      >-- .config
         >-- starship.toml
 
-> linky link -t ~/my/target/custom ~/my/target/defaults
+> linky link -r ~/my/repositories/custom ~/my/repositories/defaults
 
-Creating links from [~/my/target/custom, ~/my/target/defaults] to ~
-[CREATE] ~/.bashrc -> ~/my/target/custom/.bashrc
-[CREATE] ~/.gitconfig -> ~/my/target/custom/.gitconfig
-[CREATE] ~/.config/starship.toml -> ~/my/target/defaults/.config/starship.toml
+Creating links from [~/my/repositories/custom, ~/my/repositories/defaults] to ~
+[CREATE] ~/.bashrc -> ~/my/repositories/custom/.bashrc
+[CREATE] ~/.gitconfig -> ~/my/repositories/custom/.gitconfig
+[CREATE] ~/.config/starship.toml -> ~/my/repositories/defaults/.config/starship.toml
 ```  
 
 * Supports directory linking when a `.symlink` file is present in the directory.
 
 ```
-> tree ~/my/target
-~/my/target
+> tree ~/my/repository
+~/my/repository
  >-- .config
      >-- fish
          |-- .symlink
          >-- config.fish
 
-> linky link -t ~/my/target
+> linky link -r ~/my/repository
 
-Creating links from [~/my/target] to ~
-[CREATE] ~/.config/fish -> ~/my/target/.config/fish
+Creating links from [~/my/repository] to ~
+[CREATE] ~/.config/fish -> ~/my/repository/.config/fish
 ```  
 
 ## Terminology
@@ -145,12 +145,12 @@ The terminology examples will be given by considering the following file structu
 
 ```
 ~
- |-- .gitconfig         -> ~/target/custom/.gitconfig
- |-- .bashrc            -> ~/target/custom/.bashrc
+ |-- .gitconfig         -> ~/repositories/custom/.gitconfig
+ |-- .bashrc            -> ~/repositories/custom/.bashrc
  >-- .config
-     >-- starship.toml  -> ~/target/defaults/config/starship.toml
+     >-- starship.toml  -> ~/repositories/defaults/config/starship.toml
 
-~/target
+~/repositories
  |-- custom
  |   |-- .gitconfig
  |   >-- .bashrc
@@ -162,15 +162,15 @@ The terminology examples will be given by considering the following file structu
 
 **Destination**:
 
-A directory in which a `target directory`  file structure will be linked.
+A directory in which a `repository`  file structure will be linked.
 
 Example: `~`
 
 
-**Target directory**:
-A directory containing a file structure to link in a `source directory`.
+**Repository**:
+A directory containing a file structure to link into a `source directory`.
 
-Example: `~/target/custom`, `~/target/defaults`
+Example: `~/repositories/custom`, `~/repositories/defaults`
 
 **Link**:
 
@@ -181,29 +181,29 @@ A link is composed of two attributes:
 
 It is materialized on the file system as a [symbolic link](https://en.wikipedia.org/wiki/Symbolic_link).
 
-For example: `~/.config/starship.toml -> ~/target/defaults/.config/starship.toml`
+For example: `~/.config/starship.toml -> ~/repositories/defaults/.config/starship.toml`
 
-Those two attributes can be determined from the _source and target directories_ using a third attribute: the _link name_
+Those two attributes can be determined from the _source directory, and the repository_ using a third one: the _link name_
 .
 
 The **link name** is the common part of the path between the link source and target. It is both:
 
 * The relative path of a link source to its source directory.
-* The relative path of a link target to the target directory.
+* The relative path of a link target to its repository.
 
 Example:
 
-* `.gitconfig` for link `~/.gitconfig -> ~/target/custom/.gitconfig`
-* `.config/starship.toml` for link `~/.config/starship.toml -> ~/target/defaults/.config/starship.toml`
+* `.gitconfig` for link `~/.gitconfig -> ~/repositories/custom/.gitconfig`
+* `.config/starship.toml` for link `~/.config/starship.toml -> ~/repositories/defaults/.config/starship.toml`
 
 ### Summary
 
 Here is how all the previous notions play together:
 
 ```
- ~                 /  .config/starship.toml  ->  ~/target/defaults  /  .config/starship.toml
-[SOURCE DIRECTORY] / [NAME                 ] -> [TARGET DIRECTORY ] / [NAME                 ]
-[SOURCE                                    ] -> [TARGET                                     ]
+ ~                 /  .config/starship.toml  ->  ~/repositories/defaults  /  .config/starship.toml
+[SOURCE DIRECTORY] / [NAME                 ] -> [REPOSITORY             ] / [NAME                 ]
+[SOURCE                                    ] -> [TARGET                                           ]
 ```
 
 ## Installation

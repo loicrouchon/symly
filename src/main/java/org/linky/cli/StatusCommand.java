@@ -31,13 +31,13 @@ class StatusCommand extends ValidatedCommand {
     SourceDirectory destination;
 
     @Option(
-            names = {"-t", "--target-directories"},
-            paramLabel = "<target-directories>",
+            names = {"-r", "--repositories"},
+            paramLabel = "<repositories>",
             description = "Target directories containing files to link in destination",
             required = true,
             arity = "1..*"
     )
-    List<TargetDirectory> targets;
+    List<Repository> repositories;
 
     @NonNull
     private final CliConsole console;
@@ -48,16 +48,16 @@ class StatusCommand extends ValidatedCommand {
     protected Collection<Constraint> constraints() {
         return List.of(
                 Constraint.ofArg("source-directory", destination, "must be an existing directory",
-                        fsReader::isATargetDirectory),
-                Constraint.ofArg("target-directories", targets, "must be an existing directory",
-                        fsReader::isATargetDirectory)
+                        fsReader::isADirectory),
+                Constraint.ofArg("repositories", repositories, "must be an existing directory",
+                        fsReader::isADirectory)
         );
     }
 
     @Override
     public void execute() {
-        console.printf("Checking links status from %s to %s%n", targets, destination);
-        Links links = Links.from(destination, targets);
+        console.printf("Checking links status from %s to %s%n", repositories, destination);
+        Links links = Links.from(destination, repositories);
         checkStatus(console, links);
     }
 

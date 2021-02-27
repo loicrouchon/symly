@@ -33,14 +33,14 @@ class LinkCommand extends ValidatedCommand {
     SourceDirectory source;
 
     @Option(
-            names = {"-t", "--target-directories"},
-            paramLabel = "<target-directories>",
+            names = {"-r", "--repositories"},
+            paramLabel = "<repositories>",
             description = "Target directories containing files to link in destination",
             required = true,
             arity = "1..*"
 
     )
-    List<TargetDirectory> targets;
+    List<Repository> repositories;
 
     @Option(
             names = {"--dry-run"},
@@ -59,9 +59,9 @@ class LinkCommand extends ValidatedCommand {
     protected Collection<Constraint> constraints() {
         return List.of(
                 Constraint.ofArg("source-directory", source, "must be an existing directory",
-                        fsReader::isATargetDirectory),
-                Constraint.ofArg("target-directories", targets, "must be an existing directory",
-                        fsReader::isATargetDirectory)
+                        fsReader::isADirectory),
+                Constraint.ofArg("repositories", repositories, "must be an existing directory",
+                        fsReader::isADirectory)
         );
     }
 
@@ -71,8 +71,8 @@ class LinkCommand extends ValidatedCommand {
         if (dryRun) {
             console.printf("(dry-run mode) ");
         }
-        console.printf("from %s to %s%n", targets, source);
-        Links links = Links.from(source, targets);
+        console.printf("from %s to %s%n", repositories, source);
+        Links links = Links.from(source, repositories);
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(links, mutator);
     }

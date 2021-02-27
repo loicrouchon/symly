@@ -33,7 +33,7 @@ class StatusCommandTest extends IntegrationTest {
         given(env)
                 .withHome("home/doesnotexist");
         //when/then
-        whenRunningCommand("status", "-t", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "-r", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.sourceDirectoryDoesNotExist(env.home().toString()))
@@ -45,7 +45,7 @@ class StatusCommandTest extends IntegrationTest {
         //given
         given(env);
         //when/then
-        whenRunningCommand("status", "-t", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "-r", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
@@ -58,7 +58,7 @@ class StatusCommandTest extends IntegrationTest {
         given(env)
                 .withDirectories("from/dir");
         //when/then
-        whenRunningCommand("status", "-t", "from/dir")
+        whenRunningCommand("status", "-r", "from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks(List.of("from/dir"), "home/user"))
@@ -71,7 +71,7 @@ class StatusCommandTest extends IntegrationTest {
         given(env)
                 .withDirectories("from/dir", "from/other-dir", "to/dir");
         //when/then
-        whenRunningCommand("status", "-s", "to/dir", "-t", "from/dir", "from/other-dir")
+        whenRunningCommand("status", "-s", "to/dir", "-r", "from/dir", "from/other-dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks(List.of("from/dir", "from/other-dir"), "to/dir"))
@@ -85,11 +85,11 @@ class StatusCommandTest extends IntegrationTest {
         private final Env env;
 
         public String missingTargetDirectories() {
-            return "Missing required option: '--target-directories=<target-directories>'";
+            return "Missing required option: '--repositories=<repositories>'";
         }
 
         public String targetDirectoryDoesNotExist(String path) {
-            return String.format("Argument <target-directories> (%s): must be an existing directory", env.path(path));
+            return String.format("Argument <repositories> (%s): must be an existing directory", env.path(path));
         }
 
         public String sourceDirectoryDoesNotExist(String path) {

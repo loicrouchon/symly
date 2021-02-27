@@ -7,7 +7,7 @@ import lombok.Value;
 class LinkTarget {
 
     /**
-     * The name of the link as a relative {@link Path} from the root of the {@link TargetDirectory}.
+     * The name of the link as a relative {@link Path} from the root of the {@link Repository}.
      */
     Path name;
     /**

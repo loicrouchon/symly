@@ -16,7 +16,7 @@ public class FileSystemReader {
         return Files.isDirectory(path);
     }
 
-    public boolean isATargetDirectory(Directory directory) {
+    public boolean isADirectory(Directory directory) {
         return Files.isDirectory(directory.toPath());
     }
 
