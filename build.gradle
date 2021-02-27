@@ -129,10 +129,7 @@ task buildNativeImage(type: Exec) {
             "-H:Name=${project.name}",
             "-H:-AddAllCharsets",
             "-H:-UseServiceLoaderFeature",
-            "-H:IncludeResources=application.properties",
             "-J-Drx.unsafe-disable=true",
-            "-O1",
-            "--no-server",
             "--initialize-at-build-time",
             "-DremoveUnusedAutoconfig=true",
             "--report-unsupported-elements-at-runtime", // reflection features not used in native-image mode

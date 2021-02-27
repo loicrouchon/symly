@@ -8,7 +8,11 @@ public class Config {
 
     private static final String APPLICATION_PROPERTIES = "/application.properties";
 
-    private Properties properties;
+    private final Properties properties;
+
+    public Config() {
+        this.properties = load();
+    }
 
     public String applicationName() {
         return property("application.name");
@@ -19,9 +23,6 @@ public class Config {
     }
 
     private String property(String property) {
-        if (properties == null) {
-            properties = load();
-        }
         return properties.getProperty(property);
     }
 

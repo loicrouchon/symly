@@ -1,12 +1,18 @@
 package org.linky.cli;
 
-import org.linky.cli.converters.SourceDirectoryTypeConverter;
 import org.linky.cli.converters.RepositoryTypeConverter;
-import org.linky.links.SourceDirectory;
+import org.linky.cli.converters.SourceDirectoryTypeConverter;
 import org.linky.links.Repository;
+import org.linky.links.SourceDirectory;
 import picocli.CommandLine;
 
 public class Main {
+
+    /**
+     * Done as part of the Main class static initializer to benefit from GraalVM native-image static initialization
+     * optimization.
+     */
+    private static final CommandLine COMMAND_LINE = initializeCommandLine();
 
     public static void main(String... args) {
         int exitCode = runCommand(args);
@@ -14,7 +20,14 @@ public class Main {
     }
 
     private static int runCommand(String... args) {
+        return COMMAND_LINE.execute(args);
+    }
+
+    private static CommandLine initializeCommandLine() {
         BeanFactory factory = new BeanFactory();
+        // Instantiate at compile time thanks to GraalVM native-image optimization
+        // Doing so also avoids to have to include resources in the native-image.
+        factory.preInit();
         CliConsole console = factory.create(CliConsole.class);
         CommandLine commandLine = new CommandLine(factory.create(MainCommand.class), factory);
         commandLine.setOut(console.writer());
@@ -23,6 +36,6 @@ public class Main {
         commandLine.setExecutionExceptionHandler(new ExceptionHandler(console));
         commandLine.registerConverter(SourceDirectory.class, new SourceDirectoryTypeConverter());
         commandLine.registerConverter(Repository.class, new RepositoryTypeConverter());
-        return commandLine.execute(args);
+        return commandLine;
     }
 }
