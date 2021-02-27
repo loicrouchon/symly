@@ -1,0 +1,7 @@
+Package: linky
+Version: ${version}
+Section: base
+Priority: optional
+Architecture: amd64
+Maintainer: loic.rouchon@gmail.com
+Description: Manages symbolic links.

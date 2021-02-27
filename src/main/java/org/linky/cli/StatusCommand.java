@@ -5,6 +5,7 @@ import static picocli.CommandLine.Help;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.linky.cli.validation.Constraint;
 import org.linky.files.FileSystemReader;
@@ -38,12 +39,10 @@ class StatusCommand extends ValidatedCommand {
     )
     List<TargetDirectory> targets;
 
+    @NonNull
     private final CliConsole console;
+    @NonNull
     private final FileSystemReader fsReader;
-
-    public StatusCommand() {
-        this(CliConsole.console(), new FileSystemReader());
-    }
 
     @Override
     protected Collection<Constraint> constraints() {

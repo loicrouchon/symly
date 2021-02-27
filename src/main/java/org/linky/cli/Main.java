@@ -5,24 +5,24 @@ import org.linky.cli.converters.TargetDirectoryTypeConverter;
 import org.linky.links.SourceDirectory;
 import org.linky.links.TargetDirectory;
 import picocli.CommandLine;
-import picocli.CommandLine.IFactory;
 
 public class Main {
 
     public static void main(String... args) {
-        CliConsole console = CliConsole.console();
-        int exitCode = runCommand(CommandLine.defaultFactory(), console, args);
+        int exitCode = runCommand(args);
         System.exit(exitCode);
     }
 
-    static int runCommand(IFactory factory, CliConsole console, String... args) {
-        CommandLine commandLine = new CommandLine(new MainCommand(), factory)
-                .setOut(console.writer())
-                .setErr(console.ewriter())
-                .setDefaultValueProvider(new EnvironmentVariableDefaultsProvider())
-                .setExecutionExceptionHandler(new ExceptionHandler(console))
-                .registerConverter(SourceDirectory.class, new SourceDirectoryTypeConverter())
-                .registerConverter(TargetDirectory.class, new TargetDirectoryTypeConverter());
+    private static int runCommand(String... args) {
+        BeanFactory factory = new BeanFactory();
+        CliConsole console = factory.create(CliConsole.class);
+        CommandLine commandLine = new CommandLine(factory.create(MainCommand.class), factory);
+        commandLine.setOut(console.writer());
+        commandLine.setErr(console.ewriter());
+        commandLine.setDefaultValueProvider(new EnvironmentVariableDefaultsProvider());
+        commandLine.setExecutionExceptionHandler(new ExceptionHandler(console));
+        commandLine.registerConverter(SourceDirectory.class, new SourceDirectoryTypeConverter());
+        commandLine.registerConverter(TargetDirectory.class, new TargetDirectoryTypeConverter());
         return commandLine.execute(args);
     }
 }
