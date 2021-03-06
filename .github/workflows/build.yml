@@ -8,21 +8,34 @@ jobs:
     runs-on: ubuntu-20.04
     outputs:
       version: ${{ steps.version.outputs.version }}
+      gradle-args: ${{ steps.gradle.outputs.args }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
       - id: version
-        name: Read application version
+        name: Compute application version
         run: |
-          VERSION=$(cat gradle.properties | grep -w version | sed -e 's/^version *= *\(.*\)/\1/g')
+          echo ${GITHUB_REF#refs/head/}
+          if echo ${GITHUB_REF#refs/head/} | grep -q "refs/heads/release/"; then
+            VERSION=$(echo ${GITHUB_REF#refs/head/} | grep -Po 'refs/heads/release/\K(.+)')
+          else
+            VERSION="0-dev-$($GITHUB_SHA | cut -c1-7)"
+          fi
           echo ::set-output name=version::$VERSION
 
-      - name: Echo application version
-        run: echo "Application version is ${{ steps.version.outputs.version }}"
+      - id: gradle
+        name: Compute gradlew args
+        run: echo ::set-output name=args::"-Pversion=${{ steps.version.outputs.version }} --console=plain --no-daemon"
+
+      - name: Echo env details
+        run: |
+          echo "Application version is ${{ steps.version.outputs.version }}"
+          echo "Gradle args are: ${{ steps.gradle.outputs.args }}"
 
   build:
     name: Build & Test
+    needs: [ env ]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
@@ -32,7 +45,7 @@ jobs:
         run: ./gradlew -v
 
       - name: Build application
-        run: ./gradlew build --console=plain --no-daemon
+        run: ./gradlew ${{ needs.env.outputs.gradle-args }} build
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -57,6 +70,7 @@ jobs:
 
   package:
     name: Package
+    needs: [ env ]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -87,7 +101,7 @@ jobs:
           native-image --version
 
       - name: Build application
-        run: ./gradlew buildNativeImage --console=plain --no-daemon
+        run: ./gradlew ${{ needs.env.outputs.gradle-args }} buildNativeImage
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
@@ -98,7 +112,7 @@ jobs:
   package-linux:
     name: Linux packaging
     runs-on: ubuntu-20.04
-    needs: [env, package]
+    needs: [ env, package ]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -110,7 +124,7 @@ jobs:
           path: build/libs/
 
       - name: Build debian package application
-        run: ./gradlew buildDebianPackage --console=plain --no-daemon
+        run: ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebianPackage
 
       - name: Debian package installation verification
         run: sudo dpkg -i build/packaging/linky_${{ needs.env.outputs.version }}_amd64.deb
@@ -132,11 +146,14 @@ jobs:
       upload_url: ${{ steps.create-release.outputs.upload_url }}
       tag: ${{ steps.tag.outputs.tag }}
 
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: [build, package, package-linux]
+    if: startsWith(github.ref, 'refs/head/release/')
+    needs: [ env, build, package, package-linux]
 
     runs-on: ubuntu-20.04
     steps:
+      - name: Echo branch
+        run: echo ${GITHUB_REF#refs/head/}
+
       - name: Checkout code
         uses: actions/checkout@v2
 
