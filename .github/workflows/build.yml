@@ -19,7 +19,9 @@ jobs:
         run: |
           echo ${GITHUB_REF#refs/head/}
           if echo ${GITHUB_REF#refs/head/} | grep -q "refs/heads/release/"; then
-            VERSION=$(echo ${GITHUB_REF#refs/head/} | grep -Po 'refs/heads/release/\K(.+)')
+            BASE_VERSION=$(echo ${GITHUB_REF#refs/head/} | grep -Po 'refs/heads/release/\K(.+)')
+            echo "Base version $BASE_VERSION"
+            VERSION=$(git tag -l "v$BASE_VERSION.*" | java VersionBumper.java $BASE_VERSION)
           else
             VERSION="0-dev-$(echo $GITHUB_SHA | cut -c1-7)"
           fi
