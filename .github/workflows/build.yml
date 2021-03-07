@@ -20,11 +20,15 @@ jobs:
           echo ${GITHUB_REF#refs/head/}
           if echo ${GITHUB_REF#refs/head/} | grep -q "refs/heads/release/"; then
             BASE_VERSION=$(echo ${GITHUB_REF#refs/head/} | grep -Po 'refs/heads/release/\K(.+)')
-            echo "Base version $BASE_VERSION"
-            VERSION=$(git tag -l "v$BASE_VERSION.*" | java VersionBumper.java $BASE_VERSION)
+            echo "Base version: $BASE_VERSION"
+            git fetch --tags origin tag "v$BASE_VERSION.*"
+            echo "Current tags for base version $BASE_VERSION:"
+            git tag -l "v$BASE_VERSION.*"
+            VERSION=$(git tag -l "v$BASE_VERSION.*" | cut -c2- | java VersionBumper.java $BASE_VERSION)
           else
             VERSION="0-dev-$(echo $GITHUB_SHA | cut -c1-7)"
           fi
+          echo "Setting version to $VERSION"
           echo ::set-output name=version::$VERSION
           echo ::set-output name=tag::"v$VERSION"
 
@@ -49,7 +53,9 @@ jobs:
         run: ./gradlew -v
 
       - name: Build application
-        run: ./gradlew ${{ needs.env.outputs.gradle-args }} build
+        run: |
+          ./gradlew ${{ needs.env.outputs.gradle-args }} build
+          mv build/distributions/linky-${{ needs.env.outputs.version }}.zip build/distributions/linky_${{ needs.env.outputs.version }}_jvm.zip
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -70,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: linky_${{ needs.env.outputs.version }}_jvm
-          path: build/distributions/linky-*.zip
+          path: build/distributions/linky_${{ needs.env.outputs.version }}_jvm.zip
 
   package:
     name: Package
@@ -146,9 +152,6 @@ jobs:
     # This is done as a separate task from the package step
     # so that we only create the release if all packaging jobs succeeded
     name: Release
-#    outputs:
-#      upload_url: ${{ steps.create-release.outputs.upload_url }}
-
     if: startsWith(github.ref, 'refs/heads/release/')
     needs: [ env, build, package, package-linux ]
 
@@ -156,6 +159,21 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: build/artifacts/
+
+      - name: Prepare artifacts
+        run: |
+          rm -rf test-reports
+          find . -type f -exec sha256sum {} \; > sha256sum.txt
+          zip linky_${{ needs.env.outputs.version }}_linux-amd64.zip linky_${{ needs.env.outputs.version }}_linux-amd64/linky
+          zip linky_${{ needs.env.outputs.version }}_macos-x86_64.zip linky_${{ needs.env.outputs.version }}_macos-x86_64/linky
+          rm linky_${{ needs.env.outputs.version }}_linux-amd64/linky
+          rm linky_${{ needs.env.outputs.version }}_macos-x86_64/linky
+        working-directory: build/artifacts/
 
       - id: create-release
         name: Create Release ${{ needs.env.outputs.version }}
@@ -166,54 +184,11 @@ jobs:
           tag_name: ${{ needs.env.outputs.tag }}
           release_name: Release ${{ needs.env.outputs.version }}
 
-  upload-release-assets:
-    name: Upload release assets
-    needs: [ env, release ]
-    if: startsWith(github.ref, 'refs/heads/release/')
-    runs-on: ubuntu-20.04
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: build/artifacts/
-
       - name: Upload artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          find build/artifacts/
-          hub release edit $(find build/artifacts/ -type f -name "linky_*" -printf "-a %p ") -m "" "${{ needs.env.outputs.tag }}"
-#      - name: Compute checksum
-#        run: |
-#          find artifacts
-#          cd artifacts/
-#          sha256sum * > ${{ matrix.artifact }}.sha256sum
-#
-#      - name: Upload release asset checksum
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ needs.release.outputs.upload_url }}
-#          asset_name: linky_${{ needs.env.outputs.version }}_linux.sha256sum.txt
-#          asset_path: artifacts/${{ matrix.artifact }}.sha256sum
-#          asset_content_type: text/plain
-#
-#      - name: Compress assets
-#        run: |
-#          find artifacts
-#          cd artifacts
-#          zip ${{ matrix.artifact }}.zip linky
-#      - name: Upload assets
-#        uses: actions/upload-release-asset@v1
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#        with:
-#          upload_url: ${{ needs.release.outputs.upload_url }}
-#          asset_name: ${{ matrix.artifact }}-${{ needs.env.outputs.version }}.zip
-#          asset_path: artifacts/${{ matrix.artifact }}.zip
-#          asset_content_type: application/zip
+          find .
+          hub release edit $(find . -type f -printf "-a %p ") -m "" "${{ needs.env.outputs.tag }}"
+        working-directory: build/artifacts/
+        
