@@ -20,7 +20,7 @@ application {
 }
 
 processResources {
-    filesMatching ('**/application.properties') {
+    filesMatching('**/application.properties') {
         expand(version: project.version)
     }
 }
@@ -123,7 +123,7 @@ buildNativePackage.dependsOn installDist
 task buildNativeImage(type: Exec) {
     workingDir "${buildDir}/libs"
 
-    commandLine "native-image",
+    commandLine nativeImageBin(),
             "--verbose",
             "--no-fallback",
             "-H:Name=${project.name}",
@@ -136,6 +136,15 @@ task buildNativeImage(type: Exec) {
             "-cp", "${buildDir}/install/${project.name}/lib/*",
             "${mainClassName}"
 }
+
+private static String nativeImageBin() {
+    def env = System.env.GRAALVM_HOME ?: System.env.JAVA_HOME;
+    if (env != null) {
+        return "${env}/bin/native-image"
+    }
+    return "native-image"
+}
+
 buildNativeImage.dependsOn installDist
 
 
@@ -151,7 +160,7 @@ task prepareDebianPackage(type: Copy) {
     into "${buildDir}/packaging/debian"
 }
 
-task buildDebianPackage(type:Exec) {
+task buildDebianPackage(type: Exec) {
     workingDir "${buildDir}/packaging"
     commandLine "dpkg", "--build", "debian", "."
 }
