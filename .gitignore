@@ -32,3 +32,6 @@ nb-configuration.xml
 *.orig
 *.rej
 
+tools
+debian/usr
+usr

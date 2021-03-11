@@ -10,6 +10,7 @@ jobs:
       tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
       gradle-args: ${{ steps.gradle.outputs.args }}
+      make-args: VERSION=${{ steps.version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -92,26 +93,21 @@ jobs:
             os: macos-latest
             gu-binary: gu
     steps:
-      - name: Setup Graalvm
-        id: setup-graalvm
-        uses: DeLaGuardo/setup-graalvm@3.1
-        with:
-          graalvm-version: '21.0.0.2.java11'
-
-      - name: Install native-image component
-        run: |
-          ${{ matrix.gu-binary }} install native-image
-
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Environment check
-        run: |
-          ./gradlew -v
-          native-image --version
+      - name: Restore GraalVM tooling cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/tools
+          key: ${{ matrix.arch }}-${{ hashFiles('Makefile') }}
+
+      - name: Install GraalVM
+        run: make install-requirements ${{ needs.env.outputs.make-args }}
 
       - name: Build application
-        run: ./gradlew ${{ needs.env.outputs.gradle-args }} buildNativeImage
+        run: make build ${{ needs.env.outputs.make-args }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2

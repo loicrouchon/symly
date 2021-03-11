@@ -1,0 +1,6 @@
+symly (0.1.3) stable; urgency=medium
+
+  * Debian packaging testing
+    - Some new feature
+
+ -- Loic Rouchon <loic.rouchon@gmail.com>  Wed, 10 Mar 2021 08:20:00 +0100
