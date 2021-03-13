@@ -11,8 +11,8 @@ java {
 }
 def mainClassName = 'org.symly.cli.Main'
 application {
-    mainModule = 'symly'
-    mainClass = mainClassName
+    mainModule.set('symly')
+    mainClass.set(mainClassName)
     applicationDefaultJvmArgs = [
             // the cli is short lived, so let's enable a fast JVM startup
             '-XX:TieredStopAtLevel=1'
@@ -138,7 +138,7 @@ task buildNativeImage(type: Exec) {
 }
 
 private static String nativeImageBin() {
-    def env = System.env.GRAALVM_HOME ?: System.env.JAVA_HOME;
+    def env = System.env.GRAALVM_HOME ?: System.env.JAVA_HOME
     if (env != null) {
         return "${env}/bin/native-image"
     }
