@@ -9,9 +9,9 @@ java {
 
     modularity.inferModulePath = true
 }
-def mainClassName = 'org.linky.cli.Main'
+def mainClassName = 'org.symly.cli.Main'
 application {
-    mainModule = 'linky'
+    mainModule = 'symly'
     mainClass = mainClassName
     applicationDefaultJvmArgs = [
             // the cli is short lived, so let's enable a fast JVM startup
@@ -151,10 +151,10 @@ buildNativeImage.dependsOn installDist
 // DEBIAN packaging
 // needs a native image to be generated for a linux-amd64 target first 
 task prepareDebianPackage(type: Copy) {
-    from("packaging/linky") {
+    from("packaging/symly") {
         expand(version: project.version)
     }
-    from("build/libs/linky") {
+    from("build/libs/symly") {
         into "usr/local/bin/"
     }
     into "${buildDir}/packaging/debian"

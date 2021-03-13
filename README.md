@@ -1,6 +1,6 @@
-# Linky
+# Symly
 
-Linky is a tool helping to replicate and maintain the file structure of a `repository` into a
+Symly is a tool helping to replicate and maintain the file structure of a `repository` into a
 directory `source directory` by creating symbolic links.
 
 For example, consider the following directory `~/my/repository`:
@@ -15,10 +15,10 @@ For example, consider the following directory `~/my/repository`:
          |-- config.fish
 ```
 
-By using linky, you can automatically create links from `~` to all files in `~/my/repository`.
+By using symly, you can automatically create links from `~` to all files in `~/my/repository`.
 
 ```
-> linky link -r ~/my/repository
+> symly link -r ~/my/repository
 ```
 
 This would result in the following links:
@@ -30,22 +30,22 @@ This would result in the following links:
 ~/.config/fish/config.fish  ->  ~/my/repository/.config/fish/config.fish
 ```
 
-## What is linky useful for?
+## What is symly useful for?
 
-The Linky tool has been created to address the synchronization issue of user's configuration files between different
-machines. But Linky is not a synchronization tool, nor is limited to deal with user configuration files.
+The Symly tool has been created to address the synchronization issue of user's configuration files between different
+machines. But Symly is not a synchronization tool, nor is limited to deal with user configuration files.
 
-> *Linky is not a synchronization tool.*
+> *Symly is not a synchronization tool.*
 
-### There are many synchronization tools out there, how is Linky different?
+### There are many synchronization tools out there, how is Symly different?
 
-Linky is not a synchronization tool. Linky is a tool allowing you to centralize a list of files and directories and to
+Symly is not a synchronization tool. Symly is a tool allowing you to centralize a list of files and directories and to
 create symbolic links to them. You can then use your preferred synchronization tool whether it is a service like
 Dropbox, Tresorit, or a more developer and versioning-oriented tool like git.
 
 ### Why creating symbolic links and not copy the files over?
 
-The main use case of linky is about user configuration files. The particularity of those files is that they are not
+The main use case of symly is about user configuration files. The particularity of those files is that they are not
 read-only. They are written to by a wide variety of tools like your preferred text-editor, scripts appending to
 your `.bashrc`, other tools like `git config --global`, ... Using a file copy would destroy such updates every time you
 want to deploy your centralized files.
@@ -57,16 +57,16 @@ want to deploy your centralized files.
   Any versioning or synchronization tool can be used on the repository. Gain instant benefit from your favorite
   tool diffs and rollbacks for your files.
 
-### Is Linky limited to user configuration files?
+### Is Symly limited to user configuration files?
 
-No, Linky is not limited to creating links in your user home folder. The user home folder is a sensible default for
+No, Symly is not limited to creating links in your user home folder. The user home folder is a sensible default for
 the `destination` but any `destination` can be used.
 
 ## Usage
 
 ```
-Usage: linky [-hv] [COMMAND]
-linky create links
+Usage: symly [-hv] [COMMAND]
+symly create links
 -h, --help      Prints this help message and exits
 -v, --verbose   Be verbose.
 Commands:
@@ -78,7 +78,7 @@ link        Synchronizes the links from the repositories to the source directory
 The `link` subcommand is the main subcommand that will perform the linking.
 
 ```
-Usage: linky link [--dry-run] [-d=<destination>] -t=<repositories>...
+Usage: symly link [--dry-run] [-d=<destination>] -t=<repositories>...
 ```
 
 * Links every file from `repositories` into `source` by preserving the structure.
@@ -93,7 +93,7 @@ Usage: linky link [--dry-run] [-d=<destination>] -t=<repositories>...
      >-- fish
          |-- config.fish
 
-> linky link -r ~/my/repository
+> symly link -r ~/my/repository
 
 Creating links from [~/my/repository] to ~
 [CREATE] ~/.bashrc -> ~/my/repository/.bashrc
@@ -115,7 +115,7 @@ Creating links from [~/my/repository] to ~
      >-- .config
         >-- starship.toml
 
-> linky link -r ~/my/repositories/custom ~/my/repositories/defaults
+> symly link -r ~/my/repositories/custom ~/my/repositories/defaults
 
 Creating links from [~/my/repositories/custom, ~/my/repositories/defaults] to ~
 [CREATE] ~/.bashrc -> ~/my/repositories/custom/.bashrc
@@ -133,7 +133,7 @@ Creating links from [~/my/repositories/custom, ~/my/repositories/defaults] to ~
          |-- .symlink
          >-- config.fish
 
-> linky link -r ~/my/repository
+> symly link -r ~/my/repository
 
 Creating links from [~/my/repository] to ~
 [CREATE] ~/.config/fish -> ~/my/repository/.config/fish
@@ -209,12 +209,12 @@ Here is how all the previous notions play together:
 ## Installation
 
 Native binaries for Linux (x64) and macOS (x64) can be downloaded directly
-from [github](https://github.com/loicrouchon/linky/tags). It is intended to provide linky as `.deb`, `.rpm` packages and
+from [github](https://github.com/loicrouchon/symly/tags). It is intended to provide symly as `.deb`, `.rpm` packages and
 through Homebrew in a near future.
 
 ## Build
 
-You can also clone this repository and build Linky using the instructions below:
+You can also clone this repository and build Symly using the instructions below:
 
 ### Pre-requisites
 
@@ -228,14 +228,14 @@ The application can be built using the `installDist` task:
 ./gradlew clean build installDist
 ```
 
-This will install the application locally in the `./build/install/linky/`. The application can be run
-using `./build/install/linky/bin/linky <ARGS>` or using `./build/install/linky/bin/linky.bat` on windows.
+This will install the application locally in the `./build/install/symly/`. The application can be run
+using `./build/install/symly/bin/symly <ARGS>` or using `./build/install/symly/bin/symly.bat` on windows.
 
 ```
-> ./build/install/linky/bin/linky
+> ./build/install/symly/bin/symly
 
-Usage: linky [-hv] [COMMAND]
-linky create links
+Usage: symly [-hv] [COMMAND]
+symly create links
   -h, --help      Prints this help message and exits
   -v, --verbose   Be verbose.
 Commands:
@@ -255,10 +255,10 @@ The `assembleDist` task allow to build a `tar` and a `zip` distribution archives
 This result in two self-contained archive which only requires a JRE to be installed resulting. The archives are located
 here:
 
-* `build/distributions/linky-${version}.tar`
-* `build/distributions/linky-${version}.zip`
+* `build/distributions/symly-${version}.tar`
+* `build/distributions/symly-${version}.zip`
 
-Once unzipped/untarred, the application can be run using the same `bin/link`/`bin/linky.bat` launch script as above.
+Once unzipped/untarred, the application can be run using the same `bin/link`/`bin/symly.bat` launch script as above.
 
 #### Creating a native package containing the JVM
 
@@ -292,4 +292,4 @@ You can create a native executable using the `buildNativeImage` task:
 ./gradlew clean buildNativeImage
 ```
 
-You can then execute your native executable with: `./build/libs/linky <ARGS>`
+You can then execute your native executable with: `./build/libs/symly <ARGS>`
