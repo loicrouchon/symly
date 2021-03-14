@@ -154,6 +154,10 @@ task prepareDebianPackage(type: Copy) {
     from("packaging/symly") {
         expand(version: project.version)
     }
+    from("LICENSE") {
+        into "usr/share/doc/symly"
+        rename "LICENSE", "copyright"
+    }
     from("build/libs/symly") {
         into "usr/local/bin/"
     }

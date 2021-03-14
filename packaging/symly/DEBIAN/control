@@ -1,6 +1,6 @@
 Package: symly
 Version: ${version}
-Section: base
+Section: misc
 Priority: optional
 Architecture: amd64
 Maintainer: loic.rouchon@gmail.com
