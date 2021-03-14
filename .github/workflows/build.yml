@@ -54,9 +54,9 @@ jobs:
 
       - name: Build application
         run: |
-          ./gradlew ${{ needs.env.outputs.gradle-args }} build
+          ./gradlew ${{ needs.env.outputs.gradle-args }} build prepareDebianPackage
           mv build/distributions/symly-${{ needs.env.outputs.version }}.zip build/distributions/symly_${{ needs.env.outputs.version }}_jvm.zip
-
+          
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()

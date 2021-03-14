@@ -34,7 +34,7 @@ JAVA_HOME=$(GRAALVM_HOME)
 NATIVE_IMAGE=$(GRAALVM_HOME)/bin/native-image
 
 GRADLE_ENV=GRAALVM_HOME=$(GRAALVM_HOME) JAVA_HOME=$(JAVA_HOME)
-GRADLE=$(GRADLE_ENV) ./gradlew -Dgradle.user.home=.gradle --no-daemon -Pversion=$(VERSION)
+GRADLE=$(GRADLE_ENV) ./gradlew -Dgradle.user.home=.gradle --no-daemon --console=plain -Pversion=$(VERSION)
 
 .PHONY: clean build install install-requirements
 

@@ -1,6 +1,7 @@
 plugins {
-    id 'application'
-    id 'idea'
+    id "application"
+    id "idea"
+    id "org.asciidoctor.jvm.convert" version "3.3.2"
 }
 
 java {
@@ -9,18 +10,18 @@ java {
 
     modularity.inferModulePath = true
 }
-def mainClassName = 'org.symly.cli.Main'
+def mainClassName = "org.${project.name}.cli.Main"
 application {
-    mainModule.set('symly')
+    mainModule.set("${project.name}")
     mainClass.set(mainClassName)
     applicationDefaultJvmArgs = [
             // the cli is short lived, so let's enable a fast JVM startup
-            '-XX:TieredStopAtLevel=1'
+            "-XX:TieredStopAtLevel=1"
     ]
 }
 
 processResources {
-    filesMatching('**/application.properties') {
+    filesMatching("**/application.properties") {
         expand(version: project.version)
     }
 }
@@ -39,9 +40,9 @@ sourceSets {
         java {
             compileClasspath += main.output + test.output
             runtimeClasspath += main.output + test.output
-            srcDir file('src/integration-test/java')
+            srcDir file("src/integration-test/java")
         }
-        resources.srcDir file('src/integration-test/resources')
+        resources.srcDir file("src/integration-test/resources")
     }
 }
 
@@ -70,12 +71,13 @@ dependencies {
     def picocliVersion = "4.5.2"
     implementation "info.picocli:picocli:${picocliVersion}"
     annotationProcessor "info.picocli:picocli-codegen:${picocliVersion}"
+    implementation "info.picocli:picocli-codegen:${picocliVersion}"
     // testing
     def junitVersion = "5.5.2"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
     testImplementation "org.assertj:assertj-core:3.14.0"
-    def mockitoVersion = '3.6.28'
+    def mockitoVersion = "3.6.28"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
@@ -83,25 +85,24 @@ dependencies {
     integrationTestImplementation sourceSets.test.output
 }
 
-
 task copyDependencies(type: Copy) {
     from configurations.runtimeClasspath
-    into 'build/libs'
+    into "build/libs"
 }
 task integrationTest(type: Test) {
+    dependsOn copyDependencies, jar
     useJUnitPlatform()
-    description = 'Runs integration tests.'
-    group = 'verification'
+    description = "Runs integration tests."
+    group = "verification"
 
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
     shouldRunAfter test
 }
-integrationTest.dependsOn copyDependencies
-integrationTest.dependsOn jar
 check.dependsOn integrationTest
 
 task buildNativePackage(type: Exec) {
+    dependsOn installDist
     workingDir "${buildDir}"
 
     commandLine "jpackage",
@@ -118,9 +119,11 @@ task buildNativePackage(type: Exec) {
             "--dest",
             "."
 }
-buildNativePackage.dependsOn installDist
 
 task buildNativeImage(type: Exec) {
+    dependsOn installDist
+    inputs.dir("${buildDir}/install/${project.name}/lib/")
+    outputs.file("${buildDir}/libs/${project.name}")
     workingDir "${buildDir}/libs"
 
     commandLine nativeImageBin(),
@@ -145,27 +148,67 @@ private static String nativeImageBin() {
     return "native-image"
 }
 
-buildNativeImage.dependsOn installDist
+task generateManpageAsciiDoc(type: Exec) {
+    dependsOn installDist
+    inputs.dir("${buildDir}/install/${project.name}/")
+    outputs.dir("${buildDir}/docs/manpage-adoc")
+    commandLine "${buildDir}/install/${project.name}/bin/${project.name}",
+            "man-page",
+            "gen-manpage",
+            "-d",
+            "${buildDir}/docs/manpage-adoc"
+}
 
+asciidoctor {
+    dependsOn generateManpageAsciiDoc
+    sourceDir = file("${buildDir}/docs/manpage-adoc")
+    outputDir = file("${buildDir}/docs/manpage")
+    logDocuments = true
+    outputOptions {
+        backends = ["manpage", "html5"]
+    }
+}
+
+task generateManpage(type: Exec) {
+    dependsOn asciidoctor
+    inputs.dir("${buildDir}/docs/manpage/manpage")
+    outputs.dir("${buildDir}/docs/manpage/gz")
+    workingDir "${buildDir}/docs"
+    commandLine "/bin/sh", "-c", "rm -rf manpage/gz && cp -R manpage/manpage manpage/gz && gzip -9 manpage/gz/*"
+}
 
 // DEBIAN packaging
 // needs a native image to be generated for a linux-amd64 target first 
 task prepareDebianPackage(type: Copy) {
-    from("packaging/symly") {
-        expand(version: project.version)
-    }
+    dependsOn generateManpage
+    inputs.files(
+            "LICENSE",
+            "packaging/${project.name}",
+            "${buildDir}/libs/${project.name}",
+            "${buildDir}/docs/manpage/gz"
+    )
+    outputs.dir("${buildDir}/packaging/debian")
     from("LICENSE") {
-        into "usr/share/doc/symly"
+        into "usr/share/doc/${project.name}"
         rename "LICENSE", "copyright"
     }
-    from("build/libs/symly") {
+    from("packaging/${project.name}") {
+        expand(version: project.version)
+    }
+    from("${buildDir}/libs/${project.name}") {
         into "usr/local/bin/"
+    }
+    from("${buildDir}/docs/manpage/gz") {
+        into "usr/man/man1"
+        rename "LICENSE", "copyright"
     }
     into "${buildDir}/packaging/debian"
 }
 
 task buildDebianPackage(type: Exec) {
+    dependsOn prepareDebianPackage
+    inputs.dir("${buildDir}/packaging/debian")
+    outputs.file("${buildDir}/packaging/${project.name}_${project.version}.deb")
     workingDir "${buildDir}/packaging"
     commandLine "dpkg", "--build", "debian", "."
 }
-buildDebianPackage.dependsOn prepareDebianPackage

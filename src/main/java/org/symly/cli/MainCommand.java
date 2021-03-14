@@ -17,6 +17,7 @@ import picocli.CommandLine.Spec;
                 LinkCommand.class,
                 StatusCommand.class,
                 AddCommand.class,
+                ManPageGenerator.class
         }
 )
 @RequiredArgsConstructor
