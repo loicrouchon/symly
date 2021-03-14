@@ -168,6 +168,7 @@ jobs:
           zip symly_${{ needs.env.outputs.version }}_macos-x86_64.zip symly_${{ needs.env.outputs.version }}_macos-x86_64/symly
           rm symly_${{ needs.env.outputs.version }}_linux-amd64/symly
           rm symly_${{ needs.env.outputs.version }}_macos-x86_64/symly
+          find .
         working-directory: build/artifacts/
 
       - id: create-release
@@ -186,4 +187,14 @@ jobs:
           find .
           hub release edit $(find . -type f -printf "-a %p ") -m "" "${{ needs.env.outputs.tag }}"
         working-directory: build/artifacts/
-        
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+      - name: Publish .deb
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+        run: |
+          gem install package_cloud
+          package_cloud push symly/symly-cli/ubuntu/focal $(find . -type f -name "*.deb")
+        working-directory: build/artifacts/
