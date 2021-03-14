@@ -10,7 +10,6 @@ jobs:
       tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
       gradle-args: ${{ steps.gradle.outputs.args }}
-      make-args: VERSION=${{ steps.version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -96,18 +95,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Restore GraalVM tooling cache
+      - id: cached-graalvm
+        name: Restore GraalVM tooling cache
         uses: actions/cache@v2
         with:
-          path: |
-            ~/tools
+          path: tools
           key: ${{ matrix.arch }}-${{ hashFiles('Makefile') }}
 
       - name: Install GraalVM
-        run: make install-requirements ${{ needs.env.outputs.make-args }}
+        run: make install-requirements
 
       - name: Build application
-        run: make build ${{ needs.env.outputs.make-args }}
+        run: make clean build VERSION=${{ needs.env.outputs.version }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
