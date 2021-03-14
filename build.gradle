@@ -68,7 +68,7 @@ dependencies {
     integrationTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
     integrationTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-    def picocliVersion = "4.5.2"
+    def picocliVersion = "4.6.1"
     implementation "info.picocli:picocli:${picocliVersion}"
     annotationProcessor "info.picocli:picocli-codegen:${picocliVersion}"
     implementation "info.picocli:picocli-codegen:${picocliVersion}"
@@ -177,15 +177,30 @@ task generateManpage(type: Exec) {
     commandLine "/bin/sh", "-c", "rm -rf manpage/gz && cp -R manpage/manpage manpage/gz && gzip -9 manpage/gz/*"
 }
 
+task generateShellCompletions(type: Exec) {
+    dependsOn installDist
+    inputs.dir("${buildDir}/install/${project.name}/")
+    outputs.file("${buildDir}/shell/completions/${project.name}")
+    workingDir "${buildDir}"
+    commandLine "install/${project.name}/bin/${project.name}",
+            "shell",
+            "generate-completion"
+    doFirst {
+        mkdir "shell/completions"
+        standardOutput = new FileOutputStream("${buildDir}/shell/completions/${project.name}")
+    }
+}
+
 // DEBIAN packaging
 // needs a native image to be generated for a linux-amd64 target first 
 task prepareDebianPackage(type: Copy) {
-    dependsOn generateManpage
+    dependsOn generateManpage, generateShellCompletions
     inputs.files(
             "LICENSE",
             "packaging/${project.name}",
             "${buildDir}/libs/${project.name}",
-            "${buildDir}/docs/manpage/gz"
+            "${buildDir}/docs/manpage/gz",
+            "${buildDir}/shell/completions"
     )
     outputs.dir("${buildDir}/packaging/debian")
     from("LICENSE") {
@@ -201,6 +216,9 @@ task prepareDebianPackage(type: Copy) {
     from("${buildDir}/docs/manpage/gz") {
         into "usr/man/man1"
         rename "LICENSE", "copyright"
+    }
+    from("${buildDir}/shell/completions") {
+        into "/usr/share/bash-completion/completions"
     }
     into "${buildDir}/packaging/debian"
 }
