@@ -71,7 +71,6 @@ dependencies {
     def picocliVersion = "4.6.1"
     implementation "info.picocli:picocli:${picocliVersion}"
     annotationProcessor "info.picocli:picocli-codegen:${picocliVersion}"
-    implementation "info.picocli:picocli-codegen:${picocliVersion}"
     // testing
     def junitVersion = "5.5.2"
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
@@ -148,15 +147,16 @@ private static String nativeImageBin() {
     return "native-image"
 }
 
-task generateManpageAsciiDoc(type: Exec) {
+task generateManpageAsciiDoc(type: JavaExec) {
     dependsOn installDist
     inputs.dir("${buildDir}/install/${project.name}/")
     outputs.dir("${buildDir}/docs/manpage-adoc")
-    commandLine "${buildDir}/install/${project.name}/bin/${project.name}",
-            "man-page",
-            "gen-manpage",
-            "-d",
-            "${buildDir}/docs/manpage-adoc"
+    classpath "${buildDir}/install/${project.name}/lib/*", configurations.annotationProcessor
+    main "picocli.codegen.docgen.manpage.ManPageGenerator"
+    args "org.symly.cli.MainCommand",
+            "-c",
+            "org.symly.cli.BeanFactory",
+            "--outdir=${buildDir}/docs/manpage-adoc"
 }
 
 asciidoctor {
@@ -177,18 +177,16 @@ task generateManpage(type: Exec) {
     commandLine "/bin/sh", "-c", "rm -rf manpage/gz && cp -R manpage/manpage manpage/gz && gzip -9 manpage/gz/*"
 }
 
-task generateShellCompletions(type: Exec) {
+task generateShellCompletions(type: JavaExec) {
     dependsOn installDist
     inputs.dir("${buildDir}/install/${project.name}/")
     outputs.file("${buildDir}/shell/completions/${project.name}")
-    workingDir "${buildDir}"
-    commandLine "install/${project.name}/bin/${project.name}",
-            "shell",
-            "generate-completion"
-    doFirst {
-        mkdir "shell/completions"
-        standardOutput = new FileOutputStream("${buildDir}/shell/completions/${project.name}")
-    }
+    classpath "${buildDir}/install/${project.name}/lib/*"
+    main "picocli.AutoComplete"
+    args "org.symly.cli.MainCommand",
+            "-c",
+            "org.symly.cli.BeanFactory",
+            "-o=${buildDir}/shell/completions/${project.name}"
 }
 
 // DEBIAN packaging

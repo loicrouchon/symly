@@ -3,7 +3,6 @@ module symly {
     requires static lombok;
 
     requires info.picocli;
-    requires info.picocli.codegen;
 
     opens org.symly.cli to info.picocli;
 }

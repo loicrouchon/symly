@@ -16,9 +16,7 @@ import picocli.CommandLine.Spec;
         subcommands = {
                 LinkCommand.class,
                 StatusCommand.class,
-                AddCommand.class,
-                ManPageGenerator.class,
-                Shell.class
+                AddCommand.class
         }
 )
 @RequiredArgsConstructor
