@@ -54,8 +54,8 @@ jobs:
 
       - name: Build application
         run: |
-          ./gradlew ${{ needs.env.outputs.gradle-args }} build
-          mv build/distributions/linky-${{ needs.env.outputs.version }}.zip build/distributions/linky_${{ needs.env.outputs.version }}_jvm.zip
+          ./gradlew ${{ needs.env.outputs.gradle-args }} build prepareDebianPackage
+          mv build/distributions/symly-${{ needs.env.outputs.version }}.zip build/distributions/symly_${{ needs.env.outputs.version }}_jvm.zip
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -75,8 +75,8 @@ jobs:
       - name: Upload distribution
         uses: actions/upload-artifact@v2
         with:
-          name: linky_${{ needs.env.outputs.version }}_jvm
-          path: build/distributions/linky_${{ needs.env.outputs.version }}_jvm.zip
+          name: symly_${{ needs.env.outputs.version }}_jvm
+          path: build/distributions/symly_${{ needs.env.outputs.version }}_jvm.zip
 
   package:
     name: Package
@@ -92,32 +92,27 @@ jobs:
             os: macos-latest
             gu-binary: gu
     steps:
-      - name: Setup Graalvm
-        id: setup-graalvm
-        uses: DeLaGuardo/setup-graalvm@3.1
-        with:
-          graalvm-version: '21.0.0.2.java11'
-
-      - name: Install native-image component
-        run: |
-          ${{ matrix.gu-binary }} install native-image
-
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Environment check
-        run: |
-          ./gradlew -v
-          native-image --version
+      - id: cached-graalvm
+        name: Restore GraalVM tooling cache
+        uses: actions/cache@v2
+        with:
+          path: tools
+          key: ${{ matrix.arch }}-${{ hashFiles('Makefile') }}
+
+      - name: Install GraalVM
+        run: make install-requirements
 
       - name: Build application
-        run: ./gradlew ${{ needs.env.outputs.gradle-args }} buildNativeImage
+        run: make clean build VERSION=${{ needs.env.outputs.version }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: linky_${{ needs.env.outputs.version }}_${{ matrix.arch }}
-          path: build/libs/linky
+          name: symly_${{ needs.env.outputs.version }}_${{ matrix.arch }}
+          path: build/libs/symly
 
   package-linux:
     name: Linux packaging
@@ -130,23 +125,23 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
-          name: linky_${{ needs.env.outputs.version }}_linux-amd64
+          name: symly_${{ needs.env.outputs.version }}_linux-amd64
           path: build/libs/
 
       - name: Build debian package application
         run: ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebianPackage
 
       - name: Debian package installation verification
-        run: sudo dpkg -i build/packaging/linky_${{ needs.env.outputs.version }}_amd64.deb
+        run: sudo dpkg -i build/packaging/symly_${{ needs.env.outputs.version }}_amd64.deb
 
       - name: Debian package post-installation verification
-        run: linky --version
+        run: symly --version
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: linky_${{ needs.env.outputs.version }}_amd64.deb
-          path: build/packaging/linky_${{ needs.env.outputs.version }}_amd64.deb
+          name: symly_${{ needs.env.outputs.version }}_amd64.deb
+          path: build/packaging/symly_${{ needs.env.outputs.version }}_amd64.deb
 
   release:
     # This is done as a separate task from the package step
@@ -169,10 +164,11 @@ jobs:
         run: |
           rm -rf test-reports
           find . -type f -exec sha256sum {} \; > sha256sum.txt
-          zip linky_${{ needs.env.outputs.version }}_linux-amd64.zip linky_${{ needs.env.outputs.version }}_linux-amd64/linky
-          zip linky_${{ needs.env.outputs.version }}_macos-x86_64.zip linky_${{ needs.env.outputs.version }}_macos-x86_64/linky
-          rm linky_${{ needs.env.outputs.version }}_linux-amd64/linky
-          rm linky_${{ needs.env.outputs.version }}_macos-x86_64/linky
+          zip symly_${{ needs.env.outputs.version }}_linux-amd64.zip symly_${{ needs.env.outputs.version }}_linux-amd64/symly
+          zip symly_${{ needs.env.outputs.version }}_macos-x86_64.zip symly_${{ needs.env.outputs.version }}_macos-x86_64/symly
+          rm symly_${{ needs.env.outputs.version }}_linux-amd64/symly
+          rm symly_${{ needs.env.outputs.version }}_macos-x86_64/symly
+          find .
         working-directory: build/artifacts/
 
       - id: create-release
@@ -191,4 +187,14 @@ jobs:
           find .
           hub release edit $(find . -type f -printf "-a %p ") -m "" "${{ needs.env.outputs.tag }}"
         working-directory: build/artifacts/
-        
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7
+      - name: Publish .deb
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
+        run: |
+          gem install package_cloud
+          package_cloud push symly/symly-cli/ubuntu/focal $(find . -type f -name "*.deb")
+        working-directory: build/artifacts/

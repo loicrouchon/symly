@@ -1,0 +1,47 @@
+#!/usr/bin/make -f
+# https://www.debian.org/doc/debian-policy/ch-controlfields.html
+# https://blog.packagecloud.io/debian/debuild/packaging/2015/06/08/buildling-deb-packages-with-debuild/
+
+VERSION=0.1.3
+EXEC=build/libs/symly
+INSTALL=debian/usr/local/bin/symly
+
+GRAALVM_VERSION=21.0.0.2
+GRAALVM_BASE_URL=https://github.com/graalvm/graalvm-ce-builds/releases/download
+GRAALVM_ARCH=graalvm-ce-java11-linux-amd64
+GRAALVM_URL=$(GRAALVM_BASE_URL)/vm-$(GRAALVM_VERSION)/$(GRAALVM_ARCH)-$(GRAALVM_VERSION).tar.gz
+GRAALVM_HOME=$(shell pwd)/tools/graalvm/graalvm-ce-java11-$(GRAALVM_VERSION)
+JAVA_HOME=$(GRAALVM_HOME)
+NATIVE_IMAGE=$(GRAALVM_HOME)/bin/native-image
+
+GRADLE_ENV=GRAALVM_HOME=$(GRAALVM_HOME) JAVA_HOME=$(JAVA_HOME)
+GRADLE=$(GRADLE_ENV) ./gradlew -Dgradle.user.home=.gradle --no-daemon -Pversion=$(VERSION)
+
+.PHONY: clean build install
+
+build: $(EXEC)
+binary: $(INSTALL)
+clean:
+	#rm -rf build
+
+$(NATIVE_IMAGE):
+	echo "Downloading Graal VM $(GRAALVM_URL)"
+	mkdir -p tools/graalvm
+	curl --silent -L $(GRAALVM_URL) -o tools/graalvm.tar.gz
+	tar xzf tools/graalvm.tar.gz --directory tools/graalvm
+	echo "Installing Graal VM native-image"
+	$(GRAALVM_HOME)/bin/gu install native-image
+
+$(EXEC): $(NATIVE_IMAGE)
+	echo "Building application"
+	$(GRADLE) clean buildNativeImage
+
+$(INSTALL): $(EXEC)
+	echo "Building binary"
+	ls -l build/libs/symly
+	install -D -m 0755 $(EXEC) $(INSTALL)
+
+override_dh_usrlocal:
+	pwd
+	find debian
+	echo
