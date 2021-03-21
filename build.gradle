@@ -183,24 +183,15 @@ task generateShellCompletions(type: JavaExec) {
     outputs.file("${buildDir}/shell/completions/${project.name}")
     classpath "${buildDir}/install/${project.name}/lib/*"
     main "picocli.AutoComplete"
-    args "org.symly.cli.MainCommand",
-            "-c",
-            "org.symly.cli.BeanFactory",
-            "-o=${buildDir}/shell/completions/${project.name}"
+    args "org.${project.name}.cli.MainCommand",
+            "--factory=org.${project.name}.cli.BeanFactory",
+            "--completionScript=${buildDir}/shell/completions/${project.name}"
 }
 
 // DEBIAN packaging
 // needs a native image to be generated for a linux-amd64 target first 
 task prepareDebianPackage(type: Copy) {
     dependsOn generateManpage, generateShellCompletions
-    inputs.files(
-            "LICENSE",
-            "packaging/${project.name}",
-            "${buildDir}/libs/${project.name}",
-            "${buildDir}/docs/manpage/gz",
-            "${buildDir}/shell/completions"
-    )
-    outputs.dir("${buildDir}/packaging/debian")
     from("LICENSE") {
         into "usr/share/doc/${project.name}"
         rename "LICENSE", "copyright"
@@ -215,9 +206,10 @@ task prepareDebianPackage(type: Copy) {
         into "usr/man/man1"
         rename "LICENSE", "copyright"
     }
-    from("${buildDir}/shell/completions") {
-        into "/usr/share/bash-completion/completions"
-    }
+// requires https://github.com/remkop/picocli/issues/1346
+//    from("${buildDir}/shell/completions") {
+//        into "/usr/share/bash-completion/completions"
+//    }
     into "${buildDir}/packaging/debian"
 }
 
