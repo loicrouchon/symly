@@ -150,19 +150,23 @@ private static String nativeImageBin() {
 task generateManpageAsciiDoc(type: JavaExec) {
     dependsOn installDist
     inputs.dir("${buildDir}/install/${project.name}/")
-    outputs.dir("${buildDir}/docs/manpage-adoc")
+    outputs.dir("${buildDir}/docs/manpage/adoc")
     classpath "${buildDir}/install/${project.name}/lib/*", configurations.annotationProcessor
     main "picocli.codegen.docgen.manpage.ManPageGenerator"
-    args "org.symly.cli.MainCommand",
-            "-c",
-            "org.symly.cli.BeanFactory",
-            "--outdir=${buildDir}/docs/manpage-adoc"
+    args "org.${project.name}.cli.MainCommand",
+            "--factory=org.${project.name}.cli.BeanFactory",
+            "--outdir=${buildDir}/docs/manpage/adoc"
 }
 
 asciidoctor {
     dependsOn generateManpageAsciiDoc
-    sourceDir = file("${buildDir}/docs/manpage-adoc")
-    outputDir = file("${buildDir}/docs/manpage")
+    inputs.dir("${buildDir}/docs/manpage/adoc")
+    outputs.dirs(
+            "${buildDir}/docs/manpage/html5",
+            "${buildDir}/docs/manpage/manpage"
+    )
+    sourceDir = file("${buildDir}/docs/manpage/adoc")
+    outputDir = file("${buildDir}/docs/manpage/")
     logDocuments = true
     outputOptions {
         backends = ["manpage", "html5"]
