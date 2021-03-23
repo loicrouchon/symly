@@ -197,7 +197,7 @@ task generateShellCompletions(type: JavaExec) {
 
 // DEBIAN packaging
 // needs a native image to be generated for a linux-amd64 target first 
-task prepareDebianPackage(type: Copy) {
+task prepareDebPackage(type: Copy) {
     dependsOn generateManpage, generateShellCompletions
     from("LICENSE") {
         into "usr/share/doc/${project.name}"
@@ -221,8 +221,8 @@ task prepareDebianPackage(type: Copy) {
     into "${buildDir}/packaging/deb"
 }
 
-task buildDebianPackage(type: Exec) {
-    dependsOn prepareDebianPackage
+task buildDebPackage(type: Exec) {
+    dependsOn prepareDebPackage
     inputs.dir("${buildDir}/packaging/deb")
     outputs.file("${buildDir}/packaging/${project.name}_${project.version}_amd64.deb")
     workingDir "${buildDir}/packaging"

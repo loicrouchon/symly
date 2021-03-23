@@ -54,7 +54,7 @@ jobs:
 
       - name: Build application
         run: |
-          ./gradlew ${{ needs.env.outputs.gradle-args }} build prepareDebianPackage
+          ./gradlew ${{ needs.env.outputs.gradle-args }} build prepareDebPackage
           mv build/distributions/symly-${{ needs.env.outputs.version }}.zip build/distributions/symly_${{ needs.env.outputs.version }}_jvm.zip
 
       - name: Publish Unit Test Results
@@ -129,7 +129,7 @@ jobs:
           path: build/libs/
 
       - name: Build debian package application
-        run: ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebianPackage buildRpmPackage
+        run: ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebPackage buildRpmPackage
 
       - name: Debian package installation verification
         run: sudo dpkg -i build/packaging/symly_${{ needs.env.outputs.version }}_amd64.deb
