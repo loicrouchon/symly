@@ -34,7 +34,7 @@ jobs:
 
       - id: gradle
         name: Compute gradlew args
-        run: echo ::set-output name=args::"-Pversion=${{ steps.version.outputs.version }} --console=plain --no-daemon"
+        run: echo ::set-output name=args::"-Pversion=${{ steps.version.outputs.version }} --info --console=plain --no-daemon"
 
       - name: Echo env details
         run: |
