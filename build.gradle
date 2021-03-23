@@ -203,8 +203,9 @@ task prepareDebianPackage(type: Copy) {
         into "usr/share/doc/${project.name}"
         rename "LICENSE", "copyright"
     }
-    from("packaging/${project.name}") {
+    from("packaging/deb") {
         expand(version: project.version)
+//        into "${project.name}"
     }
     from("${buildDir}/libs/${project.name}") {
         into "usr/local/bin/"
@@ -217,15 +218,15 @@ task prepareDebianPackage(type: Copy) {
 //    from("${buildDir}/shell/completions") {
 //        into "/usr/share/bash-completion/completions"
 //    }
-    into "${buildDir}/packaging/debian"
+    into "${buildDir}/packaging/deb"
 }
 
 task buildDebianPackage(type: Exec) {
     dependsOn prepareDebianPackage
-    inputs.dir("${buildDir}/packaging/debian")
+    inputs.dir("${buildDir}/packaging/deb")
     outputs.file("${buildDir}/packaging/${project.name}_${project.version}.deb")
     workingDir "${buildDir}/packaging"
-    commandLine "dpkg", "--build", "debian", "."
+    commandLine "dpkg", "--build", "deb", "."
 }
 
 // RPM packaging
