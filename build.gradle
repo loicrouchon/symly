@@ -190,6 +190,9 @@ task generateShellCompletions(type: JavaExec) {
     args "org.${project.name}.cli.MainCommand",
             "--factory=org.${project.name}.cli.BeanFactory",
             "--completionScript=${buildDir}/shell/completions/${project.name}"
+    doFirst {
+        file("${buildDir}/shell/completions/${project.name}").delete()
+    }
 }
 
 // DEBIAN packaging
@@ -223,4 +226,40 @@ task buildDebianPackage(type: Exec) {
     outputs.file("${buildDir}/packaging/${project.name}_${project.version}.deb")
     workingDir "${buildDir}/packaging"
     commandLine "dpkg", "--build", "debian", "."
+}
+
+// RPM packaging
+// needs a native image to be generated for a linux-amd64 target first
+task prepareRpmPackage(type: Copy) {
+    dependsOn generateManpage, generateShellCompletions
+    from("LICENSE") {
+        into "BUILD/usr/share/doc/${project.name}"
+    }
+    from("packaging/RPM") {
+        expand(version: project.version)
+    }
+    from("${buildDir}/libs/${project.name}") {
+        into "BUILD/usr/local/bin/"
+    }
+    from("${buildDir}/docs/manpage/gz") {
+        into "BUILD/usr/man/man1"
+        rename "LICENSE", "copyright"
+    }
+// requires https://github.com/remkop/picocli/issues/1346
+//    from("${buildDir}/shell/completions") {
+//        into "/usr/share/bash-completion/completions"
+//    }
+    into "${buildDir}/packaging/rpm"
+}
+
+task buildRpmPackage(type: Exec) {
+    dependsOn prepareRpmPackage
+    def buildroot = "${buildDir}/packaging/rpm"
+    inputs.file("${buildroot}/SPECS/${project.name}.spec")
+    inputs.dir("${buildroot}/BUILD")
+    outputs.dir("${buildroot}/RPMS")
+    workingDir buildroot
+    commandLine "rpmbuild", "-v", "-bb",
+            "--define", "_topdir ${buildroot}",
+            "SPECS/${project.name}.spec"
 }
