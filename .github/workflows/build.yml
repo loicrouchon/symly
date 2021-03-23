@@ -128,26 +128,36 @@ jobs:
           name: symly_${{ needs.env.outputs.version }}_linux-amd64
           path: build/libs/
 
-      - name: Build debian package application
-        run: ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebPackage buildRpmPackage
+      - id: create-pkg
+        name: Build debian package application
+        run: |
+            ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebPackage buildRpmPackage
+            DEB_PATH=$(find build/packaging/ -name "*.deb")
+            DEB_FILENAME=$(basename $DEB_PATH)
+            RPM_PATH=$(find build/packaging/ -name "*.rpm")
+            RPM_FILENAME=$(basename $RPM_PATH)
+            echo ::set-output name=deb-path::$DEB_PATH
+            echo ::set-output name=deb-filename::$DEB_FILENAME
+            echo ::set-output name=rpm-path::$RPM_PATH
+            echo ::set-output name=rpm-filename::$RPM_FILENAME
 
       - name: Debian package installation verification
-        run: sudo dpkg -i build/packaging/symly_${{ needs.env.outputs.version }}_amd64.deb
+        run: sudo dpkg -i ${{ steps.create-pkg.outputs.deb-path }}
 
       - name: Debian package post-installation verification
         run: symly --version
 
-      - name: Upload artifacts
+      - name: Upload .deb artifact
         uses: actions/upload-artifact@v2
         with:
-          name: symly_${{ needs.env.outputs.version }}_amd64.deb
-          path: build/packaging/symly_${{ needs.env.outputs.version }}_amd64.deb
+          name: ${{ steps.create-pkg.outputs.deb-filename }}
+          path: ${{ steps.create-pkg.outputs.deb-path }}
 
-      - name: Upload artifacts
+      - name: Upload .rpm artifact
         uses: actions/upload-artifact@v2
         with:
-          name: symly-${{ needs.env.outputs.version }}-1.x86_64.rpm
-          path: build/packaging/rpm/RPMS/x86_64/symly-${{ needs.env.outputs.version }}-1.x86_64.rpm
+          name: ${{ steps.create-pkg.outputs.rpm-filename }}
+          path: ${{ steps.create-pkg.outputs.rpm-path }}
 
   release:
     # This is done as a separate task from the package step
