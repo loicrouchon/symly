@@ -236,7 +236,7 @@ task prepareRpmPackage(type: Copy) {
     from("LICENSE") {
         into "BUILD/usr/share/doc/${project.name}"
     }
-    from("packaging/RPM") {
+    from("packaging/rpm") {
         expand(version: project.version)
     }
     from("${buildDir}/libs/${project.name}") {
