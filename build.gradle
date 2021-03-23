@@ -224,7 +224,7 @@ task prepareDebianPackage(type: Copy) {
 task buildDebianPackage(type: Exec) {
     dependsOn prepareDebianPackage
     inputs.dir("${buildDir}/packaging/deb")
-    outputs.file("${buildDir}/packaging/${project.name}_${project.version}.deb")
+    outputs.file("${buildDir}/packaging/${project.name}_${project.version}_amd64.deb")
     workingDir "${buildDir}/packaging"
     commandLine "dpkg", "--build", "deb", "."
 }
