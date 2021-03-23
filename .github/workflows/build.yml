@@ -26,7 +26,7 @@ jobs:
             git tag -l "v$BASE_VERSION.*"
             VERSION=$(git tag -l "v$BASE_VERSION.*" | cut -c2- | java VersionBumper.java $BASE_VERSION)
           else
-            VERSION="0-dev-$(echo $GITHUB_SHA | cut -c1-7)"
+            VERSION="0-dev+$(echo $GITHUB_SHA | cut -c1-7)"
           fi
           echo "Setting version to $VERSION"
           echo ::set-output name=version::$VERSION

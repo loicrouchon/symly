@@ -237,7 +237,7 @@ task prepareRpmPackage(type: Copy) {
         into "BUILD/usr/share/doc/${project.name}"
     }
     from("packaging/rpm") {
-        expand(version: project.version)
+        expand(version: project.version.replaceAll("-", "_"))
     }
     from("${buildDir}/libs/${project.name}") {
         into "BUILD/usr/local/bin/"
