@@ -26,7 +26,7 @@ jobs:
             git tag -l "v$BASE_VERSION.*"
             VERSION=$(git tag -l "v$BASE_VERSION.*" | cut -c2- | java VersionBumper.java $BASE_VERSION)
           else
-            VERSION="0-dev-$(echo $GITHUB_SHA | cut -c1-7)"
+            VERSION="0-dev+$(echo $GITHUB_SHA | cut -c1-7)"
           fi
           echo "Setting version to $VERSION"
           echo ::set-output name=version::$VERSION
@@ -34,7 +34,7 @@ jobs:
 
       - id: gradle
         name: Compute gradlew args
-        run: echo ::set-output name=args::"-Pversion=${{ steps.version.outputs.version }} --console=plain --no-daemon"
+        run: echo ::set-output name=args::"-Pversion=${{ steps.version.outputs.version }} --info --console=plain --no-daemon"
 
       - name: Echo env details
         run: |
@@ -54,7 +54,7 @@ jobs:
 
       - name: Build application
         run: |
-          ./gradlew ${{ needs.env.outputs.gradle-args }} build prepareDebianPackage
+          ./gradlew ${{ needs.env.outputs.gradle-args }} build prepareDebPackage
           mv build/distributions/symly-${{ needs.env.outputs.version }}.zip build/distributions/symly_${{ needs.env.outputs.version }}_jvm.zip
 
       - name: Publish Unit Test Results
@@ -128,20 +128,36 @@ jobs:
           name: symly_${{ needs.env.outputs.version }}_linux-amd64
           path: build/libs/
 
-      - name: Build debian package application
-        run: ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebianPackage
+      - id: create-pkg
+        name: Build debian package application
+        run: |
+            ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebPackage buildRpmPackage
+            DEB_PATH=$(find build/packaging/ -name "*.deb")
+            DEB_FILENAME=$(basename $DEB_PATH)
+            RPM_PATH=$(find build/packaging/ -name "*.rpm")
+            RPM_FILENAME=$(basename $RPM_PATH)
+            echo ::set-output name=deb-path::$DEB_PATH
+            echo ::set-output name=deb-filename::$DEB_FILENAME
+            echo ::set-output name=rpm-path::$RPM_PATH
+            echo ::set-output name=rpm-filename::$RPM_FILENAME
 
       - name: Debian package installation verification
-        run: sudo dpkg -i build/packaging/symly_${{ needs.env.outputs.version }}_amd64.deb
+        run: sudo dpkg -i ${{ steps.create-pkg.outputs.deb-path }}
 
       - name: Debian package post-installation verification
         run: symly --version
 
-      - name: Upload artifacts
+      - name: Upload .deb artifact
         uses: actions/upload-artifact@v2
         with:
-          name: symly_${{ needs.env.outputs.version }}_amd64.deb
-          path: build/packaging/symly_${{ needs.env.outputs.version }}_amd64.deb
+          name: ${{ steps.create-pkg.outputs.deb-filename }}
+          path: ${{ steps.create-pkg.outputs.deb-path }}
+
+      - name: Upload .rpm artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ steps.create-pkg.outputs.rpm-filename }}
+          path: ${{ steps.create-pkg.outputs.rpm-path }}
 
   release:
     # This is done as a separate task from the package step
@@ -197,4 +213,5 @@ jobs:
         run: |
           gem install package_cloud
           package_cloud push symly/symly-cli/ubuntu/focal $(find . -type f -name "*.deb")
+          package_cloud push symly/symly-cli/fedora/33 $(find . -type f -name "*.rpm")
         working-directory: build/artifacts/

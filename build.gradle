@@ -190,18 +190,22 @@ task generateShellCompletions(type: JavaExec) {
     args "org.${project.name}.cli.MainCommand",
             "--factory=org.${project.name}.cli.BeanFactory",
             "--completionScript=${buildDir}/shell/completions/${project.name}"
+    doFirst {
+        file("${buildDir}/shell/completions/${project.name}").delete()
+    }
 }
 
 // DEBIAN packaging
 // needs a native image to be generated for a linux-amd64 target first 
-task prepareDebianPackage(type: Copy) {
+task prepareDebPackage(type: Copy) {
     dependsOn generateManpage, generateShellCompletions
     from("LICENSE") {
         into "usr/share/doc/${project.name}"
         rename "LICENSE", "copyright"
     }
-    from("packaging/${project.name}") {
+    from("packaging/deb") {
         expand(version: project.version)
+//        into "${project.name}"
     }
     from("${buildDir}/libs/${project.name}") {
         into "usr/local/bin/"
@@ -214,13 +218,49 @@ task prepareDebianPackage(type: Copy) {
 //    from("${buildDir}/shell/completions") {
 //        into "/usr/share/bash-completion/completions"
 //    }
-    into "${buildDir}/packaging/debian"
+    into "${buildDir}/packaging/deb"
 }
 
-task buildDebianPackage(type: Exec) {
-    dependsOn prepareDebianPackage
-    inputs.dir("${buildDir}/packaging/debian")
-    outputs.file("${buildDir}/packaging/${project.name}_${project.version}.deb")
+task buildDebPackage(type: Exec) {
+    dependsOn prepareDebPackage
+    inputs.dir("${buildDir}/packaging/deb")
+    outputs.file("${buildDir}/packaging/${project.name}_${project.version}_amd64.deb")
     workingDir "${buildDir}/packaging"
-    commandLine "dpkg", "--build", "debian", "."
+    commandLine "dpkg", "--build", "deb", "."
+}
+
+// RPM packaging
+// needs a native image to be generated for a linux-amd64 target first
+task prepareRpmPackage(type: Copy) {
+    dependsOn generateManpage, generateShellCompletions
+    from("LICENSE") {
+        into "BUILD/usr/share/doc/${project.name}"
+    }
+    from("packaging/rpm") {
+        expand(version: project.version.replaceAll("-", "_"))
+    }
+    from("${buildDir}/libs/${project.name}") {
+        into "BUILD/usr/local/bin/"
+    }
+    from("${buildDir}/docs/manpage/gz") {
+        into "BUILD/usr/man/man1"
+        rename "LICENSE", "copyright"
+    }
+// requires https://github.com/remkop/picocli/issues/1346
+//    from("${buildDir}/shell/completions") {
+//        into "/usr/share/bash-completion/completions"
+//    }
+    into "${buildDir}/packaging/rpm"
+}
+
+task buildRpmPackage(type: Exec) {
+    dependsOn prepareRpmPackage
+    def buildroot = "${buildDir}/packaging/rpm"
+    inputs.file("${buildroot}/SPECS/${project.name}.spec")
+    inputs.dir("${buildroot}/BUILD")
+    outputs.dir("${buildroot}/RPMS")
+    workingDir buildroot
+    commandLine "rpmbuild", "-v", "-bb",
+            "--define", "_topdir ${buildroot}",
+            "SPECS/${project.name}.spec"
 }
