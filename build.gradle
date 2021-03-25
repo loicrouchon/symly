@@ -136,6 +136,21 @@ task buildNativeImage(type: Exec) {
             "-DremoveUnusedAutoconfig=true",
             "--initialize-at-build-time",
             "-H:+PrintImageElementSizes",
+            // Native image size debug flags
+//            "-H:DashboardDump=img-dump",
+//            "-H:+DashboardAll",
+//            "-H:+DashboardHeap",
+//            "-H:+DashboardCode",
+//            "-H:+DashboardPointsTo",
+//            "-H:+DashboardPretty",
+            // Native image stdout debug
+//            "-H:+PrintUniverse",
+//            "-H:+PrintHeapHistogram",
+//            "-H:+PrintAnalysisCallTree",
+//            "-H:+PrintImageObjectTree",
+//            "-H:+PrintHeapHistogram",
+//            "-H:+PrintMethodHistogram",
+//            "-H:+PrintImageHeapPartitionSizes",
             "-cp", "${buildDir}/install/${project.name}/lib/*",
             "${mainClassName}"
 }
