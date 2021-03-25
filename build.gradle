@@ -121,7 +121,7 @@ task buildNativePackage(type: Exec) {
 
 task buildNativeImage(type: Exec) {
     dependsOn installDist
-    inputs.dir("${buildDir}/install/${project.name}/lib/")
+    inputs.dir("${buildDir}/install/${project.name}/lib")
     outputs.file("${buildDir}/libs/${project.name}")
     workingDir "${buildDir}/libs"
 
@@ -132,9 +132,10 @@ task buildNativeImage(type: Exec) {
             "-H:-AddAllCharsets",
             "-H:-UseServiceLoaderFeature",
             "-J-Drx.unsafe-disable=true",
-            "--initialize-at-build-time",
+            "-H:+RemoveUnusedSymbols",
             "-DremoveUnusedAutoconfig=true",
-            "--report-unsupported-elements-at-runtime", // reflection features not used in native-image mode
+            "--initialize-at-build-time",
+            "-H:+PrintImageElementSizes",
             "-cp", "${buildDir}/install/${project.name}/lib/*",
             "${mainClassName}"
 }
