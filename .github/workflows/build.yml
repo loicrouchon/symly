@@ -203,15 +203,3 @@ jobs:
           find .
           hub release edit $(find . -type f -printf "-a %p ") -m "" "${{ needs.env.outputs.tag }}"
         working-directory: build/artifacts/
-
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 2.7
-      - name: Publish .deb
-        env:
-          PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
-        run: |
-          gem install package_cloud
-          package_cloud push symly/symly-cli/ubuntu/focal $(find . -type f -name "*.deb")
-          package_cloud push symly/symly-cli/fedora/33 $(find . -type f -name "*.rpm")
-        working-directory: build/artifacts/
