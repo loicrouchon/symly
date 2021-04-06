@@ -20,5 +20,5 @@ cp -R "usr" "%{buildroot}"
 
 %files
 %license /usr/share/doc/symly/LICENSE
-%attr(0755, root, root)/usr/local/bin/symly
+%attr(0755, root, root)/usr/bin/symly
 %attr(0644, root, root)/usr/man/man1/symly*

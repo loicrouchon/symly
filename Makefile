@@ -3,7 +3,7 @@ VERSION=dev
 endif
 
 EXECUTABLE=build/libs/symly
-INSTALL=/usr/local/bin/symly
+INSTALL=/usr/bin/symly
 
 GRAALVM_VERSION=21.0.0.2
 GRAALVM_BASE_URL=https://github.com/graalvm/graalvm-ce-builds/releases/download
