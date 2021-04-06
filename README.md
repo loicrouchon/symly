@@ -70,7 +70,7 @@ Symly is available through deb and rpm package managers for linux
 **DEB**: Debian, Ubuntu, Linux Mint, ...
 ```
 sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/deb/dists/latest/Release.gpg.key | gpg --dearmor > /etc/apt/trusted.gpg.d/loicrouchon-packages.gpg'
-sudo sh -c 'echo "deb https://packages.loicrouchon.fr/deb latest main" > /etc/apt/sources.list.d/symly.list'
+sudo sh -c 'echo "deb [arch=amd64] https://packages.loicrouchon.fr/deb latest main" > /etc/apt/sources.list.d/symly.list'
 sudo apt update
 sudo apt install symly
 ```
