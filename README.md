@@ -62,6 +62,35 @@ want to deploy your centralized files.
 No, Symly is not limited to creating links in your user home folder. The user home folder is a sensible default for
 the `destination` but any `destination` can be used.
 
+
+## Installation
+
+Symly is available through deb and rpm package managers for linux
+
+**DEB**: Debian, Ubuntu, Linux Mint, ...
+```
+sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/deb/dists/latest/Release.gpg.key | gpg --dearmor > /etc/apt/trusted.gpg.d/loicrouchon-packages.gpg'
+sudo sh -c 'echo "deb https://packages.loicrouchon.fr/deb latest main" > /etc/apt/sources.list.d/symly.list'
+sudo apt update
+sudo apt install symly
+```
+**RPM**: Fedora, CentOS, Red Hat, ...
+```
+sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/rpm/Release.gpg.key > /tmp/symly.gpg.key'
+sudo rpm --import /tmp/symly.gpg.key
+sudo dnf install 'dnf-command(config-manager)'
+sudo dnf config-manager --add-repo https://packages.loicrouchon.fr/rpm
+sudo dnf install symly
+```
+
+It is also available via HomeBrew for MacOS and other linux distributions.
+
+**Homebrew** (MacOS/Linux)
+```
+brew tap loicrouchon/symly
+brew install symly
+```
+
 ## Usage
 
 ```

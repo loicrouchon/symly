@@ -121,7 +121,7 @@ task buildNativePackage(type: Exec) {
 
 task buildNativeImage(type: Exec) {
     dependsOn installDist
-    inputs.dir("${buildDir}/install/${project.name}/lib/")
+    inputs.dir("${buildDir}/install/${project.name}/lib")
     outputs.file("${buildDir}/libs/${project.name}")
     workingDir "${buildDir}/libs"
 
@@ -132,9 +132,25 @@ task buildNativeImage(type: Exec) {
             "-H:-AddAllCharsets",
             "-H:-UseServiceLoaderFeature",
             "-J-Drx.unsafe-disable=true",
-            "--initialize-at-build-time",
+            "-H:+RemoveUnusedSymbols",
             "-DremoveUnusedAutoconfig=true",
-            "--report-unsupported-elements-at-runtime", // reflection features not used in native-image mode
+            "--initialize-at-build-time",
+            "-H:+PrintImageElementSizes",
+            // Native image size debug flags
+//            "-H:DashboardDump=img-dump",
+//            "-H:+DashboardAll",
+//            "-H:+DashboardHeap",
+//            "-H:+DashboardCode",
+//            "-H:+DashboardPointsTo",
+//            "-H:+DashboardPretty",
+            // Native image stdout debug
+//            "-H:+PrintUniverse",
+//            "-H:+PrintHeapHistogram",
+//            "-H:+PrintAnalysisCallTree",
+//            "-H:+PrintImageObjectTree",
+//            "-H:+PrintHeapHistogram",
+//            "-H:+PrintMethodHistogram",
+//            "-H:+PrintImageHeapPartitionSizes",
             "-cp", "${buildDir}/install/${project.name}/lib/*",
             "${mainClassName}"
 }
@@ -208,7 +224,7 @@ task prepareDebPackage(type: Copy) {
 //        into "${project.name}"
     }
     from("${buildDir}/libs/${project.name}") {
-        into "usr/local/bin/"
+        into "usr/bin/"
     }
     from("${buildDir}/docs/manpage/gz") {
         into "usr/man/man1"
@@ -240,7 +256,7 @@ task prepareRpmPackage(type: Copy) {
         expand(version: project.version.replaceAll("-", "_"))
     }
     from("${buildDir}/libs/${project.name}") {
-        into "BUILD/usr/local/bin/"
+        into "BUILD/usr/bin/"
     }
     from("${buildDir}/docs/manpage/gz") {
         into "BUILD/usr/man/man1"
