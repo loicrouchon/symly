@@ -60,7 +60,7 @@ configurations {
 }
 
 dependencies {
-    def lombokVersion = "1.18.16"
+    def lombokVersion = "1.18.20"
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
@@ -84,10 +84,22 @@ dependencies {
     integrationTestImplementation sourceSets.test.output
 }
 
+/**
+ * This task is only needed for integrationTest to run
+ * However, as it modifies the content of `build/libs`
+ * Gradle requires to explicit the dependencies of tasks
+ * relying on the `build/libs` as an input:
+ * startScripts, distTar, distZip, installDist
+ */
 task copyDependencies(type: Copy) {
     from configurations.runtimeClasspath
     into "build/libs"
 }
+startScripts.dependsOn copyDependencies
+distTar.dependsOn copyDependencies
+distZip.dependsOn copyDependencies
+installDist.dependsOn copyDependencies
+
 task integrationTest(type: Test) {
     dependsOn copyDependencies, jar
     useJUnitPlatform()
@@ -102,7 +114,6 @@ check.dependsOn integrationTest
 
 task buildNativePackage(type: Exec) {
     dependsOn installDist
-    workingDir "${buildDir}"
 
     commandLine "jpackage",
             "--name",
@@ -110,13 +121,13 @@ task buildNativePackage(type: Exec) {
             "--app-version",
             "${project.version}",
             "--module-path",
-            "install/${project.name}/lib",
+            "${buildDir}/install/${project.name}/lib",
             "-m",
             "${project.name}/${mainClassName}",
             "--license-file",
-            "../LICENSE",
+            "LICENSE",
             "--dest",
-            "."
+            "${buildDir}"
 }
 
 task buildNativeImage(type: Exec) {
