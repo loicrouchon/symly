@@ -5,7 +5,7 @@ endif
 EXECUTABLE=build/libs/symly
 INSTALL=/usr/bin/symly
 
-GRAALVM_VERSION=21.0.0.2
+GRAALVM_VERSION=21.1.0
 GRAALVM_BASE_URL=https://github.com/graalvm/graalvm-ce-builds/releases/download
 OS=$(shell uname)
 ifeq ($(OS), Darwin)
