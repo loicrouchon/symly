@@ -5,9 +5,6 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-
     modularity.inferModulePath = true
 }
 def mainClassName = "org.${project.name}.cli.Main"
@@ -26,6 +23,7 @@ processResources {
     }
 }
 compileJava {
+    options.release = 11
     options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
 }
 test {
