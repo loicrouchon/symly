@@ -129,8 +129,9 @@ jobs:
           path: build/libs/
 
       - id: create-pkg
-        name: Build debian package application
+        name: Build deb/rpm packages application
         run: |
+            find build/libs/
             ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebPackage buildRpmPackage
             DEB_PATH=$(find build/packaging/ -name "*.deb")
             DEB_FILENAME=$(basename $DEB_PATH)
