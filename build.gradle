@@ -8,7 +8,7 @@ plugins {
 java {
     modularity.inferModulePath = true
 }
-def mainClassName = "org.${project.name}.cli.Main"
+String mainClassName = "org.${project.name}.cli.Main"
 application {
     mainModule.set("${project.name}")
     mainClass.set(mainClassName)
@@ -24,7 +24,7 @@ processResources {
     }
 }
 compileJava {
-    options.release = 11
+    options.release.set(11)
     options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
 }
 test {
@@ -178,7 +178,7 @@ task generateManpageAsciiDoc(type: JavaExec) {
     inputs.dir("${buildDir}/install/${project.name}/")
     outputs.dir("${buildDir}/docs/manpage/adoc")
     classpath "${buildDir}/install/${project.name}/lib/*", configurations.annotationProcessor
-    main "picocli.codegen.docgen.manpage.ManPageGenerator"
+    mainClass.set("picocli.codegen.docgen.manpage.ManPageGenerator")
     args "org.${project.name}.cli.MainCommand",
             "--factory=org.${project.name}.cli.BeanFactory",
             "--outdir=${buildDir}/docs/manpage/adoc"
@@ -212,7 +212,7 @@ task generateShellCompletions(type: JavaExec) {
     inputs.dir("${buildDir}/install/${project.name}/")
     outputs.file("${buildDir}/shell/completions/${project.name}")
     classpath "${buildDir}/install/${project.name}/lib/*"
-    main "picocli.AutoComplete"
+    mainClass.set("picocli.AutoComplete")
     args "org.${project.name}.cli.MainCommand",
             "--factory=org.${project.name}.cli.BeanFactory",
             "--completionScript=${buildDir}/shell/completions/${project.name}"
