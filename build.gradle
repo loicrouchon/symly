@@ -2,6 +2,7 @@ plugins {
     id "application"
     id "idea"
     id "org.asciidoctor.jvm.convert" version "3.3.2"
+    id "nebula.ospackage" version "8.5.6"
 }
 
 java {
@@ -131,8 +132,8 @@ task buildNativePackage(type: Exec) {
 task buildNativeImage(type: Exec) {
     dependsOn installDist
     inputs.dir("${buildDir}/install/${project.name}/lib")
-    outputs.file("${buildDir}/libs/${project.name}")
-    workingDir "${buildDir}/libs"
+    outputs.file("${buildDir}/bin/${project.name}")
+    workingDir "${buildDir}/bin"
 
     commandLine nativeImageBin(),
             "--verbose",
@@ -220,72 +221,46 @@ task generateShellCompletions(type: JavaExec) {
     }
 }
 
-// DEBIAN packaging
-// needs a native image to be generated for a linux-amd64 target first 
-task prepareDebPackage(type: Copy) {
-    dependsOn generateManpage, generateShellCompletions
+ospackage {
+    packageName = "symly"
+    packageDescription = "Manages symbolic links."
+    url = "https://github.com/loicrouchon/symly"
+
+    release = '1'
+    os = LINUX
+    user = "root"
+
+    license = "ASL 2.0"
     from("LICENSE") {
         into "usr/share/doc/${project.name}"
         rename "LICENSE", "copyright"
+        fileType = LICENSE
     }
-    from("packaging/deb") {
-        expand(version: project.version)
-//        into "${project.name}"
-    }
-    from("${buildDir}/libs/${project.name}") {
+
+    from("${buildDir}/bin/${project.name}") {
         into "usr/bin/"
+        fileMode 755
     }
     from("${buildDir}/docs/manpage/gz") {
         into "usr/man/man1"
-        rename "LICENSE", "copyright"
+        fileType = DOC
     }
 // requires https://github.com/remkop/picocli/issues/1346
 //    from("${buildDir}/shell/completions") {
 //        into "/usr/share/bash-completion/completions"
 //    }
-    into "${buildDir}/packaging/deb"
 }
 
-task buildDebPackage(type: Exec) {
-    dependsOn prepareDebPackage
-    inputs.dir("${buildDir}/packaging/deb")
-    outputs.file("${buildDir}/packaging/${project.name}_${project.version}_amd64.deb")
-    workingDir "${buildDir}/packaging"
-    commandLine "dpkg", "--build", "deb", "."
-}
-
-// RPM packaging
-// needs a native image to be generated for a linux-amd64 target first
-task prepareRpmPackage(type: Copy) {
+task buildDebPackage(type: Deb) {
     dependsOn generateManpage, generateShellCompletions
-    from("LICENSE") {
-        into "BUILD/usr/share/doc/${project.name}"
-    }
-    from("packaging/rpm") {
-        expand(version: project.version.replaceAll("-", "_"))
-    }
-    from("${buildDir}/libs/${project.name}") {
-        into "BUILD/usr/bin/"
-    }
-    from("${buildDir}/docs/manpage/gz") {
-        into "BUILD/usr/man/man1"
-        rename "LICENSE", "copyright"
-    }
-// requires https://github.com/remkop/picocli/issues/1346
-//    from("${buildDir}/shell/completions") {
-//        into "/usr/share/bash-completion/completions"
-//    }
-    into "${buildDir}/packaging/rpm"
+    maintainer = "Loic Rouchon"
+    arch = "amd64"
+    license = "ASL 2.0"
 }
 
-task buildRpmPackage(type: Exec) {
-    dependsOn prepareRpmPackage
-    def buildroot = "${buildDir}/packaging/rpm"
-    inputs.file("${buildroot}/SPECS/${project.name}.spec")
-    inputs.dir("${buildroot}/BUILD")
-    outputs.dir("${buildroot}/RPMS")
-    workingDir buildroot
-    commandLine "rpmbuild", "-v", "-bb",
-            "--define", "_topdir ${buildroot}",
-            "SPECS/${project.name}.spec"
+task buildRpmPackage(type: Rpm) {
+    dependsOn generateManpage, generateShellCompletions
+    packager = "Loïc Rouchon"
+    arch = "x86_64"
+    addParentDirs = false
 }

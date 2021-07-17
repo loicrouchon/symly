@@ -1,3 +1,0 @@
-#!/bin/sh
-chmod +x /usr/bin/symly
-exit 0

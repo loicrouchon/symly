@@ -54,7 +54,7 @@ jobs:
 
       - name: Build application
         run: |
-          ./gradlew ${{ needs.env.outputs.gradle-args }} build prepareDebPackage
+          ./gradlew ${{ needs.env.outputs.gradle-args }} build installDist
           mv build/distributions/symly-${{ needs.env.outputs.version }}.zip build/distributions/symly_${{ needs.env.outputs.version }}_jvm.zip
 
       - name: Publish Unit Test Results
@@ -112,7 +112,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: symly_${{ needs.env.outputs.version }}_${{ matrix.arch }}
-          path: build/libs/symly
+          path: build/bin/symly
 
   package-linux:
     name: Linux packaging
@@ -126,21 +126,33 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: symly_${{ needs.env.outputs.version }}_linux-amd64
-          path: build/libs/
+          path: build/bin/
 
       - id: create-pkg
         name: Build deb/rpm packages application
         run: |
-            find build/libs/
+            pwd
+            find build/bin/
+            ls -l /home/runner/work/symly/symly/build/bin
             ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebPackage buildRpmPackage
-            DEB_PATH=$(find build/packaging/ -name "*.deb")
+            find build/bin/
+            ls -l /home/runner/work/symly/symly/build/bin
+            DEB_PATH=$(find build/distributions/ -name "*.deb")
             DEB_FILENAME=$(basename $DEB_PATH)
-            RPM_PATH=$(find build/packaging/ -name "*.rpm")
+            RPM_PATH=$(find build/distributions/ -name "*.rpm")
             RPM_FILENAME=$(basename $RPM_PATH)
             echo ::set-output name=deb-path::$DEB_PATH
             echo ::set-output name=deb-filename::$DEB_FILENAME
             echo ::set-output name=rpm-path::$RPM_PATH
             echo ::set-output name=rpm-filename::$RPM_FILENAME
+
+      - name: Debian package inspection
+        run: |
+            dpkg -I ${{ steps.create-pkg.outputs.deb-path }}
+            dpkg -c ${{ steps.create-pkg.outputs.deb-path }}
+
+      - name: RPM package inspection
+        run: rpm -qlpi ${{ steps.create-pkg.outputs.rpm-path }}
 
       - name: Debian package installation verification
         run: sudo dpkg -i ${{ steps.create-pkg.outputs.deb-path }}

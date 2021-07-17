@@ -1,7 +1,0 @@
-Package: symly
-Version: ${version}
-Section: misc
-Priority: optional
-Architecture: amd64
-Maintainer: loic.rouchon@gmail.com
-Description: Manages symbolic links.
