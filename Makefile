@@ -2,10 +2,10 @@ ifndef VERSION
 VERSION=dev
 endif
 
-EXECUTABLE=build/libs/symly
+EXECUTABLE=build/bin/symly
 INSTALL=/usr/bin/symly
 
-GRAALVM_VERSION=21.1.0
+GRAALVM_VERSION=21.2.0
 GRAALVM_BASE_URL=https://github.com/graalvm/graalvm-ce-builds/releases/download
 OS=$(shell uname)
 ifeq ($(OS), Darwin)
@@ -68,5 +68,5 @@ $(EXECUTABLE): $(NATIVE_IMAGE)
 
 $(INSTALL): $(EXECUTABLE)
 	@echo "Building binary"
-	@ls -l build/libs/symly
-	@install -D -m 0755 $(EXEC) $(INSTALL)
+	@ls -l $(EXECUTABLE)
+	@install -D -m 0755 $(EXECUTABLE) $(INSTALL)
