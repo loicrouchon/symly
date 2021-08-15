@@ -287,7 +287,7 @@ The `assembleDist` task allow to build a `tar` and a `zip` distribution archives
 ./gradlew clean build assembleDist
 ```
 
-This result in two self-contained archive which only requires a JRE to be installed resulting. The archives are located
+This result in two self-contained archive which only requires a JRE to be installed. The archives are located
 here:
 
 * `build/distributions/symly-${version}.tar`
