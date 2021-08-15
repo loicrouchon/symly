@@ -5,7 +5,7 @@ directory `source directory` by creating symbolic links.
 
 For example, consider the following directory `~/my/repository`:
 
-```
+```txt
 ~/my/repository
  |-- .bashrc
  |-- .gitconfig
@@ -17,13 +17,13 @@ For example, consider the following directory `~/my/repository`:
 
 By using symly, you can automatically create links from `~` to all files in `~/my/repository`.
 
-```
+```cmd
 > symly link -r ~/my/repository
 ```
 
 This would result in the following links:
 
-```
+```txt
 ~/.bashrc                   ->  ~/my/repository/.bashrc
 ~/.gitconfig                ->  ~/my/repository/.gitconfig
 ~/.config/starship.toml     ->  ~/my/repository/.config/starship.toml
@@ -60,22 +60,24 @@ want to deploy your centralized files.
 ### Is Symly limited to user configuration files?
 
 No, Symly is not limited to creating links in your user home folder. The user home folder is a sensible default for
-the `destination` but any `destination` can be used.
-
+the `source directory` but any other `source directory` can be used.
 
 ## Installation
 
 Symly is available through deb and rpm package managers for linux
 
 **DEB**: Debian, Ubuntu, Linux Mint, ...
-```
+
+```cmd
 sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/deb/dists/latest/Release.gpg.key | gpg --dearmor > /etc/apt/trusted.gpg.d/loicrouchon-packages.gpg'
 sudo sh -c 'echo "deb [arch=amd64] https://packages.loicrouchon.fr/deb latest main" > /etc/apt/sources.list.d/symly.list'
 sudo apt update
 sudo apt install symly
 ```
+
 **RPM**: Fedora, CentOS, Red Hat, ...
-```
+
+```cmd
 sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/rpm/Release.gpg.key > /tmp/symly.gpg.key'
 sudo rpm --import /tmp/symly.gpg.key
 sudo dnf install 'dnf-command(config-manager)'
@@ -86,14 +88,25 @@ sudo dnf install symly
 It is also available via HomeBrew for MacOS and other linux distributions.
 
 **Homebrew** (MacOS/Linux)
-```
+
+```cmd
 brew tap loicrouchon/symly
 brew install symly
 ```
 
+## Manual download
+
+Artifacts can also be downloaded manually from [github](https://github.com/loicrouchon/symly/tags).
+
+The following artifacts are available:
+
+* Jar application with bootstrap script. Requires JVM 11+
+* Native binaries for Linux (x64) and macOS (x64)
+* `.deb` and `.rpm` packages.
+
 ## Usage
 
-```
+```cmd
 Usage: symly [-hv] [COMMAND]
 symly create links
 -h, --help      Prints this help message and exits
@@ -106,13 +119,13 @@ link        Synchronizes the links from the repositories to the source directory
 
 The `link` subcommand is the main subcommand that will perform the linking.
 
-```
-Usage: symly link [--dry-run] [-d=<destination>] -t=<repositories>...
+```txt
+Usage: symly link [--dry-run] [-s=<source-directory>] -r=<repositories>...
 ```
 
 * Links every file from `repositories` into `source` by preserving the structure.
 
-```
+```txt
 > tree ~/my/repository
 ~/my/repository
  |-- .bashrc
@@ -133,7 +146,7 @@ Creating links from [~/my/repository] to ~
 
 * Supports multiple `repositories`: The first repository defining a link has the priority, defaults are last
 
-```
+```txt
 > tree ~/my/repositories
 ~/my/repositories
  |-- custom
@@ -154,7 +167,7 @@ Creating links from [~/my/repositories/custom, ~/my/repositories/defaults] to ~
 
 * Supports directory linking when a `.symlink` file is present in the directory.
 
-```
+```txt
 > tree ~/my/repository
 ~/my/repository
  >-- .config
@@ -172,7 +185,7 @@ Creating links from [~/my/repository] to ~
 
 The terminology examples will be given by considering the following file structure:
 
-```
+```txt
 ~
  |-- .gitconfig         -> ~/repositories/custom/.gitconfig
  |-- .bashrc            -> ~/repositories/custom/.bashrc
@@ -189,12 +202,11 @@ The terminology examples will be given by considering the following file structu
         >-- starship.toml
 ```
 
-**Destination**:
+**Source directory**:
 
 A directory in which a `repository`  file structure will be linked.
 
 Example: `~`
-
 
 **Repository**:
 A directory containing a file structure to link into a `source directory`.
@@ -229,17 +241,11 @@ Example:
 
 Here is how all the previous notions play together:
 
-```
+```txt
  ~                 /  .config/starship.toml  ->  ~/repositories/defaults  /  .config/starship.toml
 [SOURCE DIRECTORY] / [NAME                 ] -> [REPOSITORY             ] / [NAME                 ]
 [SOURCE                                    ] -> [TARGET                                           ]
 ```
-
-## Installation
-
-Native binaries for Linux (x64) and macOS (x64) can be downloaded directly
-from [github](https://github.com/loicrouchon/symly/tags). It is intended to provide symly as `.deb`, `.rpm` packages and
-through Homebrew in a near future.
 
 ## Build
 
@@ -260,7 +266,7 @@ The application can be built using the `installDist` task:
 This will install the application locally in the `./build/install/symly/`. The application can be run
 using `./build/install/symly/bin/symly <ARGS>` or using `./build/install/symly/bin/symly.bat` on windows.
 
-```
+```txt
 > ./build/install/symly/bin/symly
 
 Usage: symly [-hv] [COMMAND]
@@ -288,21 +294,6 @@ here:
 * `build/distributions/symly-${version}.zip`
 
 Once unzipped/untarred, the application can be run using the same `bin/link`/`bin/symly.bat` launch script as above.
-
-#### Creating a native package containing the JVM
-
-##### Prerequisites
-
-* A JDK 14 or above is required
-
-The `buildNativePackage` task allow to build a native package installer that will contain the application as well as the
-JRE.
-
-```shell script
-./gradlew clean build buildNativePackage
-```
-
-The native package will be located in `build` and can be installed with regular system package manager.
 
 #### Creating a native executable
 
