@@ -15,8 +15,7 @@ import picocli.CommandLine.Spec;
         versionProvider = VersionProvider.class,
         subcommands = {
                 LinkCommand.class,
-                StatusCommand.class,
-                AddCommand.class
+                StatusCommand.class
         }
 )
 @RequiredArgsConstructor

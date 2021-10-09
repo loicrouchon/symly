@@ -22,18 +22,19 @@ import picocli.CommandLine.Option;
 class StatusCommand extends ValidatedCommand {
 
     @Option(
-            names = {"-s", "--source-directory"},
-            paramLabel = "<source-directory>",
-            description = "Source directory in which links will be created",
+            names = {"-d", "--dir", "--directory"},
+            paramLabel = "<main-directory>",
+            description = "Main directory in which links will be created",
             required = true,
             showDefaultValue = Help.Visibility.ALWAYS
     )
-    SourceDirectory destination;
+    MainDirectory mainDirectory;
+
 
     @Option(
-            names = {"-r", "--repositories"},
+            names = {"-t", "--to"},
             paramLabel = "<repositories>",
-            description = "Target directories containing files to link in destination",
+            description = "Target directories (a.k.a. repositories) containing files to link in the main directory",
             required = true,
             arity = "1..*"
     )
@@ -47,7 +48,7 @@ class StatusCommand extends ValidatedCommand {
     @Override
     protected Collection<Constraint> constraints() {
         return List.of(
-                Constraint.ofArg("source-directory", destination, "must be an existing directory",
+                Constraint.ofArg("main-directory", mainDirectory, "must be an existing directory",
                         fsReader::isADirectory),
                 Constraint.ofArg("repositories", repositories, "must be an existing directory",
                         fsReader::isADirectory)
@@ -56,8 +57,8 @@ class StatusCommand extends ValidatedCommand {
 
     @Override
     public void execute() {
-        console.printf("Checking links status from %s to %s%n", repositories, destination);
-        Links links = Links.from(destination, repositories);
+        console.printf("Checking links status from %s to %s%n", mainDirectory, repositories);
+        Links links = Links.from(mainDirectory, repositories);
         checkStatus(console, links);
     }
 

@@ -24,12 +24,7 @@ class BeanFactory implements CommandLine.IFactory {
                             create(FileSystemWriter.class))),
             bean(
                     StatusCommand.class,
-                    () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class))),
-            bean(
-                    AddCommand.class,
-                    () -> new AddCommand(
-                            create(CliConsole.class), create(FileSystemReader.class),
-                            create(FileSystemWriter.class)))
+                    () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)))
     );
 
     private final Map<Class<?>, Object> beans = new HashMap<>();

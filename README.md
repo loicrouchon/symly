@@ -15,10 +15,10 @@ For example, consider the following directory `~/my/repository`:
          |-- config.fish
 ```
 
-By using symly, you can automatically create links from `~` to all files in `~/my/repository`.
+By using symly, you can automatically create links in the user home directory (`~`) to all files in `~/my/repository`.
 
 ```cmd
-> symly link -r ~/my/repository
+> symly link --to ~/my/repository
 ```
 
 This would result in the following links:
@@ -51,16 +51,16 @@ your `.bashrc`, other tools like `git config --global`, ... Using a file copy wo
 want to deploy your centralized files.
 
 * **Seamless integration**:
-  by using symbolic links every change to tracked files will be immediately and available in the repository, no
-  matter the tool used to edit the files.
+  by using symbolic links every change to tracked files will be immediately and available in the repository, no matter
+  the tool used to edit the files.
 * **Synchronization/Versioning ready**:
-  Any versioning or synchronization tool can be used on the repository. Gain instant benefit from your favorite
-  tool diffs and rollbacks for your files.
+  Any versioning or synchronization tool can be used on the repository. Gain instant benefit from your favorite tool
+  diffs and rollbacks for your files.
 
 ### Is Symly limited to user configuration files?
 
 No, Symly is not limited to creating links in your user home folder. The user home folder is a sensible default for
-the `source directory` but any other `source directory` can be used.
+the `main directory` but any other `main directory` can be used.
 
 ## Installation
 
@@ -85,7 +85,7 @@ sudo dnf config-manager --add-repo https://packages.loicrouchon.fr/rpm
 sudo dnf install symly
 ```
 
-It is also available via HomeBrew for MacOS and other linux distributions.
+It is also available via HomeBrew for macOS and other linux distributions.
 
 **Homebrew** (MacOS/Linux)
 
@@ -120,10 +120,20 @@ link        Synchronizes the links from the repositories to the source directory
 The `link` subcommand is the main subcommand that will perform the linking.
 
 ```txt
-Usage: symly link [--dry-run] [-s=<source-directory>] -r=<repositories>...
+Usage: symly link [--dry-run] [-d=<main-directory>] -t=<repositories>...
+                  [-t=<repositories>...]...
+Synchronizes the links from the target directories to the destination
+  -d, --dir, --directory=<main-directory>
+                  Main directory in which links will be created
+                    Default: /Users/loicrouchon
+      --dry-run   Do not actually create links but only displays which ones
+                    would be created
+  -t, --to=<repositories>...
+                  Target directories (a.k.a. repositories) containing files to
+                    link in the main directory
 ```
 
-* Links every file from `repositories` into `source` by preserving the structure.
+* Links every file from the `repositories` into the `main directory` by preserving the structure.
 
 ```txt
 > tree ~/my/repository
@@ -135,9 +145,9 @@ Usage: symly link [--dry-run] [-s=<source-directory>] -r=<repositories>...
      >-- fish
          |-- config.fish
 
-> symly link -r ~/my/repository
+> symly link --to ~/my/repository
 
-Creating links from [~/my/repository] to ~
+Creating links in ~ to [~/my/repository]
 [CREATE] ~/.bashrc -> ~/my/repository/.bashrc
 [CREATE] ~/.gitconfig -> ~/my/repository/.gitconfig
 [CREATE] ~/.config/starship.toml -> ~/my/repository/.config/starship.toml
@@ -157,9 +167,9 @@ Creating links from [~/my/repository] to ~
      >-- .config
         >-- starship.toml
 
-> symly link -r ~/my/repositories/custom ~/my/repositories/defaults
+> symly link --to ~/my/repositories/custom ~/my/repositories/defaults
 
-Creating links from [~/my/repositories/custom, ~/my/repositories/defaults] to ~
+Creating links in ~ to [~/my/repositories/custom, ~/my/repositories/defaults]
 [CREATE] ~/.bashrc -> ~/my/repositories/custom/.bashrc
 [CREATE] ~/.gitconfig -> ~/my/repositories/custom/.gitconfig
 [CREATE] ~/.config/starship.toml -> ~/my/repositories/defaults/.config/starship.toml
@@ -175,9 +185,9 @@ Creating links from [~/my/repositories/custom, ~/my/repositories/defaults] to ~
          |-- .symlink
          >-- config.fish
 
-> symly link -r ~/my/repository
+> symly link --to ~/my/repository
 
-Creating links from [~/my/repository] to ~
+Creating links in ~ to [~/my/repository]
 [CREATE] ~/.config/fish -> ~/my/repository/.config/fish
 ```  
 
@@ -202,14 +212,13 @@ The terminology examples will be given by considering the following file structu
         >-- starship.toml
 ```
 
-**Source directory**:
-
+**Main directory**:
 A directory in which a `repository`  file structure will be linked.
 
 Example: `~`
 
 **Repository**:
-A directory containing a file structure to link into a `source directory`.
+A directory containing a file structure to link into a `main directory`.
 
 Example: `~/repositories/custom`, `~/repositories/defaults`
 
@@ -224,12 +233,13 @@ It is materialized on the file system as a [symbolic link](https://en.wikipedia.
 
 For example: `~/.config/starship.toml -> ~/repositories/defaults/.config/starship.toml`
 
-Those two attributes can be determined from the _source directory, and the repository_ using a third one: the _link name_
+Those two attributes can be determined from the _main directory, and the repository_ using a third one: the _link
+name_
 .
 
 The **link name** is the common part of the path between the link source and target. It is both:
 
-* The relative path of a link source to its source directory.
+* The relative path of a link source to its main directory.
 * The relative path of a link target to its repository.
 
 Example:
@@ -242,9 +252,9 @@ Example:
 Here is how all the previous notions play together:
 
 ```txt
- ~                 /  .config/starship.toml  ->  ~/repositories/defaults  /  .config/starship.toml
-[SOURCE DIRECTORY] / [NAME                 ] -> [REPOSITORY             ] / [NAME                 ]
-[SOURCE                                    ] -> [TARGET                                           ]
+ ~               /  .config/starship.toml  ->  ~/repositories/defaults  /  .config/starship.toml
+[MAIN DIRECTORY] / [NAME                 ] -> [REPOSITORY             ] / [NAME                 ]
+[SOURCE                                  ] -> [TARGET                                           ]
 ```
 
 ## Build
@@ -264,7 +274,7 @@ The application can be built using the `installDist` task:
 ```
 
 This will install the application locally in the `./build/install/symly/`. The application can be run
-using `./build/install/symly/bin/symly <ARGS>` or using `./build/install/symly/bin/symly.bat` on windows.
+using `./build/install/symly/bin/symly <ARGS>` or using `./build/install/symly/bin/symly.bat` on Windows.
 
 ```txt
 > ./build/install/symly/bin/symly
