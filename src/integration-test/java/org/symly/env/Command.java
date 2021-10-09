@@ -17,7 +17,7 @@ import org.symly.files.FileTree;
 public class Command {
 
     private static final String JAVA_BINARY = String.format("%s/bin/java", System.getProperty("java.home"));
-    private static final List<String> JVM_OPTIONS = List.of("-XX:TieredStopAtLevel=1");
+    private static final List<String> JVM_OPTIONS = List.of("-XX:TieredStopAtLevel=1", "-Xmx8m");
     private static final String CLASSPATH = Path.of("build/libs/*").toAbsolutePath().toString();
     private static final String MAIN_CLASS = "org.symly.cli.Main";
 
