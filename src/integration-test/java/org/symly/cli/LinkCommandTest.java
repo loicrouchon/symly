@@ -28,14 +28,15 @@ class LinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldFail_whenSourceDirectoryDoesNotExist() {
+    void shouldFail_whenMainDirectoryDoesNotExist() {
         //given
-        given(env).withHome("home/doesnotexist");
+        given(env)
+                .withHome("home/doesnotexist");
         //when/then
-        whenRunningCommand("link", "-r", "to/dir", "/home/user/some/file")
+        whenRunningCommand("link", "--to", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.sourceDirectoryDoesNotExist(env.home().toString()))
+                .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -44,7 +45,7 @@ class LinkCommandTest extends IntegrationTest {
         //given
         given(env);
         //when/then
-        whenRunningCommand("link", "-r", "to/dir", "/home/user/some/file")
+        whenRunningCommand("link", "--to", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
@@ -55,12 +56,12 @@ class LinkCommandTest extends IntegrationTest {
     void shouldProvideCorrectDefaults() {
         //given
         given(env)
-                .withDirectories("from/dir");
+                .withDirectories("to/dir");
         //when/then
-        whenRunningCommand("link", "-r", "from/dir")
+        whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.creatingLinks(List.of("from/dir"), env.home().toString()))
+                .withMessage(msg.creatingLinks(env.home().toString(), List.of("to/dir")))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -68,12 +69,12 @@ class LinkCommandTest extends IntegrationTest {
     void shouldParseArguments_whenArgumentsArePassed() {
         //given
         given(env)
-                .withDirectories("from/dir", "from/other-dir", "to/dir");
+                .withDirectories("main/dir", "to/other-dir", "to/dir");
         //when/then
-        whenRunningCommand("link", "-s", "to/dir", "-r", "from/dir", "from/other-dir")
+        whenRunningCommand("link", "--dir", "main/dir", "--to", "to/dir", "to/other-dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.creatingLinks(List.of("from/dir", "from/other-dir"), "to/dir"))
+                .withMessage(msg.creatingLinks("main/dir", List.of("to/dir", "to/other-dir")))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -86,7 +87,7 @@ class LinkCommandTest extends IntegrationTest {
                         "home/user/from/dir/nested/file"
                 );
         //when/then
-        whenRunningCommand("link", "-r", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("home/user/file", "home/user/from/dir/file"))
@@ -105,7 +106,7 @@ class LinkCommandTest extends IntegrationTest {
                 .withSymbolicLink("home/user/from/dir/link", "opt/file")
                 .withSymbolicLink("home/user/from/dir/nested/link", "opt/file");
         //when/then
-        whenRunningCommand("link", "-r", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("home/user/link", "home/user/from/dir/link"))
@@ -122,7 +123,7 @@ class LinkCommandTest extends IntegrationTest {
         given(env)
                 .withDirectories("home/user/from/dir/sub/dir");
         //when/then
-        whenRunningCommand("link", "-r", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
                 .withFileTreeDiff(Diff.empty());
@@ -134,7 +135,7 @@ class LinkCommandTest extends IntegrationTest {
         given(env)
                 .withFiles("home/user/from/dir/sub/dir/.symlink");
         //when/then
-        whenRunningCommand("link", "-r", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("home/user/sub/dir", "home/user/from/dir/sub/dir"))
@@ -152,7 +153,7 @@ class LinkCommandTest extends IntegrationTest {
                         "home/user/from/dir/file"
                 );
         //when/then
-        whenRunningCommand("link", "-r", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/from/dir")
                 .thenItShould()
                 .failWithError()
                 .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/from/dir/file"))
@@ -167,7 +168,7 @@ class LinkCommandTest extends IntegrationTest {
                 .withDirectories("home/user/file")
                 .withFiles("home/user/from/dir/file");
         //when/then
-        whenRunningCommand("link", "-r", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/from/dir")
                 .thenItShould()
                 .failWithError()
                 .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/from/dir/file"))
@@ -182,7 +183,7 @@ class LinkCommandTest extends IntegrationTest {
                 .withSymbolicLink("home/user/file", "home/user/other-file")
                 .withFiles("home/user/from/dir/file");
         //when/then
-        whenRunningCommand("link", "-r", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessages(msg.linkActionUpdate("home/user/file", "home/user/from/dir/file",
@@ -200,7 +201,7 @@ class LinkCommandTest extends IntegrationTest {
                 .withSymbolicLink("home/user/file", "home/user/from/dir/file")
                 .withFiles("home/user/from/dir/file");
         //when/then
-        whenRunningCommand("link", "-r", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/from/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionUpToDate("home/user/file", "home/user/from/dir/file"))
@@ -214,25 +215,26 @@ class LinkCommandTest extends IntegrationTest {
         private final Env env;
 
         public String missingTargetDirectories() {
-            return "Missing required option: '--repositories=<repositories>'";
+            return "Missing required option: '--to=<repositories>'";
         }
 
         public String targetDirectoryDoesNotExist(String path) {
             return String.format("Argument <repositories> (%s): must be an existing directory", env.path(path));
         }
 
-        public String sourceDirectoryDoesNotExist(String path) {
-            return String.format("Argument <source-directory> (%s): must be an existing directory", env.path(path));
+        public String mainDirectoryDoesNotExist(String path) {
+            return String.format("Argument <main-directory> (%s): must be an existing directory", env.path(path));
         }
 
-        public String creatingLinks(List<String> from, String to) {
+        public String creatingLinks(String to, List<String> from) {
             return String.format(
-                    "Creating links from [%s] to %s",
+                    "Creating links in %s to [%s]",
+                    env.path(to),
                     from.stream()
                             .map(env::path)
                             .map(Path::toString)
-                            .collect(Collectors.joining(", ")),
-                    env.path(to));
+                            .collect(Collectors.joining(", "))
+            );
         }
 
         public String linkActionCreate(String from, String to) {

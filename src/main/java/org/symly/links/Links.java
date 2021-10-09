@@ -11,7 +11,7 @@ public class Links {
     /**
      * The directory in which the links must be created.
      */
-    private final SourceDirectory sourceDirectory;
+    private final MainDirectory sourceDirectory;
     /**
      * A {@link Map} which keys are the links names as a relative {@link Path} and the values the links targets {@link
      * Path}.
@@ -34,8 +34,8 @@ public class Links {
         nameToTargetLinkMap.putIfAbsent(linkTarget.getName(), linkTarget);
     }
 
-    public static Links from(SourceDirectory sourceDirectory, List<Repository> repositories) {
-        Links links = new Links(sourceDirectory);
+    public static Links from(MainDirectory mainDirectory, List<Repository> repositories) {
+        Links links = new Links(mainDirectory);
         for (Repository repository : repositories) {
             repository.links().forEach(links::add);
         }

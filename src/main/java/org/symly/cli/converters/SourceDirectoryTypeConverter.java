@@ -1,13 +1,13 @@
 package org.symly.cli.converters;
 
 import java.nio.file.Path;
-import org.symly.links.SourceDirectory;
+import org.symly.links.MainDirectory;
 import picocli.CommandLine.ITypeConverter;
 
-public class SourceDirectoryTypeConverter implements ITypeConverter<SourceDirectory> {
+public class SourceDirectoryTypeConverter implements ITypeConverter<MainDirectory> {
 
-    public SourceDirectory convert(String value) {
+    public MainDirectory convert(String value) {
         Path path = Path.of(value);
-        return SourceDirectory.of(path);
+        return MainDirectory.of(path);
     }
 }

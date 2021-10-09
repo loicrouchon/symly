@@ -28,7 +28,7 @@ class StatusCommand extends ValidatedCommand {
             required = true,
             showDefaultValue = Help.Visibility.ALWAYS
     )
-    SourceDirectory destination;
+    MainDirectory destination;
 
     @Option(
             names = {"-r", "--repositories"},
