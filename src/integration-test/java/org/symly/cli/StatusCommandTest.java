@@ -28,15 +28,15 @@ class StatusCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldFail_whenSourceDirectoryDoesNotExist() {
+    void shouldFail_whenMainDirectoryDoesNotExist() {
         //given
         given(env)
                 .withHome("home/doesnotexist");
         //when/then
-        whenRunningCommand("status", "-r", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "--to", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.sourceDirectoryDoesNotExist(env.home().toString()))
+                .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -45,7 +45,7 @@ class StatusCommandTest extends IntegrationTest {
         //given
         given(env);
         //when/then
-        whenRunningCommand("status", "-r", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "--to", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
@@ -56,12 +56,12 @@ class StatusCommandTest extends IntegrationTest {
     void shouldProvideCorrectDefaults() {
         //given
         given(env)
-                .withDirectories("from/dir");
+                .withDirectories("to/dir");
         //when/then
-        whenRunningCommand("status", "-r", "from/dir")
+        whenRunningCommand("status", "--to", "to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.checkingLinks(List.of("from/dir"), "home/user"))
+                .withMessage(msg.checkingLinks("home/user", List.of("to/dir")))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -69,12 +69,12 @@ class StatusCommandTest extends IntegrationTest {
     void shouldParseArguments_whenArgumentsArePassed() {
         //given
         given(env)
-                .withDirectories("from/dir", "from/other-dir", "to/dir");
+                .withDirectories("to/dir", "to/other-dir", "main/dir");
         //when/then
-        whenRunningCommand("status", "-s", "to/dir", "-r", "from/dir", "from/other-dir")
+        whenRunningCommand("status", "--dir", "main/dir", "--to", "to/dir", "to/other-dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.checkingLinks(List.of("from/dir", "from/other-dir"), "to/dir"))
+                .withMessage(msg.checkingLinks("main/dir", List.of("to/dir", "to/other-dir")))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -85,25 +85,26 @@ class StatusCommandTest extends IntegrationTest {
         private final Env env;
 
         public String missingTargetDirectories() {
-            return "Missing required option: '--repositories=<repositories>'";
+            return "Missing required option: '--to=<repositories>'";
         }
 
         public String targetDirectoryDoesNotExist(String path) {
             return String.format("Argument <repositories> (%s): must be an existing directory", env.path(path));
         }
 
-        public String sourceDirectoryDoesNotExist(String path) {
-            return String.format("Argument <source-directory> (%s): must be an existing directory", env.path(path));
+        public String mainDirectoryDoesNotExist(String path) {
+            return String.format("Argument <main-directory> (%s): must be an existing directory", env.path(path));
         }
 
-        public String checkingLinks(List<String> from, String to) {
+        public String checkingLinks(String mainDirectory, List<String> repositories) {
             return String.format(
-                    "Checking links status from [%s] to %s",
-                    from.stream()
+                    "Checking links status from %s to [%s]",
+                    env.path(mainDirectory),
+                    repositories.stream()
                             .map(env::path)
                             .map(Path::toString)
-                            .collect(Collectors.joining(", ")),
-                    env.path(to));
+                            .collect(Collectors.joining(", "))
+            );
         }
     }
 }

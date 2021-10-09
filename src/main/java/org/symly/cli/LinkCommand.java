@@ -38,7 +38,6 @@ class LinkCommand extends ValidatedCommand {
             description = "Target directories (a.k.a. repositories) containing files to link in the main directory",
             required = true,
             arity = "1..*"
-
     )
     List<Repository> repositories;
 
