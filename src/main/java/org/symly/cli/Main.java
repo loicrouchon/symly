@@ -1,7 +1,7 @@
 package org.symly.cli;
 
 import org.symly.cli.converters.RepositoryTypeConverter;
-import org.symly.cli.converters.SourceDirectoryTypeConverter;
+import org.symly.cli.converters.MainDirectoryTypeConverter;
 import org.symly.links.Repository;
 import org.symly.links.MainDirectory;
 import picocli.CommandLine;
@@ -34,7 +34,7 @@ public class Main {
         commandLine.setErr(console.ewriter());
         commandLine.setDefaultValueProvider(new EnvironmentVariableDefaultsProvider());
         commandLine.setExecutionExceptionHandler(new ExceptionHandler(console));
-        commandLine.registerConverter(MainDirectory.class, new SourceDirectoryTypeConverter());
+        commandLine.registerConverter(MainDirectory.class, new MainDirectoryTypeConverter());
         commandLine.registerConverter(Repository.class, new RepositoryTypeConverter());
         return commandLine;
     }
