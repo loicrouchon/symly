@@ -225,6 +225,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Trigger homebrew version bump pull-request
+        env:
+          GITHUB_TOKEN: ${{ secrets.HOMEBREW_SYMLY_TOKEN }}
         run: |
           git clone https://loic.rouchon:${GITHUB_TOKEN}@github.com/loicrouchon/homebrew-symly
           cd homebrew-symly
