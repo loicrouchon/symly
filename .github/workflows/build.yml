@@ -216,3 +216,19 @@ jobs:
           find .
           hub release edit $(find . -type f -printf "-a %p ") -m "" "${{ needs.env.outputs.tag }}"
         working-directory: build/artifacts/
+  
+  publish:
+    name: Publish
+    if: startsWith(github.ref, 'refs/heads/release/')
+    needs: [ env, release ]
+
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Trigger homebrew version bump pull-request
+        run: |
+          git clone https://loic.rouchon:${GITHUB_TOKEN}@github.com/loicrouchon/homebrew-symly
+          cd homebrew-symly
+          git remote -v
+          git config user.email "loic.rouchon+symly-bot@gmail.com"
+          git config user.name "Symly brew bot"
+          ./bump.sh ${{ needs.env.outputs.version }}
