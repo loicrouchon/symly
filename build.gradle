@@ -1,8 +1,13 @@
 plugins {
     id "application"
     id "idea"
+    id "jacoco"
     id "org.asciidoctor.jvm.convert" version "3.3.2"
     id "nebula.ospackage" version "8.5.6"
+}
+
+jacoco {
+    toolVersion = "0.8.7"
 }
 
 java {
@@ -94,6 +99,22 @@ task integrationTest(type: Test) {
     shouldRunAfter test
 }
 check.dependsOn integrationTest
+
+task jacocoReport(type: JacocoReport) {
+    dependsOn test, integrationTest
+    additionalSourceDirs.from = files(sourceSets.main.allSource.srcDirs)
+    sourceDirectories.from = files(sourceSets.main.allSource.srcDirs)
+    classDirectories.from = files(sourceSets.main.output)
+    executionData.from = files(
+            "${buildDir}/jacoco/test.exec",
+            "${buildDir}/jacoco/integrationTest.exec",
+    )
+
+    reports {
+        html.enabled = true
+        html.outputLocation = layout.buildDirectory.dir("reports/jacoco/all")
+    }
+}
 
 task buildNativePackage(type: Exec) {
     dependsOn installDist

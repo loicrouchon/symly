@@ -3,6 +3,8 @@ package org.symly.env;
 import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -51,11 +53,28 @@ public class Command {
         command.add(JAVA_BINARY);
         command.addAll(JVM_OPTIONS);
         systemProperties.forEach((key, value) -> command.add(String.format("-D%s=%s", key, value)));
+        jacocoAgent().ifPresent(command::add);
         command.add("-cp");
         command.add(System.getProperty(CLASSPATH_SYSTEM_PROPERTY));
         command.add(MAIN_CLASS);
         command.addAll(Arrays.asList(args));
         return command;
+    }
+
+    private Optional<String> jacocoAgent() {
+        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        List<String> args = runtimeMXBean.getInputArguments();
+        return args.stream()
+                .filter(arg -> arg.startsWith("-javaagent") && arg.contains("jacoco"))
+                .findFirst()
+                .map(this::toAbsolutePath);
+    }
+
+    private String toAbsolutePath(String jacocoAgent) {
+        Path buildPath = Paths.get("build").toAbsolutePath();
+        return jacocoAgent
+                .replace("-javaagent:build", "-javaagent:" + buildPath)
+                .replace("=destfile=build", "=destfile=" + buildPath);
     }
 
     private String commandFailureMessage(String message, List<String> command) {
