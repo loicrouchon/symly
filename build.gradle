@@ -83,30 +83,14 @@ dependencies {
     integrationTestImplementation sourceSets.test.output
 }
 
-/**
- * This task is only needed for integrationTest to run
- * However, as it modifies the content of `build/libs`
- * Gradle requires to explicit the dependencies of tasks
- * relying on the `build/libs` as an input:
- * startScripts, distTar, distZip, installDist
- */
-task copyDependencies(type: Copy) {
-    from configurations.runtimeClasspath
-    into "build/libs"
-}
-startScripts.dependsOn copyDependencies
-distTar.dependsOn copyDependencies
-distZip.dependsOn copyDependencies
-installDist.dependsOn copyDependencies
-
 task integrationTest(type: Test) {
-    dependsOn copyDependencies, jar
     useJUnitPlatform()
     description = "Runs integration tests."
     group = "verification"
 
     testClassesDirs = sourceSets.integrationTest.output.classesDirs
     classpath = sourceSets.integrationTest.runtimeClasspath
+    systemProperty "symly.runtime.classpath", sourceSets.main.runtimeClasspath.join(":")
     shouldRunAfter test
 }
 check.dependsOn integrationTest

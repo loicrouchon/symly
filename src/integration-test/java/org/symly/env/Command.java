@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +16,7 @@ public class Command {
 
     private static final String JAVA_BINARY = String.format("%s/bin/java", System.getProperty("java.home"));
     private static final List<String> JVM_OPTIONS = List.of("-XX:TieredStopAtLevel=1", "-Xmx8m");
-    private static final String CLASSPATH = Path.of("build/libs/*").toAbsolutePath().toString();
+    private static final String CLASSPATH_SYSTEM_PROPERTY = "symly.runtime.classpath";
     private static final String MAIN_CLASS = "org.symly.cli.Main";
 
     @NonNull
@@ -54,7 +52,7 @@ public class Command {
         command.addAll(JVM_OPTIONS);
         systemProperties.forEach((key, value) -> command.add(String.format("-D%s=%s", key, value)));
         command.add("-cp");
-        command.add(CLASSPATH);
+        command.add(System.getProperty(CLASSPATH_SYSTEM_PROPERTY));
         command.add(MAIN_CLASS);
         command.addAll(Arrays.asList(args));
         return command;
