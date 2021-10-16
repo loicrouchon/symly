@@ -59,7 +59,7 @@ configurations {
 }
 
 dependencies {
-    def lombokVersion = "1.18.20"
+    def lombokVersion = '1.18.22'
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
@@ -71,11 +71,11 @@ dependencies {
     implementation "info.picocli:picocli:${picocliVersion}"
     annotationProcessor "info.picocli:picocli-codegen:${picocliVersion}"
     // testing
-    def junitVersion = "5.5.2"
+    def junitVersion = '5.8.1'
     testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-    testImplementation "org.assertj:assertj-core:3.14.0"
-    def mockitoVersion = "3.6.28"
+    testImplementation 'org.assertj:assertj-core:3.21.0'
+    def mockitoVersion = '4.0.0'
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
 
