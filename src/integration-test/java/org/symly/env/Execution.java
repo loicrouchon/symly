@@ -123,6 +123,11 @@ public class Execution {
             return this;
         }
 
+        public OutputAssert withoutMessage(String message) {
+            assertThat(execution.stdOut()).doesNotContain(message);
+            return this;
+        }
+
         public OutputAssert withMessages(List<String> messages) {
             messages.forEach(this::withMessage);
             return this;

@@ -9,7 +9,7 @@ import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 
 @RequiredArgsConstructor
-public class CreateLinkAction implements Action {
+public class DeleteLinkAction implements Action {
 
     @Getter
     private final Type type;
@@ -19,17 +19,13 @@ public class CreateLinkAction implements Action {
 
     @Override
     public Result<Path, Code> apply(FileSystemWriter fsWriter) {
-        if (!fsReader.exists(link.getTarget())) {
-            return Result.error(new Code(Code.State.INVALID_DESTINATION, null, null));
-        }
+        Path source = link.getSource();
         try {
-            if (!fsReader.exists(link.getSource().getParent())) {
-                fsWriter.createDirectories(link.getSource().getParent());
-            }
-            fsWriter.createSymbolicLink(link.getSource(), link.getTarget());
+            fsWriter.deleteIfExists(source);
             return Result.success(null);
         } catch (IOException e) {
-            return Result.error(new Code(Code.State.ERROR, "Unable to create link " + e.getMessage(), null));
+            return Result.error(
+                    new Code(Code.State.ERROR, "Unable to delete link " + e.getMessage(), link.getTarget()));
         }
     }
 }

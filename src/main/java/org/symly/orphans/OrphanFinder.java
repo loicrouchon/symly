@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 import org.symly.links.Link;
 import org.symly.links.Repository;
@@ -16,7 +17,7 @@ public class OrphanFinder {
 
     private final FileSystemReader fileSystemReader;
 
-    public Collection<Link> findOrphans(Path rootDir, int maxDepth, Set<Repository> repositories) throws IOException {
+    public Collection<Link> findOrphans(Path rootDir, int maxDepth, Collection<Repository> repositories) {
         Predicate<Path> filter = orphanLinkTargetFilter(repositories);
         List<Path> dirs = dirs(rootDir, repositories);
         Collection<Link> orphans = new ArrayList<>();
@@ -26,7 +27,14 @@ public class OrphanFinder {
         return orphans;
     }
 
-    private List<Path> dirs(Path rootDir, Set<Repository> repositories) {
+    private Predicate<Path> orphanLinkTargetFilter(Collection<Repository> repositories) {
+        Set<Path> repositoriesPath = repositories.stream()
+                .map(Repository::toPath)
+                .collect(Collectors.toSet());
+        return target -> repositoriesPath.stream().anyMatch(target::startsWith);
+    }
+
+    private List<Path> dirs(Path rootDir, Collection<Repository> repositories) {
         List<Path> dirs = repositories.stream()
                 .flatMap(repository -> repository.directories().map(repository::relativize))
                 .map(p -> rootDir.resolve(p).toAbsolutePath().normalize())
@@ -37,29 +45,17 @@ public class OrphanFinder {
         return dirs;
     }
 
-    private Predicate<Path> orphanLinkTargetFilter(Set<Repository> repositories) {
-        Set<Path> repositoriesPath = repositories.stream()
-                .map(Repository::toPath)
-                .collect(Collectors.toSet());
-        return target -> repositoriesPath.stream().anyMatch(target::startsWith);
-    }
-
     private Collection<Link> findOrphansInDirectory(Path dir, List<Path> exclusions, int maxDepth,
-            Predicate<Path> targetsFilter) throws IOException {
+            Predicate<Path> targetsFilter) {
         Set<Path> excludedDirs = directSubDirectories(dir, exclusions);
-        if (!excludedDirs.isEmpty()) {
-            System.out.printf("Walking %s excluding %s", dir, excludedDirs.stream()
-                    .map(dir::relativize)
-                    .collect(Collectors.toList()));
-        } else {
-            System.out.printf("Walking %s", dir);
-        }
-
         OrphanLinkVisitor visitor = new OrphanLinkVisitor(fileSystemReader, targetsFilter, excludedDirs);
-        Files.walkFileTree(dir, EnumSet.noneOf(FileVisitOption.class), maxDepth, visitor);
-        Collection<Link> orphans = visitor.orphans;
-        System.out.printf(" - %d orphans found, scanned %d%n", orphans.size(), visitor.files);
-        return orphans;
+        try {
+            Files.walkFileTree(dir, EnumSet.noneOf(FileVisitOption.class), maxDepth, visitor);
+        } catch (IOException e) {
+            throw new SymlyExecutionException(
+                    String.format("Failed to find orphan links in %s", dir), e);
+        }
+        return visitor.orphans;
     }
 
     private Set<Path> directSubDirectories(Path currentDirectory, List<Path> directories) {

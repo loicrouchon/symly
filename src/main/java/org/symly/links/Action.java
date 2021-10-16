@@ -30,11 +30,16 @@ public interface Action {
         return new CreateLinkAction(Type.CREATE, link, fsReader);
     }
 
+    static Action delete(Link link, FileSystemReader fsReader) {
+        return new DeleteLinkAction(Type.DELETE, link, fsReader);
+    }
+
     enum Type {
         UP_TO_DATE,
         UPDATE,
         CONFLICT,
-        CREATE;
+        CREATE,
+        DELETE;
 
         public static final int MAX_LENGTH = 10;
     }
@@ -48,6 +53,7 @@ public interface Action {
 
         public enum State {
             CONFLICT,
+            INVALID_SOURCE,
             INVALID_DESTINATION,
             ERROR
         }

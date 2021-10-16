@@ -11,6 +11,7 @@ import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.*;
+import org.symly.orphans.OrphanFinder;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -47,6 +48,13 @@ class LinkCommand extends ValidatedCommand {
     )
     boolean dryRun;
 
+    @Option(
+            names = {"--max-depth"},
+            paramLabel = "<max-depth>",
+            description = "Depth of the lookup for orphans deletion"
+    )
+    int maxDepth = 2;
+
     @NonNull
     private final CliConsole console;
     @NonNull
@@ -60,7 +68,9 @@ class LinkCommand extends ValidatedCommand {
                 Constraint.ofArg("main-directory", mainDirectory, "must be an existing directory",
                         fsReader::isADirectory),
                 Constraint.ofArg("repositories", repositories, "must be an existing directory",
-                        fsReader::isADirectory)
+                        fsReader::isADirectory),
+                Constraint.ofArg("max-depth", maxDepth, "must be a positive integer",
+                        depth -> depth >= 0)
         );
     }
 
@@ -74,6 +84,7 @@ class LinkCommand extends ValidatedCommand {
         Links links = Links.from(mainDirectory, repositories);
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(links, mutator);
+        deleteOrphans(mainDirectory, repositories, mutator);
     }
 
     private FileSystemWriter getFilesMutatorService() {
@@ -90,6 +101,18 @@ class LinkCommand extends ValidatedCommand {
             Result<Path, Action.Code> result = action.apply(fsWriter);
             printStatus(action, result);
         }
+    }
+
+    private void deleteOrphans(MainDirectory mainDirectory, List<Repository> repositories, FileSystemWriter mutator) {
+        OrphanFinder orphanFinder = new OrphanFinder(fsReader);
+        Collection<Link> orphans = orphanFinder.findOrphans(mainDirectory.toPath(), maxDepth, repositories);
+        orphans.forEach(orphan -> deleteOrphan(orphan, mutator));
+    }
+
+    private void deleteOrphan(Link orphan, FileSystemWriter mutator) {
+        Action action = Action.delete(orphan, fsReader);
+        Result<Path, Action.Code> status = action.apply(mutator);
+        printStatus(action, status);
     }
 
     private void printStatus(Action action, Result<Path, Action.Code> result) {
@@ -117,6 +140,9 @@ class LinkCommand extends ValidatedCommand {
         String details;
         Link link = action.getLink();
         switch (error.getState()) {
+            case INVALID_SOURCE:
+                details = String.format("Source %s does not exist", link.getSource());
+                break;
             case INVALID_DESTINATION:
                 details = String.format("Destination %s does not exist", link.getTarget());
                 break;
