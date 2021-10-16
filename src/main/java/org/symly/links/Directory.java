@@ -20,6 +20,10 @@ public abstract class Directory {
         return path;
     }
 
+    public Path relativize(Path otherPath) {
+        return path.relativize(otherPath);
+    }
+
     @Override
     public String toString() {
         return path.toString();

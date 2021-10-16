@@ -8,6 +8,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.Getter;
 import org.symly.cli.SymlyExecutionException;
@@ -31,7 +34,7 @@ public class Repository extends Directory {
                     .map(filePath -> toLinkTarget(path, filePath));
         } catch (IOException e) {
             throw new SymlyExecutionException(
-                    String.format("Unable to analyze target directory %s", path), e);
+                    String.format("Unable to analyze repository structure %s", path), e);
         }
     }
 
@@ -39,6 +42,20 @@ public class Repository extends Directory {
         Path name = targetDirectoryPath.relativize(linkTarget);
         Path target = linkTarget.toAbsolutePath().normalize();
         return new LinkTarget(name, target);
+    }
+
+    public Stream<Path> directories() {
+        Path path = toPath();
+        try {
+            DirectoryVisitor visitor = new DirectoryVisitor();
+            Files.walkFileTree(path, visitor);
+            return visitor.getPaths()
+                    .stream()
+                    .filter(dir -> !Objects.equals(dir, path));
+        } catch (IOException e) {
+            throw new SymlyExecutionException(
+                    String.format("Unable to analyze repository structure %s", path), e);
+        }
     }
 
     public static Repository of(Path path) {
@@ -62,6 +79,21 @@ public class Repository extends Directory {
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
             paths.add(file);
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    private static class DirectoryVisitor extends SimpleFileVisitor<Path> {
+
+        @Getter
+        private final Collection<Path> paths = new ArrayList<>();
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+            if (Files.exists(Configuration.symlinkMarker(dir))) {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+            paths.add(dir);
             return FileVisitResult.CONTINUE;
         }
     }
