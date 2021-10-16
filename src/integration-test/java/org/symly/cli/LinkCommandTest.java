@@ -83,18 +83,18 @@ class LinkCommandTest extends IntegrationTest {
         //given
         given(env)
                 .withFiles(
-                        "home/user/from/dir/file",
-                        "home/user/from/dir/nested/file"
+                        "home/user/to/dir/file",
+                        "home/user/to/dir/nested/file"
                 );
         //when/then
-        whenRunningCommand("link", "--to", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionCreate("home/user/file", "home/user/from/dir/file"))
-                .withMessage(msg.linkActionCreate("home/user/nested/file", "home/user/from/dir/nested/file"))
+                .withMessage(msg.linkActionCreate("home/user/file", "home/user/to/dir/file"))
+                .withMessage(msg.linkActionCreate("home/user/nested/file", "home/user/to/dir/nested/file"))
                 .withFileTreeDiff(Diff.empty().withNewPaths(
-                        "home/user/file -> home/user/from/dir/file",
-                        "home/user/nested/file -> home/user/from/dir/nested/file"
+                        "home/user/file -> home/user/to/dir/file",
+                        "home/user/nested/file -> home/user/to/dir/nested/file"
                 ));
     }
 
@@ -103,17 +103,17 @@ class LinkCommandTest extends IntegrationTest {
         //given
         given(env)
                 .withFiles("opt/file")
-                .withSymbolicLink("home/user/from/dir/link", "opt/file")
-                .withSymbolicLink("home/user/from/dir/nested/link", "opt/file");
+                .withSymbolicLink("home/user/to/dir/link", "opt/file")
+                .withSymbolicLink("home/user/to/dir/nested/link", "opt/file");
         //when/then
-        whenRunningCommand("link", "--to", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionCreate("home/user/link", "home/user/from/dir/link"))
-                .withMessage(msg.linkActionCreate("home/user/nested/link", "home/user/from/dir/nested/link"))
+                .withMessage(msg.linkActionCreate("home/user/link", "home/user/to/dir/link"))
+                .withMessage(msg.linkActionCreate("home/user/nested/link", "home/user/to/dir/nested/link"))
                 .withFileTreeDiff(Diff.empty().withNewPaths(
-                        "home/user/link -> home/user/from/dir/link",
-                        "home/user/nested/link -> home/user/from/dir/nested/link"
+                        "home/user/link -> home/user/to/dir/link",
+                        "home/user/nested/link -> home/user/to/dir/nested/link"
                 ));
     }
 
@@ -121,9 +121,9 @@ class LinkCommandTest extends IntegrationTest {
     void shouldNotLinkDirectory_whenDirectorySymlinkDoesNotExist() {
         //given
         given(env)
-                .withDirectories("home/user/from/dir/sub/dir");
+                .withDirectories("home/user/to/dir/sub/dir");
         //when/then
-        whenRunningCommand("link", "--to", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withFileTreeDiff(Diff.empty());
@@ -133,14 +133,14 @@ class LinkCommandTest extends IntegrationTest {
     void shouldLinkDirectory_whenDirectorySymlinkExists() {
         //given
         given(env)
-                .withFiles("home/user/from/dir/sub/dir/.symlink");
+                .withFiles("home/user/to/dir/sub/dir/.symlink");
         //when/then
-        whenRunningCommand("link", "--to", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionCreate("home/user/sub/dir", "home/user/from/dir/sub/dir"))
+                .withMessage(msg.linkActionCreate("home/user/sub/dir", "home/user/to/dir/sub/dir"))
                 .withFileTreeDiff(Diff.empty().withNewPaths(
-                        "home/user/sub/dir -> home/user/from/dir/sub/dir"
+                        "home/user/sub/dir -> home/user/to/dir/sub/dir"
                 ));
     }
 
@@ -150,14 +150,14 @@ class LinkCommandTest extends IntegrationTest {
         given(env)
                 .withFiles(
                         "home/user/file",
-                        "home/user/from/dir/file"
+                        "home/user/to/dir/file"
                 );
         //when/then
-        whenRunningCommand("link", "--to", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
                 .failWithError()
-                .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/from/dir/file"))
-                .withMessage(msg.linkActionConflict("home/user/file", "home/user/from/dir/file"))
+                .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/to/dir/file"))
+                .withMessage(msg.linkActionConflict("home/user/file", "home/user/to/dir/file"))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -166,13 +166,13 @@ class LinkCommandTest extends IntegrationTest {
         //given
         given(env)
                 .withDirectories("home/user/file")
-                .withFiles("home/user/from/dir/file");
+                .withFiles("home/user/to/dir/file");
         //when/then
-        whenRunningCommand("link", "--to", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
                 .failWithError()
-                .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/from/dir/file"))
-                .withMessage(msg.linkActionConflict("home/user/file", "home/user/from/dir/file"))
+                .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/to/dir/file"))
+                .withMessage(msg.linkActionConflict("home/user/file", "home/user/to/dir/file"))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -181,15 +181,15 @@ class LinkCommandTest extends IntegrationTest {
         //given
         given(env)
                 .withSymbolicLink("home/user/file", "home/user/other-file")
-                .withFiles("home/user/from/dir/file");
+                .withFiles("home/user/to/dir/file");
         //when/then
-        whenRunningCommand("link", "--to", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessages(msg.linkActionUpdate("home/user/file", "home/user/from/dir/file",
+                .withMessages(msg.linkActionUpdate("home/user/file", "home/user/to/dir/file",
                         "home/user/other-file"))
                 .withFileTreeDiff(Diff.empty()
-                        .withNewPaths("home/user/file -> home/user/from/dir/file")
+                        .withNewPaths("home/user/file -> home/user/to/dir/file")
                         .withRemovedPaths("home/user/file -> home/user/other-file")
                 );
     }
@@ -198,13 +198,13 @@ class LinkCommandTest extends IntegrationTest {
     void shouldNotUpdateLinkFile_whenLinkIsAlreadyUpToDate() {
         //given
         given(env)
-                .withSymbolicLink("home/user/file", "home/user/from/dir/file")
-                .withFiles("home/user/from/dir/file");
+                .withSymbolicLink("home/user/file", "home/user/to/dir/file")
+                .withFiles("home/user/to/dir/file");
         //when/then
-        whenRunningCommand("link", "--to", "home/user/from/dir")
+        whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionUpToDate("home/user/file", "home/user/from/dir/file"))
+                .withMessage(msg.linkActionUpToDate("home/user/file", "home/user/to/dir/file"))
                 .withFileTreeDiff(Diff.empty());
     }
 
