@@ -46,7 +46,14 @@ class LinkCommand extends ValidatedCommand {
             names = {"--dry-run"},
             description = "Do not actually create links but only displays which ones would be created"
     )
-    boolean dryRun;
+    boolean dryRun = false;
+
+    @Option(
+            names = {"-f", "--force"},
+            description = "Force existing files and directories to be overwritten instead of failing in case of "
+                    + "conflicts"
+    )
+    boolean force = false;
 
     @Option(
             names = {"--max-depth"},
@@ -97,9 +104,11 @@ class LinkCommand extends ValidatedCommand {
     private void createLinks(Links links, FileSystemWriter fsWriter) {
         for (Link link : links.list()) {
             Status status = link.status(fsReader);
-            Action action = status.toAction();
-            Result<Path, Action.Code> result = action.apply(fsWriter);
-            printStatus(action, result);
+            List<Action> actions = status.toActions(force);
+            for (Action action : actions) {
+                Result<Path, Action.Code> result = action.apply(fsWriter);
+                printStatus(action, result);
+            }
         }
     }
 

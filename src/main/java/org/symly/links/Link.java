@@ -42,6 +42,9 @@ public class Link {
 
     @Override
     public String toString() {
+        if (target == null) {
+            return source.toString();
+        }
         return source + " -> " + target;
     }
 }

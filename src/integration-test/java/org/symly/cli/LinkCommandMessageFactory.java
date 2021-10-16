@@ -59,8 +59,12 @@ class LinkCommandMessageFactory {
         return action("[UP_TO_DATE]", from, to);
     }
 
-    public String orphanDeleted(String from, String to) {
+    public String linkActionDelete(String from, String to) {
         return action("[DELETE    ]", from, to);
+    }
+
+    public String linkActionDelete(String from) {
+        return String.format("[DELETE    ] %s", env.path(from));
     }
 
     public String action(String action, String from, String to) {

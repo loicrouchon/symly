@@ -3,6 +3,7 @@ package org.symly.links;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.symly.files.IoMock;
 
@@ -28,11 +29,14 @@ class LinkTest {
         ioMock.symlinkTargets(to, toRealPath);
         //when
         Status status = link.status(ioMock.fsReader);
-        Action action = status.toAction();
+        List<Action> actions = status.toActions(false);
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.MISSING);
-        assertThat(action).isInstanceOf(CreateLinkAction.class);
-        assertThat(action.getType()).isEqualTo(Action.Type.CREATE);
+        assertThat(actions)
+                .hasSize(1)
+                .first()
+                .isInstanceOf(CreateLinkAction.class)
+                .satisfies(action -> assertThat(action.getType()).isEqualTo(Action.Type.CREATE));
     }
 
     @Test
@@ -44,11 +48,14 @@ class LinkTest {
         ioMock.symlinkTargets(to, toRealPath);
         //when
         Status status = link.status(ioMock.fsReader);
-        Action action = status.toAction();
+        List<Action> actions = status.toActions(false);
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.FILE_CONFLICT);
-        assertThat(action).isInstanceOf(ConflictAction.class);
-        assertThat(action.getType()).isEqualTo(Action.Type.CONFLICT);
+        assertThat(actions)
+                .hasSize(1)
+                .first()
+                .isInstanceOf(ConflictAction.class)
+                .satisfies(action -> assertThat(action.getType()).isEqualTo(Action.Type.CONFLICT));
     }
 
     @Test
@@ -59,11 +66,14 @@ class LinkTest {
         ioMock.symlinkExists(from, Path.of("something"));
         //when
         Status status = link.status(ioMock.fsReader);
-        Action action = status.toAction();
+        List<Action> actions = status.toActions(false);
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.LINK_CONFLICT);
-        assertThat(action).isInstanceOf(UpdateLinkAction.class);
-        assertThat(action.getType()).isEqualTo(Action.Type.UPDATE);
+        assertThat(actions)
+                .hasSize(1)
+                .first()
+                .isInstanceOf(UpdateLinkAction.class)
+                .satisfies(action -> assertThat(action.getType()).isEqualTo(Action.Type.UPDATE));
     }
 
     @Test
@@ -74,10 +84,13 @@ class LinkTest {
         ioMock.symlinkExists(from, to);
         //when
         Status status = link.status(ioMock.fsReader);
-        Action action = status.toAction();
+        List<Action> actions = status.toActions(false);
         //then
         assertThat(status.getType()).isEqualTo(Status.Type.UP_TO_DATE);
-        assertThat(action).isInstanceOf(NoOpAction.class);
-        assertThat(action.getType()).isEqualTo(Action.Type.UP_TO_DATE);
+        assertThat(actions)
+                .hasSize(1)
+                .first()
+                .isInstanceOf(NoOpAction.class)
+                .satisfies(action -> assertThat(action.getType()).isEqualTo(Action.Type.UP_TO_DATE));
     }
 }

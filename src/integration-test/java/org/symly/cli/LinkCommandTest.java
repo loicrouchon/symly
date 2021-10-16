@@ -202,4 +202,58 @@ class LinkCommandTest extends IntegrationTest {
                 .withMessage(msg.linkActionUpToDate("home/user/file", "home/user/to/dir/file"))
                 .withFileTreeDiff(Diff.empty());
     }
+
+    @Test
+    void shouldReplaceFile_whenTarget_isAnExistingFile_andForceOption_isPassed() {
+        //given
+        given(env)
+                .withFiles(
+                        "home/user/file",
+                        "home/user/to/dir/file"
+                );
+        //when/then
+        whenRunningCommand("link", "--force", "--to", "home/user/to/dir")
+                .thenItShould()
+                .succeed()
+                .withMessages(List.of(
+                        msg.linkActionDelete("home/user/file"),
+                        msg.linkActionCreate("home/user/file", "home/user/to/dir/file")
+                ))
+                .withFileTreeDiff(Diff.empty()
+                        .withRemovedPaths("home/user/file")
+                        .withNewPaths("home/user/file -> home/user/to/dir/file")
+                );
+    }
+
+    @Test
+    void shouldReplaceFile_whenTarget_isAnExistingDirectory_andForceOption_isPassed() {
+        //given
+        given(env)
+                .withDirectories(
+                        "home/user/file",
+                        "home/user/file/dir"
+                )
+                .withFiles(
+                        "home/user/file/parent-is-a-dir",
+                        "home/user/file/dir/this-is-a-file",
+                        "home/user/to/dir/file"
+                );
+        //when/then
+        whenRunningCommand("link", "--force", "--to", "home/user/to/dir")
+                .thenItShould()
+                .succeed()
+                .withMessages(List.of(
+                        msg.linkActionDelete("home/user/file/parent-is-a-dir"),
+                        msg.linkActionDelete("home/user/file/dir/this-is-a-file"),
+                        msg.linkActionDelete("home/user/file"),
+                        msg.linkActionCreate("home/user/file", "home/user/to/dir/file")
+                ))
+                .withFileTreeDiff(Diff.empty()
+                        .withRemovedPaths(
+                                "home/user/file/parent-is-a-dir",
+                                "home/user/file/dir/this-is-a-file"
+                        )
+                        .withNewPaths("home/user/file -> home/user/to/dir/file")
+                );
+    }
 }
