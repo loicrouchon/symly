@@ -111,7 +111,6 @@ task jacocoReport(type: JacocoReport) {
     )
 
     reports {
-        html.enabled = true
         html.outputLocation = layout.buildDirectory.dir("reports/jacoco/all")
     }
 }
