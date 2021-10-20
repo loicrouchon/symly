@@ -29,7 +29,7 @@ processResources {
     }
 }
 compileJava {
-    options.release.set(11)
+    options.release.set(17)
     options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
 }
 test {
