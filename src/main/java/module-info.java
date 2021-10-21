@@ -1,4 +1,4 @@
-module symly {
+module org.symly {
     requires java.base;
     requires static lombok;
 

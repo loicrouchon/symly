@@ -13,9 +13,11 @@ jacoco {
 java {
     modularity.inferModulePath = true
 }
+
+String moduleName = "org.${project.name}"
 String mainClassName = "org.${project.name}.cli.Main"
 application {
-    mainModule.set("${project.name}")
+    mainModule.set(moduleName)
     mainClass.set(mainClassName)
     applicationDefaultJvmArgs = [
             // the cli is short lived, so let's enable a fast JVM startup
@@ -126,7 +128,7 @@ task buildNativePackage(type: Exec) {
             "--module-path",
             "${buildDir}/install/${project.name}/lib",
             "-m",
-            "${project.name}/${mainClassName}",
+            "${moduleName}/${mainClassName}",
             "--license-file",
             "LICENSE",
             "--dest",
@@ -148,7 +150,7 @@ task buildNativeImage(type: Exec) {
             "-J-Drx.unsafe-disable=true",
             "-H:+RemoveUnusedSymbols",
             "-DremoveUnusedAutoconfig=true",
-            "--initialize-at-build-time",
+            "--initialize-at-build-time=${moduleName},picocli",
             "-H:+PrintImageElementSizes",
             // Native image size debug flags
 //            "-H:DashboardDump=img-dump",
@@ -165,8 +167,11 @@ task buildNativeImage(type: Exec) {
 //            "-H:+PrintHeapHistogram",
 //            "-H:+PrintMethodHistogram",
 //            "-H:+PrintImageHeapPartitionSizes",
-            "-cp", "${buildDir}/install/${project.name}/lib/*",
-            "${mainClassName}"
+            "--module-path",
+            "${buildDir}/install/${project.name}/lib/",
+            "--module",
+            "${moduleName}/${mainClassName}",
+            "-Dpicocli.converters.excludes=java.sql.*,java.time.*"
 }
 
 private static String nativeImageBin() {
