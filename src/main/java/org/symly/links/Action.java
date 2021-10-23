@@ -1,7 +1,6 @@
 package org.symly.links;
 
 import java.nio.file.Path;
-import lombok.Value;
 import org.symly.Result;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
@@ -44,12 +43,10 @@ public interface Action {
         public static final int MAX_LENGTH = 10;
     }
 
-    @Value
-    class Code {
-
-        State state;
-        String details;
-        Path previousPath;
+    record Code(
+            State state,
+            String details,
+            Path previousPath) {
 
         public enum State {
             CONFLICT,

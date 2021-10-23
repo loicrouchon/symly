@@ -145,16 +145,16 @@ class LinkCommand extends ValidatedCommand {
     }
 
     private void printError(Action action, Action.Code error) {
-        printAction(action, error.getPreviousPath());
+        printAction(action, error.previousPath());
         String details;
         Link link = action.getLink();
-        details = switch (error.getState()) {
+        details = switch (error.state()) {
             case INVALID_SOURCE -> String.format("Source %s does not exist", link.source());
             case INVALID_DESTINATION -> String.format("Destination %s does not exist", link.target());
             case CONFLICT -> String.format(
                     "Regular file %s already exist. To overwrite it, use the --replace-file option.",
                     link.source());
-            case ERROR -> String.format("An error occurred during linkage: - %s", error.getDetails());
+            case ERROR -> String.format("An error occurred during linkage: - %s", error.details());
         };
         if (dryRun) {
             console.eprintf("> %s%n", details);
