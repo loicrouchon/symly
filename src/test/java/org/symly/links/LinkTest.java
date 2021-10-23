@@ -31,12 +31,12 @@ class LinkTest {
         Status status = link.status(ioMock.fsReader);
         List<Action> actions = status.toActions(false);
         //then
-        assertThat(status.getType()).isEqualTo(Status.Type.MISSING);
+        assertThat(status.type()).isEqualTo(Status.Type.MISSING);
         assertThat(actions)
                 .hasSize(1)
                 .first()
                 .isInstanceOf(CreateLinkAction.class)
-                .satisfies(action -> assertThat(action.getType()).isEqualTo(Action.Type.CREATE));
+                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CREATE));
     }
 
     @Test
@@ -50,12 +50,12 @@ class LinkTest {
         Status status = link.status(ioMock.fsReader);
         List<Action> actions = status.toActions(false);
         //then
-        assertThat(status.getType()).isEqualTo(Status.Type.FILE_CONFLICT);
+        assertThat(status.type()).isEqualTo(Status.Type.FILE_CONFLICT);
         assertThat(actions)
                 .hasSize(1)
                 .first()
                 .isInstanceOf(ConflictAction.class)
-                .satisfies(action -> assertThat(action.getType()).isEqualTo(Action.Type.CONFLICT));
+                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CONFLICT));
     }
 
     @Test
@@ -68,12 +68,12 @@ class LinkTest {
         Status status = link.status(ioMock.fsReader);
         List<Action> actions = status.toActions(false);
         //then
-        assertThat(status.getType()).isEqualTo(Status.Type.LINK_CONFLICT);
+        assertThat(status.type()).isEqualTo(Status.Type.LINK_CONFLICT);
         assertThat(actions)
                 .hasSize(1)
                 .first()
                 .isInstanceOf(UpdateLinkAction.class)
-                .satisfies(action -> assertThat(action.getType()).isEqualTo(Action.Type.UPDATE));
+                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UPDATE));
     }
 
     @Test
@@ -86,11 +86,11 @@ class LinkTest {
         Status status = link.status(ioMock.fsReader);
         List<Action> actions = status.toActions(false);
         //then
-        assertThat(status.getType()).isEqualTo(Status.Type.UP_TO_DATE);
+        assertThat(status.type()).isEqualTo(Status.Type.UP_TO_DATE);
         assertThat(actions)
                 .hasSize(1)
                 .first()
                 .isInstanceOf(NoOpAction.class)
-                .satisfies(action -> assertThat(action.getType()).isEqualTo(Action.Type.UP_TO_DATE));
+                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UP_TO_DATE));
     }
 }

@@ -132,9 +132,9 @@ class LinkCommand extends ValidatedCommand {
     }
 
     private void printAction(Action action, Path previousLink) {
-        Link link = action.getLink();
-        console.printf("[%-" + Action.Type.MAX_LENGTH + "s] %s%n", action.getType(), link);
-        if (action.getType().equals(Action.Type.UPDATE)) {
+        Link link = action.link();
+        console.printf("[%-" + Action.Type.MAX_LENGTH + "s] %s%n", action.type(), link);
+        if (action.type().equals(Action.Type.UPDATE)) {
             if (previousLink != null) {
                 console.printf("> Previous link target was %s%n", previousLink);
             } else {
@@ -147,7 +147,7 @@ class LinkCommand extends ValidatedCommand {
     private void printError(Action action, Action.Code error) {
         printAction(action, error.previousPath());
         String details;
-        Link link = action.getLink();
+        Link link = action.link();
         details = switch (error.state()) {
             case INVALID_SOURCE -> String.format("Source %s does not exist", link.source());
             case INVALID_DESTINATION -> String.format("Destination %s does not exist", link.target());

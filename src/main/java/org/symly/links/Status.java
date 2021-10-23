@@ -7,20 +7,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import org.symly.cli.SymlyExecutionException;
 
-@ToString
-@RequiredArgsConstructor
-public class Status {
-
-    @Getter
-    private final Type type;
-
-    @Getter
-    private final Link link;
+public record Status(
+        Type type,
+        Link link
+) {
 
     public List<Action> toActions(boolean force) {
         return switch (type) {

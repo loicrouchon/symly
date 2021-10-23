@@ -7,9 +7,9 @@ import org.symly.files.FileSystemWriter;
 
 public interface Action {
 
-    Type getType();
+    Type type();
 
-    Link getLink();
+    Link link();
 
     Result<Path, Code> apply(FileSystemReader fsReader, FileSystemWriter fsWriter);
 
