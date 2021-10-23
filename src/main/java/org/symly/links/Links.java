@@ -31,7 +31,7 @@ public class Links {
     }
 
     private void add(LinkTarget linkTarget) {
-        nameToTargetLinkMap.putIfAbsent(linkTarget.getName(), linkTarget);
+        nameToTargetLinkMap.putIfAbsent(linkTarget.name(), linkTarget);
     }
 
     public static Links from(MainDirectory mainDirectory, List<Repository> repositories) {
