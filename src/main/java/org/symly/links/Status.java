@@ -26,18 +26,12 @@ public class Status {
     private final FileSystemReader fsReader;
 
     public List<Action> toActions(boolean force) {
-        switch (type) {
-            case UP_TO_DATE:
-                return List.of(Action.upToDate(link, fsReader));
-            case LINK_CONFLICT:
-                return List.of(Action.replace(link, fsReader));
-            case FILE_CONFLICT:
-                return resolveConflict(force);
-            case MISSING:
-                return List.of(Action.create(link, fsReader));
-            default:
-                throw new UnsupportedOperationException("Unknown Status type " + type);
-        }
+        return switch (type) {
+            case UP_TO_DATE -> List.of(Action.upToDate(link, fsReader));
+            case LINK_CONFLICT -> List.of(Action.replace(link, fsReader));
+            case FILE_CONFLICT -> resolveConflict(force);
+            case MISSING -> List.of(Action.create(link, fsReader));
+        };
     }
 
     private List<Action> resolveConflict(boolean force) {
