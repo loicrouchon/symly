@@ -30,7 +30,6 @@ class StatusCommand extends ValidatedCommand {
     )
     MainDirectory mainDirectory;
 
-
     @Option(
             names = {"-t", "--to"},
             paramLabel = "<repositories>",

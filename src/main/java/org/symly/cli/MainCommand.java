@@ -23,16 +23,16 @@ class MainCommand implements Runnable {
 
     @Option(names = {"-v", "--verbose"},
             description = "Be verbose.")
-    private boolean verbose = false;
+    boolean verbose = false;
 
     @Option(names = {"-V", "--version"},
             description = "Prints version information.")
-    private boolean version = false;
+    boolean version = false;
 
     @Option(names = {"-h", "--help"},
             usageHelp = true,
             description = "Prints this help message and exits")
-    private boolean helpRequested;
+    boolean helpRequested;
 
     @Spec
     private CommandSpec spec;
