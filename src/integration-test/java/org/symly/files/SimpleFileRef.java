@@ -1,18 +1,11 @@
 package org.symly.files;
 
 import java.nio.file.Path;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor
-class SimpleFileRef implements FileRef {
-
-    @Getter
-    @NonNull
-    private final Path name;
+record SimpleFileRef(
+        @NonNull Path name
+) implements FileRef {
 
     @Override
     public void create(Path root) {

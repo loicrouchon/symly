@@ -3,22 +3,14 @@ package org.symly.files;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
-@EqualsAndHashCode
-@RequiredArgsConstructor
-class LinkFileRef implements FileRef {
+record LinkFileRef(
+        @NonNull Path name,
+        @NonNull Path target
+) implements FileRef {
 
     private static final String LINK_SEPARATOR = " -> ";
-
-    @Getter
-    @NonNull
-    private final Path name;
-    @NonNull
-    private final Path target;
 
     @Override
     public void create(Path root) {

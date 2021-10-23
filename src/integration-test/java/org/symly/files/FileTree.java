@@ -38,7 +38,7 @@ public class FileTree {
 
     public static FileTree of(Stream<FileRef> files) {
         return new FileTree(
-                files.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(FileRef::getName))))
+                files.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(FileRef::name))))
         );
     }
 

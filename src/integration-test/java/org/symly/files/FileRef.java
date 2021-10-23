@@ -5,7 +5,7 @@ import java.nio.file.Path;
 
 interface FileRef {
 
-    Path getName();
+    Path name();
 
     void create(Path root);
 
