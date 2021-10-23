@@ -43,7 +43,7 @@ public class Status {
     private List<Action> resolveConflict(boolean force) {
         if (force) {
             List<Action> actions = new ArrayList<>();
-            try (Stream<Path> files = Files.walk(link.getSource())) {
+            try (Stream<Path> files = Files.walk(link.source())) {
                 files
                         .sorted(Comparator.comparing(Path::toString).reversed())
                         .map(path -> Action.delete(Link.of(path, null), fsReader))

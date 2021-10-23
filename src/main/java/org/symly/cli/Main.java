@@ -1,9 +1,9 @@
 package org.symly.cli;
 
-import org.symly.cli.converters.RepositoryTypeConverter;
 import org.symly.cli.converters.MainDirectoryTypeConverter;
-import org.symly.links.Repository;
+import org.symly.cli.converters.RepositoryTypeConverter;
 import org.symly.links.MainDirectory;
+import org.symly.links.Repository;
 import picocli.CommandLine;
 
 public class Main {
@@ -26,7 +26,7 @@ public class Main {
     private static CommandLine initializeCommandLine() {
         BeanFactory factory = new BeanFactory();
         // Instantiate at compile time thanks to GraalVM native-image optimization
-        // Doing so also avoids to have to include resources in the native-image.
+        // Doing so also avoids having to include resources in the native-image.
         factory.preInit();
         CliConsole console = factory.create(CliConsole.class);
         CommandLine commandLine = new CommandLine(factory.create(MainCommand.class), factory);

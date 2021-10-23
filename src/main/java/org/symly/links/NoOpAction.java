@@ -18,7 +18,7 @@ public class NoOpAction implements Action {
 
     @Override
     public Result<Path, Code> apply(FileSystemWriter fsWriter) {
-        Path currentLink = fsReader.readSymbolicLink(link.getSource());
+        Path currentLink = fsReader.readSymbolicLink(link.source());
         return Result.success(currentLink);
     }
 }

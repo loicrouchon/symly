@@ -2,8 +2,6 @@ package org.symly.links;
 
 import java.nio.file.Path;
 import java.util.Objects;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.symly.files.FileSystemReader;
 
 /**
@@ -13,18 +11,16 @@ import org.symly.files.FileSystemReader;
  *     <li>{@link #target}: is the {@link Path} pointed by the link.</li>
  * </ul>
  */
-@Value
-@RequiredArgsConstructor(staticName = "of")
-public class Link {
-
+public record Link(
     /**
      * The {@link Path} of the link.
      */
-    Path source;
+    Path source,
     /**
      * The {@link Path} pointed by the link.
      */
-    Path target;
+    Path target
+    ) {
 
     public Status status(FileSystemReader fsReader) {
         if (fsReader.isSymbolicLink(source)) {
@@ -46,5 +42,9 @@ public class Link {
             return source.toString();
         }
         return source + " -> " + target;
+    }
+
+    public static Link of(Path source, Path target) {
+        return new Link(source, target);
     }
 }

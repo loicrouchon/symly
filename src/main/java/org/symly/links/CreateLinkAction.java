@@ -19,14 +19,14 @@ public class CreateLinkAction implements Action {
 
     @Override
     public Result<Path, Code> apply(FileSystemWriter fsWriter) {
-        if (!fsReader.exists(link.getTarget())) {
+        if (!fsReader.exists(link.target())) {
             return Result.error(new Code(Code.State.INVALID_DESTINATION, null, null));
         }
         try {
-            if (!fsReader.exists(link.getSource().getParent())) {
-                fsWriter.createDirectories(link.getSource().getParent());
+            if (!fsReader.exists(link.source().getParent())) {
+                fsWriter.createDirectories(link.source().getParent());
             }
-            fsWriter.createSymbolicLink(link.getSource(), link.getTarget());
+            fsWriter.createSymbolicLink(link.source(), link.target());
             return Result.success(null);
         } catch (IOException e) {
             return Result.error(new Code(Code.State.ERROR, "Unable to create link " + e.getMessage(), null));
