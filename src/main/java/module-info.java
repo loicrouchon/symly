@@ -1,5 +1,4 @@
 module org.symly {
-    requires java.base;
     requires static lombok;
 
     requires info.picocli;
