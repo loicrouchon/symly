@@ -15,10 +15,9 @@ public class DeleteLinkAction implements Action {
     private final Type type;
     @Getter
     private final Link link;
-    private final FileSystemReader fsReader;
 
     @Override
-    public Result<Path, Code> apply(FileSystemWriter fsWriter) {
+    public Result<Path, Code> apply(FileSystemReader fsReader, FileSystemWriter fsWriter) {
         Path source = link.source();
         try {
             fsWriter.deleteIfExists(source);

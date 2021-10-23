@@ -26,14 +26,14 @@ public record Link(
         if (fsReader.isSymbolicLink(source)) {
             Path fromRealDestination = fsReader.readSymbolicLink(source);
             if (Objects.equals(fromRealDestination, target)) {
-                return new Status(Status.Type.UP_TO_DATE, this, fsReader);
+                return new Status(Status.Type.UP_TO_DATE, this);
             }
-            return new Status(Status.Type.LINK_CONFLICT, this, fsReader);
+            return new Status(Status.Type.LINK_CONFLICT, this);
         }
         if (fsReader.exists(source)) {
-            return new Status(Status.Type.FILE_CONFLICT, this, fsReader);
+            return new Status(Status.Type.FILE_CONFLICT, this);
         }
-        return new Status(Status.Type.MISSING, this, fsReader);
+        return new Status(Status.Type.MISSING, this);
     }
 
     @Override

@@ -11,11 +11,12 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.stream.Stream;
 import lombok.Getter;
+import lombok.NonNull;
 import org.symly.cli.SymlyExecutionException;
 
 public class Repository extends Directory {
 
-    private Repository(Path path) {
+    private Repository(@NonNull Path path) {
         super(path);
     }
 

@@ -14,10 +14,9 @@ public class ConflictAction implements Action {
     private final Type type;
     @Getter
     private final Link link;
-    private final FileSystemReader fsReader;
 
     @Override
-    public Result<Path, Code> apply(FileSystemWriter fsWriter) {
+    public Result<Path, Code> apply(FileSystemReader fsReader, FileSystemWriter fsWriter) {
         if (!fsReader.exists(link.target())) {
             return Result.error(new Code(Code.State.INVALID_DESTINATION, null, link.source()));
         }

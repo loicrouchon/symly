@@ -11,26 +11,26 @@ public interface Action {
 
     Link getLink();
 
-    Result<Path, Code> apply(FileSystemWriter fsWriter);
+    Result<Path, Code> apply(FileSystemReader fsReader, FileSystemWriter fsWriter);
 
-    static Action upToDate(Link link, FileSystemReader fsReader) {
-        return new NoOpAction(Type.UP_TO_DATE, link, fsReader);
+    static Action upToDate(Link link) {
+        return new NoOpAction(Type.UP_TO_DATE, link);
     }
 
-    static Action replace(Link link, FileSystemReader fsReader) {
-        return new UpdateLinkAction(Type.UPDATE, link, fsReader);
+    static Action replace(Link link) {
+        return new UpdateLinkAction(Type.UPDATE, link);
     }
 
-    static Action conflict(Link link, FileSystemReader fsReader) {
-        return new ConflictAction(Type.CONFLICT, link, fsReader);
+    static Action conflict(Link link) {
+        return new ConflictAction(Type.CONFLICT, link);
     }
 
-    static Action create(Link link, FileSystemReader fsReader) {
-        return new CreateLinkAction(Type.CREATE, link, fsReader);
+    static Action create(Link link) {
+        return new CreateLinkAction(Type.CREATE, link);
     }
 
-    static Action delete(Link link, FileSystemReader fsReader) {
-        return new DeleteLinkAction(Type.DELETE, link, fsReader);
+    static Action delete(Link link) {
+        return new DeleteLinkAction(Type.DELETE, link);
     }
 
     enum Type {

@@ -106,7 +106,7 @@ class LinkCommand extends ValidatedCommand {
             Status status = link.status(fsReader);
             List<Action> actions = status.toActions(force);
             for (Action action : actions) {
-                Result<Path, Action.Code> result = action.apply(fsWriter);
+                Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
                 printStatus(action, result);
             }
         }
@@ -119,8 +119,8 @@ class LinkCommand extends ValidatedCommand {
     }
 
     private void deleteOrphan(Link orphan, FileSystemWriter mutator) {
-        Action action = Action.delete(orphan, fsReader);
-        Result<Path, Action.Code> status = action.apply(mutator);
+        Action action = Action.delete(orphan);
+        Result<Path, Action.Code> status = action.apply(fsReader, mutator);
         printStatus(action, status);
     }
 

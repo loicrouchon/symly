@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import org.symly.cli.SymlyExecutionException;
-import org.symly.files.FileSystemReader;
 
 @ToString
 @RequiredArgsConstructor
@@ -23,14 +22,12 @@ public class Status {
     @Getter
     private final Link link;
 
-    private final FileSystemReader fsReader;
-
     public List<Action> toActions(boolean force) {
         return switch (type) {
-            case UP_TO_DATE -> List.of(Action.upToDate(link, fsReader));
-            case LINK_CONFLICT -> List.of(Action.replace(link, fsReader));
+            case UP_TO_DATE -> List.of(Action.upToDate(link));
+            case LINK_CONFLICT -> List.of(Action.replace(link));
             case FILE_CONFLICT -> resolveConflict(force);
-            case MISSING -> List.of(Action.create(link, fsReader));
+            case MISSING -> List.of(Action.create(link));
         };
     }
 
@@ -40,17 +37,17 @@ public class Status {
             try (Stream<Path> files = Files.walk(link.source())) {
                 files
                         .sorted(Comparator.comparing(Path::toString).reversed())
-                        .map(path -> Action.delete(Link.of(path, null), fsReader))
+                        .map(path -> Action.delete(Link.of(path, null)))
                         .forEach(actions::add);
             } catch (IOException e) {
                 throw new SymlyExecutionException(String.format(
                         "Unable to list files to be deleted for conflicting link %s", link), e);
             }
-            actions.add(Action.create(link, fsReader));
+            actions.add(Action.create(link));
             actions.forEach(System.out::println);
             return actions;
         }
-        return List.of(Action.conflict(link, fsReader));
+        return List.of(Action.conflict(link));
     }
 
     public enum Type {
