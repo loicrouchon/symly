@@ -28,7 +28,7 @@ class LinkFileRef implements FileRef {
 
     @Override
     public String toString() {
-        return name.toString() + LINK_SEPARATOR + target.toString();
+        return name + LINK_SEPARATOR + target;
     }
 
     static boolean isLink(String ref) {
