@@ -100,7 +100,7 @@ Artifacts can also be downloaded manually from [github](https://github.com/loicr
 
 The following artifacts are available:
 
-* Jar application with bootstrap script. Requires JVM 11+
+* Jar application with bootstrap script. Requires JVM 17+
 * Native binaries for Linux (x64) and macOS (x64)
 * `.deb` and `.rpm` packages.
 
@@ -263,7 +263,7 @@ You can also clone this repository and build Symly using the instructions below:
 
 ### Pre-requisites
 
-* JDK 11
+* JDK 17
 
 ### Packaging and running the application
 
@@ -289,7 +289,7 @@ Commands:
 
 ### Advanced packaging options
 
-### Creating a distribution
+#### Creating a distribution
 
 The `assembleDist` task allow to build a `tar` and a `zip` distribution archives:
 
@@ -307,19 +307,16 @@ Once unzipped/untarred, the application can be run using the same `bin/link`/`bi
 
 #### Creating a native executable
 
-##### Prerequisites
-
-* You must have GraalVM installed in a version supporting Java 11.
-* The `GRAALVM_HOME` must point to GraalVM installation directory.
-* `$PATH` must include `$GRAALVM_HOME/bin`
-* `native-image` must have been installed using `gu install native-image`
-
-##### Building the native executable
-
-You can create a native executable using the `buildNativeImage` task:
+You can create a native executable using the `Makefile` target `build`:
 
 ```shell script
-./gradlew clean buildNativeImage
+make clean build
 ```
 
-You can then execute your native executable with: `./build/libs/symly <ARGS>`
+This will:
+
+* Download GraalVM
+* Install `native-image`
+* Run the `buildNativeImage` gradle task with the proper `JAVA_HOME`/`GRAALVM_HOME` environment variables
+
+You can then execute your native executable with: `./build/bin/symly <ARGS>`
