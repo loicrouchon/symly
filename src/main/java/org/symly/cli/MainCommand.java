@@ -35,13 +35,17 @@ class MainCommand implements Runnable {
     boolean helpRequested;
 
     @Spec
-    private CommandSpec spec;
+    CommandSpec spec;
+
+    @NonNull
+    private final Config config;
 
     @NonNull
     private final CliConsole console;
 
     @Override
     public void run() {
+        config.verbose(verbose);
         CommandLine commandLine = spec.commandLine();
         if (helpRequested || !version) {
             commandLine.usage(console.writer());

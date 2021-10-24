@@ -17,7 +17,8 @@ class BeanFactory implements CommandLine.IFactory {
             bean(FileSystemReader.class, FileSystemReader::new),
             bean(FileSystemWriter.class, FileSystemWriterImpl::new),
             bean(VersionProvider.class, () -> new VersionProvider(create(Config.class))),
-            bean(MainCommand.class, () -> new MainCommand(create(CliConsole.class))),
+            bean(MainCommand.class, () -> new MainCommand(create(Config.class), create(CliConsole.class))),
+            bean(ExceptionHandler.class, () -> new ExceptionHandler(create(Config.class), create(CliConsole.class))),
             bean(
                     LinkCommand.class,
                     () -> new LinkCommand(create(CliConsole.class), create(FileSystemReader.class),

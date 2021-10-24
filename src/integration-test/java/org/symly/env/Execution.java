@@ -65,7 +65,7 @@ public class Execution {
     private static List<String> lines(InputStream inputStream) {
         return new BufferedReader(new InputStreamReader(inputStream))
                 .lines()
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public ExitCodeAssert thenItShould() {
@@ -84,7 +84,17 @@ public class Execution {
 
         public OutputAssert succeed() {
             OutputAssert outputAssert = assertExitCodeIs(SUCCESS);
-            assertThat(execution.stdErr()).isEmpty();
+            assertThat(execution.stdErr())
+                    .withFailMessage("""
+                            Expected no messages on stderr but got:
+                            %s
+                            stdout was:
+                            %s
+                            """,
+                            lines(execution.stdErr()),
+                            lines(execution.stdOut())
+                    )
+                    .isEmpty();
             return outputAssert;
         }
 

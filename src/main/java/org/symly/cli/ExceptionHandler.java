@@ -8,17 +8,22 @@ import picocli.CommandLine.ParseResult;
 @RequiredArgsConstructor
 class ExceptionHandler implements IExecutionExceptionHandler {
 
+    private final Config config;
     private final CliConsole console;
 
     @Override
-    public int handleExecutionException(Exception ex, CommandLine commandLine, ParseResult parseResult) {
+    public int handleExecutionException(Exception e, CommandLine commandLine, ParseResult parseResult) {
         console.eprintf("%n");
-        if (ex instanceof SymlyExecutionException) {
-            console.eprintf("%s%n", ex.getMessage());
+        if (e.getMessage() != null) {
+            console.eprintf("%s%n", e.getMessage());
+        }
+        if (e instanceof SymlyExecutionException) {
+            if (config.verbose()) {
+                e.printStackTrace(console.ewriter());
+            }
             return 1;
         }
-        console.eprintf("%s:%s%n", ex.getClass(), ex.getMessage());
-        ex.printStackTrace(console.ewriter());
-        return 0;
+        e.printStackTrace(console.ewriter());
+        return 3;
     }
 }

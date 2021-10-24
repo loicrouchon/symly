@@ -12,6 +12,8 @@ public class Config {
 
     private final Map<String, String> properties;
 
+    private boolean verbose = false;
+
     public Config() {
         this.properties = load();
     }
@@ -22,6 +24,14 @@ public class Config {
 
     public String applicationVersion() {
         return property("application.version");
+    }
+
+    public boolean verbose() {
+        return verbose;
+    }
+
+    public void verbose(boolean verbose) {
+        this.verbose = verbose;
     }
 
     private String property(String property) {

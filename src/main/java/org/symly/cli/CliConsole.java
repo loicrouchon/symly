@@ -26,4 +26,9 @@ class CliConsole {
     public PrintWriter ewriter() {
         return err;
     }
+
+    public void flush() {
+        err.flush();
+        out.flush();
+    }
 }

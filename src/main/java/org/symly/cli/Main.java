@@ -8,11 +8,15 @@ import picocli.CommandLine;
 
 public class Main {
 
+    private static final BeanFactory BEAN_FACTORY = initializeBeanFactory();
+
+    private static final CliConsole CONSOLE = BEAN_FACTORY.create(CliConsole.class);
+
     /**
      * Done as part of the Main class static initializer to benefit from GraalVM native-image static initialization
      * optimization.
      */
-    private static final CommandLine COMMAND_LINE = initializeCommandLine();
+    private static final CommandLine COMMAND_LINE = initializeCommandLine(BEAN_FACTORY, CONSOLE);
 
     public static void main(String... args) {
         int exitCode = runCommand(args);
@@ -20,20 +24,25 @@ public class Main {
     }
 
     private static int runCommand(String... args) {
-        return COMMAND_LINE.execute(args);
+        int exitCode = COMMAND_LINE.execute(args);
+        CONSOLE.flush();
+        return exitCode;
     }
 
-    private static CommandLine initializeCommandLine() {
+    private static BeanFactory initializeBeanFactory() {
         BeanFactory factory = new BeanFactory();
         // Instantiate at compile time thanks to GraalVM native-image optimization
         // Doing so also avoids having to include resources in the native-image.
         factory.preInit();
-        CliConsole console = factory.create(CliConsole.class);
+        return factory;
+    }
+
+    private static CommandLine initializeCommandLine(BeanFactory factory, CliConsole console) {
         CommandLine commandLine = new CommandLine(factory.create(MainCommand.class), factory);
         commandLine.setOut(console.writer());
         commandLine.setErr(console.ewriter());
         commandLine.setDefaultValueProvider(new EnvironmentVariableDefaultsProvider());
-        commandLine.setExecutionExceptionHandler(new ExceptionHandler(console));
+        commandLine.setExecutionExceptionHandler(factory.create(ExceptionHandler.class));
         commandLine.registerConverter(MainDirectory.class, new MainDirectoryTypeConverter());
         commandLine.registerConverter(Repository.class, new RepositoryTypeConverter());
         return commandLine;
