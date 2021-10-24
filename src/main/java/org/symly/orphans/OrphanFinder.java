@@ -35,12 +35,12 @@ public class OrphanFinder {
     }
 
     private List<Path> dirs(Path rootDir, Collection<Repository> repositories) {
-        List<Path> dirs = repositories.stream()
+        List<Path> dirs = new ArrayList<>(repositories.stream()
                 .flatMap(repository -> repository.directories().map(repository::relativize))
                 .map(p -> rootDir.resolve(p).toAbsolutePath().normalize())
                 .sorted()
                 .distinct()
-                .collect(Collectors.toList());
+                .toList());
         dirs.add(rootDir);
         return dirs;
     }

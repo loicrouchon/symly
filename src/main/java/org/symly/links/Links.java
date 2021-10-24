@@ -2,7 +2,6 @@ package org.symly.links;
 
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -23,7 +22,7 @@ public class Links {
                 .stream()
                 .map(this::toLink)
                 .sorted(Comparator.comparing(Link::source))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Link toLink(LinkTarget linkTarget) {

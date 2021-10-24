@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public interface Constraint {
 
@@ -23,6 +22,6 @@ public interface Constraint {
     static <T> Constraint ofArg(String name, Collection<T> values, String reason, Predicate<T> validator) {
         return new Constraints(values.stream()
                 .map(value -> ofArg(name, value, reason, validator))
-                .collect(Collectors.toList()));
+                .toList());
     }
 }
