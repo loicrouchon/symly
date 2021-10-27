@@ -1,5 +1,6 @@
 plugins {
     id "application"
+    id 'jvm-test-suite'
     id "idea"
     id "jacoco"
     id "org.asciidoctor.jvm.convert" version "3.3.2"
@@ -34,73 +35,67 @@ compileJava {
     options.release.set(17)
     options.compilerArgs += ["-Aproject=${project.group}/${project.name}"]
 }
-test {
-    useJUnitPlatform()
-}
 repositories {
     mavenCentral()
 }
 
-sourceSets {
-    integrationTest {
-        java {
-            compileClasspath += main.output + test.output
-            runtimeClasspath += main.output + test.output
-            srcDir file("src/integration-test/java")
+def lombokVersion = '1.18.22'
+def junitVersion = '5.8.1'
+def assertjVersion = '3.21.0'
+def mockitoVersion = '4.0.0'
+
+testing {
+    suites { 
+        test { 
+            useJUnitJupiter(junitVersion)
+
+            dependencies {
+                compileOnly "org.projectlombok:lombok:${lombokVersion}"
+                // annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+                implementation "org.assertj:assertj-core:${assertjVersion}"
+                
+                implementation "org.mockito:mockito-core:${mockitoVersion}"
+                implementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+            }
         }
-        resources.srcDir file("src/integration-test/resources")
+
+        integrationTest(JvmTestSuite) {
+            useJUnitJupiter(junitVersion)
+
+            dependencies {
+                compileOnly "org.projectlombok:lombok:${lombokVersion}"
+                // annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+                implementation "org.assertj:assertj-core:${assertjVersion}"
+            }
+            
+            targets {
+                all {
+                    testTask.configure {
+                        systemProperty "symly.runtime.classpath", sourceSets.main.runtimeClasspath.join(":")
+                        shouldRunAfter(test)
+                    }
+                }
+            }
+        }
     }
 }
 
-project.idea.module {
-    // Mark integration tests are test sources for Intellij IDEA
-    sourceDirs -= project.sourceSets.integrationTest.java.srcDirs
-    sourceDirs -= project.sourceSets.integrationTest.java.srcDirs
-    testSourceDirs += project.sourceSets.integrationTest.java.srcDirs
-    testSourceDirs += project.sourceSets.integrationTest.java.srcDirs
-}
-
-configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
+tasks.named('check') { 
+    dependsOn(testing.suites.integrationTest)
 }
 
 dependencies {
-    def lombokVersion = '1.18.22'
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-    testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
     testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-    integrationTestCompileOnly "org.projectlombok:lombok:${lombokVersion}"
     integrationTestAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     def picocliVersion = "4.6.1"
     implementation "info.picocli:picocli:${picocliVersion}"
     annotationProcessor "info.picocli:picocli-codegen:${picocliVersion}"
-    // testing
-    def junitVersion = '5.8.1'
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-    testImplementation 'org.assertj:assertj-core:3.21.0'
-    def mockitoVersion = '4.0.0'
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    testImplementation "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
-
-    integrationTestImplementation sourceSets.main.output
-    integrationTestImplementation sourceSets.test.output
 }
-
-task integrationTest(type: Test) {
-    useJUnitPlatform()
-    description = "Runs integration tests."
-    group = "verification"
-
-    testClassesDirs = sourceSets.integrationTest.output.classesDirs
-    classpath = sourceSets.integrationTest.runtimeClasspath
-    systemProperty "symly.runtime.classpath", sourceSets.main.runtimeClasspath.join(":")
-    shouldRunAfter test
-}
-check.dependsOn integrationTest
 
 task jacocoReport(type: JacocoReport) {
     dependsOn test, integrationTest
