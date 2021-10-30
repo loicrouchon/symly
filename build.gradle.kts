@@ -235,14 +235,22 @@ ospackage {
 }
 
 tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildDebPackage") {
-    dependsOn(tasks.named("generateManpage"), tasks.named("generateShellCompletions"))
+    dependsOn(
+        tasks.named("buildNativeImage"),
+        tasks.named("generateManpage"),
+        tasks.named("generateShellCompletions")
+    )
     maintainer = "Loic Rouchon"
     setArch("amd64")
     license = "ASL 2.0"
 }
 
 tasks.register<com.netflix.gradle.plugins.rpm.Rpm>("buildRpmPackage") {
-    dependsOn(tasks.named("generateManpage"), tasks.named("generateShellCompletions"))
+    dependsOn(
+        tasks.named("buildNativeImage"),
+        tasks.named("generateManpage"),
+        tasks.named("generateShellCompletions")
+    )
     packager = "Loïc Rouchon"
     setArch("x86_64")
     addParentDirs = false
