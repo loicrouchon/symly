@@ -35,35 +35,27 @@ repositories {
     mavenCentral()
 }
 
-val lombokVersion = "1.18.22"
-val junitVersion = "5.8.1"
-val assertjVersion = "3.21.0"
-val mockitoVersion = "4.0.0"
-
 testing {
     suites {
         val test by getting(JvmTestSuite::class) {
-            useJUnitJupiter(junitVersion)
+            useJUnitJupiter(libs.versions.junit.get())
 
             dependencies {
-                compileOnly("org.projectlombok:lombok:${lombokVersion}")
-                // annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
-                implementation("org.assertj:assertj-core:${assertjVersion}")
-
-                implementation("org.mockito:mockito-core:${mockitoVersion}")
-                implementation("org.mockito:mockito-junit-jupiter:${mockitoVersion}")
+                compileOnly(libs.lombok)
+                // annotationProcessor(libs.lombok)
+                implementation(libs.assertj)
+                implementation(libs.mockito.core)
+                implementation(libs.mockito.junit)
             }
         }
 
         val integrationTest by registering(JvmTestSuite::class) {
-            useJUnitJupiter(junitVersion)
+            useJUnitJupiter(libs.versions.junit.get())
 
             dependencies {
-                compileOnly("org.projectlombok:lombok:${lombokVersion}")
-                // annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-
-                implementation("org.assertj:assertj-core:${assertjVersion}")
+                compileOnly(libs.lombok)
+                // annotationProcessor(libs.lombok)
+                implementation(libs.assertj)
             }
 
             targets {
@@ -83,14 +75,13 @@ tasks.named("check") {
 }
 
 dependencies {
-    compileOnly("org.projectlombok:lombok:${lombokVersion}")
-    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
-    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
-    configurations["integrationTestAnnotationProcessor"]("org.projectlombok:lombok:${lombokVersion}")
+    compileOnly(libs.lombok)
+    annotationProcessor(libs.lombok)
+    testAnnotationProcessor(libs.lombok)
+    configurations["integrationTestAnnotationProcessor"](libs.lombok)
 
-    val picocliVersion = "4.6.1"
-    implementation("info.picocli:picocli:${picocliVersion}")
-    annotationProcessor("info.picocli:picocli-codegen:${picocliVersion}")
+    implementation(libs.picocli.core)
+    annotationProcessor(libs.picocli.codegen)
 }
 
 tasks.jacocoTestReport {
