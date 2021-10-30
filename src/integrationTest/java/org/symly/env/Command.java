@@ -62,7 +62,6 @@ public class Command {
         command.add(System.getProperty(CLASSPATH_SYSTEM_PROPERTY));
         command.add(MAIN_CLASS);
         command.addAll(Arrays.asList(args));
-        System.out.println(command);
         return command;
     }
 
