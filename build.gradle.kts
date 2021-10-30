@@ -44,8 +44,7 @@ testing {
                 compileOnly(libs.lombok)
                 // annotationProcessor(libs.lombok)
                 implementation(libs.assertj)
-                implementation(libs.mockito.core)
-                implementation(libs.mockito.junit)
+                implementation(libs.bundles.mockito)
             }
         }
 
