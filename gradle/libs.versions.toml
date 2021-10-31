@@ -5,12 +5,12 @@ mockito = "4.0.0"
 
 [libraries]
 
-lombok = { module = "org.projectlombok:lombok", version = "1.18.22" }
+lombok = "org.projectlombok:lombok:1.18.22"
 
 picocli-core = { module = "info.picocli:picocli", version.ref = "picocli" }
 picocli-codegen = { module = "info.picocli:picocli-codegen", version.ref = "picocli" }
 
-assertj = { module = "org.assertj:assertj-core", version = "3.21.0" }
+assertj = "org.assertj:assertj-core:3.21.0"
 
 mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockito-junit = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
