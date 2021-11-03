@@ -1,8 +1,9 @@
 plugins {
     application
     `jvm-test-suite`
-//    `idea`
+    idea
     jacoco
+    id("org.graalvm.buildtools.native") version "0.9.7.1"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
     id("nebula.ospackage") version "9.0.0"
 }
@@ -66,11 +67,10 @@ testing {
                 }
             }
         }
+        tasks.named("check") {
+            dependsOn(integrationTest)
+        }
     }
-}
-
-tasks.named("check") {
-    dependsOn(testing.suites.named("integrationTest"))
 }
 
 dependencies {
@@ -100,53 +100,49 @@ tasks.jacocoTestReport {
     }
 }
 
-tasks.register<Exec>("buildNativeImage") {
-    dependsOn(tasks.installDist)
-    inputs.dir("${buildDir}/install/${project.name}/lib")
-    outputs.file("${buildDir}/bin/${project.name}")
-    workingDir("${buildDir}/bin")
-    commandLine(
-        nativeImageBin(),
-        "--verbose",
-        "--no-fallback",
-        "-H:Name=${project.name}",
-        "-H:-AddAllCharsets",
-        "-H:-UseServiceLoaderFeature",
-        "-J-Drx.unsafe-disable=true",
-        "-H:+RemoveUnusedSymbols",
-        "-DremoveUnusedAutoconfig=true",
-        "--initialize-at-build-time=${appModuleName},picocli",
-        "-H:+PrintImageElementSizes",
-        // Native image size debug flags
-//            "-H:DashboardDump=img-dump",
-//            "-H:+DashboardAll",
-//            "-H:+DashboardHeap",
-//            "-H:+DashboardCode",
-//            "-H:+DashboardPointsTo",
-//            "-H:+DashboardPretty",
-        // Native image stdout debug
-//            "-H:+PrintUniverse",
-//            "-H:+PrintHeapHistogram",
-//            "-H:+PrintAnalysisCallTree",
-//            "-H:+PrintImageObjectTree",
-//            "-H:+PrintHeapHistogram",
-//            "-H:+PrintMethodHistogram",
-//            "-H:+PrintImageHeapPartitionSizes",
-        "--module-path",
-        "${buildDir}/install/${project.name}/lib/",
-        "--module",
-        "${appModuleName}/${appMainClassName}",
-        "-Dpicocli.converters.excludes=java.sql.*,java.time.*"
-    )
+graalvmNative {
+    binaries {
+        named("main") {
+            javaLauncher.set(javaToolchains.launcherFor {
+                languageVersion.set(JavaLanguageVersion.of(17))
+                vendor.set(JvmVendorSpec.GRAAL_VM)
+            })
+//            mainClass.set(null)
+//            classpath.from()
+            buildArgs.addAll(
+                "-Dpicocli.converters.excludes=java.sql.*,java.time.*",
+//                "--module-path",
+//                "${buildDir}/install/${project.name}/lib/",
+//                "--module",
+//                "${appModuleName}/${appMainClassName}",
+                // Size optimization
+                "-H:-AddAllCharsets",
+                "-H:-UseServiceLoaderFeature",
+                "-J-Drx.unsafe-disable=true",
+                "-H:+RemoveUnusedSymbols",
+                "-DremoveUnusedAutoconfig=true",
+                "--initialize-at-build-time=${appModuleName},picocli",
+                // Native image size debug flags
+//                "-H:DashboardDump=img-dump",
+//                "-H:+DashboardAll",
+//                "-H:+DashboardHeap",
+//                "-H:+DashboardCode",
+//                "-H:+DashboardPointsTo",
+//                "-H:+DashboardPretty",
+                // Native image stdout debug
+//                "-H:+PrintImageElementSizes",
+//                "-H:+PrintUniverse",
+//                "-H:+PrintHeapHistogram",
+//                "-H:+PrintAnalysisCallTree",
+//                "-H:+PrintImageObjectTree",
+//                "-H:+PrintHeapHistogram",
+//                "-H:+PrintMethodHistogram",
+//                "-H:+PrintImageHeapPartitionSizes",
+            )
+        }
+    }
 }
 
-fun nativeImageBin(): String {
-    val env = System.getenv("GRAALVM_HOME") ?: System.getenv("JAVA_HOME")
-    if (env != null) {
-        return "${env}/bin/native-image"
-    }
-    return "native-image"
-}
 
 tasks.register<JavaExec>("generateManpageAsciiDoc") {
     dependsOn(tasks.installDist)
@@ -236,7 +232,7 @@ ospackage {
 
 tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildDebPackage") {
     dependsOn(
-        tasks.named("buildNativeImage"),
+        tasks.named("nativeCompile"),
         tasks.named("generateManpage"),
         tasks.named("generateShellCompletions")
     )
@@ -247,7 +243,7 @@ tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildDebPackage") {
 
 tasks.register<com.netflix.gradle.plugins.rpm.Rpm>("buildRpmPackage") {
     dependsOn(
-        tasks.named("buildNativeImage"),
+        tasks.named("nativeCompile"),
         tasks.named("generateManpage"),
         tasks.named("generateShellCompletions")
     )

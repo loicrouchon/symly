@@ -317,6 +317,6 @@ This will:
 
 * Download GraalVM
 * Install `native-image`
-* Run the `buildNativeImage` gradle task with the proper `JAVA_HOME`/`GRAALVM_HOME` environment variables
+* Run the `nativeCompile` gradle task with the proper `JAVA_HOME` environment variables
 
-You can then execute your native executable with: `./build/bin/symly <ARGS>`
+You can then execute your native executable with: `./build/native/nativeCompile/symly <ARGS>`
