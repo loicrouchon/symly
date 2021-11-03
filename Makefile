@@ -2,7 +2,7 @@ ifndef VERSION
 VERSION=dev
 endif
 
-EXECUTABLE=build/bin/symly
+EXECUTABLE=build/native/nativeCompile/symly
 INSTALL=/usr/bin/symly
 
 GRAALVM_VERSION=21.3.0
@@ -26,16 +26,10 @@ else
 $(error Only Darwin and Linux operating systems are supported)
 endif
 
-GU=$(GRAALVM_LOCATION)/lib/installer/bin/gu
 GRAALVM_NAME=$(GRAALVM_ARCH)-$(GRAALVM_VERSION)
 GRAALVM_TGZ=tools/$(GRAALVM_NAME).tar.gz
 GRAALVM_URL=$(GRAALVM_BASE_URL)/vm-$(GRAALVM_VERSION)/$(GRAALVM_NAME).tar.gz
-GRAALVM_HOME=$(shell pwd)/$(GRAALVM_LOCATION)
-JAVA_HOME=$(GRAALVM_HOME)
-NATIVE_IMAGE=$(GRAALVM_HOME)/bin/native-image
-
-GRADLE_ENV=GRAALVM_HOME=$(GRAALVM_HOME) JAVA_HOME=$(JAVA_HOME)
-GRADLE=$(GRADLE_ENV) ./gradlew -Dgradle.user.home=.gradle --no-daemon --console=plain -Pversion=$(VERSION)
+JAVA_HOME=$(shell pwd)/$(GRAALVM_LOCATION)
 
 .PHONY: clean build install install-requirements
 
@@ -43,7 +37,7 @@ build: $(EXECUTABLE)
 binary: $(INSTALL)
 clean:
 	@rm -rf build
-install-requirements: $(NATIVE_IMAGE)
+install-requirements: $(JAVA_HOME)
 
 $(GRAALVM_TGZ):
 	@echo "Downloading Graal VM $(GRAALVM_URL)"
@@ -52,20 +46,17 @@ $(GRAALVM_TGZ):
 	@tar xzf tools/$(GRAALVM_NAME).tar.gz --directory tools/
 	@mv tools/$(GRAALVM_BASE_NAME)-$(GRAALVM_VERSION) tools/$(GRAALVM_NAME)
 
-$(GU): $(GRAALVM_TGZ)
+$(JAVA_HOME): $(GRAALVM_TGZ)
 	@echo "Installing Graal VM $(GRAALVM_TGZ) to tools/$(GRAALVM_NAME)"
 	@rm -rf tools/$(GRAALVM_NAME)
 	@tar xzfm tools/$(GRAALVM_NAME).tar.gz --directory tools/
 	@mv tools/$(GRAALVM_BASE_NAME)-$(GRAALVM_VERSION) tools/$(GRAALVM_NAME)
-	@ls -l $(GRAALVM_TGZ) $(GU)
+	@ls -l $(GRAALVM_TGZ)
 
-$(NATIVE_IMAGE): $(GU)
-	@echo "Installing Graal VM native-image $(NATIVE_IMAGE)"
-	@$(GU) install native-image
-
-$(EXECUTABLE): $(NATIVE_IMAGE)
+$(EXECUTABLE): $(JAVA_HOME)
 	@echo "Building application $(EXECUTABLE)"
-	$(GRADLE) clean buildNativeImage
+	JAVA_HOME=$(JAVA_HOME) ./gradlew -Dgradle.user.home=.gradle --no-daemon --console=plain -Pversion=$(VERSION) \
+      clean build nativeCompile
 
 $(INSTALL): $(EXECUTABLE)
 	@echo "Building binary"

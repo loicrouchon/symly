@@ -41,7 +41,7 @@ jobs:
           echo "Application version is ${{ steps.version.outputs.version }} / tag ${{ steps.version.outputs.tag }}"
           echo "Gradle args are: ${{ steps.gradle.outputs.args }}"
 
-  build:
+  build-test:
     name: Build & Test
     needs: [ env ]
     runs-on: ubuntu-20.04
@@ -83,19 +83,15 @@ jobs:
           name: symly_${{ needs.env.outputs.version }}_jvm
           path: build/distributions/symly_${{ needs.env.outputs.version }}_jvm.zip
 
-  package:
-    name: Package
+  package-macos:
+    name: Package macOS
     needs: [ env ]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
-          - arch: linux-amd64
-            os: ubuntu-20.04
-            gu-binary: gu
           - arch: macos-x86_64
             os: macos-latest
-            gu-binary: gu
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -117,36 +113,49 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: symly_${{ needs.env.outputs.version }}_${{ matrix.arch }}
-          path: build/bin/symly
+          path: build/native/nativeCompile/symly
 
   package-linux:
-    name: Linux packaging
-    runs-on: ubuntu-20.04
-    needs: [ env, package ]
+    name: Package Linux
+    needs: [ env ]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - arch: linux-amd64
+            os: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - uses: actions/setup-java@v2
+      - id: cached-graalvm
+        name: Restore GraalVM tooling cache
+        uses: actions/cache@v2
         with:
-          distribution: 'temurin'
-          java-version: '17'
-      
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
+          path: tools
+          key: ${{ matrix.arch }}-${{ hashFiles('Makefile') }}
+
+      - name: Install GraalVM
+        run: make install-requirements
+
+      - name: Build application
+        run: |
+            ls -l $(pwd)/tools/
+            JAVA_HOME=$(pwd)/$(find tools -maxdepth 1 -type d -name "graalvm-*") \
+              ./gradlew ${{ needs.env.outputs.gradle-args }} -Dorg.gradle.warning.mode=all \
+              build buildDebPackage buildRpmPackage
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
-          name: symly_${{ needs.env.outputs.version }}_linux-amd64
-          path: build/bin/
+          name: symly_${{ needs.env.outputs.version }}_${{ matrix.arch }}
+          path: build/native/nativeCompile/symly
 
       - id: create-pkg
         name: Build deb/rpm packages application
         run: |
-            pwd
-            find build/bin/
-            ls -l /home/runner/work/symly/symly/build/bin
-            ./gradlew ${{ needs.env.outputs.gradle-args }} buildDebPackage buildRpmPackage -Dorg.gradle.warning.mode=all
-            find build/bin/
-            ls -l /home/runner/work/symly/symly/build/bin
+            find build/native/nativeCompile/symly
+            ls -l /home/runner/work/symly/symly/build/native/nativeCompile
             DEB_PATH=$(find build/distributions/ -name "*.deb")
             DEB_FILENAME=$(basename $DEB_PATH)
             RPM_PATH=$(find build/distributions/ -name "*.rpm")
@@ -187,7 +196,7 @@ jobs:
     # so that we only create the release if all packaging jobs succeeded
     name: Release
     if: startsWith(github.ref, 'refs/heads/release/')
-    needs: [ env, build, package, package-linux ]
+    needs: [ env, build-test, package-macos, package-linux ]
 
     runs-on: ubuntu-20.04
     steps:

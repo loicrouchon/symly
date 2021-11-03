@@ -216,7 +216,7 @@ ospackage {
         fileType = org.redline_rpm.payload.Directive.LICENSE
     })
 
-    from("${buildDir}/bin/${project.name}", closureOf<CopySpec> {
+    from("${buildDir}/native/nativeCompile/${project.name}", closureOf<CopySpec> {
         into("usr/bin/")
         fileMode = 755
     })
