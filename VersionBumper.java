@@ -16,7 +16,7 @@ public class VersionBumper {
             System.out.println("Finds the highest existing version and increment the last digit by one.");
             System.out.println("");
             System.out.println("Usage:");
-            System.out.println("  echo $VERSIONS > java VersionComparator.java $BASE_VERSION");
+            System.out.println("  echo $VERSIONS | java VersionComparator.java $BASE_VERSION");
             System.out.println("Where:");
             System.out.println("  - $VERSIONS is a list of existing versions, one per line.");
             System.out.println("  - $BASE_VERSION is the current version we want to bump");
