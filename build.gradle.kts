@@ -1,3 +1,5 @@
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     application
     `jvm-test-suite`
@@ -67,9 +69,7 @@ testing {
                 }
             }
         }
-        tasks.named("check") {
-            dependsOn(integrationTest)
-        }
+        tasks.check.get().dependsOn(integrationTest)
     }
 }
 
@@ -143,6 +143,10 @@ graalvmNative {
     }
 }
 
+tasks.nativeCompile {
+    shouldRunAfter(tasks.named("integrationTest"))
+}
+tasks.build.get().dependsOn(tasks.nativeCompile)
 
 tasks.register<JavaExec>("generateManpageAsciiDoc") {
     dependsOn(tasks.installDist)
@@ -200,54 +204,61 @@ tasks.register<JavaExec>("generateShellCompletions") {
     }
 }
 
-ospackage {
-    packageName = "symly"
-    packageDescription = "Manages symbolic links."
-    url = "https://github.com/loicrouchon/symly"
 
-    release = "1"
-    os = org.redline_rpm.header.Os.LINUX
-    user = "root"
+val os: OperatingSystem = DefaultNativePlatform.getCurrentOperatingSystem()
+if (os.isLinux()) {
+    ospackage {
+        packageName = "symly"
+        packageDescription = "Manages symbolic links."
+        url = "https://github.com/loicrouchon/symly"
 
-    license = "ASL 2.0"
-    from("LICENSE", closureOf<CopySpec> {
-        into("usr/share/doc/${project.name}")
-        rename("LICENSE", "copyright")
-        fileType = org.redline_rpm.payload.Directive.LICENSE
-    })
+        release = "1"
+        os = org.redline_rpm.header.Os.LINUX
+        user = "root"
 
-    from("${buildDir}/native/nativeCompile/${project.name}", closureOf<CopySpec> {
-        into("usr/bin/")
-        fileMode = 755
-    })
-    from("${buildDir}/docs/manpage/gz", closureOf<CopySpec> {
-        into("usr/man/man1")
-        fileType = org.redline_rpm.payload.Directive.DOC
-    })
+        license = "ASL 2.0"
+        from("LICENSE", closureOf<CopySpec> {
+            into("usr/share/doc/${project.name}")
+            rename("LICENSE", "copyright")
+            fileType = org.redline_rpm.payload.Directive.LICENSE
+        })
+
+        from("${buildDir}/native/nativeCompile/${project.name}", closureOf<CopySpec> {
+            into("usr/bin/")
+            fileMode = 755
+        })
+        from("${buildDir}/docs/manpage/gz", closureOf<CopySpec> {
+            into("usr/man/man1")
+            fileType = org.redline_rpm.payload.Directive.DOC
+        })
 // requires https://github.com/remkop/picocli/issues/1346
 //    from("${buildDir}/shell/completions") {
 //        into "/usr/share/bash-completion/completions"
 //    }
-}
+    }
 
-tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildDebPackage") {
-    dependsOn(
-        tasks.named("nativeCompile"),
-        tasks.named("generateManpage"),
-        tasks.named("generateShellCompletions")
-    )
-    maintainer = "Loic Rouchon"
-    setArch("amd64")
-    license = "ASL 2.0"
-}
+    val buildDebPackage = tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildDebPackage") {
+        dependsOn(
+            tasks.named("nativeCompile"),
+            tasks.named("generateManpage"),
+            tasks.named("generateShellCompletions")
+        )
+        shouldRunAfter(tasks.named("integrationTest"))
+        maintainer = "Loic Rouchon"
+        setArch("amd64")
+        license = "ASL 2.0"
+    }
 
-tasks.register<com.netflix.gradle.plugins.rpm.Rpm>("buildRpmPackage") {
-    dependsOn(
-        tasks.named("nativeCompile"),
-        tasks.named("generateManpage"),
-        tasks.named("generateShellCompletions")
-    )
-    packager = "Loïc Rouchon"
-    setArch("x86_64")
-    addParentDirs = false
+    val buildRpmPackage = tasks.register<com.netflix.gradle.plugins.rpm.Rpm>("buildRpmPackage") {
+        dependsOn(
+            tasks.named("nativeCompile"),
+            tasks.named("generateManpage"),
+            tasks.named("generateShellCompletions")
+        )
+        shouldRunAfter(tasks.named("integrationTest"))
+        packager = "Loïc Rouchon"
+        setArch("x86_64")
+        addParentDirs = false
+    }
+    tasks.build.get().dependsOn(buildDebPackage, buildRpmPackage)
 }

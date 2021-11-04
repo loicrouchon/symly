@@ -59,8 +59,8 @@ jobs:
 
       - name: Build application
         run: |
-          ./gradlew ${{ needs.env.outputs.gradle-args }} build installDist
-          mv build/distributions/symly-${{ needs.env.outputs.version }}.zip build/distributions/symly_${{ needs.env.outputs.version }}_jvm.zip
+          ./gradlew ${{ needs.env.outputs.gradle-args }} check distZip
+          find build
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -81,7 +81,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: symly_${{ needs.env.outputs.version }}_jvm
-          path: build/distributions/symly_${{ needs.env.outputs.version }}_jvm.zip
+          path: build/distributions/symly-${{ needs.env.outputs.version }}.zip
 
   package-macos:
     name: Package macOS
@@ -91,7 +91,7 @@ jobs:
       matrix:
         include:
           - arch: macos-x86_64
-            os: macos-latest
+            os: macOS-11
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -107,7 +107,7 @@ jobs:
         run: make install-requirements
 
       - name: Build application
-        run: make clean build VERSION=${{ needs.env.outputs.version }}
+        run: make build VERSION=${{ needs.env.outputs.version }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
@@ -139,11 +139,7 @@ jobs:
         run: make install-requirements
 
       - name: Build application
-        run: |
-            ls -l $(pwd)/tools/
-            JAVA_HOME=$(pwd)/$(find tools -maxdepth 1 -type d -name "graalvm-*") \
-              ./gradlew ${{ needs.env.outputs.gradle-args }} -Dorg.gradle.warning.mode=all \
-              build buildDebPackage buildRpmPackage
+        run: make build VERSION=${{ needs.env.outputs.version }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2

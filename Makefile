@@ -31,7 +31,7 @@ GRAALVM_TGZ=tools/$(GRAALVM_NAME).tar.gz
 GRAALVM_URL=$(GRAALVM_BASE_URL)/vm-$(GRAALVM_VERSION)/$(GRAALVM_NAME).tar.gz
 JAVA_HOME=$(shell pwd)/$(GRAALVM_LOCATION)
 
-.PHONY: clean build install install-requirements
+.PHONY: install-requirements clean build install $(EXECUTABLE)
 
 build: $(EXECUTABLE)
 binary: $(INSTALL)
@@ -55,8 +55,12 @@ $(JAVA_HOME): $(GRAALVM_TGZ)
 
 $(EXECUTABLE): $(JAVA_HOME)
 	@echo "Building application $(EXECUTABLE)"
-	JAVA_HOME=$(JAVA_HOME) ./gradlew -Dgradle.user.home=.gradle --no-daemon --console=plain -Pversion=$(VERSION) \
-      clean build nativeCompile
+	JAVA_HOME=$(JAVA_HOME) ./gradlew \
+      --console=plain \
+      --no-daemon \
+      -Dorg.gradle.warning.mode=all \
+      -Pversion=$(VERSION) \
+      build
 
 $(INSTALL): $(EXECUTABLE)
 	@echo "Building binary"
