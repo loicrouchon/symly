@@ -107,7 +107,7 @@ jobs:
         run: make install-requirements
 
       - name: Build application
-        run: make build VERSION=${{ needs.env.outputs.version }}
+        run: JAVA_HOME=tools/graalvm ./gradlew ${{ needs.env.outputs.gradle-args }} build -Dorg.gradle.warning.mode=all
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
@@ -139,7 +139,7 @@ jobs:
         run: make install-requirements
 
       - name: Build application
-        run: make build VERSION=${{ needs.env.outputs.version }}
+        run: JAVA_HOME=tools/graalvm ./gradlew ${{ needs.env.outputs.gradle-args }} build -Dorg.gradle.warning.mode=all
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
