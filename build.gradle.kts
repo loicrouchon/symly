@@ -146,7 +146,7 @@ graalvmNative {
 tasks.nativeCompile {
     shouldRunAfter(tasks.named("integrationTest"))
 }
-tasks.build.get().dependsOn(tasks.nativeCompile)
+tasks.assemble.get().dependsOn(tasks.nativeCompile)
 
 tasks.register<JavaExec>("generateManpageAsciiDoc") {
     dependsOn(tasks.installDist)
@@ -260,5 +260,5 @@ if (os.isLinux()) {
         setArch("x86_64")
         addParentDirs = false
     }
-    tasks.build.get().dependsOn(buildDebPackage, buildRpmPackage)
+    tasks.assemble.get().dependsOn(buildDebPackage, buildRpmPackage)
 }
