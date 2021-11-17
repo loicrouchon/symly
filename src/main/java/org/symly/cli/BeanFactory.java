@@ -32,10 +32,6 @@ class BeanFactory implements CommandLine.IFactory {
 
     private final CommandLine.IFactory parentFactory = CommandLine.defaultFactory();
 
-    public void preInit() {
-        constructors.keySet().forEach(this::create);
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     public <K> K create(Class<K> cls) {

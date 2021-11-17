@@ -8,33 +8,18 @@ import picocli.CommandLine;
 
 public class Main {
 
-    private static final BeanFactory BEAN_FACTORY = initializeBeanFactory();
-
-    private static final CliConsole CONSOLE = BEAN_FACTORY.create(CliConsole.class);
-
-    /**
-     * Done as part of the Main class static initializer to benefit from GraalVM native-image static initialization
-     * optimization.
-     */
-    private static final CommandLine COMMAND_LINE = initializeCommandLine(BEAN_FACTORY, CONSOLE);
-
     public static void main(String... args) {
         int exitCode = runCommand(args);
         System.exit(exitCode);
     }
 
     private static int runCommand(String... args) {
-        int exitCode = COMMAND_LINE.execute(args);
-        CONSOLE.flush();
+        BeanFactory beanFactory = new BeanFactory();
+        CliConsole console = beanFactory.create(CliConsole.class);
+        CommandLine commandLine = initializeCommandLine(beanFactory, console);
+        int exitCode = commandLine.execute(args);
+        console.flush();
         return exitCode;
-    }
-
-    private static BeanFactory initializeBeanFactory() {
-        BeanFactory factory = new BeanFactory();
-        // Instantiate at compile time thanks to GraalVM native-image optimization
-        // Doing so also avoids having to include resources in the native-image.
-        factory.preInit();
-        return factory;
     }
 
     private static CommandLine initializeCommandLine(BeanFactory factory, CliConsole console) {

@@ -1,11 +1,8 @@
-import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
-
 plugins {
     application
     `jvm-test-suite`
     idea
     jacoco
-    id("org.graalvm.buildtools.native") version "0.9.7.1"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
     id("nebula.ospackage") version "9.0.0"
 }
@@ -99,54 +96,6 @@ tasks.jacocoTestReport {
     }
 }
 
-graalvmNative {
-    binaries {
-        named("main") {
-            javaLauncher.set(javaToolchains.launcherFor {
-                languageVersion.set(JavaLanguageVersion.of(17))
-                vendor.set(JvmVendorSpec.GRAAL_VM)
-            })
-//            mainClass.set(null)
-//            classpath.from()
-            buildArgs.addAll(
-                "-Dpicocli.converters.excludes=java.sql.*,java.time.*",
-//                "--module-path",
-//                "${buildDir}/install/${project.name}/lib/",
-//                "--module",
-//                "${appModuleName}/${appMainClassName}",
-                // Size optimization
-                "-H:-AddAllCharsets",
-                "-H:-UseServiceLoaderFeature",
-                "-J-Drx.unsafe-disable=true",
-                "-H:+RemoveUnusedSymbols",
-                "-DremoveUnusedAutoconfig=true",
-                "--initialize-at-build-time=${appModuleName},picocli",
-                // Native image size debug flags
-//                "-H:DashboardDump=img-dump",
-//                "-H:+DashboardAll",
-//                "-H:+DashboardHeap",
-//                "-H:+DashboardCode",
-//                "-H:+DashboardPointsTo",
-//                "-H:+DashboardPretty",
-                // Native image stdout debug
-//                "-H:+PrintImageElementSizes",
-//                "-H:+PrintUniverse",
-//                "-H:+PrintHeapHistogram",
-//                "-H:+PrintAnalysisCallTree",
-//                "-H:+PrintImageObjectTree",
-//                "-H:+PrintHeapHistogram",
-//                "-H:+PrintMethodHistogram",
-//                "-H:+PrintImageHeapPartitionSizes",
-            )
-        }
-    }
-}
-
-tasks.nativeCompile {
-    shouldRunAfter(tasks.named("integrationTest"))
-}
-tasks.assemble.get().dependsOn(tasks.nativeCompile)
-
 tasks.register<JavaExec>("generateManpageAsciiDoc") {
     dependsOn(tasks.installDist)
     inputs.dir("${buildDir}/install/${project.name}/")
@@ -203,61 +152,63 @@ tasks.register<JavaExec>("generateShellCompletions") {
     }
 }
 
+ospackage {
+    packageName = "symly"
+    packageDescription = "Manages symbolic links."
+    url = "https://github.com/loicrouchon/symly"
 
-val os: OperatingSystem = DefaultNativePlatform.getCurrentOperatingSystem()
-if (os.isLinux()) {
-    ospackage {
-        packageName = "symly"
-        packageDescription = "Manages symbolic links."
-        url = "https://github.com/loicrouchon/symly"
+    release = "1"
+    os = org.redline_rpm.header.Os.LINUX
+    user = "root"
 
-        release = "1"
-        os = org.redline_rpm.header.Os.LINUX
-        user = "root"
-
-        license = "ASL 2.0"
-        from("LICENSE", closureOf<CopySpec> {
-            into("usr/share/doc/${project.name}")
-            rename("LICENSE", "copyright")
-            fileType = org.redline_rpm.payload.Directive.LICENSE
-        })
-
-        from("${buildDir}/native/nativeCompile/${project.name}", closureOf<CopySpec> {
-            into("usr/bin/")
-            fileMode = 755
-        })
-        from("${buildDir}/docs/manpage/gz", closureOf<CopySpec> {
-            into("usr/man/man1")
-            fileType = org.redline_rpm.payload.Directive.DOC
-        })
-// requires https://github.com/remkop/picocli/issues/1346
+    license = "ASL 2.0"
+    from("LICENSE", closureOf<CopySpec> {
+        into("usr/share/doc/${project.name}")
+        rename("LICENSE", "copyright")
+        fileType = org.redline_rpm.payload.Directive.LICENSE
+    })
+    from("src/main/packaging/linux/${project.name}", closureOf<CopySpec> {
+        into("usr/bin")
+    })
+    from("${buildDir}/install/${project.name}/bin/symly", closureOf<CopySpec> {
+        into("usr/share/${project.name}/bin")
+    })
+    from("${buildDir}/install/${project.name}/lib", closureOf<CopySpec> {
+        into("usr/share/${project.name}/lib")
+    })
+    from("${buildDir}/docs/manpage/gz", closureOf<CopySpec> {
+        into("usr/man/man1")
+        fileType = org.redline_rpm.payload.Directive.DOC
+    })
+//    requires https ://github.com/remkop/picocli/issues/1346
 //    from("${buildDir}/shell/completions") {
 //        into "/usr/share/bash-completion/completions"
 //    }
-    }
-
-    val buildDebPackage = tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildDebPackage") {
-        dependsOn(
-            tasks.named("nativeCompile"),
-            tasks.named("generateManpage"),
-            tasks.named("generateShellCompletions")
-        )
-        shouldRunAfter(tasks.named("integrationTest"))
-        maintainer = "Loic Rouchon"
-        setArch("amd64")
-        license = "ASL 2.0"
-    }
-
-    val buildRpmPackage = tasks.register<com.netflix.gradle.plugins.rpm.Rpm>("buildRpmPackage") {
-        dependsOn(
-            tasks.named("nativeCompile"),
-            tasks.named("generateManpage"),
-            tasks.named("generateShellCompletions")
-        )
-        shouldRunAfter(tasks.named("integrationTest"))
-        packager = "Loïc Rouchon"
-        setArch("x86_64")
-        addParentDirs = false
-    }
-    tasks.assemble.get().dependsOn(buildDebPackage, buildRpmPackage)
 }
+
+val buildDebPackage = tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildDebPackage") {
+    dependsOn(
+        tasks.named("installDist"),
+        tasks.named("generateManpage"),
+        tasks.named("generateShellCompletions")
+    )
+    shouldRunAfter(tasks.named("integrationTest"))
+    maintainer = "Loic Rouchon"
+    setArch("amd64")
+    license = "ASL 2.0"
+    requires("openjdk-17-jre-headless", "").or("java17-runtime-headless", null)
+}
+
+val buildRpmPackage = tasks.register<com.netflix.gradle.plugins.rpm.Rpm>("buildRpmPackage") {
+    dependsOn(
+        tasks.named("installDist"),
+        tasks.named("generateManpage"),
+        tasks.named("generateShellCompletions")
+    )
+    shouldRunAfter(tasks.named("integrationTest"))
+    packager = "Loïc Rouchon"
+    setArch("x86_64")
+    requires("java-latest-openjdk-headless", "")
+    addParentDirs = false
+}
+tasks.assemble.get().dependsOn(buildDebPackage, buildRpmPackage)
