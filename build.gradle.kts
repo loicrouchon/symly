@@ -194,7 +194,6 @@ val buildDebPackage = tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildD
     )
     shouldRunAfter(tasks.named("integrationTest"))
     maintainer = "Loic Rouchon"
-    setArch("amd64")
     license = "ASL 2.0"
     requires("openjdk-17-jre-headless", "").or("java17-runtime-headless", null)
 }
@@ -207,7 +206,6 @@ val buildRpmPackage = tasks.register<com.netflix.gradle.plugins.rpm.Rpm>("buildR
     )
     shouldRunAfter(tasks.named("integrationTest"))
     packager = "Loïc Rouchon"
-    setArch("x86_64")
     requires("java-latest-openjdk-headless", "")
     addParentDirs = false
 }

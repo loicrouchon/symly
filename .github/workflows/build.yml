@@ -41,14 +41,14 @@ jobs:
           echo "Application version is ${{ steps.version.outputs.version }} / tag ${{ steps.version.outputs.tag }}"
           echo "Gradle args are: ${{ steps.gradle.outputs.args }}"
 
-  build-test:
-    name: Build & Test
+  build:
+    name: Build
     needs: [ env ]
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
@@ -59,8 +59,9 @@ jobs:
 
       - name: Build application
         run: |
-          ./gradlew ${{ needs.env.outputs.gradle-args }} check distZip
+          ./gradlew ${{ needs.env.outputs.gradle-args }} build distZip -Dorg.gradle.warning.mode=all
           find build
+          cd build/distributions && find . -type f -exec sha256sum {} \; > sha256sum.txt
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -80,97 +81,46 @@ jobs:
       - name: Upload distribution
         uses: actions/upload-artifact@v2
         with:
-          name: symly_${{ needs.env.outputs.version }}_jvm
+          name: sha256sum.txt
+          path: build/distributions/sha256sum.txt
+
+      - name: Upload distribution
+        uses: actions/upload-artifact@v2
+        with:
+          name: symly_${{ needs.env.outputs.version }}
           path: build/distributions/symly-${{ needs.env.outputs.version }}.zip
-
-  package-macos:
-    name: Package macOS
-    needs: [ env ]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - arch: macos-x86_64
-            os: macOS-11
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - id: cached-graalvm
-        name: Restore GraalVM tooling cache
-        uses: actions/cache@v2
-        with:
-          path: tools
-          key: ${{ matrix.arch }}-${{ hashFiles('Makefile') }}
-
-      - name: Install GraalVM
-        run: make install-requirements
-
-      - name: Build application
-        run: JAVA_HOME=tools/graalvm ./gradlew ${{ needs.env.outputs.gradle-args }} build -Dorg.gradle.warning.mode=all
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: symly_${{ needs.env.outputs.version }}_${{ matrix.arch }}
-          path: build/native/nativeCompile/symly
-
-  package-linux:
-    name: Package Linux
-    needs: [ env ]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - arch: linux-amd64
-            os: ubuntu-20.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - id: cached-graalvm
-        name: Restore GraalVM tooling cache
-        uses: actions/cache@v2
-        with:
-          path: tools
-          key: ${{ matrix.arch }}-${{ hashFiles('Makefile') }}
-
-      - name: Install GraalVM
-        run: make install-requirements
-
-      - name: Build application
-        run: JAVA_HOME=tools/graalvm ./gradlew ${{ needs.env.outputs.gradle-args }} build -Dorg.gradle.warning.mode=all
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: symly_${{ needs.env.outputs.version }}_${{ matrix.arch }}
-          path: build/native/nativeCompile/symly
 
       - id: create-pkg
         name: Build deb/rpm packages application
         run: |
-            find build/native/nativeCompile/symly
-            ls -l /home/runner/work/symly/symly/build/native/nativeCompile
-            DEB_PATH=$(find build/distributions/ -name "*.deb")
-            DEB_FILENAME=$(basename $DEB_PATH)
-            RPM_PATH=$(find build/distributions/ -name "*.rpm")
-            RPM_FILENAME=$(basename $RPM_PATH)
-            echo ::set-output name=deb-path::$DEB_PATH
-            echo ::set-output name=deb-filename::$DEB_FILENAME
-            echo ::set-output name=rpm-path::$RPM_PATH
-            echo ::set-output name=rpm-filename::$RPM_FILENAME
+          DEB_PATH=$(find build/distributions/ -name "*.deb")
+          DEB_FILENAME=$(basename $DEB_PATH)
+          RPM_PATH=$(find build/distributions/ -name "*.rpm")
+          RPM_FILENAME=$(basename $RPM_PATH)
+          echo ::set-output name=deb-path::$DEB_PATH
+          echo ::set-output name=deb-filename::$DEB_FILENAME
+          echo ::set-output name=rpm-path::$RPM_PATH
+          echo ::set-output name=rpm-filename::$RPM_FILENAME
 
       - name: Debian package inspection
         run: |
-            dpkg -I ${{ steps.create-pkg.outputs.deb-path }}
-            dpkg -c ${{ steps.create-pkg.outputs.deb-path }}
+          dpkg -I ${{ steps.create-pkg.outputs.deb-path }}
+          dpkg -c ${{ steps.create-pkg.outputs.deb-path }}
 
       - name: RPM package inspection
         run: rpm -qlpi ${{ steps.create-pkg.outputs.rpm-path }}
 
       - name: Debian package installation verification
-        run: sudo dpkg -i ${{ steps.create-pkg.outputs.deb-path }}
+        run: |
+          sudo apt install -y dpkg-dev
+          sudo sh -c 'echo "deb [trusted=yes] file:/opt/local/debs ./" >> /etc/apt/sources.list'
+          sudo mkdir -p /opt/local/debs
+          sudo cp  ${{ steps.create-pkg.outputs.deb-path }} /opt/local/debs
+          cd /opt/local/debs
+          sudo sh -c 'dpkg-scanpackages . /dev/null > Release'
+          sudo sh -c 'dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
+          sudo apt update
+          sudo apt install -y symly
 
       - name: Debian package post-installation verification
         run: symly --version
@@ -192,28 +142,12 @@ jobs:
     # so that we only create the release if all packaging jobs succeeded
     name: Release
     if: startsWith(github.ref, 'refs/heads/release/')
-    needs: [ env, build-test, package-macos, package-linux ]
+    needs: [ env, build ]
 
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          path: build/artifacts/
-
-      - name: Prepare artifacts
-        run: |
-          rm -rf test-reports
-          find . -type f -exec sha256sum {} \; > sha256sum.txt
-          zip symly_${{ needs.env.outputs.version }}_linux-amd64.zip symly_${{ needs.env.outputs.version }}_linux-amd64/symly
-          zip symly_${{ needs.env.outputs.version }}_macos-x86_64.zip symly_${{ needs.env.outputs.version }}_macos-x86_64/symly
-          rm symly_${{ needs.env.outputs.version }}_linux-amd64/symly
-          rm symly_${{ needs.env.outputs.version }}_macos-x86_64/symly
-          find .
-        working-directory: build/artifacts/
 
       - id: create-release
         name: Create Release ${{ needs.env.outputs.version }}
@@ -224,6 +158,11 @@ jobs:
           tag_name: ${{ needs.env.outputs.tag }}
           release_name: Release ${{ needs.env.outputs.version }}
 
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: build/artifacts/
+
       - name: Upload artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -231,7 +170,7 @@ jobs:
           find .
           hub release edit $(find . -type f -printf "-a %p ") -m "" "${{ needs.env.outputs.tag }}"
         working-directory: build/artifacts/
-  
+
   publish:
     name: Publish
     if: startsWith(github.ref, 'refs/heads/release/')
