@@ -48,7 +48,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
+
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
@@ -93,34 +93,34 @@ jobs:
       - id: create-pkg
         name: Build deb/rpm packages application
         run: |
-            DEB_PATH=$(find build/distributions/ -name "*.deb")
-            DEB_FILENAME=$(basename $DEB_PATH)
-            RPM_PATH=$(find build/distributions/ -name "*.rpm")
-            RPM_FILENAME=$(basename $RPM_PATH)
-            echo ::set-output name=deb-path::$DEB_PATH
-            echo ::set-output name=deb-filename::$DEB_FILENAME
-            echo ::set-output name=rpm-path::$RPM_PATH
-            echo ::set-output name=rpm-filename::$RPM_FILENAME
+          DEB_PATH=$(find build/distributions/ -name "*.deb")
+          DEB_FILENAME=$(basename $DEB_PATH)
+          RPM_PATH=$(find build/distributions/ -name "*.rpm")
+          RPM_FILENAME=$(basename $RPM_PATH)
+          echo ::set-output name=deb-path::$DEB_PATH
+          echo ::set-output name=deb-filename::$DEB_FILENAME
+          echo ::set-output name=rpm-path::$RPM_PATH
+          echo ::set-output name=rpm-filename::$RPM_FILENAME
 
       - name: Debian package inspection
         run: |
-            dpkg -I ${{ steps.create-pkg.outputs.deb-path }}
-            dpkg -c ${{ steps.create-pkg.outputs.deb-path }}
+          dpkg -I ${{ steps.create-pkg.outputs.deb-path }}
+          dpkg -c ${{ steps.create-pkg.outputs.deb-path }}
 
       - name: RPM package inspection
         run: rpm -qlpi ${{ steps.create-pkg.outputs.rpm-path }}
 
       - name: Debian package installation verification
         run: |
-            sudo apt install -y dpkg-dev
-            sudo sh -c 'echo "deb [trusted=yes] file:/opt/local/debs ./" >> /etc/apt/sources.list'
-            sudo mkdir -p /opt/local/debs
-            sudo cp  ${{ steps.create-pkg.outputs.deb-path }} /opt/local/debs
-            cd /opt/local/debs
-            sudo sh -c 'dpkg-scanpackages . /dev/null > Release'
-            sudo sh -c 'dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
-            sudo apt update
-            sudo apt install -y symly
+          sudo apt install -y dpkg-dev
+          sudo sh -c 'echo "deb [trusted=yes] file:/opt/local/debs ./" >> /etc/apt/sources.list'
+          sudo mkdir -p /opt/local/debs
+          sudo cp  ${{ steps.create-pkg.outputs.deb-path }} /opt/local/debs
+          cd /opt/local/debs
+          sudo sh -c 'dpkg-scanpackages . /dev/null > Release'
+          sudo sh -c 'dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
+          sudo apt update
+          sudo apt install -y symly
 
       - name: Debian package post-installation verification
         run: symly --version
@@ -158,14 +158,20 @@ jobs:
           tag_name: ${{ needs.env.outputs.tag }}
           release_name: Release ${{ needs.env.outputs.version }}
 
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: build/artifacts/
+
       - name: Upload artifacts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          rm -rf test-reports
           find .
           hub release edit $(find . -type f -printf "-a %p ") -m "" "${{ needs.env.outputs.tag }}"
         working-directory: build/artifacts/
-  
+
   publish:
     name: Publish
     if: startsWith(github.ref, 'refs/heads/release/')
