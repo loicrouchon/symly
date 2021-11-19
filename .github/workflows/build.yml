@@ -59,7 +59,7 @@ jobs:
 
       - name: Build application
         run: |
-          ./gradlew ${{ needs.env.outputs.gradle-args }} build distZip -Dorg.gradle.warning.mode=all
+          ./gradlew ${{ needs.env.outputs.gradle-args }} build
           find build
           cd build/distributions && find . -type f -exec sha256sum {} \; > sha256sum.txt
 

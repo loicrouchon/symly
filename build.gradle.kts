@@ -97,42 +97,49 @@ tasks.jacocoTestReport {
 }
 
 tasks.register<JavaExec>("generateManpageAsciiDoc") {
-    dependsOn(tasks.installDist)
-    inputs.dir("${buildDir}/install/${project.name}/")
-    outputs.dir("${buildDir}/docs/manpage/adoc")
-    classpath("${buildDir}/install/${project.name}/lib/*", configurations.annotationProcessor)
+    dependsOn(tasks.compileJava)
+    inputs.dir("${buildDir}/resources/main")
+    inputs.dir("${buildDir}/classes/java/main")
+    outputs.dir("${buildDir}/docs/manpage/src/adoc")
+    classpath(
+        configurations.annotationProcessor,
+        sourceSets.main.get().runtimeClasspath
+    )
     mainClass.set("picocli.codegen.docgen.manpage.ManPageGenerator")
     args(
         "org.${project.name}.cli.MainCommand",
         "--factory=org.${project.name}.cli.BeanFactory",
-        "--outdir=${buildDir}/docs/manpage/adoc"
+        "--outdir=${buildDir}/docs/manpage/src/adoc"
     )
 }
 
 tasks.asciidoctor {
     dependsOn(tasks.named("generateManpageAsciiDoc"))
-    inputs.dir("${buildDir}/docs/manpage/adoc")
-    outputs.dirs(
-        "${buildDir}/docs/manpage/html5",
-        "${buildDir}/docs/manpage/manpage"
-    )
-    sourceDir(file("${buildDir}/docs/manpage/adoc"))
-    setOutputDir(file("${buildDir}/docs/manpage/"))
+    inputs.dir("${buildDir}/docs/manpage/src/adoc")
+    outputs.dir("${buildDir}/docs/manpage/compiled")
+    sourceDir(file("${buildDir}/docs/manpage/src/adoc"))
+    setOutputDir(file("${buildDir}/docs/manpage/compiled"))
     logDocuments = true
     outputOptions {
         backends("manpage", "html5")
     }
 }
 
+val manpage = tasks.register<Copy>("manpage") {
+    dependsOn(tasks.asciidoctor)
+    from("${buildDir}/docs/manpage/compiled")
+    into("${buildDir}/docs/manpage/dist")
+}
+
 tasks.register<Exec>("generateManpage") {
     dependsOn(tasks.asciidoctor)
-    inputs.dir("${buildDir}/docs/manpage/manpage")
+    inputs.dir("${buildDir}/docs/manpage/compiled/manpage")
     outputs.dir("${buildDir}/docs/manpage/gz")
     workingDir("${buildDir}/docs")
     commandLine(
         "/bin/sh",
         "-c",
-        "rm -rf manpage/gz && cp -R manpage/manpage manpage/gz && gzip -9 manpage/gz/*"
+        "rm -rf manpage/gz && cp -R manpage/compiled/manpage manpage/gz && gzip -9 manpage/gz/*"
     )
 }
 
@@ -149,6 +156,16 @@ tasks.register<JavaExec>("generateShellCompletions") {
     )
     doFirst {
         file("${buildDir}/shell/completions/${project.name}").delete()
+    }
+}
+
+distributions {
+    main {
+        contents {
+            from(manpage) {
+              into("doc")
+            }
+        }
     }
 }
 
