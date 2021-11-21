@@ -147,8 +147,12 @@ val generateShellCompletions = tasks.register<JavaExec>("generateShellCompletion
 distributions {
     main {
         contents {
-            from(manpage) {
-              into("doc")
+            from("LICENSE")
+            from(generateManpageManual) {
+                into("doc/manpage")
+            }
+            from(generateHtmlManual) {
+                into("doc/html")
             }
         }
     }
