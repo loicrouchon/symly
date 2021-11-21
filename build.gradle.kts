@@ -96,67 +96,52 @@ tasks.jacocoTestReport {
     }
 }
 
-tasks.register<JavaExec>("generateManpageAsciiDoc") {
-    dependsOn(tasks.compileJava)
-    inputs.dir("${buildDir}/resources/main")
-    inputs.dir("${buildDir}/classes/java/main")
-    outputs.dir("${buildDir}/docs/manpage/src/adoc")
-    classpath(
-        configurations.annotationProcessor,
-        sourceSets.main.get().runtimeClasspath
-    )
+val generateManpageAdoc = tasks.register<JavaExec>("generateManpageAdoc") {
+    classpath(sourceSets.main.get().runtimeClasspath, configurations.annotationProcessor)
     mainClass.set("picocli.codegen.docgen.manpage.ManPageGenerator")
     args(
         "org.${project.name}.cli.MainCommand",
         "--factory=org.${project.name}.cli.BeanFactory",
-        "--outdir=${buildDir}/docs/manpage/src/adoc"
+        "--outdir=${buildDir}/docs/manpage/adoc"
     )
+    outputs.dir("${buildDir}/docs/manpage/adoc")
 }
 
-tasks.asciidoctor {
-    dependsOn(tasks.named("generateManpageAsciiDoc"))
-    inputs.dir("${buildDir}/docs/manpage/src/adoc")
-    outputs.dir("${buildDir}/docs/manpage/compiled")
-    sourceDir(file("${buildDir}/docs/manpage/src/adoc"))
-    setOutputDir(file("${buildDir}/docs/manpage/compiled"))
-    logDocuments = true
+val generateManpageManual = tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generateManpageManual") {
+    inputs.files(generateManpageAdoc)
+    sourceDir(file("${buildDir}/docs/manpage/adoc"))
+    setOutputDir(file("${buildDir}/docs/manpage/manpage"))
     outputOptions {
-        backends("manpage", "html5")
+        backends("manpage")
     }
 }
 
-val manpage = tasks.register<Copy>("manpage") {
-    dependsOn(tasks.asciidoctor)
-    from("${buildDir}/docs/manpage/compiled")
-    into("${buildDir}/docs/manpage/dist")
+val generateHtmlManual = tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generateHtmlManual") {
+    inputs.files(generateManpageAdoc)
+    sourceDir(file("${buildDir}/docs/manpage/adoc"))
+    setOutputDir(file("${buildDir}/docs/manpage/html"))
+    outputOptions {
+        backends("html5")
+    }
 }
 
-tasks.register<Exec>("generateManpage") {
-    dependsOn(tasks.asciidoctor)
-    inputs.dir("${buildDir}/docs/manpage/compiled/manpage")
+val compressManpageManual = tasks.register<Exec>("compressManpageManual") {
+    inputs.files(generateManpageManual)
     outputs.dir("${buildDir}/docs/manpage/gz")
-    workingDir("${buildDir}/docs")
-    commandLine(
-        "/bin/sh",
-        "-c",
-        "rm -rf manpage/gz && cp -R manpage/compiled/manpage manpage/gz && gzip -9 manpage/gz/*"
-    )
+    workingDir("${buildDir}/docs/manpage")
+    commandLine("/bin/sh", "-c", "rm -rf gz && cp -R manpage gz && gzip -9 gz/*")
 }
 
-tasks.register<JavaExec>("generateShellCompletions") {
-    dependsOn(tasks.installDist)
-    inputs.dir("${buildDir}/install/${project.name}/")
-    outputs.file("${buildDir}/shell/completions/${project.name}")
-    classpath("${buildDir}/install/${project.name}/lib/*")
+val generateShellCompletions = tasks.register<JavaExec>("generateShellCompletions") {
+    classpath(sourceSets.main.get().runtimeClasspath)
     mainClass.set("picocli.AutoComplete")
     args(
         "org.${project.name}.cli.MainCommand",
         "--factory=org.${project.name}.cli.BeanFactory",
-        "--completionScript=${buildDir}/shell/completions/${project.name}"
+        "--completionScript=${buildDir}/shell/completions/${project.name}",
+        "--force"
     )
-    doFirst {
-        file("${buildDir}/shell/completions/${project.name}").delete()
-    }
+    outputs.file("${buildDir}/shell/completions/${project.name}")
 }
 
 distributions {
@@ -193,22 +178,18 @@ ospackage {
     from("${buildDir}/install/${project.name}/lib", closureOf<CopySpec> {
         into("usr/share/${project.name}/lib")
     })
-    from("${buildDir}/docs/manpage/gz", closureOf<CopySpec> {
+    from(compressManpageManual, closureOf<CopySpec> {
         into("usr/man/man1")
         fileType = org.redline_rpm.payload.Directive.DOC
     })
 //    requires https ://github.com/remkop/picocli/issues/1346
-//    from("${buildDir}/shell/completions") {
+//    from(generateShellCompletions, closureOf<CopySpec> {
 //        into "/usr/share/bash-completion/completions"
-//    }
+//    })
 }
 
 val buildDebPackage = tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildDebPackage") {
-    dependsOn(
-        tasks.named("installDist"),
-        tasks.named("generateManpage"),
-        tasks.named("generateShellCompletions")
-    )
+    dependsOn(tasks.installDist)
     shouldRunAfter(tasks.named("integrationTest"))
     maintainer = "Loic Rouchon"
     license = "ASL 2.0"
@@ -216,11 +197,7 @@ val buildDebPackage = tasks.register<com.netflix.gradle.plugins.deb.Deb>("buildD
 }
 
 val buildRpmPackage = tasks.register<com.netflix.gradle.plugins.rpm.Rpm>("buildRpmPackage") {
-    dependsOn(
-        tasks.named("installDist"),
-        tasks.named("generateManpage"),
-        tasks.named("generateShellCompletions")
-    )
+    dependsOn(tasks.installDist)
     shouldRunAfter(tasks.named("integrationTest"))
     packager = "Loïc Rouchon"
     requires("java-latest-openjdk-headless", "")
