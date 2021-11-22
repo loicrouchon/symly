@@ -96,7 +96,7 @@ tasks.jacocoTestReport {
     }
 }
 
-val generateManpageAdoc = tasks.register<JavaExec>("generateManpageAdoc") {
+val generateManualStructure = tasks.register<JavaExec>("generateManualStructure") {
     classpath(sourceSets.main.get().runtimeClasspath, configurations.annotationProcessor)
     mainClass.set("picocli.codegen.docgen.manpage.ManPageGenerator")
     args(
@@ -107,23 +107,18 @@ val generateManpageAdoc = tasks.register<JavaExec>("generateManpageAdoc") {
     outputs.dir("${buildDir}/docs/manpage/adoc")
 }
 
-val generateManpageManual = tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generateManpageManual") {
-    inputs.files(generateManpageAdoc)
-    sourceDir(file("${buildDir}/docs/manpage/adoc"))
-    setOutputDir(file("${buildDir}/docs/manpage/manpage"))
-    outputOptions {
-        backends("manpage")
+fun generateManual(output: String, backend: String): TaskProvider<org.asciidoctor.gradle.jvm.AsciidoctorTask> {
+    return tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generate${output.capitalize()}Manual") {
+        inputs.files(generateManualStructure)
+        sourceDir(file("${buildDir}/docs/manpage/adoc"))
+        setOutputDir(file("${buildDir}/docs/manpage/${output}"))
+        outputOptions {
+            backends(backend)
+        }
     }
 }
-
-val generateHtmlManual = tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generateHtmlManual") {
-    inputs.files(generateManpageAdoc)
-    sourceDir(file("${buildDir}/docs/manpage/adoc"))
-    setOutputDir(file("${buildDir}/docs/manpage/html"))
-    outputOptions {
-        backends("html5")
-    }
-}
+val generateManpageManual = generateManual("manpage", "manpage")
+val generateHtmlManual = generateManual("html", "html5")
 
 val compressManpageManual = tasks.register<Exec>("compressManpageManual") {
     inputs.files(generateManpageManual)
