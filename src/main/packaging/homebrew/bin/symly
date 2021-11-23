@@ -1,3 +1,3 @@
 #!/bin/sh
 export JAVA_HOME="/usr/local/opt/openjdk"
-/usr/local/Cellar/symly/bin/symly "$@"
+/usr/local/Cellar/symly/bin/symly-jvm "$@"

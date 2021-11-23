@@ -153,6 +153,33 @@ distributions {
     }
 }
 
+val prepareHomebrewBottle = tasks.register<Sync>("prepareHomebrewBottle") {
+    inputs.files(tasks.installDist, compressManpageManual)
+    val standardDistPath = tasks.installDist.get().outputs.files.singleFile.toPath();
+    from("LICENSE")
+    from("src/main/packaging/homebrew")
+    from(standardDistPath.resolve("bin/symly")) {
+        into("bin")
+        rename("symly", "symly-jvm")
+    }
+    from(standardDistPath.resolve("lib")) {
+        into("lib")
+    }
+    from(compressManpageManual) {
+        into("share/man/man1")
+    }
+    from(generateHtmlManual) {
+        into("share/doc/${project.name}")
+    }
+    into("${buildDir}/distributions-preparation/homebrew")
+}
+
+val buildHomebrewBottle = tasks.register<Zip>("buildHomebrewBottle") {
+    from(prepareHomebrewBottle)
+    destinationDirectory.set(file("${buildDir}/distributions/"))
+    archiveFileName.set("${project.name}-homebrew-bottle.zip")
+}
+
 ospackage {
     packageName = "symly"
     packageDescription = "Manages symbolic links."
