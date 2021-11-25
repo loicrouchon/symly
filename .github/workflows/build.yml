@@ -55,12 +55,14 @@ jobs:
           java-version: '17'
 
       - name: Environment check
-        run: ./gradlew -v
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: -v
 
       - name: Build application
-        run: |
-          ./gradlew ${{ needs.env.outputs.gradle-args }} build
-          find build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: ${{ needs.env.outputs.gradle-args }} build
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -129,7 +131,9 @@ jobs:
           java-version: '17'
 
       - name: Build application
-        run: ./gradlew ${{ needs.env.outputs.gradle-args }} build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: ${{ needs.env.outputs.gradle-args }} build
 
       - name: Run JReleaser
         uses: jreleaser/release-action@v1
