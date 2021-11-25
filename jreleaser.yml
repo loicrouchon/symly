@@ -1,0 +1,52 @@
+project:
+  name: symly
+  description: Symbolic link management tool
+  website: https://github.com/loicrouchon/symly
+  authors:
+    - Loïc Rouchon
+  license: Apache-2
+  java:
+    groupId: org.symly
+    artifactId: symly
+    version: 17
+    mainClass: org.symly.cli.Main
+  extraProperties:
+    inceptionYear: 2021
+
+release:
+  github:
+    owner: loicrouchon
+
+distributions:
+  jvm:
+    artifacts:
+      - path: build/distributions/{{projectName}}-{{projectVersion}}.zip
+  deb:
+    artifacts:
+      - path: build/distributions/{{projectName}}_{{projectVersion}}-1_all.deb
+  rpm:
+    artifacts:
+      - path: build/distributions/{{projectName}}-{{projectVersion}}-1.noarch.rpm
+  homebrew:
+    type: JAVA_BINARY
+    executable: symly
+    artifacts:
+      - path: build/distributions/{{projectName}}-{{projectVersion}}-homebrew-bottle.zip
+    brew:
+      active: ALWAYS
+      formulaName: "{{projectName}}"
+
+packagers:
+  brew:
+    commitAuthor:
+      name: jreleaserbot
+      email: loicrouchon+jreleaser@gmail.com
+    tap:
+      owner: loicrouchon
+      name: homebrew-symly
+    multiPlatform: true
+    extraProperties:
+      skipJava: true # Avoids automatic dependency on ffixed JDK
+    dependencies:
+      openjdk: # latest JDK
+      coreutils:
