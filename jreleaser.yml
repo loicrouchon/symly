@@ -1,0 +1,72 @@
+project:
+  name: symly
+  description: Symly
+  website: https://github.com/loicrouchon/symly
+  authors:
+    - Loïc Rouchon
+  license: Apache-2
+  java:
+    groupId: org.symly
+    artifactId: symly
+    version: 17
+    mainClass: org.symly.cli.Main
+  extraProperties:
+    inceptionYear: 2021
+
+release:
+  github:
+    owner: loicrouchon
+
+#assemble:
+#  archive:
+#    homebrew:
+#      active: ALWAYS
+#      archiveName: "{{projectName}}-{{projectVersion}}"
+#      distributionType: JAVA_BINARY
+#      formats:
+#        - ZIP
+#      exported: true
+#      fileSets:
+#        - input: src/main/packaging/homebrew/symly
+#          output: binsymly
+#        - input: build/install/symly/bin
+#          output: bin2
+#          excludes: ["bin/symly.bat"]
+#        - input: build/install/symly/lib
+#          output: lib
+##        - input: docs/manpage/gz
+##          output: share/man/man1
+
+distributions:
+  jvm:
+    artifacts:
+      - path: build/distributions/{{projectName}}-{{projectVersion}}.zip
+  deb:
+    artifacts:
+      - path: build/distributions/{{projectName}}_{{projectVersion}}-1_all.deb
+  rpm:
+    artifacts:
+      - path: build/distributions/{{projectName}}-{{projectVersion}}-1.noarch.rpm
+  homebrew:
+    type: JAVA_BINARY
+    executable: symly
+    artifacts:
+      - path: build/distributions/{{projectName}}-{{projectVersion}}-homebrew-bottle.zip
+    brew:
+      active: NEVER
+      formulaName: "{{projectName}}"
+
+packagers:
+  brew:
+#    templateDirectory: src/jreleaser/distributions/homebrew/brew
+    commitAuthor:
+      name: jreleaserbot
+      email: loicrouchon+jreleaser@gmail.com
+    tap:
+      owner: loicrouchon
+      name: homebrew-symly
+    multiPlatform: true
+    extraProperties:
+      skipJava: true # Avoids automatic dependency on ffixed JDK
+    dependencies:
+      openjdk: # latest JDK
