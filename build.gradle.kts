@@ -117,6 +117,7 @@ fun generateManual(output: String, backend: String): TaskProvider<org.asciidocto
         }
     }
 }
+
 val generateManpageManual = generateManual("manpage", "manpage")
 val generateHtmlManual = generateManual("html", "html5")
 
@@ -157,7 +158,7 @@ val prepareHomebrewBottle = tasks.register<Sync>("prepareHomebrewBottle") {
     inputs.files(tasks.installDist, compressManpageManual)
     val standardDistPath = tasks.installDist.get().outputs.files.singleFile.toPath();
     from("LICENSE")
-    from("src/main/packaging/homebrew")
+    from("src/packaging/homebrew")
     from(standardDistPath.resolve("bin/symly")) {
         into("bin")
         rename("symly", "symly-jvm")
@@ -177,8 +178,9 @@ val prepareHomebrewBottle = tasks.register<Sync>("prepareHomebrewBottle") {
 val buildHomebrewBottle = tasks.register<Zip>("buildHomebrewBottle") {
     from(prepareHomebrewBottle)
     destinationDirectory.set(file("${buildDir}/distributions/"))
-    archiveFileName.set("${project.name}-homebrew-bottle.zip")
+    archiveFileName.set("${project.name}-${project.version}-homebrew-bottle.zip")
 }
+tasks.assemble.get().dependsOn(buildHomebrewBottle)
 
 ospackage {
     packageName = "symly"
@@ -195,9 +197,7 @@ ospackage {
         rename("LICENSE", "copyright")
         fileType = org.redline_rpm.payload.Directive.LICENSE
     })
-    from("src/main/packaging/linux/${project.name}", closureOf<CopySpec> {
-        into("usr/bin")
-    })
+    from("src/packaging/linux")
     from("${buildDir}/install/${project.name}/bin/symly", closureOf<CopySpec> {
         into("usr/share/${project.name}/bin")
     })

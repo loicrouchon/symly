@@ -1,12 +1,12 @@
 #Gradle
 .gradle/
 build/
+out/
 
 # Eclipse
 .project
 .classpath
-.settings/
-./bin/
+.settings
 
 # IntelliJ
 .idea
@@ -31,7 +31,3 @@ nb-configuration.xml
 # patch
 *.orig
 *.rej
-
-tools
-debian/usr
-usr
