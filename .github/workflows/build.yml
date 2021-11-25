@@ -34,15 +34,15 @@ jobs:
 
       - id: gradle
         name: Compute gradlew args
-        run: echo ::set-output name=args::"-Pversion=${{ steps.version.outputs.version }} --info --console=plain --no-daemon"
+        run: echo ::set-output name=args::"-Pversion=${{ steps.version.outputs.version }} --info --console=plain"
 
       - name: Echo env details
         run: |
           echo "Application version is ${{ steps.version.outputs.version }} / tag ${{ steps.version.outputs.tag }}"
           echo "Gradle args are: ${{ steps.gradle.outputs.args }}"
 
-  build:
-    name: Build
+  test:
+    name: Test
     needs: [ env ]
     runs-on: ubuntu-20.04
     steps:
@@ -61,7 +61,6 @@ jobs:
         run: |
           ./gradlew ${{ needs.env.outputs.gradle-args }} build
           find build
-          cd build/distributions && find . -type f -exec sha256sum {} \; > sha256sum.txt
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
@@ -77,18 +76,6 @@ jobs:
           path: |
             build/reports
             build/test-results
-
-      - name: Upload distribution
-        uses: actions/upload-artifact@v2
-        with:
-          name: sha256sum.txt
-          path: build/distributions/sha256sum.txt
-
-      - name: Upload distribution
-        uses: actions/upload-artifact@v2
-        with:
-          name: symly_${{ needs.env.outputs.version }}
-          path: build/distributions/symly-${{ needs.env.outputs.version }}.zip
 
       - id: create-pkg
         name: Build deb/rpm packages application
@@ -125,66 +112,29 @@ jobs:
       - name: Debian package post-installation verification
         run: symly --version
 
-      - name: Upload .deb artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.create-pkg.outputs.deb-filename }}
-          path: ${{ steps.create-pkg.outputs.deb-path }}
-
-      - name: Upload .rpm artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.create-pkg.outputs.rpm-filename }}
-          path: ${{ steps.create-pkg.outputs.rpm-path }}
-
   release:
-    # This is done as a separate task from the package step
-    # so that we only create the release if all packaging jobs succeeded
     name: Release
     if: startsWith(github.ref, 'refs/heads/release/')
-    needs: [ env, build ]
+    needs: [ env, test ]
 
     runs-on: ubuntu-20.04
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - id: create-release
-        name: Create Release ${{ needs.env.outputs.version }}
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-java@v2
         with:
-          tag_name: ${{ needs.env.outputs.tag }}
-          release_name: Release ${{ needs.env.outputs.version }}
+          distribution: 'temurin'
+          java-version: '17'
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
+      - name: Build application
+        run: ./gradlew ${{ needs.env.outputs.gradle-args }} build
+
+      - name: Run JReleaser
+        uses: jreleaser/release-action@v1
         with:
-          path: build/artifacts/
-
-      - name: Upload artifacts
+          version: 0.8.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          find .
-          hub release edit $(find . -type f -printf "-a %p ") -m "" "${{ needs.env.outputs.tag }}"
-        working-directory: build/artifacts/
-
-  publish:
-    name: Publish
-    if: startsWith(github.ref, 'refs/heads/release/')
-    needs: [ env, release ]
-
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Trigger homebrew version bump pull-request
-        env:
-          GITHUB_TOKEN: ${{ secrets.HOMEBREW_SYMLY_TOKEN }}
-        run: |
-          git clone https://loic.rouchon:${GITHUB_TOKEN}@github.com/loicrouchon/homebrew-symly
-          cd homebrew-symly
-          git remote -v
-          git config user.email "loic.rouchon+symly-bot@gmail.com"
-          git config user.name "Symly brew bot"
-          ./bump.sh ${{ needs.env.outputs.version }}
+          JRELEASER_PROJECT_VERSION: ${{ needs.env.outputs.version }}
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.HOMEBREW_SYMLY_TOKEN }}
