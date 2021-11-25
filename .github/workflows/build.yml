@@ -45,6 +45,10 @@ jobs:
     name: Test
     needs: [ env ]
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        java-version: [ 17, 18-ea ]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -52,7 +56,7 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: ${{ matrix.java-version }}
 
       - name: Environment check
         run: ./gradlew -v
