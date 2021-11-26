@@ -18,15 +18,21 @@ release:
     owner: loicrouchon
 
 distributions:
+
   jvm:
     artifacts:
       - path: build/distributions/{{projectName}}-{{projectVersion}}.zip
+
   deb:
+    type: NATIVE_PACKAGE
     artifacts:
       - path: build/distributions/{{projectName}}_{{projectVersion}}-1_all.deb
+
   rpm:
+    type: NATIVE_PACKAGE
     artifacts:
       - path: build/distributions/{{projectName}}-{{projectVersion}}-1.noarch.rpm
+
   homebrew:
     type: JAVA_BINARY
     executable: symly
@@ -35,18 +41,15 @@ distributions:
     brew:
       active: ALWAYS
       formulaName: "{{projectName}}"
-
-packagers:
-  brew:
-    commitAuthor:
-      name: jreleaserbot
-      email: loicrouchon+jreleaser@gmail.com
-    tap:
-      owner: loicrouchon
-      name: homebrew-symly
-    multiPlatform: true
-    extraProperties:
-      skipJava: true # Avoids automatic dependency on ffixed JDK
-    dependencies:
-      coreutils:
-      openjdk: # latest JDK
+      commitAuthor:
+        name: jreleaserbot
+        email: loicrouchon+jreleaser@gmail.com
+      tap:
+        owner: loicrouchon
+        name: homebrew-symly
+      multiPlatform: true
+      extraProperties:
+        skipJava: true # Avoids automatic dependency on ffixed JDK
+      dependencies:
+        coreutils:
+        openjdk: # latest JDK
