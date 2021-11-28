@@ -162,11 +162,10 @@ val prepareHomebrewBottle = tasks.register<Sync>("prepareHomebrewBottle") {
     from("LICENSE")
     from("src/packaging/homebrew")
     from(standardDistPath.resolve("bin/symly")) {
-        into("bin")
-        rename("symly", "symly-jvm")
+        into("libexec/bin")
     }
     from(standardDistPath.resolve("lib")) {
-        into("lib")
+        into("libexec/lib")
     }
     from(compressManpageManual) {
         into("share/man/man1")

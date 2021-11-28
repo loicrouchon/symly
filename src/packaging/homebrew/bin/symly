@@ -1,3 +1,3 @@
 #!/bin/sh
 export JAVA_HOME="/usr/local/opt/openjdk"
-"$(dirname "$(realpath "$0")")/symly-jvm" "$@"
+"$(dirname "$(realpath "$0")")/../libexec/bin/symly" "$@"
