@@ -4,7 +4,7 @@ project:
   website: https://github.com/loicrouchon/symly
   authors:
     - Loïc Rouchon
-  license: Apache-2
+  license: Apache-2.0
   java:
     groupId: org.symly
     artifactId: symly
