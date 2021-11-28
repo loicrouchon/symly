@@ -19,7 +19,6 @@ class {{brewFormulaName}} < Formula
 
   def install
     prefix.install Dir["*"]
-    bin.install_symlink "#{bin}/{{distributionExecutable}}"
   end
 
   test do
