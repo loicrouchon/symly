@@ -25,8 +25,10 @@ java {
 }
 
 tasks.processResources {
+    val props = mapOf("version" to project.version)
+    inputs.properties(props)
     filesMatching("**/application.properties") {
-        expand(mapOf("version" to project.version))
+        expand(props)
     }
 }
 
