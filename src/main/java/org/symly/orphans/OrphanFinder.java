@@ -50,7 +50,7 @@ public class OrphanFinder {
         Set<Path> excludedDirs = directSubDirectories(dir, exclusions);
         OrphanLinkVisitor visitor = new OrphanLinkVisitor(fileSystemReader, targetsFilter, excludedDirs);
         try {
-            Files.walkFileTree(dir, EnumSet.noneOf(FileVisitOption.class), maxDepth, visitor);
+            Files.walkFileTree(dir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), maxDepth, visitor);
         } catch (IOException e) {
             throw new SymlyExecutionException(
                     String.format("Failed to find orphan links in %s", dir), e);
@@ -76,12 +76,11 @@ public class OrphanFinder {
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-            if (fsReader.isSymbolicLink(dir)) {
-                handleSymbolicLink(dir);
-                return FileVisitResult.SKIP_SUBTREE;
-            }
             if (excluded.contains(dir)) {
                 return FileVisitResult.SKIP_SUBTREE;
+            }
+            if (fsReader.isSymbolicLink(dir)) {
+                handleSymbolicLink(dir);
             }
             return FileVisitResult.CONTINUE;
         }

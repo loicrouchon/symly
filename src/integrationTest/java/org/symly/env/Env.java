@@ -15,12 +15,12 @@ import org.symly.files.RIOException;
 public class Env {
 
     private static final String USER_HOME = "user.home";
+    private static final long TIMEOUT = 5L;
 
     private final Path root;
     private Path home;
     private Path workingDirectory;
     private final Map<String, String> properties = new HashMap<>();
-    private final long timeout = 5L;
 
     public Env(Path root) throws IOException {
         this.root = root.toRealPath();
@@ -92,7 +92,7 @@ public class Env {
     }
 
     public Execution run(String... args) {
-        return new Command(root, workingDirectory, properties).run(args, timeout);
+        return new Command(root, workingDirectory, properties).run(args, TIMEOUT);
     }
 
     public void delete() {

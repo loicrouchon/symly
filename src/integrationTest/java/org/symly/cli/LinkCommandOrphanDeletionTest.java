@@ -180,4 +180,46 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                         .withRemovedPaths("home/user/sub/dir/level1/level2/file -> to/dir/sub/dir/level1/level2/file")
                 );
     }
+
+    @Test
+    void shouldDeleteOrphan_whenOrphanFile_parentDirectoryIsASymlink() {
+        //given
+        given(env)
+                .withDirectories("to-dir")
+                .withDirectories("outside")
+                .withFiles("to-dir/dir/existingfile")
+                .withSymbolicLink("home/user/dir", "outside")
+                .withSymbolicLink("outside/existingfile", "to-dir/dir/existingfile")
+                .withSymbolicLink("outside/nonexistingfile", "to-dir/dir/nonexistingfile");
+        //when/then
+        whenRunningCommand("link", "--to", "to-dir", "--max-depth", "1")
+                .thenItShould()
+                .succeed()
+                .withMessage(msg.linkActionUpToDate("home/user/dir/existingfile", "to-dir/dir/existingfile"))
+                .withMessage(msg.linkActionDelete("home/user/dir/nonexistingfile", "to-dir/dir/nonexistingfile"))
+                .withFileTreeDiff(Diff.empty()
+                        .withRemovedPaths("outside/nonexistingfile -> to-dir/dir/nonexistingfile")
+                );
+    }
+
+    @Test
+    void shouldDeleteOrphan_whenOrphanFile_oneParentDirectoryInHierarchyIsASymlink() {
+        //given
+        given(env)
+                .withDirectories("to-dir")
+                .withDirectories("outside")
+                .withFiles("to-dir/sub/dir/existingfile")
+                .withSymbolicLink("home/user/sub", "outside")
+                .withSymbolicLink("outside/dir/existingfile", "to-dir/sub/dir/existingfile")
+                .withSymbolicLink("outside/dir/nonexistingfile", "to-dir/sub/dir/nonexistingfile");
+        //when/then
+        whenRunningCommand("link", "--to", "to-dir", "--max-depth", "1")
+                .thenItShould()
+                .succeed()
+                .withMessage(msg.linkActionUpToDate("home/user/sub/dir/existingfile", "to-dir/sub/dir/existingfile"))
+                .withMessage(msg.linkActionDelete("home/user/sub/dir/nonexistingfile", "to-dir/sub/dir/nonexistingfile"))
+                .withFileTreeDiff(Diff.empty()
+                        .withRemovedPaths("outside/dir/nonexistingfile -> to-dir/sub/dir/nonexistingfile")
+                );
+    }
 }
