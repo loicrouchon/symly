@@ -13,13 +13,14 @@ public class VersionBumper {
 
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
-            System.out.println("Finds the highest existing version and increment the last digit by one.");
-            System.out.println("");
-            System.out.println("Usage:");
-            System.out.println("  echo $VERSIONS | java VersionComparator.java $BASE_VERSION");
-            System.out.println("Where:");
-            System.out.println("  - $VERSIONS is a list of existing versions, one per line.");
-            System.out.println("  - $BASE_VERSION is the current version we want to bump");
+            System.out.println("""
+                    Finds the highest existing version and increment the last digit by one.
+                                
+                    Usage:
+                      echo $VERSIONS | java VersionComparator.java $BASE_VERSION
+                    Where:
+                      - $VERSIONS is a list of existing versions, one per line.
+                      - $BASE_VERSION is the current version we want to bump""");
             System.exit(1);
         }
         String baseVersion = args[0];
