@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public final class PathAdapter {
 
-    static final String SYMLY_CWD_PROPERTY = "symly.cwd";
+    public static final String SYMLY_CWD_PROPERTY = "symly.cwd";
 
     private PathAdapter() {
     }

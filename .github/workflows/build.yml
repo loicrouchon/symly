@@ -69,6 +69,11 @@ jobs:
         with:
           arguments: ${{ needs.env.outputs.gradle-args }} build
 
+      - name: Re-run integration tests in opaque testing mode
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: ${{ needs.env.outputs.gradle-args }} integrationTest -PopaqueTesting=true
+
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()

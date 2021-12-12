@@ -9,28 +9,32 @@ import org.symly.files.FileSystemWriter;
 import org.symly.files.FileSystemWriterImpl;
 import picocli.CommandLine;
 
-class BeanFactory implements CommandLine.IFactory {
+public class BeanFactory implements CommandLine.IFactory {
 
-    private final Map<Class<?>, Supplier<?>> constructors = Map.ofEntries(
-            bean(Config.class, Config::new),
-            bean(CliConsole.class, () -> new CliConsole(new PrintWriter(System.out), new PrintWriter(System.err))),
-            bean(FileSystemReader.class, FileSystemReader::new),
-            bean(FileSystemWriter.class, FileSystemWriterImpl::new),
-            bean(VersionProvider.class, () -> new VersionProvider(create(Config.class))),
-            bean(MainCommand.class, () -> new MainCommand(create(Config.class), create(CliConsole.class))),
-            bean(ExceptionHandler.class, () -> new ExceptionHandler(create(Config.class), create(CliConsole.class))),
-            bean(
-                    LinkCommand.class,
-                    () -> new LinkCommand(create(CliConsole.class), create(FileSystemReader.class),
-                            create(FileSystemWriter.class))),
-            bean(
-                    StatusCommand.class,
-                    () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)))
-    );
+    private final Map<Class<?>, Supplier<?>> constructors = new HashMap<>();
 
     private final Map<Class<?>, Object> beans = new HashMap<>();
 
     private final CommandLine.IFactory parentFactory = CommandLine.defaultFactory();
+
+    public BeanFactory() {
+        registerBean(Config.class, Config::new);
+        registerBean(CliConsole.class, () -> new CliConsole(new PrintWriter(System.out), new PrintWriter(System.err)));
+        registerBean(FileSystemReader.class, FileSystemReader::new);
+        registerBean(FileSystemWriter.class, FileSystemWriterImpl::new);
+        registerBean(VersionProvider.class, () -> new VersionProvider(create(Config.class)));
+        registerBean(MainCommand.class, () -> new MainCommand(create(Config.class), create(CliConsole.class)));
+        registerBean(
+                ExceptionHandler.class,
+                () -> new ExceptionHandler(create(Config.class), create(CliConsole.class)));
+        registerBean(
+                LinkCommand.class,
+                () -> new LinkCommand(create(CliConsole.class), create(FileSystemReader.class),
+                        create(FileSystemWriter.class)));
+        registerBean(
+                StatusCommand.class,
+                () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)));
+    }
 
     @Override
     @SuppressWarnings("unchecked")
@@ -53,7 +57,7 @@ class BeanFactory implements CommandLine.IFactory {
         }
     }
 
-    private static <K> Map.Entry<Class<K>, Supplier<K>> bean(Class<K> cls, Supplier<K> constructor) {
-        return Map.entry(cls, constructor);
+    public <K> void registerBean(Class<K> cls, Supplier<K> constructor) {
+        constructors.put(cls, constructor);
     }
 }

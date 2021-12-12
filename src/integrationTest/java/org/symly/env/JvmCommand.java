@@ -25,6 +25,8 @@ import org.symly.files.FileTree;
 @RequiredArgsConstructor
 public class JvmCommand {
 
+    private static final long TIMEOUT = 5L;
+
     private static final String JAVA_BINARY = String.format("%s/bin/java", System.getProperty("java.home"));
     private static final List<String> JVM_OPTIONS = List.of(
             "-XX:TieredStopAtLevel=1",
@@ -41,7 +43,7 @@ public class JvmCommand {
     @NonNull
     private final Path home;
 
-    public Execution run(String[] args, long timeout) {
+    public Execution run(String[] args) {
         FileTree rootFileTreeSnapshot = FileTree.fromPath(rootDir);
         List<String> command = command(args);
         try {
@@ -49,7 +51,7 @@ public class JvmCommand {
                     .directory(workingDir.toFile())
                     .command(command)
                     .start();
-            boolean finished = process.waitFor(timeout, TimeUnit.SECONDS);
+            boolean finished = process.waitFor(TIMEOUT, TimeUnit.SECONDS);
             if (!finished) {
                 process.destroyForcibly();
                 fail(commandFailureMessage("Command did not finish in time", command));

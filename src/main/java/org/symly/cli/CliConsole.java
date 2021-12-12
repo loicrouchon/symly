@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+public
 class CliConsole {
 
     private final PrintWriter out;

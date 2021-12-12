@@ -9,12 +9,12 @@ import picocli.CommandLine;
 public class Main {
 
     public static void main(String... args) {
-        int exitCode = runCommand(args);
+        BeanFactory beanFactory = new BeanFactory();
+        int exitCode = runCommand(beanFactory, args);
         System.exit(exitCode);
     }
 
-    private static int runCommand(String... args) {
-        BeanFactory beanFactory = new BeanFactory();
+    public static int runCommand(BeanFactory beanFactory, String... args) {
         CliConsole console = beanFactory.create(CliConsole.class);
         CommandLine commandLine = initializeCommandLine(beanFactory, console);
         int exitCode = commandLine.execute(args);

@@ -56,15 +56,15 @@ testing {
                 compileOnly(libs.lombok)
                 // annotationProcessor(libs.lombok)
                 implementation(libs.assertj)
-                runtimeOnly(project) {
-                    because("The runtime classpath will be used to spawn a new Java process")
-                }
+                implementation(project)
+                implementation(libs.picocli.core)
             }
 
             targets {
                 all {
                     testTask.configure {
                         systemProperty("symly.runtime.classpath", sourceSets.main.get().runtimeClasspath.asPath)
+                        systemProperty("symly.testing.opaque-testing", properties["opaqueTesting"].toString())
                         shouldRunAfter(test)
                     }
                 }
@@ -161,7 +161,7 @@ distributions {
 
 val prepareHomebrewBottle = tasks.register<Sync>("prepareHomebrewBottle") {
     inputs.files(tasks.installDist, compressManpageManual)
-    val standardDistPath = tasks.installDist.get().outputs.files.singleFile.toPath();
+    val standardDistPath = tasks.installDist.get().outputs.files.singleFile.toPath()
     from("LICENSE")
     from("src/packaging/homebrew")
     from(standardDistPath.resolve("bin/symly")) {

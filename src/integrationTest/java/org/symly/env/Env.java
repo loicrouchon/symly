@@ -5,14 +5,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.stream.Stream;
 import org.symly.files.FileTestUtils;
 import org.symly.files.FileTree;
 import org.symly.files.RIOException;
 
 public class Env {
-
-    private static final long TIMEOUT = 5L;
 
     private final Path root;
     private Path home;
@@ -87,7 +86,11 @@ public class Env {
     }
 
     public Execution run(String... args) {
-        return new JvmCommand(root, workingDirectory, home).run(args, TIMEOUT);
+        if (Objects.equals(System.getProperty("symly.testing.opaque-testing"), "true")) {
+            return new JvmCommand(root, workingDirectory, home).run(args);
+        } else {
+            return new MainCommand(root, workingDirectory, home).run(args);
+        }
     }
 
     public void delete() {
