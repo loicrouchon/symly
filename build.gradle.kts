@@ -56,6 +56,9 @@ testing {
                 compileOnly(libs.lombok)
                 // annotationProcessor(libs.lombok)
                 implementation(libs.assertj)
+                runtimeOnly(project) {
+                    because("The runtime classpath will be used to spawn a new Java process")
+                }
             }
 
             targets {
