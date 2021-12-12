@@ -28,8 +28,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void shouldFail_whenMainDirectoryDoesNotExist() {
         //given
-        given(env)
-                .withHome("home/doesnotexist");
+        given(env).withHome("home/doesnotexist");
         //when/then
         whenRunningCommand("status", "--to", "to/dir", "/home/user/some/file")
                 .thenItShould()
@@ -53,8 +52,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void shouldProvideCorrectDefaults() {
         //given
-        given(env)
-                .withDirectories("to/dir");
+        given(env).withLayout("D to/dir");
         //when/then
         whenRunningCommand("status", "--to", "to/dir")
                 .thenItShould()
@@ -66,8 +64,11 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void shouldParseArguments_whenArgumentsArePassed() {
         //given
-        given(env)
-                .withDirectories("to/dir", "to/other-dir", "main/dir");
+        given(env).withLayout("""
+                D main/dir
+                D to/dir
+                D to/other-dir
+                """);
         //when/then
         whenRunningCommand("status", "--dir", "main/dir", "--to", "to/dir", "to/other-dir")
                 .thenItShould()
@@ -75,5 +76,4 @@ class StatusCommandTest extends IntegrationTest {
                 .withMessage(msg.checkingLinks("main/dir", List.of("to/dir", "to/other-dir")))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
-
 }

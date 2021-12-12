@@ -15,8 +15,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldFail_whenOrphanLookupMaxDepth_isInvalid() {
         //given
-        given(env)
-                .withDirectories("to/dir");
+        given(env).withLayout("D to/dir");
         //when/then
         whenRunningCommand("link", "--to", "to/dir", "--max-depth", "-1")
                 .thenItShould()
@@ -28,10 +27,11 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldNotDelete_linksNotBeingOrphans() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withFiles("to/dir/file")
-                .withSymbolicLink("home/user/file", "to/dir/file");
+        given(env).withLayout("""
+                L home/user/file -> to/dir/file
+                D to/dir
+                F to/dir/file
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
@@ -43,9 +43,10 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldIgnoreOrphans_notBelonging_toARepository() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withSymbolicLink("home/user/file", "to/otherdir/file");
+        given(env).withLayout("""
+                L home/user/file -> to/otherdir/file
+                D to/dir
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
@@ -57,9 +58,10 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundAtRoot_level0() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withSymbolicLink("home/user/file", "to/dir/file");
+        given(env).withLayout("""
+                L home/user/file -> to/dir/file
+                D to/dir
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
@@ -73,9 +75,10 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundAtRoot_level1() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withSymbolicLink("home/user/level1/file", "to/dir/level1/file");
+        given(env).withLayout("""
+                L home/user/level1/file -> to/dir/level1/file
+                D to/dir
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
@@ -89,9 +92,10 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldNotDeleteOrphan_whenOrphanFile_isFoundAtRoot_level2() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withSymbolicLink("home/user/level1/level2/file", "to/dir/level1/level2/file");
+        given(env).withLayout("""
+                L home/user/level1/level2/file -> to/dir/level1/level2/file
+                D to/dir
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
@@ -103,9 +107,11 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundAtRoot_level2_withIncreased_lookupMaxDepth() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withSymbolicLink("home/user/level1/level2/file", "to/dir/level1/level2/file");
+        given(env).withLayout("""
+                L home/user/level1/level2/file -> to/dir/level1/level2/file
+                D to/dir
+                """);
+        ;
         //when/then
         whenRunningCommand("link", "--to", "to/dir", "--max-depth", "3")
                 .thenItShould()
@@ -119,10 +125,10 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundInSubDirectory_level0() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withDirectories("to/dir/sub/dir")
-                .withSymbolicLink("home/user/sub/dir/file", "to/dir/sub/dir/file");
+        given(env).withLayout("""
+                L home/user/sub/dir/file -> to/dir/sub/dir/file
+                D to/dir/sub/dir
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
@@ -136,10 +142,10 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundInSubDirectory_level1() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withDirectories("to/dir/sub/dir")
-                .withSymbolicLink("home/user/sub/dir/level1/file", "to/dir/sub/dir/level1/file");
+        given(env).withLayout("""
+                L home/user/sub/dir/level1/file -> to/dir/sub/dir/level1/file
+                D to/dir/sub/dir
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
@@ -153,10 +159,10 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldNotDeleteOrphan_whenOrphanFile_isFoundInSubDirectory_level2() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withDirectories("to/dir/sub/dir")
-                .withSymbolicLink("home/user/sub/dir/level1/level2/file", "to/dir/sub/dir/level1/level2/file");
+        given(env).withLayout("""
+                L home/user/sub/dir/level1/level2/file -> to/dir/sub/dir/level1/level2/file
+                D to/dir/sub/dir
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
@@ -170,10 +176,10 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundInSubDirectory_level2_withIncreased_lookupMaxDepth() {
         //given
-        given(env)
-                .withDirectories("to/dir")
-                .withDirectories("to/dir/sub/dir")
-                .withSymbolicLink("home/user/sub/dir/level1/level2/file", "to/dir/sub/dir/level1/level2/file");
+        given(env).withLayout("""
+                L home/user/sub/dir/level1/level2/file -> to/dir/sub/dir/level1/level2/file
+                D to/dir/sub/dir
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to/dir", "--max-depth", "3")
                 .thenItShould()
@@ -189,13 +195,14 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_parentDirectoryIsASymlink() {
         //given
-        given(env)
-                .withDirectories("to-dir")
-                .withDirectories("outside")
-                .withFiles("to-dir/dir/existingfile")
-                .withSymbolicLink("home/user/dir", "outside")
-                .withSymbolicLink("outside/existingfile", "to-dir/dir/existingfile")
-                .withSymbolicLink("outside/nonexistingfile", "to-dir/dir/nonexistingfile");
+        given(env).withLayout("""
+                L home/user/dir -> outside
+                D outside
+                L outside/existingfile -> to-dir/dir/existingfile
+                L outside/nonexistingfile -> to-dir/dir/nonexistingfile
+                D to-dir
+                F to-dir/dir/existingfile
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to-dir", "--max-depth", "1")
                 .thenItShould()
@@ -210,13 +217,14 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_oneParentDirectoryInHierarchyIsASymlink() {
         //given
-        given(env)
-                .withDirectories("to-dir")
-                .withDirectories("outside")
-                .withFiles("to-dir/sub/dir/existingfile")
-                .withSymbolicLink("home/user/sub", "outside")
-                .withSymbolicLink("outside/dir/existingfile", "to-dir/sub/dir/existingfile")
-                .withSymbolicLink("outside/dir/nonexistingfile", "to-dir/sub/dir/nonexistingfile");
+        given(env).withLayout("""
+                L home/user/sub -> outside
+                D outside
+                L outside/dir/existingfile    -> to-dir/sub/dir/existingfile
+                L outside/dir/nonexistingfile -> to-dir/sub/dir/nonexistingfile
+                D to-dir
+                F to-dir/sub/dir/existingfile
+                """);
         //when/then
         whenRunningCommand("link", "--to", "to-dir", "--max-depth", "1")
                 .thenItShould()

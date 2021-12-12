@@ -28,8 +28,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldFail_whenMainDirectoryDoesNotExist() {
         //given
-        given(env)
-                .withHome("home/doesnotexist");
+        given(env).withHome("home/doesnotexist");
         //when/then
         whenRunningCommand("link", "--to", "to/dir", "/home/user/some/file")
                 .thenItShould()
@@ -53,8 +52,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldProvideCorrectDefaults() {
         //given
-        given(env)
-                .withDirectories("to/dir");
+        given(env).withLayout("D to/dir");
         //when/then
         whenRunningCommand("link", "--to", "to/dir")
                 .thenItShould()
@@ -66,8 +64,11 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldParseArguments_whenArgumentsArePassed() {
         //given
-        given(env)
-                .withDirectories("main/dir", "to/other-dir", "to/dir");
+        given(env).withLayout("""
+                D main/dir
+                D to/dir
+                D to/other-dir
+                """);
         //when/then
         whenRunningCommand("link", "--dir", "main/dir", "--to", "to/dir", "to/other-dir")
                 .thenItShould()
@@ -79,11 +80,10 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkFile_whenTargetFileDoesNotExist() {
         //given
-        given(env)
-                .withFiles(
-                        "home/user/to/dir/file",
-                        "home/user/to/dir/nested/file"
-                );
+        given(env).withLayout("""
+                F home/user/to/dir/file
+                F home/user/to/dir/nested/file
+                """);
         //when/then
         whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
@@ -99,10 +99,11 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkLink_whenTargetLinkDoesNotExist() {
         //given
-        given(env)
-                .withFiles("opt/file")
-                .withSymbolicLink("home/user/to/dir/link", "opt/file")
-                .withSymbolicLink("home/user/to/dir/nested/link", "opt/file");
+        given(env).withLayout("""
+                L home/user/to/dir/link -> opt/file
+                L home/user/to/dir/nested/link -> opt/file
+                F opt/file
+                """);
         //when/then
         whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
@@ -118,8 +119,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldNotLinkDirectory_whenDirectorySymlinkDoesNotExist() {
         //given
-        given(env)
-                .withDirectories("home/user/to/dir/sub/dir");
+        given(env).withLayout("D home/user/to/dir/sub/dir");
         //when/then
         whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
@@ -130,8 +130,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkDirectory_whenDirectorySymlinkExists() {
         //given
-        given(env)
-                .withFiles("home/user/to/dir/sub/dir/.symlink");
+        given(env).withLayout("F home/user/to/dir/sub/dir/.symlink");
         //when/then
         whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
@@ -145,11 +144,10 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldNotLinkFile_whenTargetIsAnExistingFile() {
         //given
-        given(env)
-                .withFiles(
-                        "home/user/file",
-                        "home/user/to/dir/file"
-                );
+        given(env).withLayout("""
+                F home/user/file
+                F home/user/to/dir/file
+                """);
         //when/then
         whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
@@ -162,9 +160,10 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldNotLinkFile_whenTargetIsAnExistingDirectory() {
         //given
-        given(env)
-                .withDirectories("home/user/file")
-                .withFiles("home/user/to/dir/file");
+        given(env).withLayout("""
+                D home/user/file
+                F home/user/to/dir/file
+                """);
         //when/then
         whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
@@ -177,9 +176,10 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldUpdateLink_whenTargetIsAnExistingLink() {
         //given
-        given(env)
-                .withSymbolicLink("home/user/file", "home/user/other-file")
-                .withFiles("home/user/to/dir/file");
+        given(env).withLayout("""
+                L home/user/file -> home/user/other-file
+                F home/user/to/dir/file
+                """);
         //when/then
         whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
@@ -195,9 +195,10 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldNotUpdateLinkFile_whenLinkIsAlreadyUpToDate() {
         //given
-        given(env)
-                .withSymbolicLink("home/user/file", "home/user/to/dir/file")
-                .withFiles("home/user/to/dir/file");
+        given(env).withLayout("""
+                L home/user/file -> home/user/to/dir/file
+                F home/user/to/dir/file
+                """);
         //when/then
         whenRunningCommand("link", "--to", "home/user/to/dir")
                 .thenItShould()
@@ -209,11 +210,10 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldReplaceFile_whenTarget_isAnExistingFile_andForceOption_isPassed() {
         //given
-        given(env)
-                .withFiles(
-                        "home/user/file",
-                        "home/user/to/dir/file"
-                );
+        given(env).withLayout("""
+                F home/user/file
+                F home/user/to/dir/file
+                """);
         //when/then
         whenRunningCommand("link", "--force", "--to", "home/user/to/dir")
                 .thenItShould()
@@ -231,16 +231,12 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldReplaceFile_whenTarget_isAnExistingDirectory_andForceOption_isPassed() {
         //given
-        given(env)
-                .withDirectories(
-                        "home/user/file",
-                        "home/user/file/dir"
-                )
-                .withFiles(
-                        "home/user/file/parent-is-a-dir",
-                        "home/user/file/dir/this-is-a-file",
-                        "home/user/to/dir/file"
-                );
+        given(env).withLayout("""
+                D home/user/file
+                F home/user/file/dir/this-is-a-file
+                F home/user/file/parent-is-a-dir
+                F home/user/to/dir/file
+                """);
         //when/then
         whenRunningCommand("link", "--force", "--to", "home/user/to/dir")
                 .thenItShould()

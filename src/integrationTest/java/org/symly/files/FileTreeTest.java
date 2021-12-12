@@ -16,8 +16,11 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldContainFileEntry_whenFileExist() {
         //given/when
-        FileTree tree = given(env)
-                .withFiles("hello", "world", "my/name/is")
+        FileTree tree = given(env).withLayout("""
+                        F hello
+                        F my/name/is
+                        F world
+                        """)
                 .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
@@ -30,9 +33,10 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldContainLinkEntry_whenTargetPathIsAnExistingFile() {
         //given/when
-        FileTree tree = given(env)
-                .withSymbolicLink("hello", "world")
-                .withFiles("world")
+        FileTree tree = given(env).withLayout("""
+                        L hello -> world
+                        F world
+                        """)
                 .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
@@ -44,9 +48,10 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldContainLinkEntry_whenTargetPathIsAnExistingDirectory() {
         //given/when
-        FileTree tree = given(env)
-                .withSymbolicLink("hello", "some/dir")
-                .withDirectories("some/dir")
+        FileTree tree = given(env).withLayout("""
+                        L hello -> some/dir
+                        D some/dir
+                        """)
                 .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
@@ -57,8 +62,9 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldContainLinkEntry_whenTargetPathDoesNotExist() {
         //given/when
-        FileTree tree = given(env)
-                .withSymbolicLink("hello", "anyone")
+        FileTree tree = given(env).withLayout("""
+                        L hello -> anyone
+                        """)
                 .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
@@ -69,12 +75,14 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldNotContainDirectoryEntries() {
         //given/when
-        FileTree tree = given(env)
-                .withSymbolicLink("hello1", "world")
-                .withSymbolicLink("hello2", "some/dir")
-                .withSymbolicLink("hello3", "some/dir/other/dir")
-                .withFiles("world")
-                .withDirectories("some/dir/other/dir", "another/dir")
+        FileTree tree = given(env).withLayout("""
+                        D another/dir
+                        L hello1 -> world
+                        L hello2 -> some/dir
+                        L hello3 -> some/dir/other/dir
+                        D some/dir/other/dir
+                        F world
+                        """)
                 .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
@@ -88,9 +96,13 @@ class FileTreeTest extends IntegrationTest {
     @Test
     void fromPath_shouldReferenceLinksOutsideItself() {
         //given/when
-        FileTree tree = given(env)
-                .withFiles("real-hello", "world", "my/name/is", "tree/toto")
-                .withSymbolicLink("tree/hello", "real-hello")
+        FileTree tree = given(env).withLayout("""
+                        F my/name/is
+                        F real-hello
+                        L tree/hello -> real-hello
+                        F tree/toto
+                        F world
+                        """)
                 .getFileTree("tree");
         //then
         assertThat(tree.getLayout()).containsExactly(

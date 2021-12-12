@@ -6,12 +6,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import org.symly.files.FileTestUtils;
 import org.symly.files.FileTree;
 import org.symly.files.RIOException;
 
 public class Env {
+
+    private static final String PATH_ELEMENT_PATTERN = "[a-zA-X0-9-\\.]+";
+    private static final String PATH_PATTERN = String.format("(%1$s(?:/%1$s)*)", PATH_ELEMENT_PATTERN);
+    private static final Pattern LAYOUT_DIRECTORY_PATTERN = Pattern.compile(String.format("^D %s$", PATH_PATTERN));
+    private static final Pattern LAYOUT_FILE_PATTERN = Pattern.compile(String.format("^F %s$", PATH_PATTERN));
+    private static final Pattern LAYOUT_LINK_PATTERN = Pattern.compile(String.format(
+            "^L %1$s(?:\\s+)->(?:\\s+)%1$s$",
+            PATH_PATTERN));
 
     private final Path root;
     private Path home;
@@ -45,26 +55,8 @@ public class Env {
         return root().resolve(path);
     }
 
-    public Env withFiles(String... paths) {
-        for (String path : paths) {
-            FileTestUtils.createFile(path(path));
-        }
-        return this;
-    }
-
-    public Env withDirectories(String... paths) {
-        for (String path : paths) {
-            FileTestUtils.createDirectory(path(path));
-        }
-        return this;
-    }
-
-    public Env createHomeDirectory() {
-        return withDirectories(home().toString());
-    }
-
-    public Env withSymbolicLink(String sourcePath, String targetPath) {
-        FileTestUtils.createSymbolicLink(path(sourcePath), path(targetPath));
+    public Env withLayout(String layout) {
+        layout.lines().forEach(this::processLayoutLine);
         return this;
     }
 
@@ -115,5 +107,47 @@ public class Env {
         } catch (IOException e) {
             throw new RIOException(e);
         }
+    }
+
+    private void processLayoutLine(String layoutLine) {
+        Matcher matcher = LAYOUT_DIRECTORY_PATTERN.matcher(layoutLine);
+        if (matcher.matches()) {
+            withDirectories(matcher.group(1));
+            return;
+        }
+        matcher = LAYOUT_FILE_PATTERN.matcher(layoutLine);
+        if (matcher.matches()) {
+            withFiles(matcher.group(1));
+            return;
+        }
+        matcher = LAYOUT_LINK_PATTERN.matcher(layoutLine);
+        if (matcher.matches()) {
+            withSymbolicLink(matcher.group(1), matcher.group(2));
+            return;
+        }
+        throw new IllegalArgumentException("Invalid layout: " + layoutLine);
+    }
+
+    private Env withFiles(String... paths) {
+        for (String path : paths) {
+            FileTestUtils.createFile(path(path));
+        }
+        return this;
+    }
+
+    private Env withDirectories(String... paths) {
+        for (String path : paths) {
+            FileTestUtils.createDirectory(path(path));
+        }
+        return this;
+    }
+
+    private Env withSymbolicLink(String sourcePath, String targetPath) {
+        FileTestUtils.createSymbolicLink(path(sourcePath), path(targetPath));
+        return this;
+    }
+
+    private Env createHomeDirectory() {
+        return withDirectories(home().toString());
     }
 }
