@@ -1,5 +1,6 @@
 package org.symly.files;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
 
@@ -15,7 +16,10 @@ record SimpleFileRef(
 
     @Override
     public String toString() {
-        return name.toString();
+        if (Files.isDirectory(name)) {
+            return "D " + name;
+        }
+        return "F " + name;
     }
 
     static FileRef of(Path name) {

@@ -90,10 +90,10 @@ class LinkCommandTest extends IntegrationTest {
                 .succeed()
                 .withMessage(msg.linkActionCreate("home/user/file", "home/user/to/dir/file"))
                 .withMessage(msg.linkActionCreate("home/user/nested/file", "home/user/to/dir/nested/file"))
-                .withFileTreeDiff(Diff.empty().withNewPaths(
-                        "home/user/file -> home/user/to/dir/file",
-                        "home/user/nested/file -> home/user/to/dir/nested/file"
-                ));
+                .withFileTreeDiff(Diff.ofChanges("""
+                        +L home/user/file -> home/user/to/dir/file
+                        +L home/user/nested/file -> home/user/to/dir/nested/file
+                        """));
     }
 
     @Test
@@ -110,10 +110,10 @@ class LinkCommandTest extends IntegrationTest {
                 .succeed()
                 .withMessage(msg.linkActionCreate("home/user/link", "home/user/to/dir/link"))
                 .withMessage(msg.linkActionCreate("home/user/nested/link", "home/user/to/dir/nested/link"))
-                .withFileTreeDiff(Diff.empty().withNewPaths(
-                        "home/user/link -> home/user/to/dir/link",
-                        "home/user/nested/link -> home/user/to/dir/nested/link"
-                ));
+                .withFileTreeDiff(Diff.ofChanges("""
+                        +L home/user/link -> home/user/to/dir/link
+                        +L home/user/nested/link -> home/user/to/dir/nested/link
+                        """));
     }
 
     @Test
@@ -136,8 +136,8 @@ class LinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("home/user/sub/dir", "home/user/to/dir/sub/dir"))
-                .withFileTreeDiff(Diff.empty().withNewPaths(
-                        "home/user/sub/dir -> home/user/to/dir/sub/dir"
+                .withFileTreeDiff(Diff.ofChanges(
+                        "+L home/user/sub/dir -> home/user/to/dir/sub/dir"
                 ));
     }
 
@@ -186,10 +186,10 @@ class LinkCommandTest extends IntegrationTest {
                 .succeed()
                 .withMessages(msg.linkActionUpdate("home/user/file", "home/user/to/dir/file",
                         "home/user/other-file"))
-                .withFileTreeDiff(Diff.empty()
-                        .withNewPaths("home/user/file -> home/user/to/dir/file")
-                        .withRemovedPaths("home/user/file -> home/user/other-file")
-                );
+                .withFileTreeDiff(Diff.ofChanges("""
+                        +L home/user/file -> home/user/to/dir/file
+                        -L home/user/file -> home/user/other-file
+                        """));
     }
 
     @Test
@@ -222,10 +222,10 @@ class LinkCommandTest extends IntegrationTest {
                         msg.linkActionDelete("home/user/file"),
                         msg.linkActionCreate("home/user/file", "home/user/to/dir/file")
                 ))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths("home/user/file")
-                        .withNewPaths("home/user/file -> home/user/to/dir/file")
-                );
+                .withFileTreeDiff(Diff.ofChanges("""
+                        -F home/user/file
+                        +L home/user/file -> home/user/to/dir/file
+                        """));
     }
 
     @Test
@@ -247,12 +247,10 @@ class LinkCommandTest extends IntegrationTest {
                         msg.linkActionDelete("home/user/file"),
                         msg.linkActionCreate("home/user/file", "home/user/to/dir/file")
                 ))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths(
-                                "home/user/file/parent-is-a-dir",
-                                "home/user/file/dir/this-is-a-file"
-                        )
-                        .withNewPaths("home/user/file -> home/user/to/dir/file")
-                );
+                .withFileTreeDiff(Diff.ofChanges("""
+                        -F home/user/file/dir/this-is-a-file
+                        -F home/user/file/parent-is-a-dir
+                        +L home/user/file -> home/user/to/dir/file
+                        """));
     }
 }

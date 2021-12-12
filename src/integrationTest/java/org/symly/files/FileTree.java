@@ -81,12 +81,24 @@ public class FileTree {
         Set<String> newPaths;
         Set<String> removedPaths;
 
-        public Diff withNewPaths(String... newPaths) {
-            return new Diff(Set.of(newPaths), removedPaths);
+        public static Diff ofChanges(String layout) {
+            Set<String> newPaths = new HashSet<>();
+            Set<String> removedPaths = new HashSet<>();
+            layout.lines().forEach(line -> parse(line, newPaths, removedPaths));
+            return new Diff(Collections.unmodifiableSet(newPaths), Collections.unmodifiableSet(removedPaths));
         }
 
-        public Diff withRemovedPaths(String... removedPaths) {
-            return new Diff(newPaths, Set.of(removedPaths));
+        private static void parse(String line, Set<String> newPaths, Set<String> removedPaths) {
+            if (line.length() <= 1) {
+                throw new IllegalArgumentException("Invalid layout operation. Must start by '+'/'-': " + line);
+            }
+            if (line.startsWith("+")) {
+                newPaths.add(line.substring(1));
+            } else if (line.startsWith("-")) {
+                removedPaths.add(line.substring(1));
+            } else {
+                throw new IllegalArgumentException("Invalid layout operation. Must start by '+'/'-': " + line);
+            }
         }
 
         public static Diff empty() {

@@ -23,7 +23,7 @@ record LinkFileRef(
 
     @Override
     public String toString() {
-        return name + LINK_SEPARATOR + target;
+        return "L " + name + LINK_SEPARATOR + target;
     }
 
     static boolean isLink(String ref) {

@@ -67,9 +67,9 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("home/user/file", "to/dir/file"))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths("home/user/file -> to/dir/file")
-                );
+                .withFileTreeDiff(Diff.ofChanges(
+                        "-L home/user/file -> to/dir/file"
+                ));
     }
 
     @Test
@@ -84,9 +84,9 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("home/user/level1/file", "to/dir/level1/file"))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths("home/user/level1/file -> to/dir/level1/file")
-                );
+                .withFileTreeDiff(Diff.ofChanges(
+                        "-L home/user/level1/file -> to/dir/level1/file"
+                ));
     }
 
     @Test
@@ -117,9 +117,9 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("home/user/level1/level2/file", "to/dir/level1/level2/file"))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths("home/user/level1/level2/file -> to/dir/level1/level2/file")
-                );
+                .withFileTreeDiff(Diff.ofChanges(
+                        "-L home/user/level1/level2/file -> to/dir/level1/level2/file"
+                ));
     }
 
     @Test
@@ -134,9 +134,9 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("home/user/sub/dir/file", "to/dir/sub/dir/file"))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths("home/user/sub/dir/file -> to/dir/sub/dir/file")
-                );
+                .withFileTreeDiff(Diff.ofChanges(
+                        "-L home/user/sub/dir/file -> to/dir/sub/dir/file"
+                ));
     }
 
     @Test
@@ -151,9 +151,9 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("home/user/sub/dir/level1/file", "to/dir/sub/dir/level1/file"))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths("home/user/sub/dir/level1/file -> to/dir/sub/dir/level1/file")
-                );
+                .withFileTreeDiff(Diff.ofChanges(
+                        "-L home/user/sub/dir/level1/file -> to/dir/sub/dir/level1/file"
+                ));
     }
 
     @Test
@@ -187,9 +187,9 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .withMessage(
                         msg.linkActionDelete(
                                 "home/user/sub/dir/level1/level2/file", "to/dir/sub/dir/level1/level2/file"))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths("home/user/sub/dir/level1/level2/file -> to/dir/sub/dir/level1/level2/file")
-                );
+                .withFileTreeDiff(Diff.ofChanges(
+                        "-L home/user/sub/dir/level1/level2/file -> to/dir/sub/dir/level1/level2/file"
+                ));
     }
 
     @Test
@@ -209,9 +209,9 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .succeed()
                 .withMessage(msg.linkActionUpToDate("home/user/dir/existingfile", "to-dir/dir/existingfile"))
                 .withMessage(msg.linkActionDelete("home/user/dir/nonexistingfile", "to-dir/dir/nonexistingfile"))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths("outside/nonexistingfile -> to-dir/dir/nonexistingfile")
-                );
+                .withFileTreeDiff(Diff.ofChanges(
+                        "-L outside/nonexistingfile -> to-dir/dir/nonexistingfile"
+                ));
     }
 
     @Test
@@ -232,8 +232,8 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .withMessage(msg.linkActionUpToDate("home/user/sub/dir/existingfile", "to-dir/sub/dir/existingfile"))
                 .withMessage(
                         msg.linkActionDelete("home/user/sub/dir/nonexistingfile", "to-dir/sub/dir/nonexistingfile"))
-                .withFileTreeDiff(Diff.empty()
-                        .withRemovedPaths("outside/dir/nonexistingfile -> to-dir/sub/dir/nonexistingfile")
-                );
+                .withFileTreeDiff(Diff.ofChanges(
+                        "-L outside/dir/nonexistingfile -> to-dir/sub/dir/nonexistingfile"
+                ));
     }
 }
