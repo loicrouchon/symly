@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Stream;
 import org.symly.files.FileTestUtils;
 import org.symly.files.FileTree;
@@ -14,13 +12,11 @@ import org.symly.files.RIOException;
 
 public class Env {
 
-    private static final String USER_HOME = "user.home";
     private static final long TIMEOUT = 5L;
 
     private final Path root;
     private Path home;
     private Path workingDirectory;
-    private final Map<String, String> properties = new HashMap<>();
 
     public Env(Path root) throws IOException {
         this.root = root.toRealPath();
@@ -38,7 +34,6 @@ public class Env {
 
     public Env withHome(String path) {
         home = path(path);
-        properties.put(USER_HOME, home.toString());
         return this;
     }
 
@@ -92,7 +87,7 @@ public class Env {
     }
 
     public Execution run(String... args) {
-        return new Command(root, workingDirectory, properties).run(args, TIMEOUT);
+        return new JvmCommand(root, workingDirectory, home).run(args, TIMEOUT);
     }
 
     public void delete() {

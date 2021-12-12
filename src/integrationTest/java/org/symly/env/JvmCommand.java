@@ -3,11 +3,17 @@ package org.symly.env;
 import static org.assertj.core.api.Assertions.fail;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +23,14 @@ import org.symly.files.FileTree;
         "java:S5960" // Assertions should not be used in production code (this is test code)
 })
 @RequiredArgsConstructor
-public class Command {
+public class JvmCommand {
 
     private static final String JAVA_BINARY = String.format("%s/bin/java", System.getProperty("java.home"));
     private static final List<String> JVM_OPTIONS = List.of(
             "-XX:TieredStopAtLevel=1",
             "-Xmx8m",
             "-XX:+ShowCodeDetailsInExceptionMessages"
-        );
+    );
     private static final String CLASSPATH_SYSTEM_PROPERTY = "symly.runtime.classpath";
     private static final String MAIN_CLASS = "org.symly.cli.Main";
 
@@ -33,11 +39,11 @@ public class Command {
     @NonNull
     private final Path workingDir;
     @NonNull
-    private final Map<String, String> systemProperties;
+    private final Path home;
 
     public Execution run(String[] args, long timeout) {
         FileTree rootFileTreeSnapshot = FileTree.fromPath(rootDir);
-        List<String> command = command(systemProperties, args);
+        List<String> command = command(args);
         try {
             Process process = new ProcessBuilder()
                     .directory(workingDir.toFile())
@@ -48,7 +54,12 @@ public class Command {
                 process.destroyForcibly();
                 fail(commandFailureMessage("Command did not finish in time", command));
             }
-            return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, process);
+            try (
+                    Reader stdOut = toReader(process.getInputStream());
+                    Reader stdErr = toReader(process.getErrorStream())
+            ) {
+                return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, process.exitValue(), stdOut, stdErr);
+            }
         } catch (InterruptedException | IOException e) {
             Thread.currentThread().interrupt();
             fail(commandFailureMessage("Command execution failed with: " + e.getMessage(), command));
@@ -56,11 +67,15 @@ public class Command {
         }
     }
 
-    private List<String> command(Map<String, String> systemProperties, String[] args) {
+    private Reader toReader(InputStream inputStream) {
+        return new InputStreamReader(inputStream);
+    }
+
+    private List<String> command(String[] args) {
         List<String> command = new ArrayList<>();
         command.add(JAVA_BINARY);
         command.addAll(JVM_OPTIONS);
-        systemProperties.forEach((key, value) -> command.add(String.format("-D%s=%s", key, value)));
+        command.add(String.format("-Duser.home=%s", home));
         jacocoAgent().ifPresent(command::add);
         command.add("-cp");
         command.add(System.getProperty(CLASSPATH_SYSTEM_PROPERTY));

@@ -3,8 +3,7 @@ package org.symly.env;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -54,19 +53,19 @@ public class Execution {
     }
 
     public static Execution of(FileTree rootFileTreeSnapshot, Path rootDir,
-            Path workingDir, Process process) {
+            Path workingDir, int exitCode, Reader stdOut, Reader stdErr) {
         return new Execution(
                 rootFileTreeSnapshot,
                 rootDir,
                 workingDir,
-                process.exitValue(),
-                lines(process.getInputStream()),
-                lines(process.getErrorStream())
+                exitCode,
+                lines(stdOut),
+                lines(stdErr)
         );
     }
 
-    private static List<String> lines(InputStream inputStream) {
-        return new BufferedReader(new InputStreamReader(inputStream))
+    private static List<String> lines(Reader reader) {
+        return new BufferedReader(reader)
                 .lines()
                 .toList();
     }
