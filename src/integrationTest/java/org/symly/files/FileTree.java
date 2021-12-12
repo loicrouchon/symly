@@ -1,5 +1,7 @@
 package org.symly.files;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,6 +10,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.*;
 
+@SuppressWarnings({
+        "java:S5960" // Assertions should not be used in production code (this is test code)
+})
 @RequiredArgsConstructor
 public class FileTree {
 
@@ -48,7 +53,8 @@ public class FileTree {
                     .filter(p -> Files.isRegularFile(p) || Files.isSymbolicLink(p))
                     .map(path -> FileRef.of(root, path)));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            fail(String.format("Unable to initialize FileTree for path %s", root), e);
+            throw new IllegalStateException("unreachable");
         }
     }
 

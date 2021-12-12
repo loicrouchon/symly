@@ -10,11 +10,13 @@ import org.symly.env.Env;
 @RequiredArgsConstructor
 class LinkCommandMessageFactory {
 
+    private static final String MISSING_REQUIRED_OPTION_TO = "Missing required option: '--to=<repositories>'";
+
     @NonNull
     private final Env env;
 
     public String missingTargetDirectories() {
-        return "Missing required option: '--to=<repositories>'";
+        return MISSING_REQUIRED_OPTION_TO;
     }
 
     public String targetDirectoryDoesNotExist(String path) {

@@ -7,11 +7,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 class Constraints implements Constraint {
 
-    private final Collection<Constraint> constraints;
+    private final Collection<Constraint> allConstraints;
 
     @Override
     public Optional<String> violation() {
-        return constraints.stream()
+        return allConstraints.stream()
                 .map(Constraint::violation)
                 .flatMap(Optional::stream)
                 .findFirst();

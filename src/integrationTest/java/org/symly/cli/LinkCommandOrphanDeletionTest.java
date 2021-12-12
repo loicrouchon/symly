@@ -4,7 +4,10 @@ import org.junit.jupiter.api.Test;
 import org.symly.env.IntegrationTest;
 import org.symly.files.FileTree.Diff;
 
-@SuppressWarnings("java:S2699")
+@SuppressWarnings({
+        "java:S100",  // Method names should comply with a naming convention (test method names)
+        "java:S1192", // String literals should not be duplicated
+})
 class LinkCommandOrphanDeletionTest extends IntegrationTest {
 
     private final LinkCommandMessageFactory msg = new LinkCommandMessageFactory(env);
@@ -159,7 +162,8 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withoutMessage(
-                        msg.linkActionDelete("home/user/sub/dir/level1/level2/file", "to/dir/sub/dir/level1/level2/file"))
+                        msg.linkActionDelete(
+                                "home/user/sub/dir/level1/level2/file", "to/dir/sub/dir/level1/level2/file"))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -175,7 +179,8 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(
-                        msg.linkActionDelete("home/user/sub/dir/level1/level2/file", "to/dir/sub/dir/level1/level2/file"))
+                        msg.linkActionDelete(
+                                "home/user/sub/dir/level1/level2/file", "to/dir/sub/dir/level1/level2/file"))
                 .withFileTreeDiff(Diff.empty()
                         .withRemovedPaths("home/user/sub/dir/level1/level2/file -> to/dir/sub/dir/level1/level2/file")
                 );
@@ -217,7 +222,8 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionUpToDate("home/user/sub/dir/existingfile", "to-dir/sub/dir/existingfile"))
-                .withMessage(msg.linkActionDelete("home/user/sub/dir/nonexistingfile", "to-dir/sub/dir/nonexistingfile"))
+                .withMessage(
+                        msg.linkActionDelete("home/user/sub/dir/nonexistingfile", "to-dir/sub/dir/nonexistingfile"))
                 .withFileTreeDiff(Diff.empty()
                         .withRemovedPaths("outside/dir/nonexistingfile -> to-dir/sub/dir/nonexistingfile")
                 );

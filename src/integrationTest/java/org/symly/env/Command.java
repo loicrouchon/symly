@@ -13,6 +13,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.files.FileTree;
 
+@SuppressWarnings({
+        "java:S5960" // Assertions should not be used in production code (this is test code)
+})
 @RequiredArgsConstructor
 public class Command {
 
@@ -47,6 +50,7 @@ public class Command {
             }
             return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, process);
         } catch (InterruptedException | IOException e) {
+            Thread.currentThread().interrupt();
             fail(commandFailureMessage("Command execution failed with: " + e.getMessage(), command));
             throw new IllegalStateException("unreachable");
         }

@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 import org.symly.env.IntegrationTest;
 import org.symly.files.FileTree.Diff;
 
-@SuppressWarnings("java:S2699")
+@SuppressWarnings({
+        "java:S100",  // Method names should comply with a naming convention (test method names)
+        "java:S1192", // String literals should not be duplicated
+})
 class LinkCommandTest extends IntegrationTest {
 
     private final LinkCommandMessageFactory msg = new LinkCommandMessageFactory(env);

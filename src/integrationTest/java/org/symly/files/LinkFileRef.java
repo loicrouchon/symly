@@ -5,6 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Path;
 import lombok.NonNull;
 
+@SuppressWarnings({
+        "java:S5960", // Assertions should not be used in production code (This is test code)
+})
 record LinkFileRef(
         @NonNull Path name,
         @NonNull Path target

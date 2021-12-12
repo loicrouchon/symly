@@ -1,19 +1,17 @@
 package org.symly.cli;
 
-import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
-import org.symly.env.Env;
 import org.symly.env.IntegrationTest;
 import org.symly.files.FileTree;
 
-@SuppressWarnings("java:S2699")
+@SuppressWarnings({
+        "java:S100",  // Method names should comply with a naming convention (test method names)
+        "java:S1192", // String literals should not be duplicated
+})
 class StatusCommandTest extends IntegrationTest {
 
-    private final StatusMessageFactory msg = new StatusMessageFactory(env);
+    private final StatusCommandMessageFactory msg = new StatusCommandMessageFactory(env);
 
     @Test
     void shouldFail_whenRequiredArgsAreMissing() {
@@ -78,33 +76,4 @@ class StatusCommandTest extends IntegrationTest {
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
-    @RequiredArgsConstructor
-    private static class StatusMessageFactory {
-
-        @NonNull
-        private final Env env;
-
-        public String missingTargetDirectories() {
-            return "Missing required option: '--to=<repositories>'";
-        }
-
-        public String targetDirectoryDoesNotExist(String path) {
-            return String.format("Argument <repositories> (%s): must be an existing directory", env.path(path));
-        }
-
-        public String mainDirectoryDoesNotExist(String path) {
-            return String.format("Argument <main-directory> (%s): must be an existing directory", env.path(path));
-        }
-
-        public String checkingLinks(String mainDirectory, List<String> repositories) {
-            return String.format(
-                    "Checking links status from %s to [%s]",
-                    env.path(mainDirectory),
-                    repositories.stream()
-                            .map(env::path)
-                            .map(Path::toString)
-                            .collect(Collectors.joining(", "))
-            );
-        }
-    }
 }

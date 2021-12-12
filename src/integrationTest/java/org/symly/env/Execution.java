@@ -15,6 +15,9 @@ import lombok.RequiredArgsConstructor;
 import org.symly.files.FileTree;
 import org.symly.files.FileTree.Diff;
 
+@SuppressWarnings({
+        "java:S5960" // Assertions should not be used in production code (this is test code)
+})
 @RequiredArgsConstructor
 public class Execution {
 
@@ -30,7 +33,7 @@ public class Execution {
     @NonNull
     private final List<String> stdErr;
 
-    private Diff fileSystemEntriesDiff() {
+    public Diff fileSystemEntriesDiff() {
         return snapshot.diff(FileTree.fromPath(rootDir));
     }
 
