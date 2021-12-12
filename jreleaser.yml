@@ -16,6 +16,10 @@ project:
 release:
   github:
     owner: loicrouchon
+    changelog:
+      formatted: ALWAYS
+      preset: 'conventional-commits'
+      format: '- {{commitShortHash}} {{commitTitle}}'
 
 distributions:
 
