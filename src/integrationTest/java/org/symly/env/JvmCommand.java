@@ -9,7 +9,6 @@ import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -96,7 +95,7 @@ public class JvmCommand {
     }
 
     private String toAbsolutePath(String jacocoAgent) {
-        Path buildPath = Paths.get("build").toAbsolutePath();
+        Path buildPath = Path.of("build").toAbsolutePath();
         return jacocoAgent
                 .replace("-javaagent:build", "-javaagent:" + buildPath)
                 .replace("=destfile=build", "=destfile=" + buildPath);

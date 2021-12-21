@@ -12,7 +12,7 @@ import org.symly.cli.SymlyExecutionException;
  */
 public class Repository extends Directory {
 
-    private Repository(@NonNull Path path) {
+    Repository(@NonNull Path path) {
         super(path);
     }
 
