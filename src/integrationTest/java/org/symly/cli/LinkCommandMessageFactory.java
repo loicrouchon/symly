@@ -43,34 +43,38 @@ class LinkCommandMessageFactory {
     }
 
     public String linkActionCreate(String from, String to) {
-        return action("[CREATE    ]", from, to);
+        return action("CREATE", from, to);
     }
 
     public String linkActionConflict(String from, String to) {
-        return action("[CONFLICT  ]", from, to);
+        return action("CONFLICT", from, to);
     }
 
     public List<String> linkActionUpdate(String from, String to, String previousTo) {
         return List.of(
-                action("[UPDATE    ]", from, to),
+                action("UPDATE", from, to),
                 String.format("> Previous link target was %s", env.path(previousTo))
         );
     }
 
     public String linkActionUpToDate(String from, String to) {
-        return action("[UP_TO_DATE]", from, to);
+        return action("UP_TO_DATE", from, to);
     }
 
     public String linkActionDelete(String from, String to) {
-        return action("[DELETE    ]", from, to);
+        return action("DELETE", from, to);
     }
 
     public String linkActionDelete(String from) {
-        return String.format("[DELETE    ] %s", env.path(from));
+        return String.format("%s %s", padAction("DELETE"), env.path(from));
     }
 
     public String action(String action, String from, String to) {
-        return String.format("%s %s -> %s", action, env.path(from), env.path(to));
+        return String.format("%s %s -> %s", padAction(action), env.path(from), env.path(to));
+    }
+
+    private String padAction(String action) {
+        return String.format("%-10s", action);
     }
 
     public List<String> cannotCreateLinkError(String from, String to) {

@@ -70,7 +70,7 @@ class StatusCommand extends ValidatedCommand {
 
     private void printStatus(CliConsole console, Status status) {
         Link link = status.link();
-        console.printf("[%-" + Status.Type.MAX_LENGTH + "s] %s%n", status.type(), link);
+        console.printf("%-" + Status.Type.MAX_LENGTH + "s %s%n", status.type(), link);
         if (status.type() == Status.Type.LINK_CONFLICT) {
             Path realPath = fsReader.readSymbolicLink(link.source());
             console.printf("> Symbolic link conflict. Current target us %s%n", realPath);

@@ -19,7 +19,7 @@ import picocli.CommandLine.Option;
 @Command(
         name = "link",
         aliases = {"ln"},
-        description = "Synchronizes the links from the target directories to the destination"
+        description = "Create/update links from 'directory' to the 'to' repositories"
 )
 @RequiredArgsConstructor
 class LinkCommand extends ValidatedCommand {
@@ -133,7 +133,7 @@ class LinkCommand extends ValidatedCommand {
 
     private void printAction(Action action, Path previousLink) {
         Link link = action.link();
-        console.printf("[%-" + Action.Type.MAX_LENGTH + "s] %s%n", action.type(), link);
+        console.printf("%-" + Action.Type.MAX_LENGTH + "s %s%n", action.type(), link);
         if (action.type().equals(Action.Type.UPDATE)) {
             if (previousLink != null) {
                 console.printf("> Previous link target was %s%n", previousLink);
