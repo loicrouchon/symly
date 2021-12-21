@@ -40,7 +40,7 @@ class LinkCommand extends ValidatedCommand {
             required = true,
             arity = "1..*"
     )
-    List<Repository> repositories;
+    List<Repository> repositoriesList;
 
     @Option(
             names = {"--dry-run"},
@@ -74,7 +74,7 @@ class LinkCommand extends ValidatedCommand {
         return List.of(
                 Constraint.ofArg("main-directory", mainDirectory, "must be an existing directory",
                         fsReader::isADirectory),
-                Constraint.ofArg("repositories", repositories, "must be an existing directory",
+                Constraint.ofArg("repositories", repositoriesList, "must be an existing directory",
                         fsReader::isADirectory),
                 Constraint.ofArg("max-depth", maxDepth, "must be a positive integer",
                         depth -> depth >= 0)
@@ -87,10 +87,10 @@ class LinkCommand extends ValidatedCommand {
         if (dryRun) {
             console.printf("(dry-run mode) ");
         }
-        console.printf("in %s to %s%n", mainDirectory, repositories);
-        Links links = Links.from(mainDirectory, repositories);
+        console.printf("in %s to %s%n", mainDirectory, repositoriesList);
+        Repositories repositories = Repositories.of(repositoriesList);
         FileSystemWriter mutator = getFilesMutatorService();
-        createLinks(links, mutator);
+        createLinks(repositories, mutator);
         deleteOrphans(mainDirectory, repositories, mutator);
     }
 
@@ -101,8 +101,8 @@ class LinkCommand extends ValidatedCommand {
         return fileSystemWriter;
     }
 
-    private void createLinks(Links links, FileSystemWriter fsWriter) {
-        for (Link link : links.list()) {
+    private void createLinks(Repositories repositories, FileSystemWriter fsWriter) {
+        for (Link link : repositories.links(mainDirectory)) {
             Status status = link.status(fsReader);
             List<Action> actions = status.toActions(force);
             for (Action action : actions) {
@@ -112,7 +112,7 @@ class LinkCommand extends ValidatedCommand {
         }
     }
 
-    private void deleteOrphans(MainDirectory mainDirectory, List<Repository> repositories, FileSystemWriter mutator) {
+    private void deleteOrphans(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
         OrphanFinder orphanFinder = new OrphanFinder(fsReader);
         Collection<Link> orphans = orphanFinder.findOrphans(mainDirectory.toPath(), maxDepth, repositories);
         orphans.forEach(orphan -> deleteOrphan(orphan, mutator));

@@ -24,6 +24,10 @@ public abstract class Directory {
         return path.relativize(otherPath);
     }
 
+    public boolean containsPath(Path path) {
+        return path.startsWith(toPath());
+    }
+
     @Override
     public String toString() {
         return path.toString();

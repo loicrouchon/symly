@@ -36,7 +36,6 @@ public record Status(
                         "Unable to list files to be deleted for conflicting link %s", link), e);
             }
             actions.add(Action.create(link));
-            actions.forEach(System.out::println);
             return actions;
         }
         return List.of(Action.conflict(link));

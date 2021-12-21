@@ -14,30 +14,30 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(
-        name = "status",
-        aliases = {"st"},
-        description = "Displays the current synchronization status"
+    name = "status",
+    aliases = {"st"},
+    description = "Displays the current synchronization status"
 )
 @RequiredArgsConstructor
 class StatusCommand extends ValidatedCommand {
 
     @Option(
-            names = {"-d", "--dir", "--directory"},
-            paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created",
-            required = true,
-            showDefaultValue = Help.Visibility.ALWAYS
+        names = {"-d", "--dir", "--directory"},
+        paramLabel = "<main-directory>",
+        description = "Main directory in which links will be created",
+        required = true,
+        showDefaultValue = Help.Visibility.ALWAYS
     )
     MainDirectory mainDirectory;
 
     @Option(
-            names = {"-t", "--to"},
-            paramLabel = "<repositories>",
-            description = "Target directories (a.k.a. repositories) containing files to link in the main directory",
-            required = true,
-            arity = "1..*"
+        names = {"-t", "--to"},
+        paramLabel = "<repositories>",
+        description = "Target directories (a.k.a. repositories) containing files to link in the main directory",
+        required = true,
+        arity = "1..*"
     )
-    List<Repository> repositories;
+    List<Repository> repositoriesList;
 
     @NonNull
     private final CliConsole console;
@@ -47,22 +47,22 @@ class StatusCommand extends ValidatedCommand {
     @Override
     protected Collection<Constraint> constraints() {
         return List.of(
-                Constraint.ofArg("main-directory", mainDirectory, "must be an existing directory",
-                        fsReader::isADirectory),
-                Constraint.ofArg("repositories", repositories, "must be an existing directory",
-                        fsReader::isADirectory)
+            Constraint.ofArg("main-directory", mainDirectory, "must be an existing directory",
+                fsReader::isADirectory),
+            Constraint.ofArg("repositories", repositoriesList, "must be an existing directory",
+                fsReader::isADirectory)
         );
     }
 
     @Override
     public void execute() {
-        console.printf("Checking links status from %s to %s%n", mainDirectory, repositories);
-        Links links = Links.from(mainDirectory, repositories);
-        checkStatus(console, links);
+        console.printf("Checking links status from %s to %s%n", mainDirectory, repositoriesList);
+        Repositories repositories = Repositories.of(repositoriesList);
+        checkStatus(console, repositories);
     }
 
-    private void checkStatus(CliConsole console, Links links) {
-        for (Link link : links.list()) {
+    private void checkStatus(CliConsole console, Repositories repositories) {
+        for (Link link : repositories.links(mainDirectory)) {
             Status status = link.status(fsReader);
             printStatus(console, status);
         }
