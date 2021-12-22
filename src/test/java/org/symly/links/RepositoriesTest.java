@@ -13,6 +13,51 @@ class RepositoriesTest {
     private static final MainDirectory MAIN_DIR = MainDirectory.of(Path.of("/symly/main"));
 
     @Test
+    void containsPath_shouldBeTrue_whenPathIsContainedInRepository() {
+        //given
+        Repositories repositories = Repositories.of(List.of(
+            repo("/symly/repo1",
+                List.of("dir", "dir/nested"),
+                List.of("file", "dir/file")
+            ),
+            repo("/symly/repo2",
+                List.of("dir", "other-dir/nested"),
+                List.of("otherfile", "dir/otherfile", "other-dir/nested")
+            )
+        ));
+        //when/then
+        // existing files in repos
+        assertThat(repositories.containsPath(Path.of("/symly/repo1","file"))).isTrue();
+        assertThat(repositories.containsPath(Path.of("/symly/repo2","dir/otherfile"))).isTrue();
+        // non-existing files in repos
+        assertThat(repositories.containsPath(Path.of("/symly/repo1","some/things"))).isTrue();
+        assertThat(repositories.containsPath(Path.of("/symly/repo2","some/other/things"))).isTrue();
+        // files outside the repos
+        assertThat(repositories.containsPath(Path.of("/symly/repo3","no/luck"))).isFalse();
+    }
+
+    @Test
+    void allDirectoriesNames_shouldReturn_allDirectoriesNames_inAllRepositories() {
+        //given
+        Repositories repositories = Repositories.of(List.of(
+            repo("/symly/repo1",
+                List.of("dir", "dir/nested"),
+                List.of("file", "dir/file")
+            ),
+            repo("/symly/repo2",
+                List.of("dir", "other-dir/nested"),
+                List.of("otherfile", "dir/otherfile", "other-dir/nested")
+            )
+        ));
+        //when/then
+        assertThat(repositories.allDirectoriesNames()).containsExactly(
+            Path.of("dir"),
+            Path.of("dir/nested"),
+            Path.of("other-dir/nested")
+        );
+    }
+
+    @Test
     void emptyRepositories_shouldBeEmpty() {
         //given
         Repositories repositories = Repositories.of(List.of(
@@ -43,35 +88,15 @@ class RepositoriesTest {
         assertThat(repositories.links(MAIN_DIR))
             .hasSize(4)
             .contains(
-                Link.of(Path.of("/symly/main/file"), Path.of("/symly/repo1/file")),
-                Link.of(Path.of("/symly/main/dir/file"), Path.of("/symly/repo1/dir/file")),
-                Link.of(Path.of("/symly/main/other-file"), Path.of("/symly/repo2/other-file")),
-                Link.of(Path.of("/symly/main/other-dir/nested-file"), Path.of("/symly/repo2/other-dir/nested-file"))
+                link("/symly/main/file", "/symly/repo1/file"),
+                link("/symly/main/dir/file", "/symly/repo1/dir/file"),
+                link("/symly/main/other-file", "/symly/repo2/other-file"),
+                link("/symly/main/other-dir/nested-file", "/symly/repo2/other-dir/nested-file")
             );
     }
 
-    @Test
-    void containsPath_shouldBeTrue_whenPathIsContainedInRepository() {
-        //given
-        Repositories repositories = Repositories.of(List.of(
-            repo("/symly/repo1",
-                List.of("dir", "dir/nested"),
-                List.of("file", "dir/file")
-            ),
-            repo("/symly/repo2",
-                List.of("dir", "other-dir/nested"),
-                List.of("otherfile", "dir/otherfile", "other-dir/nested")
-            )
-        ));
-        //when/then
-        // existing files in repos
-        assertThat(repositories.containsPath(Path.of("/symly/repo1","file"))).isTrue();
-        assertThat(repositories.containsPath(Path.of("/symly/repo2","dir/otherfile"))).isTrue();
-        // non existing files in repos
-        assertThat(repositories.containsPath(Path.of("/symly/repo1","some/things"))).isTrue();
-        assertThat(repositories.containsPath(Path.of("/symly/repo2","some/other/things"))).isTrue();
-        // files outside the repos
-        assertThat(repositories.containsPath(Path.of("/symly/repo3","no/luck"))).isFalse();
+    private Link link(String source, String target) {
+        return Link.of(Path.of(source), Path.of(target));
     }
 
     private Repository repo(String path, Collection<String> dirs, Collection<String> files) {
