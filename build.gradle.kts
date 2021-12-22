@@ -100,6 +100,7 @@ tasks.jacocoTestReport {
         html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/all"))
     }
 }
+tasks.check.get().dependsOn(tasks.jacocoTestReport.get())
 
 val generateManualStructure = tasks.register<JavaExec>("generateManualStructure") {
     classpath(sourceSets.main.get().runtimeClasspath, configurations.annotationProcessor)
