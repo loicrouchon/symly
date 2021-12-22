@@ -1,7 +1,7 @@
 package org.symly.cli.converters;
 
 import java.nio.file.Path;
-import org.symly.links.Repository;
+import org.symly.repositories.Repository;
 import picocli.CommandLine.ITypeConverter;
 
 public class RepositoryTypeConverter implements ITypeConverter<Repository> {

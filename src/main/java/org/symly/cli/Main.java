@@ -2,8 +2,8 @@ package org.symly.cli;
 
 import org.symly.cli.converters.MainDirectoryTypeConverter;
 import org.symly.cli.converters.RepositoryTypeConverter;
-import org.symly.links.MainDirectory;
-import org.symly.links.Repository;
+import org.symly.repositories.MainDirectory;
+import org.symly.repositories.Repository;
 import picocli.CommandLine;
 
 public class Main {

@@ -1,4 +1,4 @@
-package org.symly.links;
+package org.symly.repositories;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.symly.cli.SymlyExecutionException;
+import org.symly.links.Directory;
 
 /**
  * A directory which content will have to be linked into the {@link MainDirectory}.

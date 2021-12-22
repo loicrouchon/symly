@@ -1,4 +1,4 @@
-package org.symly.links;
+package org.symly.repositories;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.symly.links.Configuration;
+import org.symly.links.Link;
 
 /**
  * An ordered collection of {@link Repository} which files will be linked into the {@link MainDirectory}.

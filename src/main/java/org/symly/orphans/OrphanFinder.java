@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 import org.symly.links.Link;
-import org.symly.links.Repositories;
+import org.symly.repositories.Repositories;
 
 @RequiredArgsConstructor
 public class OrphanFinder {

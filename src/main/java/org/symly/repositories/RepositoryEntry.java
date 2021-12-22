@@ -1,4 +1,4 @@
-package org.symly.links;
+package org.symly.repositories;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
