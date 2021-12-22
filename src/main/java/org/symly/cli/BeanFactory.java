@@ -25,15 +25,19 @@ public class BeanFactory implements CommandLine.IFactory {
         registerBean(VersionProvider.class, () -> new VersionProvider(create(Config.class)));
         registerBean(MainCommand.class, () -> new MainCommand(create(Config.class), create(CliConsole.class)));
         registerBean(
-                ExceptionHandler.class,
-                () -> new ExceptionHandler(create(Config.class), create(CliConsole.class)));
+            ExceptionHandler.class,
+            () -> new ExceptionHandler(create(Config.class), create(CliConsole.class)));
         registerBean(
-                LinkCommand.class,
-                () -> new LinkCommand(create(CliConsole.class), create(FileSystemReader.class),
-                        create(FileSystemWriter.class)));
+            LinkCommand.class,
+            () -> new LinkCommand(create(CliConsole.class), create(FileSystemReader.class),
+                create(FileSystemWriter.class)));
         registerBean(
-                StatusCommand.class,
-                () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)));
+            UnlinkCommand.class,
+            () -> new UnlinkCommand(create(CliConsole.class), create(FileSystemReader.class),
+                create(FileSystemWriter.class)));
+        registerBean(
+            StatusCommand.class,
+            () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)));
     }
 
     @Override

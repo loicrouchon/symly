@@ -3,6 +3,7 @@ package org.symly.cli;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.Result;
@@ -12,7 +13,6 @@ import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
 import org.symly.links.Link;
-import org.symly.links.Status;
 import org.symly.orphans.OrphanFinder;
 import org.symly.repositories.MainDirectory;
 import org.symly.repositories.Repositories;
@@ -22,12 +22,11 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(
-        name = "link",
-        aliases = {"ln"},
-        description = "Create/update links from 'directory' to the 'to' repositories"
+        name = "unlink",
+        description = "Remove links in 'directory' pointing to the 'to' repositories"
 )
 @RequiredArgsConstructor
-class LinkCommand extends ValidatedCommand {
+class UnlinkCommand extends ValidatedCommand {
 
     @Option(
             names = {"-d", "--dir", "--directory"},
@@ -45,20 +44,13 @@ class LinkCommand extends ValidatedCommand {
             required = true,
             arity = "1..*"
     )
-    List<Repository> repositoriesList;
+    List<Repository> allRepositories;
 
     @Option(
             names = {"--dry-run"},
-            description = "Do not actually create links but only displays which ones would be created"
+            description = "Do not actually remove links but only displays which ones would be removed"
     )
     boolean dryRun = false;
-
-    @Option(
-            names = {"-f", "--force"},
-            description = "Force existing files and directories to be overwritten instead of failing in case of "
-                    + "conflicts"
-    )
-    boolean force = false;
 
     @Option(
             names = {"--max-depth"},
@@ -79,7 +71,7 @@ class LinkCommand extends ValidatedCommand {
         return List.of(
                 Constraint.ofArg("main-directory", mainDirectory, "must be an existing directory",
                         fsReader::isADirectory),
-                Constraint.ofArg("repositories", repositoriesList, "must be an existing directory",
+                Constraint.ofArg("repositories", allRepositories, "must be an existing directory",
                         fsReader::isADirectory),
                 Constraint.ofArg("max-depth", maxDepth, "must be a positive integer",
                         depth -> depth >= 0)
@@ -88,14 +80,14 @@ class LinkCommand extends ValidatedCommand {
 
     @Override
     public void execute() {
-        console.printf("Creating links ");
+        console.printf("Removing links ");
         if (dryRun) {
             console.printf("(dry-run mode) ");
         }
-        console.printf("in %s to %s%n", mainDirectory, repositoriesList);
-        Repositories repositories = Repositories.of(repositoriesList);
+        console.printf("in %s to %s%n", mainDirectory, allRepositories);
+        Repositories repositories = Repositories.of(allRepositories);
         FileSystemWriter mutator = getFilesMutatorService();
-        createLinks(repositories, mutator);
+        unlink(repositories, mutator);
         deleteOrphans(mainDirectory, repositories, mutator);
     }
 
@@ -106,15 +98,26 @@ class LinkCommand extends ValidatedCommand {
         return fileSystemWriter;
     }
 
-    private void createLinks(Repositories repositories, FileSystemWriter fsWriter) {
-        for (Link link : repositories.links(mainDirectory)) {
-            Status status = link.status(fsReader);
-            List<Action> actions = status.toActions(force);
-            for (Action action : actions) {
-                Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
-                printStatus(action, result);
-            }
+    private void unlink(Repositories repositories, FileSystemWriter fsWriter) {
+        repositories.links(mainDirectory)
+            .stream()
+            .filter(link -> targetsRepositories(link, repositories))
+            .forEach(link -> unlink(link, fsWriter));
+    }
+
+    private boolean targetsRepositories(Link link, Repositories repositories) {
+        Path source = link.source();
+        if (fsReader.isSymbolicLink(source)) {
+            Path linkTarget = fsReader.readSymbolicLink(source);
+            return repositories.containsPath(linkTarget);
         }
+        return false;
+    }
+
+    private void unlink(Link link, FileSystemWriter fsWriter) {
+        Action action = Action.delete(link);
+        Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
+                        printStatus(action, result);
     }
 
     private void deleteOrphans(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
@@ -139,13 +142,8 @@ class LinkCommand extends ValidatedCommand {
     private void printAction(Action action, Path previousLink) {
         Link link = action.link();
         console.printf("%-" + Action.Type.MAX_LENGTH + "s %s%n", action.type(), link);
-        if (action.type().equals(Action.Type.UPDATE)) {
-            if (previousLink != null) {
-                console.printf("> Previous link target was %s%n", previousLink);
-            } else {
-                throw new IllegalStateException(
-                        "Expecting a previous link to be found for " + link.source());
-            }
+        if (!Objects.equals(link.target(), previousLink)) {
+            console.printf("> Previous link target was %s%n", previousLink);
         }
     }
 
