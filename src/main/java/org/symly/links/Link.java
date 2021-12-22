@@ -5,22 +5,12 @@ import java.util.Objects;
 import org.symly.files.FileSystemReader;
 
 /**
- * Conceptual representation of a symbolic link where:
- * <ul>
- *     <li>{@link #source}: is the {@link Path} of the link.</li>
- *     <li>{@link #target}: is the {@link Path} pointed by the link.</li>
- * </ul>
+ * Conceptual representation of a symbolic link.
+ *
+ * @param source the {@link Path} of the link.
+ * @param target the {@link Path} pointed by the link.
  */
-public record Link(
-    /**
-     * The {@link Path} of the link.
-     */
-    Path source,
-    /**
-     * The {@link Path} pointed by the link.
-     */
-    Path target
-    ) {
+public record Link(Path source, Path target) {
 
     public Status status(FileSystemReader fsReader) {
         if (fsReader.isSymbolicLink(source)) {
