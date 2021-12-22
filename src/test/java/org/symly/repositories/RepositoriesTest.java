@@ -17,35 +17,39 @@ class RepositoriesTest {
     void containsPath_shouldBeTrue_whenPathIsContainedInRepository() {
         //given
         Repositories repositories = Repositories.of(List.of(
-            repo("/symly/repo1",
+            repo(
+                "/symly/repo1",
                 List.of("dir", "dir/nested"),
                 List.of("file", "dir/file")
             ),
-            repo("/symly/repo2",
+            repo(
+                "/symly/repo2",
                 List.of("dir", "other-dir/nested"),
                 List.of("otherfile", "dir/otherfile", "other-dir/nested")
             )
         ));
         //when/then
         // existing files in repos
-        assertThat(repositories.containsPath(Path.of("/symly/repo1","file"))).isTrue();
-        assertThat(repositories.containsPath(Path.of("/symly/repo2","dir/otherfile"))).isTrue();
+        assertThat(repositories.containsPath(Path.of("/symly/repo1", "file"))).isTrue();
+        assertThat(repositories.containsPath(Path.of("/symly/repo2", "dir/otherfile"))).isTrue();
         // non-existing files in repos
-        assertThat(repositories.containsPath(Path.of("/symly/repo1","some/things"))).isTrue();
-        assertThat(repositories.containsPath(Path.of("/symly/repo2","some/other/things"))).isTrue();
+        assertThat(repositories.containsPath(Path.of("/symly/repo1", "some/things"))).isTrue();
+        assertThat(repositories.containsPath(Path.of("/symly/repo2", "some/other/things"))).isTrue();
         // files outside the repos
-        assertThat(repositories.containsPath(Path.of("/symly/repo3","no/luck"))).isFalse();
+        assertThat(repositories.containsPath(Path.of("/symly/repo3", "no/luck"))).isFalse();
     }
 
     @Test
     void allDirectoriesNames_shouldReturn_allDirectoriesNames_inAllRepositories() {
         //given
         Repositories repositories = Repositories.of(List.of(
-            repo("/symly/repo1",
+            repo(
+                "/symly/repo1",
                 List.of("dir", "dir/nested"),
                 List.of("file", "dir/file")
             ),
-            repo("/symly/repo2",
+            repo(
+                "/symly/repo2",
                 List.of("dir", "other-dir/nested"),
                 List.of("otherfile", "dir/otherfile", "other-dir/nested")
             )
@@ -62,7 +66,8 @@ class RepositoriesTest {
     void emptyRepositories_shouldBeEmpty() {
         //given
         Repositories repositories = Repositories.of(List.of(
-            repo("/symly/repo1",
+            repo(
+                "/symly/repo1",
                 List.of(),
                 List.of()
             )
@@ -73,26 +78,53 @@ class RepositoriesTest {
     }
 
     @Test
-    void links_shouldBeReturn_fileLinks() {
+    void links_shouldReturn_fileLinks() {
         //given
         Repositories repositories = Repositories.of(List.of(
-            repo("/symly/repo1",
+            repo(
+                "/symly/repo1",
                 List.of("dir", "dir/nested"),
                 List.of("file", "dir/file")
             ),
-            repo("/symly/repo2",
+            repo(
+                "/symly/repo2",
                 List.of("dir", "other-dir/nested"),
                 List.of("other-file", "dir/file", "other-dir/nested-file")
             )
         ));
         //when/then
         assertThat(repositories.links(MAIN_DIR))
-            .hasSize(4)
-            .contains(
-                link("/symly/main/file", "/symly/repo1/file"),
+            .containsExactly(
                 link("/symly/main/dir/file", "/symly/repo1/dir/file"),
-                link("/symly/main/other-file", "/symly/repo2/other-file"),
-                link("/symly/main/other-dir/nested-file", "/symly/repo2/other-dir/nested-file")
+                link("/symly/main/file", "/symly/repo1/file"),
+                link("/symly/main/other-dir/nested-file", "/symly/repo2/other-dir/nested-file"),
+                link("/symly/main/other-file", "/symly/repo2/other-file")
+            );
+    }
+
+    @Test
+    void links_shouldReturn_directoryLinks() {
+        //given
+        Repositories repositories = Repositories.of(List.of(
+            repo(
+                "/symly/repo1",
+                List.of("dir", "dir/nested", "dir/nested2"),
+                List.of("foo", "dir/file", "dir/nested/.symlink", "dir/nested/foo", "dir/nested2/foo")
+            ),
+            repo(
+                "/symly/repo2",
+                List.of("dir/nested"),
+                List.of("bar", "dir/nested/foo", "dir/nested/bar")
+            )
+        ));
+        //when/then
+        assertThat(repositories.links(MAIN_DIR))
+            .contains(
+                link("/symly/main/bar", "/symly/repo2/bar"),
+                link("/symly/main/foo", "/symly/repo1/foo"),
+                link("/symly/main/dir/file", "/symly/repo1/dir/file"),
+                link("/symly/main/dir/nested", "/symly/repo1/dir/nested"),
+                link("/symly/main/dir/nested2/foo", "/symly/repo1/dir/nested2/foo")
             );
     }
 
@@ -128,7 +160,7 @@ class RepositoriesTest {
         private Stream<RepositoryEntry> entries(Collection<String> paths, RepositoryEntry.Type type) {
             return paths.stream()
                 .map(Path::of)
-                .map(path -> new RepositoryEntry(path, toPath().resolve(path), type));
+                .map(path -> RepositoryEntry.of(path, toPath().resolve(path), type));
         }
     }
 }

@@ -1,12 +1,14 @@
 package org.symly.repositories;
 
-import java.nio.file.Files;
+import static org.symly.links.Configuration.symlinkMarker;
+import static org.symly.repositories.RepositoryEntry.Type.DIRECTORY;
+
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.symly.links.Configuration;
 import org.symly.links.Link;
 
 /**
@@ -46,24 +48,33 @@ public class Repositories {
     private Stream<RepositoryEntry> entries() {
         Set<Path> addedNames = new HashSet<>();
         List<Path> addedDirs = new ArrayList<>();
-        return allEntries()
-            .<RepositoryEntry>mapMulti((element, stream) -> {
-                if (addedNames.contains(element.name())) {
+        List<RepositoryEntry> allEntries = allEntries().toList();
+        Set<Path> allEntriesFullPaths = allEntries.stream()
+            .map(RepositoryEntry::fullPath)
+            .collect(Collectors.toSet());
+        return allEntries.stream()
+            .<RepositoryEntry>mapMulti((entry, stream) -> {
+                if (skipEntry(entry, addedNames, addedDirs, allEntriesFullPaths)) {
                     return;
                 }
-                if (addedDirs.stream().anyMatch(dir -> element.fullPath().startsWith(dir))) {
-                    return;
+                if (entry.type() == DIRECTORY) {
+                    addedDirs.add(entry.name());
                 }
-                if (element.type() == RepositoryEntry.Type.DIRECTORY) {
-                    if (!Files.exists(Configuration.symlinkMarker(element.fullPath()))) {
-                        return;
-                    }
-                    addedDirs.add(element.fullPath());
-                }
-                addedNames.add(element.name());
-                stream.accept(element);
+                addedNames.add(entry.name());
+                stream.accept(entry);
             })
             .sorted(Comparator.comparing(RepositoryEntry::name));
+    }
+
+    private boolean skipEntry(RepositoryEntry entry,
+        Set<Path> addedNames, List<Path> addedDirs, Set<Path> allEntriesFullPaths) {
+        if (addedNames.contains(entry.name())) {
+            return true;
+        }
+        if (addedDirs.stream().anyMatch(dir -> entry.name().startsWith(dir))) {
+            return true;
+        }
+        return entry.type() == DIRECTORY && !allEntriesFullPaths.contains(symlinkMarker(entry.fullPath()));
     }
 
     private Link toLink(RepositoryEntry repositoryEntry, Path directory) {
@@ -79,7 +90,7 @@ public class Repositories {
     public List<Path> allDirectoriesNames() {
         try (Stream<RepositoryEntry> allElements = allEntries()) {
             return allElements
-                .filter(e -> e.type() == RepositoryEntry.Type.DIRECTORY)
+                .filter(e -> e.type() == DIRECTORY)
                 .map(RepositoryEntry::name)
                 .sorted()
                 .distinct()

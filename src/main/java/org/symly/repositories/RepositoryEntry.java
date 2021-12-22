@@ -30,6 +30,10 @@ public record RepositoryEntry(
         } else {
             type = Type.FILE;
         }
+        return of(name, fullPath, type);
+    }
+
+    static RepositoryEntry of(Path name, Path fullPath, Type type) {
         Path normalizedFullPath = fullPath.toAbsolutePath().normalize();
         Path normalizedName = name.normalize();
         return new RepositoryEntry(normalizedName, normalizedFullPath, type);
