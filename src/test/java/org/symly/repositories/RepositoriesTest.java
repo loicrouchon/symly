@@ -8,10 +8,6 @@ import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.symly.links.Link;
-import org.symly.repositories.MainDirectory;
-import org.symly.repositories.Repositories;
-import org.symly.repositories.Repository;
-import org.symly.repositories.RepositoryEntry;
 
 class RepositoriesTest {
 
