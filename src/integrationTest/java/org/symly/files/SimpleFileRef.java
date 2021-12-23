@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import lombok.NonNull;
 
 record SimpleFileRef(
-        @NonNull Path name
+    @NonNull Path name
 ) implements FileRef {
 
     @Override

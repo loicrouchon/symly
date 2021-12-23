@@ -7,8 +7,8 @@ import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 
 public record DeleteLinkAction(
-        Type type,
-        Link link
+    Type type,
+    Link link
 ) implements Action {
 
     @Override
@@ -19,7 +19,7 @@ public record DeleteLinkAction(
             return Result.success(null);
         } catch (IOException e) {
             return Result.error(
-                    new Code(Code.State.ERROR, "Unable to delete link " + e.getMessage(), link.target()));
+                new Code(Code.State.ERROR, "Unable to delete link " + e.getMessage(), link.target()));
         }
     }
 }

@@ -6,7 +6,8 @@ import java.nio.file.Path;
 
 public final class FileTestUtils {
 
-    private FileTestUtils() {}
+    private FileTestUtils() {
+    }
 
     public static void createDirectory(Path path) {
         if (!Files.exists(path)) {

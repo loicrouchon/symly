@@ -7,8 +7,8 @@ import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 
 public record UpdateLinkAction(
-        Type type,
-        Link link
+    Type type,
+    Link link
 ) implements Action {
 
     @Override
@@ -23,7 +23,7 @@ public record UpdateLinkAction(
             return Result.success(previousLink);
         } catch (IOException e) {
             return Result.error(new Code(Code.State.ERROR, "Unable to update link " + e.getMessage(),
-                    previousLink));
+                previousLink));
         }
     }
 }

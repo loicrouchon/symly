@@ -16,7 +16,7 @@ import org.symly.cli.converters.PathAdapter;
 import org.symly.files.FileTree;
 
 @SuppressWarnings({
-        "java:S5960" // Assertions should not be used in production code (this is test code)
+    "java:S5960" // Assertions should not be used in production code (this is test code)
 })
 @RequiredArgsConstructor
 public class MainCommand {
@@ -38,7 +38,7 @@ public class MainCommand {
             sysProps.set(PathAdapter.SYMLY_CWD_PROPERTY, workingDir.toAbsolutePath());
             BeanFactory beanFactory = new BeanFactory();
             beanFactory.registerBean(
-                    CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
+                CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
             int exitCode = Main.runCommand(beanFactory, args);
             return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, exitCode, stdOut.reader(), stdErr.reader());
         } catch (Exception e) {

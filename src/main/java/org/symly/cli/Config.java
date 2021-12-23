@@ -43,9 +43,9 @@ public class Config {
             Properties properties = new Properties();
             properties.load(is);
             return properties.entrySet().stream()
-                    .collect(Collectors.toMap(
-                            e -> asString(e.getKey()),
-                            e -> asString(e.getValue())));
+                .collect(Collectors.toMap(
+                    e -> asString(e.getKey()),
+                    e -> asString(e.getValue())));
         } catch (IOException e) {
             throw new SymlyExecutionException("Unable to load application version", e);
         }

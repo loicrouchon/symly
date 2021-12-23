@@ -44,9 +44,9 @@ public interface Action {
     }
 
     record Code(
-            State state,
-            String details,
-            Path previousPath) {
+        State state,
+        String details,
+        Path previousPath) {
 
         public enum State {
             CONFLICT,

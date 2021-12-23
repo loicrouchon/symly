@@ -33,10 +33,10 @@ class LinkTest {
         //then
         assertThat(status.type()).isEqualTo(Status.Type.MISSING);
         assertThat(actions)
-                .hasSize(1)
-                .first()
-                .isInstanceOf(CreateLinkAction.class)
-                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CREATE));
+            .hasSize(1)
+            .first()
+            .isInstanceOf(CreateLinkAction.class)
+            .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CREATE));
     }
 
     @Test
@@ -52,10 +52,10 @@ class LinkTest {
         //then
         assertThat(status.type()).isEqualTo(Status.Type.FILE_CONFLICT);
         assertThat(actions)
-                .hasSize(1)
-                .first()
-                .isInstanceOf(ConflictAction.class)
-                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CONFLICT));
+            .hasSize(1)
+            .first()
+            .isInstanceOf(ConflictAction.class)
+            .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CONFLICT));
     }
 
     @Test
@@ -70,10 +70,10 @@ class LinkTest {
         //then
         assertThat(status.type()).isEqualTo(Status.Type.LINK_CONFLICT);
         assertThat(actions)
-                .hasSize(1)
-                .first()
-                .isInstanceOf(UpdateLinkAction.class)
-                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UPDATE));
+            .hasSize(1)
+            .first()
+            .isInstanceOf(UpdateLinkAction.class)
+            .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UPDATE));
     }
 
     @Test
@@ -88,9 +88,9 @@ class LinkTest {
         //then
         assertThat(status.type()).isEqualTo(Status.Type.UP_TO_DATE);
         assertThat(actions)
-                .hasSize(1)
-                .first()
-                .isInstanceOf(NoOpAction.class)
-                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UP_TO_DATE));
+            .hasSize(1)
+            .first()
+            .isInstanceOf(NoOpAction.class)
+            .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UP_TO_DATE));
     }
 }

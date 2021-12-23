@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.symly.files.FileTree;
 
 @SuppressWarnings({
-        "java:S5960" // Assertions should not be used in production code (this is test code)
+    "java:S5960" // Assertions should not be used in production code (this is test code)
 })
 @RequiredArgsConstructor
 public class JvmCommand {
@@ -28,9 +28,9 @@ public class JvmCommand {
 
     private static final String JAVA_BINARY = String.format("%s/bin/java", System.getProperty("java.home"));
     private static final List<String> JVM_OPTIONS = List.of(
-            "-XX:TieredStopAtLevel=1",
-            "-Xmx8m",
-            "-XX:+ShowCodeDetailsInExceptionMessages"
+        "-XX:TieredStopAtLevel=1",
+        "-Xmx8m",
+        "-XX:+ShowCodeDetailsInExceptionMessages"
     );
     private static final String CLASSPATH_SYSTEM_PROPERTY = "symly.runtime.classpath";
     private static final String MAIN_CLASS = "org.symly.cli.Main";
@@ -47,17 +47,17 @@ public class JvmCommand {
         List<String> command = command(args);
         try {
             Process process = new ProcessBuilder()
-                    .directory(workingDir.toFile())
-                    .command(command)
-                    .start();
+                .directory(workingDir.toFile())
+                .command(command)
+                .start();
             boolean finished = process.waitFor(TIMEOUT, TimeUnit.SECONDS);
             if (!finished) {
                 process.destroyForcibly();
                 fail(commandFailureMessage("Command did not finish in time", command));
             }
             try (
-                    Reader stdOut = toReader(process.getInputStream());
-                    Reader stdErr = toReader(process.getErrorStream())
+                Reader stdOut = toReader(process.getInputStream());
+                Reader stdErr = toReader(process.getErrorStream())
             ) {
                 return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, process.exitValue(), stdOut, stdErr);
             }
@@ -89,21 +89,21 @@ public class JvmCommand {
         RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
         List<String> args = runtimeMXBean.getInputArguments();
         return args.stream()
-                .filter(arg -> arg.startsWith("-javaagent") && arg.contains("jacoco"))
-                .findFirst()
-                .map(this::toAbsolutePath);
+            .filter(arg -> arg.startsWith("-javaagent") && arg.contains("jacoco"))
+            .findFirst()
+            .map(this::toAbsolutePath);
     }
 
     private String toAbsolutePath(String jacocoAgent) {
         Path buildPath = Path.of("build").toAbsolutePath();
         return jacocoAgent
-                .replace("-javaagent:build", "-javaagent:" + buildPath)
-                .replace("=destfile=build", "=destfile=" + buildPath);
+            .replace("-javaagent:build", "-javaagent:" + buildPath)
+            .replace("=destfile=build", "=destfile=" + buildPath);
     }
 
     private String commandFailureMessage(String message, List<String> command) {
         return String.format(
-                "%s%n\tworking directory:%n\t\t%s%n\tCommand:%n\t\t%s",
-                message, workingDir, command);
+            "%s%n\tworking directory:%n\t\t%s%n\tCommand:%n\t\t%s",
+            message, workingDir, command);
     }
 }

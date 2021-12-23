@@ -12,8 +12,8 @@ class Constraints implements Constraint {
     @Override
     public Optional<String> violation() {
         return allConstraints.stream()
-                .map(Constraint::violation)
-                .flatMap(Optional::stream)
-                .findFirst();
+            .map(Constraint::violation)
+            .flatMap(Optional::stream)
+            .findFirst();
     }
 }

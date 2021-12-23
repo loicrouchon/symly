@@ -18,8 +18,8 @@ abstract class ValidatedCommand implements Runnable {
     @Override
     public final void run() {
         constraints().forEach(validator -> validator
-                .violation()
-                .ifPresent(this::throwViolation));
+            .violation()
+            .ifPresent(this::throwViolation));
         execute();
     }
 

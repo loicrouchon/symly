@@ -10,8 +10,8 @@ import java.util.stream.Stream;
 import org.symly.cli.SymlyExecutionException;
 
 public record Status(
-        Type type,
-        Link link
+    Type type,
+    Link link
 ) {
 
     public List<Action> toActions(boolean force) {
@@ -28,12 +28,12 @@ public record Status(
             List<Action> actions = new ArrayList<>();
             try (Stream<Path> files = Files.walk(link.source())) {
                 files
-                        .sorted(Comparator.comparing(Path::toString).reversed())
-                        .map(path -> Action.delete(Link.of(path, null)))
-                        .forEach(actions::add);
+                    .sorted(Comparator.comparing(Path::toString).reversed())
+                    .map(path -> Action.delete(Link.of(path, null)))
+                    .forEach(actions::add);
             } catch (IOException e) {
                 throw new SymlyExecutionException(String.format(
-                        "Unable to list files to be deleted for conflicting link %s", link), e);
+                    "Unable to list files to be deleted for conflicting link %s", link), e);
             }
             actions.add(Action.create(link));
             return actions;

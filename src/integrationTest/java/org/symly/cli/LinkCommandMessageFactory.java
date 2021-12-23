@@ -33,12 +33,12 @@ class LinkCommandMessageFactory {
 
     public String creatingLinks(String to, List<String> from) {
         return String.format(
-                "Creating links in %s to [%s]",
-                env.path(to),
-                from.stream()
-                        .map(env::path)
-                        .map(Path::toString)
-                        .collect(Collectors.joining(", "))
+            "Creating links in %s to [%s]",
+            env.path(to),
+            from.stream()
+                .map(env::path)
+                .map(Path::toString)
+                .collect(Collectors.joining(", "))
         );
     }
 
@@ -52,8 +52,8 @@ class LinkCommandMessageFactory {
 
     public List<String> linkActionUpdate(String from, String to, String previousTo) {
         return List.of(
-                action("UPDATE", from, to),
-                String.format("> Previous link target was %s", env.path(previousTo))
+            action("UPDATE", from, to),
+            String.format("> Previous link target was %s", env.path(previousTo))
         );
     }
 
@@ -79,10 +79,10 @@ class LinkCommandMessageFactory {
 
     public List<String> cannotCreateLinkError(String from, String to) {
         return List.of(
-                String.format("Unable to create link %s -> %s", env.path(from), env.path(to)),
-                String.format(
-                        "> Regular file %s already exist. To overwrite it, use the --replace-file option.",
-                        env.path(from))
+            String.format("Unable to create link %s -> %s", env.path(from), env.path(to)),
+            String.format(
+                "> Regular file %s already exist. To overwrite it, use the --replace-file option.",
+                env.path(from))
         );
     }
 }

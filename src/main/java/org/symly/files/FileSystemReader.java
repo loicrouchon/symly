@@ -29,7 +29,7 @@ public class FileSystemReader {
             return Files.readSymbolicLink(link);
         } catch (IOException e) {
             throw new SymlyExecutionException(String.format(
-                    "Unable to read link %s real path: %s", link, e.getMessage()), e);
+                "Unable to read link %s real path: %s", link, e.getMessage()), e);
         }
     }
 }

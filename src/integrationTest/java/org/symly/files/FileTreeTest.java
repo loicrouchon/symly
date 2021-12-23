@@ -7,9 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.symly.env.IntegrationTest;
 
 @SuppressWarnings({
-        "java:S100",  // Method names should comply with a naming convention (test method names)
-        "java:S1192", // String literals should not be duplicated
-        "java:S5960", // Assertions should not be used in production code (This is test code)
+    "java:S100",  // Method names should comply with a naming convention (test method names)
+    "java:S1192", // String literals should not be duplicated
+    "java:S5960", // Assertions should not be used in production code (This is test code)
 })
 class FileTreeTest extends IntegrationTest {
 
@@ -17,16 +17,16 @@ class FileTreeTest extends IntegrationTest {
     void fromPath_shouldContainFileEntry_whenFileExist() {
         //given/when
         FileTree tree = given(env).withLayout("""
-                        F hello
-                        F my/name/is
-                        F world
-                        """)
-                .getRootFileTree();
+                F hello
+                F my/name/is
+                F world
+                """)
+            .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
-                "F hello",
-                "F my/name/is",
-                "F world"
+            "F hello",
+            "F my/name/is",
+            "F world"
         );
     }
 
@@ -34,14 +34,14 @@ class FileTreeTest extends IntegrationTest {
     void fromPath_shouldContainLinkEntry_whenTargetPathIsAnExistingFile() {
         //given/when
         FileTree tree = given(env).withLayout("""
-                        L hello -> world
-                        F world
-                        """)
-                .getRootFileTree();
+                L hello -> world
+                F world
+                """)
+            .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
-                "L hello -> world",
-                "F world"
+            "L hello -> world",
+            "F world"
         );
     }
 
@@ -49,13 +49,13 @@ class FileTreeTest extends IntegrationTest {
     void fromPath_shouldContainLinkEntry_whenTargetPathIsAnExistingDirectory() {
         //given/when
         FileTree tree = given(env).withLayout("""
-                        L hello -> some/dir
-                        D some/dir
-                        """)
-                .getRootFileTree();
+                L hello -> some/dir
+                D some/dir
+                """)
+            .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
-                "L hello -> some/dir"
+            "L hello -> some/dir"
         );
     }
 
@@ -63,12 +63,12 @@ class FileTreeTest extends IntegrationTest {
     void fromPath_shouldContainLinkEntry_whenTargetPathDoesNotExist() {
         //given/when
         FileTree tree = given(env).withLayout("""
-                        L hello -> anyone
-                        """)
-                .getRootFileTree();
+                L hello -> anyone
+                """)
+            .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
-                "L hello -> anyone"
+            "L hello -> anyone"
         );
     }
 
@@ -76,20 +76,20 @@ class FileTreeTest extends IntegrationTest {
     void fromPath_shouldNotContainDirectoryEntries() {
         //given/when
         FileTree tree = given(env).withLayout("""
-                        D another/dir
-                        L hello1 -> world
-                        L hello2 -> some/dir
-                        L hello3 -> some/dir/other/dir
-                        D some/dir/other/dir
-                        F world
-                        """)
-                .getRootFileTree();
+                D another/dir
+                L hello1 -> world
+                L hello2 -> some/dir
+                L hello3 -> some/dir/other/dir
+                D some/dir/other/dir
+                F world
+                """)
+            .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
-                "L hello1 -> world",
-                "L hello2 -> some/dir",
-                "L hello3 -> some/dir/other/dir",
-                "F world"
+            "L hello1 -> world",
+            "L hello2 -> some/dir",
+            "L hello3 -> some/dir/other/dir",
+            "F world"
         );
     }
 
@@ -97,17 +97,17 @@ class FileTreeTest extends IntegrationTest {
     void fromPath_shouldReferenceLinksOutsideItself() {
         //given/when
         FileTree tree = given(env).withLayout("""
-                        F my/name/is
-                        F real-hello
-                        L tree/hello -> real-hello
-                        F tree/toto
-                        F world
-                        """)
-                .getFileTree("tree");
+                F my/name/is
+                F real-hello
+                L tree/hello -> real-hello
+                F tree/toto
+                F world
+                """)
+            .getFileTree("tree");
         //then
         assertThat(tree.getLayout()).containsExactly(
-                "L hello -> ../real-hello",
-                "F toto"
+            "L hello -> ../real-hello",
+            "F toto"
         );
     }
 
@@ -115,17 +115,17 @@ class FileTreeTest extends IntegrationTest {
     void create_shouldCreate_filesInTheTree() {
         //given
         FileTree initial = FileTree.of(List.of(
-                "hello/world",
-                "how/are/you -> doing/today"
+            "hello/world",
+            "how/are/you -> doing/today"
         ));
         //when
         FileTree tree = given(env)
-                .create(initial)
-                .getRootFileTree();
+            .create(initial)
+            .getRootFileTree();
         //then
         assertThat(tree.getLayout()).containsExactly(
-                "F hello/world",
-                "L how/are/you -> doing/today"
+            "F hello/world",
+            "L how/are/you -> doing/today"
         );
     }
 }

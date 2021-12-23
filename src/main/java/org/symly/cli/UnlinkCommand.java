@@ -65,6 +65,8 @@ class UnlinkCommand extends ValidatedCommand {
     private final FileSystemReader fsReader;
     @NonNull
     private final FileSystemWriter fileSystemWriter;
+    @NonNull
+    private final LinksFinder linksFinder;
 
     @Override
     protected Collection<Constraint> constraints() {
@@ -98,8 +100,7 @@ class UnlinkCommand extends ValidatedCommand {
     }
 
     private void deleteOrphans(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
-        LinksFinder finder = new LinksFinder(fsReader);
-        finder
+        linksFinder
             .findLinks(mainDirectory.toPath(), maxDepth, repositories)
             .forEach(orphan -> deleteOrphan(orphan, mutator));
     }
