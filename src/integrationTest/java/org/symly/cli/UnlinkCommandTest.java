@@ -78,7 +78,7 @@ class UnlinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldIgnoreSimpleFiles_whenLinkTargetPointsToRepository() {
+    void shouldIgnoreSimpleFiles() {
         //given
         given(env).withLayout("""
             F home/user/file
@@ -95,7 +95,24 @@ class UnlinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldUnlinkFiles_whenLinkTargetPointsToRepository() {
+    void shouldIgnoreLinks_whenLinkTargetNotInRepository() {
+        //given
+        given(env).withLayout("""
+            L home/user/file -> non-repo/file
+            L home/user/nested/file -> non-repo/nested/file
+            F non-repo/file
+            F non-repo/nested/file
+            D to-dir
+            """);
+        //when/then
+        whenRunningCommand("unlink", "--to", "to-dir")
+            .thenItShould()
+            .succeed()
+            .withFileTreeDiff(Diff.empty());
+    }
+
+    @Test
+    void shouldUnlink_whenLinkTarget_pointsToRepository_andIsAnExistingFile() {
         //given
         given(env).withLayout("""
             L home/user/file -> to-dir/file
@@ -116,25 +133,71 @@ class UnlinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldUnlinkDirectories_whenLinkTargetPointsToRepository() {
+    void shouldUnlink_whenLinkTarget_pointsToRepository_andIsAnExistingDirectory() {
         //given
         given(env).withLayout("""
             L home/user/some-dir -> to-dir/some-dir
             L home/user/nested/some-dir -> to-dir/nested/some-dir
             D to-dir/some-dir
             D to-dir/nested/some-dir
-            F to-dir/some-dir/.symlink
-            F to-dir/nested/some-dir/.symlink
             """);
         //when/then
         whenRunningCommand("unlink", "--to", "to-dir")
             .thenItShould()
             .succeed()
             .withMessage(msg.actionUnlink("home/user/some-dir", "to-dir/some-dir"))
-            .withMessage(msg.actionUnlink("home/user/nested/some-dir","to-dir/nested/some-dir"))
+            .withMessage(msg.actionUnlink("home/user/nested/some-dir", "to-dir/nested/some-dir"))
             .withFileTreeDiff(Diff.ofChanges("""
                 -L home/user/some-dir -> to-dir/some-dir
                 -L home/user/nested/some-dir -> to-dir/nested/some-dir
+                """));
+    }
+
+    @Test
+    void shouldUnlink_whenLinkTarget_pointsToRepository_evenIfTargetDoesNotExist() {
+        //given
+        given(env).withLayout("""
+            L home/user/some/file -> to-dir/some/file
+            D to-dir
+            """);
+        //when/then
+        whenRunningCommand("unlink", "--to", "to-dir")
+            .thenItShould()
+            .succeed()
+            .withMessage(msg.actionUnlink("home/user/some/file", "to-dir/some/file"))
+            .withFileTreeDiff(Diff.ofChanges("""
+                -L home/user/some/file -> to-dir/some/file
+                """));
+    }
+
+    @Test
+    void shouldNotUnlink_whenLinkTarget_pointsToRepository_butNestingLevelIsHigherThanMaxDepthLookup() {
+        //given
+        given(env).withLayout("""
+            L home/user/some/nested/file -> to-dir/some/nested/file
+            D to-dir
+            """);
+        //when/then
+        whenRunningCommand("unlink", "--to", "to-dir")
+            .thenItShould()
+            .succeed()
+            .withFileTreeDiff(Diff.empty());
+    }
+
+    @Test
+    void shouldUnlink_whenLinkTarget_pointsToRepository_withExtendedMaxDepthLookup() {
+        //given
+        given(env).withLayout("""
+            L home/user/some/nested/file -> to-dir/some/nested/file
+            D to-dir
+            """);
+        //when/then
+        whenRunningCommand("unlink", "--to", "to-dir", "--max-depth", "3")
+            .thenItShould()
+            .succeed()
+            .withMessage(msg.actionUnlink("home/user/some/nested/file", "to-dir/some/nested/file"))
+            .withFileTreeDiff(Diff.ofChanges("""
+                -L home/user/some/nested/file -> to-dir/some/nested/file
                 """));
     }
 }

@@ -160,7 +160,7 @@ class RepositoriesTest {
         private Stream<RepositoryEntry> entries(Collection<String> paths, RepositoryEntry.Type type) {
             return paths.stream()
                 .map(Path::of)
-                .map(path -> RepositoryEntry.of(path, toPath().resolve(path), type));
+                .map(path -> RepositoryEntry.of(path, resolve(path), type));
         }
     }
 }

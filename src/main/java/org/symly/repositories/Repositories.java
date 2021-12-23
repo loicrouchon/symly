@@ -37,10 +37,9 @@ public class Repositories {
      * @return a list of {@link Link} to be created in {@code mainDirectory}.
      */
     public List<Link> links(MainDirectory mainDirectory) {
-        Path mainDirectoryPath = mainDirectory.toPath();
         try (Stream<RepositoryEntry> elements = entries()) {
             return elements
-                .map(element -> toLink(element, mainDirectoryPath))
+                .map(element -> toLink(element, mainDirectory))
                 .toList();
         }
     }
@@ -77,7 +76,7 @@ public class Repositories {
         return entry.type() == DIRECTORY && !allEntriesFullPaths.contains(symlinkMarker(entry.fullPath()));
     }
 
-    private Link toLink(RepositoryEntry repositoryEntry, Path directory) {
+    private Link toLink(RepositoryEntry repositoryEntry, MainDirectory directory) {
         return Link.of(directory.resolve(repositoryEntry.name()), repositoryEntry.fullPath());
     }
 

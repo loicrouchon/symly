@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.FileSystemWriterImpl;
+import org.symly.repositories.LinksFinder;
 import picocli.CommandLine;
 
 public class BeanFactory implements CommandLine.IFactory {
@@ -19,25 +20,42 @@ public class BeanFactory implements CommandLine.IFactory {
 
     public BeanFactory() {
         registerBean(Config.class, Config::new);
-        registerBean(CliConsole.class, () -> new CliConsole(new PrintWriter(System.out), new PrintWriter(System.err)));
+        registerBean(CliConsole.class, () -> new CliConsole(
+            new PrintWriter(System.out),
+            new PrintWriter(System.err)
+        ));
         registerBean(FileSystemReader.class, FileSystemReader::new);
         registerBean(FileSystemWriter.class, FileSystemWriterImpl::new);
-        registerBean(VersionProvider.class, () -> new VersionProvider(create(Config.class)));
-        registerBean(MainCommand.class, () -> new MainCommand(create(Config.class), create(CliConsole.class)));
-        registerBean(
-            ExceptionHandler.class,
-            () -> new ExceptionHandler(create(Config.class), create(CliConsole.class)));
-        registerBean(
-            LinkCommand.class,
-            () -> new LinkCommand(create(CliConsole.class), create(FileSystemReader.class),
-                create(FileSystemWriter.class)));
-        registerBean(
-            UnlinkCommand.class,
-            () -> new UnlinkCommand(create(CliConsole.class), create(FileSystemReader.class),
-                create(FileSystemWriter.class)));
-        registerBean(
-            StatusCommand.class,
-            () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)));
+        registerBean(LinksFinder.class, () -> new LinksFinder(
+            create(FileSystemReader.class)
+        ));
+        registerBean(VersionProvider.class, () -> new VersionProvider(
+            create(Config.class)
+        ));
+        registerBean(MainCommand.class, () -> new MainCommand(
+            create(Config.class),
+            create(CliConsole.class)
+        ));
+        registerBean(ExceptionHandler.class, () -> new ExceptionHandler(
+            create(Config.class),
+            create(CliConsole.class)
+        ));
+        registerBean(LinkCommand.class, () -> new LinkCommand(
+            create(CliConsole.class),
+            create(FileSystemReader.class),
+            create(FileSystemWriter.class),
+            create(LinksFinder.class)
+        ));
+        registerBean(UnlinkCommand.class, () -> new UnlinkCommand(
+            create(CliConsole.class),
+            create(FileSystemReader.class),
+            create(FileSystemWriter.class),
+            create(LinksFinder.class)
+        ));
+        registerBean(StatusCommand.class, () -> new StatusCommand(
+            create(CliConsole.class),
+            create(FileSystemReader.class)
+        ));
     }
 
     @Override

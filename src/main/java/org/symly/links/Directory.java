@@ -28,6 +28,10 @@ public abstract class Directory {
         return path.startsWith(toPath());
     }
 
+    public Path resolve(Path subPath) {
+        return path.resolve(subPath);
+    }
+
     @Override
     public String toString() {
         return path.toString();

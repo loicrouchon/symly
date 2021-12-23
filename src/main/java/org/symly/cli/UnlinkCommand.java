@@ -13,7 +13,7 @@ import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
 import org.symly.links.Link;
-import org.symly.orphans.OrphanFinder;
+import org.symly.repositories.LinksFinder;
 import org.symly.repositories.MainDirectory;
 import org.symly.repositories.Repositories;
 import org.symly.repositories.Repository;
@@ -22,40 +22,40 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(
-        name = "unlink",
-        description = "Remove links in 'directory' pointing to the 'to' repositories"
+    name = "unlink",
+    description = "Remove links in 'directory' pointing to the 'to' repositories"
 )
 @RequiredArgsConstructor
 class UnlinkCommand extends ValidatedCommand {
 
     @Option(
-            names = {"-d", "--dir", "--directory"},
-            paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created",
-            required = true,
-            showDefaultValue = CommandLine.Help.Visibility.ALWAYS
+        names = {"-d", "--dir", "--directory"},
+        paramLabel = "<main-directory>",
+        description = "Main directory in which links will be created",
+        required = true,
+        showDefaultValue = CommandLine.Help.Visibility.ALWAYS
     )
     MainDirectory mainDirectory;
 
     @Option(
-            names = {"-t", "--to"},
-            paramLabel = "<repositories>",
-            description = "Target directories (a.k.a. repositories) containing files to link in the main directory",
-            required = true,
-            arity = "1..*"
+        names = {"-t", "--to"},
+        paramLabel = "<repositories>",
+        description = "Target directories (a.k.a. repositories) containing files to link in the main directory",
+        required = true,
+        arity = "1..*"
     )
     List<Repository> allRepositories;
 
     @Option(
-            names = {"--dry-run"},
-            description = "Do not actually remove links but only displays which ones would be removed"
+        names = {"--dry-run"},
+        description = "Do not actually remove links but only displays which ones would be removed"
     )
     boolean dryRun = false;
 
     @Option(
-            names = {"--max-depth"},
-            paramLabel = "<max-depth>",
-            description = "Depth of the lookup for orphans deletion"
+        names = {"--max-depth"},
+        paramLabel = "<max-depth>",
+        description = "Depth of the lookup for orphans deletion"
     )
     int maxDepth = 2;
 
@@ -69,12 +69,12 @@ class UnlinkCommand extends ValidatedCommand {
     @Override
     protected Collection<Constraint> constraints() {
         return List.of(
-                Constraint.ofArg("main-directory", mainDirectory, "must be an existing directory",
-                        fsReader::isADirectory),
-                Constraint.ofArg("repositories", allRepositories, "must be an existing directory",
-                        fsReader::isADirectory),
-                Constraint.ofArg("max-depth", maxDepth, "must be a positive integer",
-                        depth -> depth >= 0)
+            Constraint.ofArg("main-directory", mainDirectory, "must be an existing directory",
+                fsReader::isADirectory),
+            Constraint.ofArg("repositories", allRepositories, "must be an existing directory",
+                fsReader::isADirectory),
+            Constraint.ofArg("max-depth", maxDepth, "must be a positive integer",
+                depth -> depth >= 0)
         );
     }
 
@@ -87,7 +87,6 @@ class UnlinkCommand extends ValidatedCommand {
         console.printf("in %s to %s%n", mainDirectory, allRepositories);
         Repositories repositories = Repositories.of(allRepositories);
         FileSystemWriter mutator = getFilesMutatorService();
-        unlink(repositories, mutator);
         deleteOrphans(mainDirectory, repositories, mutator);
     }
 
@@ -98,32 +97,11 @@ class UnlinkCommand extends ValidatedCommand {
         return fileSystemWriter;
     }
 
-    private void unlink(Repositories repositories, FileSystemWriter fsWriter) {
-        repositories.links(mainDirectory)
-            .stream()
-            .filter(link -> targetsRepositories(link, repositories))
-            .forEach(link -> unlink(link, fsWriter));
-    }
-
-    private boolean targetsRepositories(Link link, Repositories repositories) {
-        Path source = link.source();
-        if (fsReader.isSymbolicLink(source)) {
-            Path linkTarget = fsReader.readSymbolicLink(source);
-            return repositories.containsPath(linkTarget);
-        }
-        return false;
-    }
-
-    private void unlink(Link link, FileSystemWriter fsWriter) {
-        Action action = Action.delete(link);
-        Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
-                        printStatus(action, result);
-    }
-
     private void deleteOrphans(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
-        OrphanFinder orphanFinder = new OrphanFinder(fsReader);
-        Collection<Link> orphans = orphanFinder.findOrphans(mainDirectory.toPath(), maxDepth, repositories);
-        orphans.forEach(orphan -> deleteOrphan(orphan, mutator));
+        LinksFinder finder = new LinksFinder(fsReader);
+        finder
+            .findLinks(mainDirectory.toPath(), maxDepth, repositories)
+            .forEach(orphan -> deleteOrphan(orphan, mutator));
     }
 
     private void deleteOrphan(Link orphan, FileSystemWriter mutator) {
@@ -134,8 +112,8 @@ class UnlinkCommand extends ValidatedCommand {
 
     private void printStatus(Action action, Result<Path, Action.Code> result) {
         result.accept(
-                previousLink -> printAction(action, previousLink),
-                error -> printError(action, error)
+            previousLink -> printAction(action, previousLink),
+            error -> printError(action, error)
         );
     }
 
