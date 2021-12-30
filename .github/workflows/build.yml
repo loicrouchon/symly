@@ -24,12 +24,12 @@ jobs:
         run: |
           echo ${GITHUB_REF#refs/head/}
           if echo ${GITHUB_REF#refs/head/} | grep -q "refs/heads/release/"; then
-            BASE_VERSION=$(echo ${GITHUB_REF#refs/head/} | grep -Po 'refs/heads/release/\K(.+)')
-            echo "Base version: $BASE_VERSION"
-            git fetch --tags origin tag "v$BASE_VERSION.*"
-            echo "Current tags for base version $BASE_VERSION:"
-            git tag -l "v$BASE_VERSION.*"
-            VERSION=$(git tag -l "v$BASE_VERSION.*" | cut -c2- | java VersionBumper.java $BASE_VERSION)
+            TAG_BASE_VERSION="v$(echo ${GITHUB_REF#refs/head/} | grep -Po 'refs/heads/release/\K(.+)')"
+            echo "Base version: $TAG_BASE_VERSION"
+            git fetch --tags origin tag "$TAG_BASE_VERSION.*"
+            echo "Current tags for base version $TAG_BASE_VERSION:"
+            git tag -l "$TAG_BASE_VERSION.*"
+            VERSION=$(git tag -l "$TAG_BASE_VERSION.*" | java VersionBumper.java $TAG_BASE_VERSION)
           else
             VERSION="0-dev+$(echo $GITHUB_SHA | cut -c1-7)"
           fi

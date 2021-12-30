@@ -1,5 +1,3 @@
-import java.io.*;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -15,7 +13,7 @@ public class VersionBumper {
         if (args.length != 1) {
             System.out.println("""
                     Finds the highest existing version and increment the last digit by one.
-                                
+
                     Usage:
                       echo $VERSIONS | java VersionComparator.java $BASE_VERSION
                     Where:
@@ -25,12 +23,14 @@ public class VersionBumper {
         }
         String baseVersion = args[0];
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
-            String version = br.lines()
-                    .filter(tag -> tag.startsWith(baseVersion + "."))
+            String subVersion = br.lines()
+                    .filter(version -> version.startsWith(baseVersion + "."))
+                    .map(version -> version.substring(baseVersion.length() + 1))
                     .max(VersionBumper::compareVersion)
                     .map(VersionBumper::increment)
-                    .orElse(baseVersion + ".1");
-            System.out.println(version);
+                    .orElse("1");
+            String fullVersion = String.format("%s.%s", baseVersion, subVersion);
+            System.out.println(fullVersion);
         }
     }
 
@@ -45,8 +45,8 @@ public class VersionBumper {
         return Integer.compare(av.length, bv.length);
     }
 
-    private static String increment(String tag) {
-        String[] parts = tag.split(VERSION_SPLIT);
+    private static String increment(String version) {
+        String[] parts = version.split(VERSION_SPLIT);
         parts[parts.length - 1] = Integer.toString(Integer.parseInt(parts[parts.length - 1]) + 1);
         return String.join(VERSION_SEPARATOR, parts);
     }
