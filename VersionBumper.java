@@ -12,23 +12,23 @@ public class VersionBumper {
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
             System.out.println("""
-                    Finds the highest existing version and increment the last digit by one.
+                Finds the highest existing version and increment the last digit by one.
 
-                    Usage:
-                      echo $VERSIONS | java VersionComparator.java $BASE_VERSION
-                    Where:
-                      - $VERSIONS is a list of existing versions, one per line.
-                      - $BASE_VERSION is the current version we want to bump""");
+                Usage:
+                  echo $VERSIONS | java VersionComparator.java $BASE_VERSION
+                Where:
+                  - $VERSIONS is a list of existing versions, one per line.
+                  - $BASE_VERSION is the current version we want to bump""");
             System.exit(1);
         }
         String baseVersion = args[0];
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
             String subVersion = br.lines()
-                    .filter(version -> version.startsWith(baseVersion + "."))
-                    .map(version -> version.substring(baseVersion.length() + 1))
-                    .max(VersionBumper::compareVersion)
-                    .map(VersionBumper::increment)
-                    .orElse("1");
+                .filter(version -> version.startsWith(baseVersion + "."))
+                .map(version -> version.substring(baseVersion.length() + 1))
+                .max(VersionBumper::compareVersion)
+                .map(VersionBumper::increment)
+                .orElse("1");
             String fullVersion = String.format("%s.%s", baseVersion, subVersion);
             System.out.println(fullVersion);
         }
