@@ -14,7 +14,7 @@ application {
     mainClass.set(appMainClassName)
     applicationDefaultJvmArgs = listOf(
         // the cli is short lived, so let's enable a fast JVM startup
-        "-XX:TieredStopAtLevel=1"
+        "-XX:+NeverActAsServerClassMachine",
     )
 }
 
