@@ -3,7 +3,6 @@ package org.symly.cli;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.Result;
@@ -89,7 +88,7 @@ class UnlinkCommand extends ValidatedCommand {
         console.printf("in %s to %s%n", mainDirectory, allRepositories);
         Repositories repositories = Repositories.of(allRepositories);
         FileSystemWriter mutator = getFilesMutatorService();
-        deleteOrphans(mainDirectory, repositories, mutator);
+        unlink(mainDirectory, repositories, mutator);
     }
 
     private FileSystemWriter getFilesMutatorService() {
@@ -99,13 +98,13 @@ class UnlinkCommand extends ValidatedCommand {
         return fileSystemWriter;
     }
 
-    private void deleteOrphans(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
+    private void unlink(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
         linksFinder
             .findLinks(mainDirectory.toPath(), maxDepth, repositories)
-            .forEach(orphan -> deleteOrphan(orphan, mutator));
+            .forEach(orphan -> unlink(orphan, mutator));
     }
 
-    private void deleteOrphan(Link orphan, FileSystemWriter mutator) {
+    private void unlink(Link orphan, FileSystemWriter mutator) {
         Action action = Action.delete(orphan);
         Result<Path, Action.Code> status = action.apply(fsReader, mutator);
         printStatus(action, status);
@@ -113,30 +112,21 @@ class UnlinkCommand extends ValidatedCommand {
 
     private void printStatus(Action action, Result<Path, Action.Code> result) {
         result.accept(
-            previousLink -> printAction(action, previousLink),
+            previousLink -> printAction(action),
             error -> printError(action, error)
         );
     }
 
-    private void printAction(Action action, Path previousLink) {
+    private void printAction(Action action) {
         Link link = action.link();
         console.printf("%-" + Action.Type.MAX_LENGTH + "s %s%n", action.type(), link);
-        if (!Objects.equals(link.target(), previousLink)) {
-            console.printf("> Previous link target was %s%n", previousLink);
-        }
     }
 
     private void printError(Action action, Action.Code error) {
-        printAction(action, error.previousPath());
+        printAction(action);
         Link link = action.link();
-        String details = switch (error.state()) {
-            case INVALID_SOURCE -> String.format("Source %s does not exist", link.source());
-            case INVALID_DESTINATION -> String.format("Destination %s does not exist", link.target());
-            case CONFLICT -> String.format(
-                "Regular file %s already exist. To overwrite it, use the --replace-file option.",
-                link.source());
-            case ERROR -> String.format("An error occurred during linkage: - %s", error.details());
-        };
+        String details = String.format("An error occurred while deleting link: %s%n> - %s: %s",
+            link, error.state(), error.details());
         if (dryRun) {
             console.eprintf("> %s%n", details);
         } else {
