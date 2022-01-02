@@ -21,16 +21,15 @@ public class VersionBumper {
                   - $BASE_VERSION is the current version we want to bump""");
             System.exit(1);
         }
-        String baseVersion = args[0];
+        Version baseVersion = Version.parse(args[0]);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
             String subVersion = br.lines()
-                .filter(version -> version.startsWith(baseVersion + "."))
-                .map(version -> version.substring(baseVersion.length() + 1))
+                .filter(version -> version.startsWith(baseVersion.version() + "."))
+                .map(version -> version.substring(baseVersion.version().length() + 1))
                 .max(VersionBumper::compareVersion)
                 .map(VersionBumper::increment)
                 .orElse("1");
-            String fullVersion = String.format("%s.%s", baseVersion, subVersion);
-            System.out.println(fullVersion);
+            System.out.println(baseVersion.subversion(subVersion));
         }
     }
 
@@ -49,5 +48,28 @@ public class VersionBumper {
         String[] parts = version.split(VERSION_SPLIT);
         parts[parts.length - 1] = Integer.toString(Integer.parseInt(parts[parts.length - 1]) + 1);
         return String.join(VERSION_SEPARATOR, parts);
+    }
+
+    private static record Version (String version, String suffix) {
+
+        public Version subversion(String subversion) {
+            return new Version(version + "." + subversion, suffix);
+        }
+
+        @Override
+        public String toString() {
+            if (suffix != null) {
+                return version + "-" + suffix;
+            }
+            return version;
+        }
+
+        public static Version parse(String fullVersion) {
+            int suffixIndex = fullVersion.indexOf('-');
+            if (suffixIndex >= 0) {
+                return new Version(fullVersion.substring(0, suffixIndex), fullVersion.substring(suffixIndex + 1));
+            }
+            return new Version(fullVersion, null);
+        }
     }
 }

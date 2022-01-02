@@ -7,7 +7,6 @@ jobs:
     name: Initialize environment
     runs-on: ubuntu-20.04
     outputs:
-      tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
       gradle-args: ${{ steps.gradle.outputs.args }}
     steps:
@@ -22,29 +21,13 @@ jobs:
       - id: version
         name: Compute application version
         run: |
-          echo ${GITHUB_REF#refs/head/}
-          if echo ${GITHUB_REF#refs/head/} | grep -q "refs/heads/release/"; then
-            TAG_BASE_VERSION="v$(echo ${GITHUB_REF#refs/head/} | grep -Po 'refs/heads/release/\K(.+)')"
-            echo "Base version: $TAG_BASE_VERSION"
-            git fetch --tags origin tag "$TAG_BASE_VERSION.*"
-            echo "Current tags for base version $TAG_BASE_VERSION:"
-            git tag -l "$TAG_BASE_VERSION.*"
-            VERSION=$(git tag -l "$TAG_BASE_VERSION.*" | java VersionBumper.java $TAG_BASE_VERSION)
-          else
-            VERSION="0-dev+$(echo $GITHUB_SHA | cut -c1-7)"
-          fi
+          VERSION=$(./src/build-tools/compute-next-version.sh)
           echo "Setting version to $VERSION"
           echo ::set-output name=version::$VERSION
-          echo ::set-output name=tag::"v$VERSION"
 
       - id: gradle
         name: Compute gradlew args
         run: echo ::set-output name=args::"-Pversion=${{ steps.version.outputs.version }} --info --console=plain"
-
-      - name: Echo env details
-        run: |
-          echo "Application version is ${{ steps.version.outputs.version }} / tag ${{ steps.version.outputs.tag }}"
-          echo "Gradle args are: ${{ steps.gradle.outputs.args }}"
 
   test:
     name: Test
