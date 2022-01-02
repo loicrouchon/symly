@@ -1,9 +1,9 @@
 # Symly
 
-![build](https://github.com/loicrouchon/symly/actions/workflows/build.yml/badge.svg)
-![build](https://github.com/loicrouchon/symly/actions/workflows/codeql-analysis.yml/badge.svg)
+[![build](https://github.com/loicrouchon/symly/actions/workflows/build.yml/badge.svg)](https://github.com/loicrouchon/symly/actions/workflows/build.yml)
+[![build](https://github.com/loicrouchon/symly/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/loicrouchon/symly/actions/workflows/codeql-analysis.yml)
 [![GitHub](https://img.shields.io/github/license/loicrouchon/symly)](https://github.com/loicrouchon/symly/blob/main/LICENSE)
-![code-size](https://img.shields.io/github/languages/code-size/loicrouchon/symly)
+[![code-size](https://img.shields.io/github/languages/code-size/loicrouchon/symly)](https://github.com/loicrouchon/symly/archive/refs/heads/main.zip)
 
 Symly is a tool helping to replicate and maintain the file structure of one or multiple `repositories` into a
 `directory` by creating symbolic links.
