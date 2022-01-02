@@ -39,7 +39,10 @@ class UnlinkCommand extends ValidatedCommand {
     @Option(
         names = {"-t", "--to"},
         paramLabel = "<repositories>",
-        description = "Target directories (a.k.a. repositories) containing files to link in the main directory",
+        description = """
+            Repositories containing files to link in the main directory. \
+            Repositories are to be listed by decreasing priority as the first ones will \
+            override the content of the later ones.""",
         required = true,
         arity = "1..*"
     )

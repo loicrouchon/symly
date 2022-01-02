@@ -1,39 +1,27 @@
 # Symly
 
-Symly is a tool helping to replicate and maintain the file structure of a `repository` into a
-directory `source directory` by creating symbolic links.
+![build](https://github.com/loicrouchon/symly/actions/workflows/build.yml/badge.svg)
+![build](https://github.com/loicrouchon/symly/actions/workflows/codeql-analysis.yml/badge.svg)
+[![GitHub](https://img.shields.io/github/license/loicrouchon/symly)](https://github.com/loicrouchon/symly/blob/main/LICENSE)
+![code-size](https://img.shields.io/github/languages/code-size/loicrouchon/symly)
 
-For example, consider the following directory `~/my/repository`:
+Symly is a tool helping to replicate and maintain the file structure of one or multiple `repositories` into a
+`directory` by creating symbolic links.
 
-```txt
-~/my/repository
- |-- .bashrc
- |-- .gitconfig
- >-- .config
-     |-- starship.toml
-     >-- fish
-         |-- config.fish
-```
+##### Table of Contents
 
-By using symly, you can automatically create links in the user home directory (`~`) to all files in `~/my/repository`.
-
-```cmd
-> symly link --to ~/my/repository
-```
-
-This would result in the following links:
-
-```txt
-~/.bashrc                   ->  ~/my/repository/.bashrc
-~/.gitconfig                ->  ~/my/repository/.gitconfig
-~/.config/starship.toml     ->  ~/my/repository/.config/starship.toml
-~/.config/fish/config.fish  ->  ~/my/repository/.config/fish/config.fish
-```
+* [What is symly useful for?](#what-is-symly-useful-for)
+* [Features](#features)
+* [Concepts](#concepts)
+* [Usage](#usage)
+* [Installation](#installation)
+* [Build](#build)
 
 ## What is symly useful for?
 
-The Symly tool has been created to address the synchronization issue of user's configuration files between different
-machines. But Symly is not a synchronization tool, nor is limited to deal with user configuration files.
+Symly has been created to address the synchronization issue of user's configuration files between different machines.
+But Symly is not a synchronization tool, nor is limited to deal with user configuration files also known as
+_dotfiles_.
 
 > *Symly is not a synchronization tool.*
 
@@ -59,60 +47,127 @@ want to deploy your centralized files.
 
 ### Is Symly limited to user configuration files?
 
-No, Symly is not limited to creating links in your user home folder. The user home folder is a sensible default for
-the `main directory` but any other `main directory` can be used.
+No, Symly is not limited to creating links in your user home folder. The user home folder is a sensible default for the
+directory but any other directory can be used.
 
-## Installation
+## Features
 
-Symly is available through deb and rpm package managers for linux
+**Commands**:
 
-**DEB**: Debian, Ubuntu, Linux Mint, ...
+* [x] link: link the content of the repositories into the directory.
+* [x] unlink: unlink the content of the repositories into the directory.
+* [x] status: displays the links status
 
-```cmd
-sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/deb/dists/latest/Release.gpg.key | gpg --dearmor > /etc/apt/trusted.gpg.d/loicrouchon-packages.gpg'
-sudo sh -c 'echo "deb [arch=amd64] https://packages.loicrouchon.fr/deb latest main" > /etc/apt/sources.list.d/symly.list'
-sudo apt update
-sudo apt install symly
+**Core features:**
+
+* [x] Replication of the repository files tree structure in the directory
+* [x] Symbolic link creation/update/deletion for files (default mode)
+* [x] Symbolic link creation/update/deletion for directories (on demand only)
+* [x] Orphan links detection/deletion
+* [x] Forced link creation
+
+**Flexible repositories:**
+
+* [x] Support for multiple repositories
+* [x] Layering of repositories allowing for custom files and defaults ones
+
+**Integrations:**
+
+* [x] Seamless integration with editors, use your preferred editor or command line tools to alter your files. They don't
+  even need to be aware of Symly
+* [x] Seamless integration with synchronization, diff and merge tools. No need to learn a new one
+* [x] Not limited to dotfiles, can be used for any other directory/file types
+
+### Roadmap
+
+* [ ] Command to add and link a new file to a repository
+* [ ] Command to restore a file in the directory
+* [ ] Command to restore a full repository
+
+## Concepts
+
+Symly is based on the following major concepts:
+
+* The _repository_: a folder containing a file structured to be linked in a _directory_. For example `/some/path`
+  , `~/repositories/defaults`.
+* The _directory_: The folder in which the _repositories_ content will be linked. For example `~`.
+
+Consider the following repository file structure:
+
+```txt
+~/repository
+  |-- .gitconfig
+  >-- .config
+      >-- starship.toml
 ```
 
-**RPM**: Fedora, CentOS, Red Hat, ...
+When linked with symly in the `~` directory, the following links will be created:
 
-```cmd
-sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/rpm/Release.gpg.key > /tmp/symly.gpg.key'
-sudo rpm --import /tmp/symly.gpg.key
-sudo dnf install 'dnf-command(config-manager)'
-sudo dnf config-manager --add-repo https://packages.loicrouchon.fr/rpm
-sudo dnf install symly
+```txt
+~/.gitconfig             -> ~/repository/.gitconfig
+~/.config/starship.toml  -> ~/repository/config/starship.toml
 ```
 
-It is also available via HomeBrew for macOS and other linux distributions.
+_Links_ are composed of two attributes:
 
-**Homebrew** (MacOS/Linux)
+* **source**: The path of the link.
+* **target**: The path pointed by the link.
 
-```cmd
-brew tap loicrouchon/symly
-brew install symly
+They are materialized on the file system as [symbolic links](https://en.wikipedia.org/wiki/Symbolic_link).
+
+For example: `~/.config/starship.toml -> ~/repository/.config/starship.toml`
+
+Those two attributes can be determined from the _directory_, and the _repository_ using a third one: the _link name_.
+
+The _link name_ is the common part of the path between the link source and target. It is both:
+
+* The relative path of a link source to its main directory.
+* The relative path of a link target to its repository.
+
+Example:
+
+* `.gitconfig` for link `~/.gitconfig -> ~/repository/.gitconfig`
+* `.config/starship.toml` for link `~/.config/starship.toml -> ~/repository/.config/starship.toml`
+
+### Summary
+
+Here is how all the previous notions play together:
+
+```txt
+ ~          /  .config/starship.toml  ->  ~/repositories/defaults  /  .config/starship.toml
+[DIRECTORY] / [NAME                 ] -> [REPOSITORY             ] / [NAME                 ]
+[SOURCE                             ] -> [TARGET                                           ]
 ```
 
-## Manual download
+### The "repository file tree is the state" principle
 
-Artifacts can also be downloaded manually from [github](https://github.com/loicrouchon/symly/tags).
+On top of those concept, an important principle applies:
 
-The following artifacts are available:
+> _**The repository file tree is the state**_
 
-* Jar application with bootstrap script. Requires JVM 17+
-* Native binaries for Linux (x64) and macOS (x64)
-* `.deb` and `.rpm` packages.
+This principle is has the following implications:
+
+* No command to add a file to a repository, just drop it there
+* No command to delete a file from a repository, just delete it
+* No command to edit a file in a repository, just edit it directly or through its symbolic link in the directory. This
+  allows for Seamless integration with tools modifying dotfiles directly on the directory (like git config user.name
+  ..., …)
+* Immediate visibility on modifications made on the directory files
 
 ## Usage
 
+General command help:
+
 ```cmd
-Usage: symly [-hv] [COMMAND]
+Usage: symly [-hvV] [COMMAND]
 symly create links
--h, --help      Prints this help message and exits
--v, --verbose   Be verbose.
+  -h, --help      Prints this help message and exits
+  -v, --verbose   Be verbose.
+  -V, --version   Prints version information.
 Commands:
-link        Synchronizes the links from the repositories to the source directory
+  link, ln    Create/update links from 'directory' to the 'to' repositories
+  status, st  Displays the current synchronization status
+  unlink      Remove links in 'directory' pointing to the 'to' repositories
 ```
 
 ### The `link` subcommand
@@ -120,17 +175,21 @@ link        Synchronizes the links from the repositories to the source directory
 The `link` subcommand is the main subcommand that will perform the linking.
 
 ```txt
-Usage: symly link [--dry-run] [-d=<main-directory>] -t=<repositories>...
+Usage: symly link [-f] [--dry-run] [-d=<main-directory>]
+                  [--max-depth=<max-depth>] -t=<repositories>...
                   [-t=<repositories>...]...
-Synchronizes the links from the target directories to the destination
+Create/update links from 'directory' to the 'to' repositories
   -d, --dir, --directory=<main-directory>
                   Main directory in which links will be created
-                    Default: /Users/loicrouchon
+                    Default: $HOME
       --dry-run   Do not actually create links but only displays which ones
                     would be created
+  -f, --force     Force existing files and directories to be overwritten
+                    instead of failing in case of conflicts
+      --max-depth=<max-depth>
+                  Depth of the lookup for orphans deletion
   -t, --to=<repositories>...
-                  Target directories (a.k.a. repositories) containing files to
-                    link in the main directory
+                  Repositories containing files to link in the main directory
 ```
 
 * Links every file from the `repositories` into the `main directory` by preserving the structure.
@@ -189,73 +248,48 @@ Creating links in ~ to [~/my/repositories/custom, ~/my/repositories/defaults]
 
 Creating links in ~ to [~/my/repository]
 [CREATE] ~/.config/fish -> ~/my/repository/.config/fish
-```  
-
-## Terminology
-
-The terminology examples will be given by considering the following file structure:
-
-```txt
-~
- |-- .gitconfig         -> ~/repositories/custom/.gitconfig
- |-- .bashrc            -> ~/repositories/custom/.bashrc
- >-- .config
-     >-- starship.toml  -> ~/repositories/defaults/config/starship.toml
-
-~/repositories
- |-- custom
- |   |-- .gitconfig
- |   >-- .bashrc
- >-- defaults
-     |-- .gitconfig
-     >-- .config
-        >-- starship.toml
 ```
 
-**Main directory**:
-A directory in which a `repository`  file structure will be linked.
+## Installation
 
-Example: `~`
+Symly is available through deb and rpm package managers for linux
 
-**Repository**:
-A directory containing a file structure to link into a `main directory`.
+**DEB**: Debian, Ubuntu, Linux Mint, ...
 
-Example: `~/repositories/custom`, `~/repositories/defaults`
-
-**Link**:
-
-A link is composed of two attributes:
-
-* **source**: The path of the link.
-* **target**: The path pointed by the link.
-
-It is materialized on the file system as a [symbolic link](https://en.wikipedia.org/wiki/Symbolic_link).
-
-For example: `~/.config/starship.toml -> ~/repositories/defaults/.config/starship.toml`
-
-Those two attributes can be determined from the _main directory, and the repository_ using a third one: the _link
-name_
-.
-
-The **link name** is the common part of the path between the link source and target. It is both:
-
-* The relative path of a link source to its main directory.
-* The relative path of a link target to its repository.
-
-Example:
-
-* `.gitconfig` for link `~/.gitconfig -> ~/repositories/custom/.gitconfig`
-* `.config/starship.toml` for link `~/.config/starship.toml -> ~/repositories/defaults/.config/starship.toml`
-
-### Summary
-
-Here is how all the previous notions play together:
-
-```txt
- ~               /  .config/starship.toml  ->  ~/repositories/defaults  /  .config/starship.toml
-[MAIN DIRECTORY] / [NAME                 ] -> [REPOSITORY             ] / [NAME                 ]
-[SOURCE                                  ] -> [TARGET                                           ]
+```cmd
+sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/deb/dists/latest/Release.gpg.key | gpg --dearmor > /etc/apt/trusted.gpg.d/loicrouchon-packages.gpg'
+sudo sh -c 'echo "deb [arch=amd64] https://packages.loicrouchon.fr/deb latest main" > /etc/apt/sources.list.d/symly.list'
+sudo apt update
+sudo apt install symly
 ```
+
+**RPM**: Fedora, CentOS, Red Hat, ...
+
+```cmd
+sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/rpm/Release.gpg.key > /tmp/symly.gpg.key'
+sudo rpm --import /tmp/symly.gpg.key
+sudo dnf install 'dnf-command(config-manager)'
+sudo dnf config-manager --add-repo https://packages.loicrouchon.fr/rpm
+sudo dnf install symly
+```
+
+It is also available via HomeBrew for macOS and other linux distributions.
+
+**Homebrew** (MacOS/Linux)
+
+```cmd
+brew tap loicrouchon/symly
+brew install symly
+```
+
+## Manual download
+
+Artifacts can also be downloaded manually from [github](https://github.com/loicrouchon/symly/releases).
+
+The following artifacts are available:
+
+* Jar application with bootstrap script. Requires JVM 17+
+* `.deb` and `.rpm` packages.
 
 ## Build
 
@@ -270,7 +304,7 @@ You can also clone this repository and build Symly using the instructions below:
 The application can be built using the `installDist` task:
 
 ```shell script
-./gradlew clean build installDist
+./gradlew clean check installDist
 ```
 
 This will install the application locally in the `./build/install/symly/`. The application can be run
@@ -286,37 +320,3 @@ symly create links
 Commands:
   link  link
 ```
-
-### Advanced packaging options
-
-#### Creating a distribution
-
-The `assembleDist` task allow to build a `tar` and a `zip` distribution archives:
-
-```shell script
-./gradlew clean build assembleDist
-```
-
-This result in two self-contained archive which only requires a JRE to be installed. The archives are located
-here:
-
-* `build/distributions/symly-${version}.tar`
-* `build/distributions/symly-${version}.zip`
-
-Once unzipped/untarred, the application can be run using the same `bin/link`/`bin/symly.bat` launch script as above.
-
-#### Creating a native executable
-
-You can create a native executable using the `Makefile` target `build`:
-
-```shell script
-make clean build
-```
-
-This will:
-
-* Download GraalVM
-* Install `native-image`
-* Run the `nativeCompile` gradle task with the proper `JAVA_HOME` environment variables
-
-You can then execute your native executable with: `./build/native/nativeCompile/symly <ARGS>`
