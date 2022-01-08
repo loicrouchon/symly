@@ -1,7 +1,6 @@
 [versions]
 picocli = "4.6.1"
 junit = "5.8.1"
-mockito = "4.0.0"
 
 [libraries]
 
@@ -11,9 +10,3 @@ picocli-core = { module = "info.picocli:picocli", version.ref = "picocli" }
 picocli-codegen = { module = "info.picocli:picocli-codegen", version.ref = "picocli" }
 
 assertj = "org.assertj:assertj-core:3.21.0"
-
-mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
-mockito-junit = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
-
-[bundles]
-mockito = ["mockito-core", "mockito-junit"]

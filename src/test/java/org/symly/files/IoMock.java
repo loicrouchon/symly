@@ -1,38 +1,60 @@
 package org.symly.files;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.symly.links.Directory;
 
-@RequiredArgsConstructor
 public class IoMock {
 
-    public final FileSystemReader fsReader;
+    private final Set<Path> exists = new HashSet<>();
+    private final Map<Path, Path> links = new HashMap<>();
 
-    public IoMock() {
-        fsReader = mock(FileSystemReader.class);
+    public void file(Path path) {
+        exists.add(path);
     }
 
-    public void fileDoesNotExist(Path path) {
-        given(fsReader.exists(path)).willReturn(false);
+    public void symlink(Path source, Path target) {
+        file(source);
+        links.put(source, target);
     }
 
-    public void fileExists(Path path) {
-        given(fsReader.exists(path)).willReturn(true);
-        given(fsReader.isSymbolicLink(path)).willReturn(false);
+    public FileSystemReader buildFileSystemReader() {
+        return new FileSystemReaderStub(Set.copyOf(exists), Map.copyOf(links));
     }
 
-    public void symlinkExists(Path path, Path target) {
-        given(fsReader.exists(path)).willReturn(true);
-        given(fsReader.isSymbolicLink(path)).willReturn(true);
-        symlinkTargets(path, target);
-    }
+    @RequiredArgsConstructor
+    private static class FileSystemReaderStub extends FileSystemReader {
 
-    public void symlinkTargets(Path path, Path target) {
-        lenient().when(fsReader.readSymbolicLink(path)).thenReturn(target);
-    }
+        private final Set<Path> exists;
+        private final Map<Path, Path> links;
 
+        @Override
+        public boolean exists(Path path) {
+            return exists.contains(path);
+        }
+
+        @Override
+        public boolean isDirectory(Path path) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isADirectory(Directory directory) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isSymbolicLink(Path path) {
+            return links.containsKey(path);
+        }
+
+        @Override
+        public Path readSymbolicLink(Path link) {
+            return links.get(link);
+        }
+    }
 }

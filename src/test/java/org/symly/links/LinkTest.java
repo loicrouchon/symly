@@ -25,10 +25,9 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        ioMock.fileDoesNotExist(from);
-        ioMock.symlinkTargets(to, toRealPath);
+        ioMock.symlink(to, toRealPath);
         //when
-        Status status = link.status(ioMock.fsReader);
+        Status status = link.status(ioMock.buildFileSystemReader());
         List<Action> actions = status.toActions(false);
         //then
         assertThat(status.type()).isEqualTo(Status.Type.MISSING);
@@ -44,10 +43,10 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        ioMock.fileExists(from);
-        ioMock.symlinkTargets(to, toRealPath);
+        ioMock.file(from);
+        ioMock.symlink(to, toRealPath);
         //when
-        Status status = link.status(ioMock.fsReader);
+        Status status = link.status(ioMock.buildFileSystemReader());
         List<Action> actions = status.toActions(false);
         //then
         assertThat(status.type()).isEqualTo(Status.Type.FILE_CONFLICT);
@@ -63,9 +62,9 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        ioMock.symlinkExists(from, Path.of("something"));
+        ioMock.symlink(from, Path.of("something"));
         //when
-        Status status = link.status(ioMock.fsReader);
+        Status status = link.status(ioMock.buildFileSystemReader());
         List<Action> actions = status.toActions(false);
         //then
         assertThat(status.type()).isEqualTo(Status.Type.LINK_CONFLICT);
@@ -81,9 +80,9 @@ class LinkTest {
         //given
         Link link = Link.of(from, to);
         //and
-        ioMock.symlinkExists(from, to);
+        ioMock.symlink(from, to);
         //when
-        Status status = link.status(ioMock.fsReader);
+        Status status = link.status(ioMock.buildFileSystemReader());
         List<Action> actions = status.toActions(false);
         //then
         assertThat(status.type()).isEqualTo(Status.Type.UP_TO_DATE);
