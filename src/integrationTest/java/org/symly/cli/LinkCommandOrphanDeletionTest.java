@@ -17,7 +17,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
         //given
         given(env).withLayout("D to/dir");
         //when/then
-        whenRunningCommand("link", "--to", "to/dir", "--max-depth", "-1")
+        whenRunningCommand("link", "--repositories", "to/dir", "--max-depth", "-1")
             .thenItShould()
             .failWithConfigurationError()
             .withErrorMessage(msg.maxDepthMustBePositive(-1))
@@ -33,7 +33,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             F to/dir/file
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to/dir")
+        whenRunningCommand("link", "--repositories", "to/dir")
             .thenItShould()
             .succeed()
             .withoutMessage(msg.linkActionDelete("home/user/file", "to/dir/file"))
@@ -48,7 +48,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to/dir")
+        whenRunningCommand("link", "--repositories", "to/dir")
             .thenItShould()
             .succeed()
             .withoutMessage(msg.linkActionDelete("home/user/file", "to/otherdir/file"))
@@ -63,7 +63,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to/dir")
+        whenRunningCommand("link", "--repositories", "to/dir")
             .thenItShould()
             .succeed()
             .withMessage(msg.linkActionDelete("home/user/file", "to/dir/file"))
@@ -80,7 +80,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to/dir")
+        whenRunningCommand("link", "--repositories", "to/dir")
             .thenItShould()
             .succeed()
             .withMessage(msg.linkActionDelete("home/user/level1/file", "to/dir/level1/file"))
@@ -97,7 +97,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to/dir")
+        whenRunningCommand("link", "--repositories", "to/dir")
             .thenItShould()
             .succeed()
             .withoutMessage(msg.linkActionDelete("home/user/level1/level2/file", "to/dir/level1/level2/file"))
@@ -111,9 +111,8 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             L home/user/level1/level2/file -> to/dir/level1/level2/file
             D to/dir
             """);
-        ;
         //when/then
-        whenRunningCommand("link", "--to", "to/dir", "--max-depth", "3")
+        whenRunningCommand("link", "--repositories", "to/dir", "--max-depth", "3")
             .thenItShould()
             .succeed()
             .withMessage(msg.linkActionDelete("home/user/level1/level2/file", "to/dir/level1/level2/file"))
@@ -130,7 +129,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir/sub/dir
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to/dir")
+        whenRunningCommand("link", "--repositories", "to/dir")
             .thenItShould()
             .succeed()
             .withMessage(msg.linkActionDelete("home/user/sub/dir/file", "to/dir/sub/dir/file"))
@@ -147,7 +146,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir/sub/dir
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to/dir")
+        whenRunningCommand("link", "--repositories", "to/dir")
             .thenItShould()
             .succeed()
             .withMessage(msg.linkActionDelete("home/user/sub/dir/level1/file", "to/dir/sub/dir/level1/file"))
@@ -164,7 +163,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir/sub/dir
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to/dir")
+        whenRunningCommand("link", "--repositories", "to/dir")
             .thenItShould()
             .succeed()
             .withoutMessage(
@@ -181,7 +180,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir/sub/dir
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to/dir", "--max-depth", "3")
+        whenRunningCommand("link", "--repositories", "to/dir", "--max-depth", "3")
             .thenItShould()
             .succeed()
             .withMessage(
@@ -204,7 +203,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             F to-dir/dir/existingfile
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to-dir", "--max-depth", "1")
+        whenRunningCommand("link", "--repositories", "to-dir", "--max-depth", "1")
             .thenItShould()
             .succeed()
             .withMessage(msg.linkActionUpToDate("home/user/dir/existingfile", "to-dir/dir/existingfile"))
@@ -226,7 +225,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             F to-dir/sub/dir/existingfile
             """);
         //when/then
-        whenRunningCommand("link", "--to", "to-dir", "--max-depth", "1")
+        whenRunningCommand("link", "--repositories", "to-dir", "--max-depth", "1")
             .thenItShould()
             .succeed()
             .withMessage(msg.linkActionUpToDate("home/user/sub/dir/existingfile", "to-dir/sub/dir/existingfile"))

@@ -10,7 +10,7 @@ import org.symly.env.Env;
 @RequiredArgsConstructor
 class LinkCommandMessageFactory {
 
-    private static final String MISSING_REQUIRED_OPTION_TO = "Missing required option: '--to=<repositories>'";
+    private static final String MISSING_REQUIRED_OPTION_TO = "Missing required option: '--repositories=<repositories>'";
 
     @NonNull
     private final Env env;

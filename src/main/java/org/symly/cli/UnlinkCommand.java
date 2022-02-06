@@ -37,7 +37,7 @@ class UnlinkCommand extends ValidatedCommand {
     MainDirectory mainDirectory;
 
     @Option(
-        names = {"-t", "--to"},
+        names = {"-r", "--repositories"},
         paramLabel = "<repositories>",
         description = """
             Repositories containing files to link in the main directory. \

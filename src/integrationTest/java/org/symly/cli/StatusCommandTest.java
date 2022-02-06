@@ -30,7 +30,7 @@ class StatusCommandTest extends IntegrationTest {
         //given
         given(env).withHome("home/doesnotexist");
         //when/then
-        whenRunningCommand("status", "--to", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "--repositories", "to/dir", "/home/user/some/file")
             .thenItShould()
             .failWithConfigurationError()
             .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
@@ -42,7 +42,7 @@ class StatusCommandTest extends IntegrationTest {
         //given
         given(env);
         //when/then
-        whenRunningCommand("status", "--to", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "--repositories", "to/dir", "/home/user/some/file")
             .thenItShould()
             .failWithConfigurationError()
             .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
@@ -54,7 +54,7 @@ class StatusCommandTest extends IntegrationTest {
         //given
         given(env).withLayout("D to/dir");
         //when/then
-        whenRunningCommand("status", "--to", "to/dir")
+        whenRunningCommand("status", "--repositories", "to/dir")
             .thenItShould()
             .succeed()
             .withMessage(msg.checkingLinks("home/user", List.of("to/dir")))
@@ -70,7 +70,7 @@ class StatusCommandTest extends IntegrationTest {
             D to/other-dir
             """);
         //when/then
-        whenRunningCommand("status", "--dir", "main/dir", "--to", "to/dir", "to/other-dir")
+        whenRunningCommand("status", "--dir", "main/dir", "--repositories", "to/dir", "to/other-dir")
             .thenItShould()
             .succeed()
             .withMessage(msg.checkingLinks("main/dir", List.of("to/dir", "to/other-dir")))

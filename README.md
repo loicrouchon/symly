@@ -188,7 +188,7 @@ Create/update links from 'directory' to the 'to' repositories
                     instead of failing in case of conflicts
       --max-depth=<max-depth>
                   Depth of the lookup for orphans deletion
-  -t, --to=<repositories>...
+  -r, --repositories=<repositories>...
                   Repositories containing files to link in the main directory
 ```
 
@@ -204,7 +204,7 @@ Create/update links from 'directory' to the 'to' repositories
      >-- fish
          |-- config.fish
 
-> symly link --to ~/my/repository
+> symly link --repositories ~/my/repository
 
 Creating links in ~ to [~/my/repository]
 [CREATE] ~/.bashrc -> ~/my/repository/.bashrc
@@ -226,7 +226,7 @@ Creating links in ~ to [~/my/repository]
      >-- .config
         >-- starship.toml
 
-> symly link --to ~/my/repositories/custom ~/my/repositories/defaults
+> symly link --repositories ~/my/repositories/custom ~/my/repositories/defaults
 
 Creating links in ~ to [~/my/repositories/custom, ~/my/repositories/defaults]
 [CREATE] ~/.bashrc -> ~/my/repositories/custom/.bashrc
@@ -244,7 +244,7 @@ Creating links in ~ to [~/my/repositories/custom, ~/my/repositories/defaults]
          |-- .symlink
          >-- config.fish
 
-> symly link --to ~/my/repository
+> symly link --repositories ~/my/repository
 
 Creating links in ~ to [~/my/repository]
 [CREATE] ~/.config/fish -> ~/my/repository/.config/fish
