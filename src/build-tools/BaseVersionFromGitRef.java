@@ -18,7 +18,7 @@ public class BaseVersionFromGitRef {
     }
 
     private static String extractBaseVersion(String ref, String commitHash) {
-        if (ref.contains(RELEASE_REF) && ref.length() > RELEASE_REF.length()) {
+        if (ref.startsWith(RELEASE_REF) && ref.length() > RELEASE_REF.length()) {
             return ref.substring(RELEASE_REF.length());
         }
         return String.format("0-dev+%.7s%n", commitHash);
