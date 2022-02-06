@@ -131,7 +131,7 @@ jobs:
       - name: Run JReleaser
         uses: jreleaser/release-action@v1
         with:
-          version: 0.9.1
+          version: 0.10.0
           arguments: "full-release --dryrun"
         env:
           JRELEASER_PROJECT_VERSION: ${{ needs.env.outputs.version }}
