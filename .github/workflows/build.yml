@@ -117,6 +117,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          # required for jreleaser to properly compare tags and generate the changelog
+          fetch-depth: 0
 
       - uses: actions/setup-java@v2
         with:
