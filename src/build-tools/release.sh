@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eu
 MAIN_BRANCH="main"
+DIR="$(dirname "$0")"
 
 format_red() {
     printf "\e[1;31m"
@@ -46,24 +47,31 @@ if [ ! "${CURRENT_MAIN_COMMIT}" = "${REMOTE_MAIN_COMMIT}" ]; then
 fi
 
 echo "Checking application tests"
-./gradlew clean build --console=plain > /dev/null
+./gradlew clean check --console=plain > /dev/null
 
 echo "Checking last release branches"
 LATEST_RELEASE_BRANCH="$(git branch -r --list "origin/release/*" | sort -V | tail -n 1 | sed -r 's#^ *origin/(.+)$#origin/\1#')"
 LATEST_RELEASE_BASE_VERSION="$(echo "${LATEST_RELEASE_BRANCH}" | sed -r 's#^origin/release/(.+)$#\1#')"
 
-echo "Changelog since ${LATEST_RELEASE_BRANCH}"
-echo "-------------------------------------------------------------------"
-#"./$(dirname "$0")/display-changelog.sh" "${LATEST_RELEASE_BASE_VERSION}"
-git --no-pager log "${LATEST_RELEASE_BRANCH}..${MAIN_BRANCH}" --oneline
-echo "-------------------------------------------------------------------"
-
 echo "Latest release branch ${LATEST_RELEASE_BRANCH} base version is ${LATEST_RELEASE_BASE_VERSION}"
 echo "Enter next release base version:"
 IFS= read -r NEXT_RELEASE_BASE_VERSION
-
 NEXT_RELEASE="release/${NEXT_RELEASE_BASE_VERSION}"
 echo "Creating branch ${NEXT_RELEASE} from ${MAIN_BRANCH}"
 git branch -c "${MAIN_BRANCH}" "${NEXT_RELEASE}"
 git switch "${NEXT_RELEASE}"
+
+NEXT_RELEASE_VERSION="$("./${DIR}/compute-next-version.sh")"
+echo "Changelog for branch ${NEXT_RELEASE} and version ${NEXT_RELEASE_VERSION}"
+echo "-------------------------------------------------------------------"
+"./${DIR}/jreleaser-dry-run.sh" "${NEXT_RELEASE_VERSION}"
+echo "-------------------------------------------------------------------"
+
+echo "Proceed with the release (y/n)"
+IFS= read -r PROCEED_WITH_RELEASE
+if [ ! "${PROCEED_WITH_RELEASE}" = "y" ]; then
+    echo "Aborting the release"
+    exit 1
+fi
+
 git push -u origin "${NEXT_RELEASE}"
