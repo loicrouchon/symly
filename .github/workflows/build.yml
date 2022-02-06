@@ -135,7 +135,8 @@ jobs:
           arguments: "full-release --dryrun"
         env:
           JRELEASER_PROJECT_VERSION: ${{ needs.env.outputs.version }}
-          JRELEASER_GITHUB_TOKEN: ${{ secrets.HOMEBREW_SYMLY_TOKEN }}
+          JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.HOMEBREW_SYMLY_TOKEN }}
       - name: JReleaser changelog check
         run: cat out/jreleaser/release/CHANGELOG.md
       - name: JReleaser logs check
