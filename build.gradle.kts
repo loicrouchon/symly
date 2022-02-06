@@ -24,6 +24,12 @@ java {
     }
 }
 
+tasks.withType<AbstractArchiveTask>().configureEach {
+    // Enable reproducible builds
+    setPreserveFileTimestamps(false)
+    setReproducibleFileOrder(true)
+}
+
 tasks.processResources {
     val props = mapOf("version" to project.version)
     inputs.properties(props)
@@ -117,6 +123,7 @@ fun generateManual(output: String, backend: String): TaskProvider<org.asciidocto
         inputs.files(generateManualStructure)
         sourceDir(file("${buildDir}/docs/manpage/adoc"))
         setOutputDir(file("${buildDir}/docs/manpage/${output}"))
+        attributes(mapOf("reproducible" to true))
         outputOptions {
             backends(backend)
         }
@@ -130,7 +137,7 @@ val compressManpageManual = tasks.register<Exec>("compressManpageManual") {
     inputs.files(generateManpageManual)
     outputs.dir("${buildDir}/docs/manpage/gz")
     workingDir("${buildDir}/docs/manpage")
-    commandLine("/bin/sh", "-c", "rm -rf gz && cp -R manpage gz && gzip -9 gz/*")
+    commandLine("/bin/sh", "-c", "rm -rf gz && cp -R manpage gz && gzip -n -9 gz/*")
 }
 
 val generateShellCompletions = tasks.register<JavaExec>("generateShellCompletions") {
