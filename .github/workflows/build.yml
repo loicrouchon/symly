@@ -137,7 +137,12 @@ jobs:
           JRELEASER_PROJECT_VERSION: ${{ needs.env.outputs.version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.HOMEBREW_SYMLY_TOKEN }}
-      - name: JReleaser changelog check
-        run: cat out/jreleaser/release/CHANGELOG.md
-      - name: JReleaser logs check
-        run: cat out/jreleaser/trace.log
+      - name: JReleaser release output
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+            name: jreleaser-release
+            path: |
+                out/jreleaser/output.properties
+                out/jreleaser/trace.log
+                out/jreleaser/release/CHANGELOG.md
