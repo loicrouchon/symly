@@ -132,6 +132,11 @@ jobs:
         uses: jreleaser/release-action@v1
         with:
           version: 0.9.1
+          arguments: "full-release --dryrun"
         env:
           JRELEASER_PROJECT_VERSION: ${{ needs.env.outputs.version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.HOMEBREW_SYMLY_TOKEN }}
+      - name: JReleaser changelog check
+        run: cat out/jreleaser/release/CHANGELOG.md
+      - name: JReleaser logs check
+        run: cat out/jreleaser/trace.log
