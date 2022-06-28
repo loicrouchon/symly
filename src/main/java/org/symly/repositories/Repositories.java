@@ -38,9 +38,7 @@ public class Repositories {
      */
     public List<Link> links(MainDirectory mainDirectory) {
         try (Stream<RepositoryEntry> elements = entries()) {
-            return elements
-                .map(element -> toLink(element, mainDirectory))
-                .toList();
+            return elements.map(element -> toLink(element, mainDirectory)).toList();
         }
     }
 
@@ -48,25 +46,24 @@ public class Repositories {
         Set<Path> addedNames = new HashSet<>();
         List<Path> addedDirs = new ArrayList<>();
         List<RepositoryEntry> allEntries = allEntries().toList();
-        Set<Path> allEntriesFullPaths = allEntries.stream()
-            .map(RepositoryEntry::fullPath)
-            .collect(Collectors.toSet());
+        Set<Path> allEntriesFullPaths =
+                allEntries.stream().map(RepositoryEntry::fullPath).collect(Collectors.toSet());
         return allEntries.stream()
-            .<RepositoryEntry>mapMulti((entry, stream) -> {
-                if (skipEntry(entry, addedNames, addedDirs, allEntriesFullPaths)) {
-                    return;
-                }
-                if (entry.type() == DIRECTORY) {
-                    addedDirs.add(entry.name());
-                }
-                addedNames.add(entry.name());
-                stream.accept(entry);
-            })
-            .sorted(Comparator.comparing(RepositoryEntry::name));
+                .<RepositoryEntry>mapMulti((entry, stream) -> {
+                    if (skipEntry(entry, addedNames, addedDirs, allEntriesFullPaths)) {
+                        return;
+                    }
+                    if (entry.type() == DIRECTORY) {
+                        addedDirs.add(entry.name());
+                    }
+                    addedNames.add(entry.name());
+                    stream.accept(entry);
+                })
+                .sorted(Comparator.comparing(RepositoryEntry::name));
     }
 
-    private boolean skipEntry(RepositoryEntry entry,
-        Set<Path> addedNames, List<Path> addedDirs, Set<Path> allEntriesFullPaths) {
+    private boolean skipEntry(
+            RepositoryEntry entry, Set<Path> addedNames, List<Path> addedDirs, Set<Path> allEntriesFullPaths) {
         if (addedNames.contains(entry.name())) {
             return true;
         }
@@ -89,11 +86,11 @@ public class Repositories {
     public List<Path> allDirectoriesNames() {
         try (Stream<RepositoryEntry> allElements = allEntries()) {
             return allElements
-                .filter(e -> e.type() == DIRECTORY)
-                .map(RepositoryEntry::name)
-                .sorted()
-                .distinct()
-                .toList();
+                    .filter(e -> e.type() == DIRECTORY)
+                    .map(RepositoryEntry::name)
+                    .sorted()
+                    .distinct()
+                    .toList();
         }
     }
 

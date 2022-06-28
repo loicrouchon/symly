@@ -9,10 +9,9 @@ public class EnvironmentVariableDefaultsProvider implements IDefaultValueProvide
     public static final String USER_HOME = "user.home";
 
     private static final Map<String, String> OPTIONS_TO_VAR_NAME = Map.of(
-        "-d", USER_HOME,
-        "--dir", USER_HOME,
-        "--directory", USER_HOME
-    );
+            "-d", USER_HOME,
+            "--dir", USER_HOME,
+            "--directory", USER_HOME);
 
     @Override
     public String defaultValue(CommandLine.Model.ArgSpec argSpec) {

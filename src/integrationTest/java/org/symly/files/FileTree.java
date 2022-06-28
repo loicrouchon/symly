@@ -10,8 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.*;
 
-@SuppressWarnings({
-    "java:S5960" // Assertions should not be used in production code (this is test code)
+@SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
 @RequiredArgsConstructor
 public class FileTree {
@@ -31,10 +30,7 @@ public class FileTree {
 
     @Override
     public String toString() {
-        return layout.stream()
-            .map(FileRef::toString)
-            .sorted()
-            .collect(Collectors.joining("\n"));
+        return layout.stream().map(FileRef::toString).sorted().collect(Collectors.joining("\n"));
     }
 
     public static FileTree of(Collection<String> files) {
@@ -43,15 +39,14 @@ public class FileTree {
 
     public static FileTree of(Stream<FileRef> files) {
         return new FileTree(
-            files.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(FileRef::name))))
-        );
+                files.collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(FileRef::name)))));
     }
 
     public static FileTree fromPath(Path root) {
         try {
             return of(Files.walk(root)
-                .filter(p -> Files.isRegularFile(p) || Files.isSymbolicLink(p))
-                .map(path -> FileRef.of(root, path)));
+                    .filter(p -> Files.isRegularFile(p) || Files.isSymbolicLink(p))
+                    .map(path -> FileRef.of(root, path)));
         } catch (IOException e) {
             fail(String.format("Unable to initialize FileTree for path %s", root), e);
             throw new IllegalStateException("unreachable");

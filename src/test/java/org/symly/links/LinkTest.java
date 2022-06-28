@@ -22,74 +22,72 @@ class LinkTest {
 
     @Test
     void synchronizeAction_shouldReturnCreateLinkAction_whenItDoesNotExist() {
-        //given
+        // given
         Link link = Link.of(from, to);
-        //and
+        // and
         ioMock.symlink(to, toRealPath);
-        //when
+        // when
         Status status = link.status(ioMock.buildFileSystemReader());
         List<Action> actions = status.toActions(false);
-        //then
+        // then
         assertThat(status.type()).isEqualTo(Status.Type.MISSING);
         assertThat(actions)
-            .hasSize(1)
-            .first()
-            .isInstanceOf(CreateLinkAction.class)
-            .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CREATE));
+                .hasSize(1)
+                .first()
+                .isInstanceOf(CreateLinkAction.class)
+                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CREATE));
     }
 
     @Test
     void synchronizeAction_shouldReturnReplaceFileAction_whenARegularFileAlreadyExist() {
-        //given
+        // given
         Link link = Link.of(from, to);
-        //and
+        // and
         ioMock.file(from);
         ioMock.symlink(to, toRealPath);
-        //when
+        // when
         Status status = link.status(ioMock.buildFileSystemReader());
         List<Action> actions = status.toActions(false);
-        //then
+        // then
         assertThat(status.type()).isEqualTo(Status.Type.FILE_CONFLICT);
         assertThat(actions)
-            .hasSize(1)
-            .first()
-            .isInstanceOf(ConflictAction.class)
-            .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CONFLICT));
+                .hasSize(1)
+                .first()
+                .isInstanceOf(ConflictAction.class)
+                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.CONFLICT));
     }
 
     @Test
     void synchronizeAction_shouldReturnUpdateLinkAction_whenSymlinkIsNotUpToDate() {
-        //given
+        // given
         Link link = Link.of(from, to);
-        //and
+        // and
         ioMock.symlink(from, Path.of("something"));
-        //when
+        // when
         Status status = link.status(ioMock.buildFileSystemReader());
         List<Action> actions = status.toActions(false);
-        //then
+        // then
         assertThat(status.type()).isEqualTo(Status.Type.LINK_CONFLICT);
         assertThat(actions)
-            .hasSize(1)
-            .first()
-            .isInstanceOf(UpdateLinkAction.class)
-            .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UPDATE));
+                .hasSize(1)
+                .first()
+                .isInstanceOf(UpdateLinkAction.class)
+                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UPDATE));
     }
 
     @Test
     void synchronizeAction_shouldReturnNoOpAction_whenSymlinkIsUpToDate() {
-        //given
+        // given
         Link link = Link.of(from, to);
-        //and
+        // and
         ioMock.symlink(from, to);
-        //when
+        // when
         Status status = link.status(ioMock.buildFileSystemReader());
         List<Action> actions = status.toActions(false);
-        //then
+        // then
         assertThat(status.type()).isEqualTo(Status.Type.UP_TO_DATE);
-        assertThat(actions)
-            .hasSize(1)
-            .first()
-            .isInstanceOf(NoOpAction.class)
-            .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UP_TO_DATE));
+        assertThat(actions).hasSize(1).first().isInstanceOf(NoOpAction.class).satisfies(action -> assertThat(
+                        action.type())
+                .isEqualTo(Action.Type.UP_TO_DATE));
     }
 }

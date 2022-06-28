@@ -20,11 +20,9 @@ public class Repository extends Directory {
     Stream<RepositoryEntry> entries() {
         Path path = toPath();
         try {
-            return Files.walk(path)
-                .map(filePath -> RepositoryEntry.of(relativize(filePath), filePath));
+            return Files.walk(path).map(filePath -> RepositoryEntry.of(relativize(filePath), filePath));
         } catch (IOException e) {
-            throw new SymlyExecutionException(
-                String.format("Unable to analyze repository structure %s", path), e);
+            throw new SymlyExecutionException(String.format("Unable to analyze repository structure %s", path), e);
         }
     }
 

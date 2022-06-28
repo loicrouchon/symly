@@ -14,21 +14,25 @@ import lombok.RequiredArgsConstructor;
 import org.symly.files.FileTree;
 import org.symly.files.FileTree.Diff;
 
-@SuppressWarnings({
-    "java:S5960" // Assertions should not be used in production code (this is test code)
+@SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
 @RequiredArgsConstructor
 public class Execution {
 
     @NonNull
     private final FileTree snapshot;
+
     @NonNull
     private final Path rootDir;
+
     @NonNull
     private final Path workingDir;
+
     private final int exitCode;
+
     @NonNull
     private final List<String> stdOut;
+
     @NonNull
     private final List<String> stdErr;
 
@@ -52,22 +56,13 @@ public class Execution {
         return this.stdErr;
     }
 
-    public static Execution of(FileTree rootFileTreeSnapshot, Path rootDir,
-        Path workingDir, int exitCode, Reader stdOut, Reader stdErr) {
-        return new Execution(
-            rootFileTreeSnapshot,
-            rootDir,
-            workingDir,
-            exitCode,
-            lines(stdOut),
-            lines(stdErr)
-        );
+    public static Execution of(
+            FileTree rootFileTreeSnapshot, Path rootDir, Path workingDir, int exitCode, Reader stdOut, Reader stdErr) {
+        return new Execution(rootFileTreeSnapshot, rootDir, workingDir, exitCode, lines(stdOut), lines(stdErr));
     }
 
     private static List<String> lines(Reader reader) {
-        return new BufferedReader(reader)
-            .lines()
-            .toList();
+        return new BufferedReader(reader).lines().toList();
     }
 
     public ExitCodeAssert thenItShould() {
@@ -87,16 +82,15 @@ public class Execution {
         public OutputAssert succeed() {
             OutputAssert outputAssert = assertExitCodeIs(SUCCESS);
             assertThat(execution.stdErr())
-                .withFailMessage("""
+                    .withFailMessage(
+                            """
                         Expected no messages on stderr but got:
                         %s
                         stdout was:
                         %s
                         """,
-                    lines(execution.stdErr()),
-                    lines(execution.stdOut())
-                )
-                .isEmpty();
+                            lines(execution.stdErr()), lines(execution.stdOut()))
+                    .isEmpty();
             return outputAssert;
         }
 
@@ -110,12 +104,10 @@ public class Execution {
 
         private OutputAssert assertExitCodeIs(int exitCode) {
             assertThat(execution.exitCode())
-                .withFailMessage(
-                    "Command exited with code %s%nand errors:%n%s%nand output:%n%s%n",
-                    execution.exitCode(),
-                    lines(execution.stdErr()),
-                    lines(execution.stdOut()))
-                .isEqualTo(exitCode);
+                    .withFailMessage(
+                            "Command exited with code %s%nand errors:%n%s%nand output:%n%s%n",
+                            execution.exitCode(), lines(execution.stdErr()), lines(execution.stdOut()))
+                    .isEqualTo(exitCode);
             return new OutputAssert(execution);
         }
 
@@ -158,11 +150,11 @@ public class Execution {
         public void withFileTreeDiff(Diff diff) {
             Diff actual = execution.fileSystemEntriesDiff();
             assertThat(actual.getNewPaths())
-                .describedAs("Should create the following file system entries")
-                .containsExactlyInAnyOrderElementsOf(diff.getNewPaths());
+                    .describedAs("Should create the following file system entries")
+                    .containsExactlyInAnyOrderElementsOf(diff.getNewPaths());
             assertThat(actual.getRemovedPaths())
-                .describedAs("Should remove the following file system entries")
-                .containsExactlyInAnyOrderElementsOf(diff.getRemovedPaths());
+                    .describedAs("Should remove the following file system entries")
+                    .containsExactlyInAnyOrderElementsOf(diff.getRemovedPaths());
         }
     }
 }

@@ -12,11 +12,7 @@ import lombok.NonNull;
  * @param fullPath The full path of the entry, i.e. the {@link Repository}'s root Path + the {@link #name}.
  * @param type The type of the filesystem entry pointed by the {@link #fullPath}
  */
-public record RepositoryEntry(
-    @NonNull Path name,
-    @NonNull Path fullPath,
-    @NonNull Type type
-) {
+public record RepositoryEntry(@NonNull Path name, @NonNull Path fullPath, @NonNull Type type) {
 
     public enum Type {
         FILE,

@@ -34,8 +34,7 @@ public class LinksFinder {
      * @return orphan links in {@code rootDir} pointing to the {@link Repositories}.
      */
     public Stream<Link> findOrphans(Path rootDir, int maxDepth, Repositories repositories) {
-        return findLinks(rootDir, maxDepth, repositories)
-            .filter(link -> !fileSystemReader.exists(link.target()));
+        return findLinks(rootDir, maxDepth, repositories).filter(link -> !fileSystemReader.exists(link.target()));
     }
 
     /**
@@ -56,29 +55,26 @@ public class LinksFinder {
 
     private Stream<Link> findFiles(Path rootDir, int maxDepth, Repositories repositories, Predicate<Path> filter) {
         List<Path> dirs = repositories.allDirectoriesNames();
-        return dirs
-            .stream()
-            .map(path -> rootDir.resolve(path).toAbsolutePath().normalize())
-            .flatMap(dir -> findLinksInDirectory(dir, dirs, maxDepth, filter));
+        return dirs.stream()
+                .map(path -> rootDir.resolve(path).toAbsolutePath().normalize())
+                .flatMap(dir -> findLinksInDirectory(dir, dirs, maxDepth, filter));
     }
 
-    private Stream<Link> findLinksInDirectory(Path dir, List<Path> exclusions, int maxDepth,
-        Predicate<Path> filter) {
+    private Stream<Link> findLinksInDirectory(Path dir, List<Path> exclusions, int maxDepth, Predicate<Path> filter) {
         Set<Path> excludedDirs = directSubDirectories(dir, exclusions);
         LinkVisitor visitor = new LinkVisitor(fileSystemReader, filter, excludedDirs);
         try {
             Files.walkFileTree(dir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), maxDepth, visitor);
         } catch (IOException e) {
-            throw new SymlyExecutionException(
-                String.format("Failed to find orphan links in %s", dir), e);
+            throw new SymlyExecutionException(String.format("Failed to find orphan links in %s", dir), e);
         }
         return visitor.links.stream();
     }
 
     private Set<Path> directSubDirectories(Path currentDirectory, List<Path> directories) {
         return directories.stream()
-            .filter(directory -> Objects.equals(directory.getParent(), currentDirectory))
-            .collect(Collectors.toSet());
+                .filter(directory -> Objects.equals(directory.getParent(), currentDirectory))
+                .collect(Collectors.toSet());
     }
 
     @RequiredArgsConstructor

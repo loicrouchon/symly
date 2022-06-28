@@ -22,73 +22,69 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 @Command(
-    name = "link",
-    aliases = {"ln"},
-    description = "Create/update links from 'directory' to the 'to' repositories"
-)
+        name = "link",
+        aliases = {"ln"},
+        description = "Create/update links from 'directory' to the 'to' repositories")
 @RequiredArgsConstructor
 class LinkCommand extends ValidatedCommand {
 
     @Option(
-        names = {"-d", "--dir", "--directory"},
-        paramLabel = "<main-directory>",
-        description = "Main directory in which links will be created",
-        required = true,
-        showDefaultValue = CommandLine.Help.Visibility.ALWAYS
-    )
+            names = {"-d", "--dir", "--directory"},
+            paramLabel = "<main-directory>",
+            description = "Main directory in which links will be created",
+            required = true,
+            showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     MainDirectory mainDirectory;
 
     @Option(
-        names = {"-r", "--repositories"},
-        paramLabel = "<repositories>",
-        description = """
+            names = {"-r", "--repositories"},
+            paramLabel = "<repositories>",
+            description =
+                    """
             Repositories containing files to link in the main directory. \
             Repositories are to be listed by decreasing priority as the first ones will \
             override the content of the later ones.""",
-        required = true,
-        arity = "1..*"
-    )
+            required = true,
+            arity = "1..*")
     List<Repository> repositoriesList;
 
     @Option(
-        names = {"--dry-run"},
-        description = "Do not actually create links but only displays which ones would be created"
-    )
+            names = {"--dry-run"},
+            description = "Do not actually create links but only displays which ones would be created")
     boolean dryRun = false;
 
     @Option(
-        names = {"-f", "--force"},
-        description = "Force existing files and directories to be overwritten instead of failing in case of "
-            + "conflicts"
-    )
+            names = {"-f", "--force"},
+            description = "Force existing files and directories to be overwritten instead of failing in case of "
+                    + "conflicts")
     boolean force = false;
 
     @Option(
-        names = {"--max-depth"},
-        paramLabel = "<max-depth>",
-        description = "Depth of the lookup for orphans deletion"
-    )
+            names = {"--max-depth"},
+            paramLabel = "<max-depth>",
+            description = "Depth of the lookup for orphans deletion")
     int maxDepth = 2;
 
     @NonNull
     private final CliConsole console;
+
     @NonNull
     private final FileSystemReader fsReader;
+
     @NonNull
     private final FileSystemWriter fileSystemWriter;
+
     @NonNull
     private final LinksFinder linksFinder;
 
     @Override
     protected Collection<Constraint> constraints() {
         return List.of(
-            Constraint.ofArg("main-directory", mainDirectory, "must be an existing directory",
-                fsReader::isADirectory),
-            Constraint.ofArg("repositories", repositoriesList, "must be an existing directory",
-                fsReader::isADirectory),
-            Constraint.ofArg("max-depth", maxDepth, "must be a positive integer",
-                depth -> depth >= 0)
-        );
+                Constraint.ofArg(
+                        "main-directory", mainDirectory, "must be an existing directory", fsReader::isADirectory),
+                Constraint.ofArg(
+                        "repositories", repositoriesList, "must be an existing directory", fsReader::isADirectory),
+                Constraint.ofArg("max-depth", maxDepth, "must be a positive integer", depth -> depth >= 0));
     }
 
     @Override
@@ -124,8 +120,8 @@ class LinkCommand extends ValidatedCommand {
 
     private void deleteOrphans(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
         linksFinder
-            .findOrphans(mainDirectory.toPath(), maxDepth, repositories)
-            .forEach(orphan -> deleteOrphan(orphan, mutator));
+                .findOrphans(mainDirectory.toPath(), maxDepth, repositories)
+                .forEach(orphan -> deleteOrphan(orphan, mutator));
     }
 
     private void deleteOrphan(Link orphan, FileSystemWriter mutator) {
@@ -135,10 +131,7 @@ class LinkCommand extends ValidatedCommand {
     }
 
     private void printStatus(Action action, Result<Path, Action.Code> result) {
-        result.accept(
-            previousLink -> printAction(action, previousLink),
-            error -> printError(action, error)
-        );
+        result.accept(previousLink -> printAction(action, previousLink), error -> printError(action, error));
     }
 
     private void printAction(Action action, Path previousLink) {
@@ -148,8 +141,7 @@ class LinkCommand extends ValidatedCommand {
             if (previousLink != null) {
                 console.printf("> Previous link target was %s%n", previousLink);
             } else {
-                throw new IllegalStateException(
-                    "Expecting a previous link to be found for " + link.source());
+                throw new IllegalStateException("Expecting a previous link to be found for " + link.source());
             }
         }
     }
@@ -157,14 +149,15 @@ class LinkCommand extends ValidatedCommand {
     private void printError(Action action, Action.Code error) {
         printAction(action, error.previousPath());
         Link link = action.link();
-        String details = switch (error.state()) {
-            case INVALID_SOURCE -> String.format("Source %s does not exist", link.source());
-            case INVALID_DESTINATION -> String.format("Destination %s does not exist", link.target());
-            case CONFLICT -> String.format(
-                "Regular file %s already exist. To overwrite it, use the --replace-file option.",
-                link.source());
-            case ERROR -> String.format("An error occurred during linkage: - %s", error.details());
-        };
+        String details =
+                switch (error.state()) {
+                    case INVALID_SOURCE -> String.format("Source %s does not exist", link.source());
+                    case INVALID_DESTINATION -> String.format("Destination %s does not exist", link.target());
+                    case CONFLICT -> String.format(
+                            "Regular file %s already exist. To overwrite it, use the --replace-file option.",
+                            link.source());
+                    case ERROR -> String.format("An error occurred during linkage: - %s", error.details());
+                };
         if (dryRun) {
             console.eprintf("> %s%n", details);
         } else {

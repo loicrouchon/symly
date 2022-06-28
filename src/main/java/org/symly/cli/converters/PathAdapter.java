@@ -6,8 +6,7 @@ public final class PathAdapter {
 
     public static final String SYMLY_CWD_PROPERTY = "symly.cwd";
 
-    private PathAdapter() {
-    }
+    private PathAdapter() {}
 
     public static Path convert(String value) {
         Path path = Path.of(value);

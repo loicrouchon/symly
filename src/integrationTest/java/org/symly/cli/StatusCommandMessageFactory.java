@@ -11,6 +11,7 @@ import org.symly.env.Env;
 class StatusCommandMessageFactory {
 
     private static final String MISSING_REQUIRED_OPTION_TO = "Missing required option: '--repositories=<repositories>'";
+
     @NonNull
     private final Env env;
 
@@ -28,12 +29,8 @@ class StatusCommandMessageFactory {
 
     public String checkingLinks(String mainDirectory, List<String> repositories) {
         return String.format(
-            "Checking links status from %s to [%s]",
-            env.path(mainDirectory),
-            repositories.stream()
-                .map(env::path)
-                .map(Path::toString)
-                .collect(Collectors.joining(", "))
-        );
+                "Checking links status from %s to [%s]",
+                env.path(mainDirectory),
+                repositories.stream().map(env::path).map(Path::toString).collect(Collectors.joining(", ")));
     }
 }

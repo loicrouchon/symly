@@ -15,30 +15,30 @@ import org.symly.cli.Main;
 import org.symly.cli.converters.PathAdapter;
 import org.symly.files.FileTree;
 
-@SuppressWarnings({
-    "java:S5960" // Assertions should not be used in production code (this is test code)
+@SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
 @RequiredArgsConstructor
 public class MainCommand {
 
     @NonNull
     private final Path rootDir;
+
     @NonNull
     private final Path workingDir;
+
     @NonNull
     private final Path home;
 
     public Execution run(String[] args) {
         FileTree rootFileTreeSnapshot = FileTree.fromPath(rootDir);
         try (SystemProperties sysProps = new SystemProperties();
-             PrintChannel stdOut = new PrintChannel();
-             PrintChannel stdErr = new PrintChannel()
-        ) {
+                PrintChannel stdOut = new PrintChannel();
+                PrintChannel stdErr = new PrintChannel()) {
             sysProps.set(EnvironmentVariableDefaultsProvider.USER_HOME, home);
             sysProps.set(PathAdapter.SYMLY_CWD_PROPERTY, workingDir.toAbsolutePath());
             BeanFactory beanFactory = new BeanFactory();
             beanFactory.registerBean(
-                CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
+                    CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
             int exitCode = Main.runCommand(beanFactory, args);
             return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, exitCode, stdOut.reader(), stdErr.reader());
         } catch (Exception e) {

@@ -43,10 +43,7 @@ public interface Action {
         public static final int MAX_LENGTH = 10;
     }
 
-    record Code(
-        State state,
-        String details,
-        Path previousPath) {
+    record Code(State state, String details, Path previousPath) {
 
         public enum State {
             CONFLICT,

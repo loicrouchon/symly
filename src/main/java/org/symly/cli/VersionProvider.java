@@ -12,7 +12,7 @@ public class VersionProvider implements CommandLine.IVersionProvider {
 
     @Override
     public String[] getVersion() {
-        return new String[]{
+        return new String[] {
             String.format("%s version %s", config.applicationName(), config.applicationVersion()),
         };
     }

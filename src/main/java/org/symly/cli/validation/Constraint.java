@@ -15,13 +15,12 @@ public interface Constraint {
 
     static <T> Constraint ofArg(String name, T value, String reason, Predicate<T> validator) {
         return new SimpleConstraint(
-            () -> String.format("Argument <%s> (%s): %s", name, value, reason),
-            () -> validator.test(value));
+                () -> String.format("Argument <%s> (%s): %s", name, value, reason), () -> validator.test(value));
     }
 
     static <T> Constraint ofArg(String name, Collection<T> values, String reason, Predicate<T> validator) {
         return new Constraints(values.stream()
-            .map(value -> ofArg(name, value, reason, validator))
-            .toList());
+                .map(value -> ofArg(name, value, reason, validator))
+                .toList());
     }
 }
