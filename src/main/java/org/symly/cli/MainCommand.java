@@ -10,32 +10,31 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
 @Command(
-    name = "symly",
-    description = "symly create links",
-    versionProvider = VersionProvider.class,
-    subcommands = {
-        LinkCommand.class,
-        StatusCommand.class,
-        UnlinkCommand.class
-    }
-)
+        name = "symly",
+        description = "symly create links",
+        versionProvider = VersionProvider.class,
+        subcommands = {
+            LinkCommand.class,
+            StatusCommand.class,
+            UnlinkCommand.class,
+        })
 @RequiredArgsConstructor
 class MainCommand implements Runnable {
 
     @Option(
-        names = {"-v", "--verbose"},
-        description = "Be verbose.")
+            names = {"-v", "--verbose"},
+            description = "Be verbose.")
     boolean verbose = false;
 
     @Option(
-        names = {"-V", "--version"},
-        description = "Prints version information.")
+            names = {"-V", "--version"},
+            description = "Prints version information.")
     boolean version = false;
 
     @Option(
-        names = {"-h", "--help"},
-        usageHelp = true,
-        description = "Prints this help message and exits")
+            names = {"-h", "--help"},
+            usageHelp = true,
+            description = "Prints this help message and exits")
     boolean helpRequested;
 
     @Spec

@@ -3,6 +3,7 @@ plugins {
     `jvm-test-suite`
     idea
     jacoco
+    id("com.diffplug.spotless") version "6.7.2"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
     id("nebula.ospackage") version "9.0.0"
 }
@@ -21,6 +22,13 @@ application {
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
+    }
+}
+
+spotless {
+    ratchetFrom("origin/main")
+    java {
+        palantirJavaFormat()
     }
 }
 
