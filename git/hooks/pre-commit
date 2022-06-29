@@ -1,0 +1,17 @@
+#!/bin/sh
+set -e
+
+files_staged_for_commit="$(git --no-pager diff --name-status --no-color --staged | awk '$1 != "D" && $2 ~ /\.kts|\.java|\.kt/ { print $NF}')"
+files_in_working_index="$(git --no-pager diff --name-status --no-color | awk '$1 != "D" && $2 ~ /\.kts|\.java|\.kt/ { print $NF}')"
+
+echo "Reformating code..."
+for file_staged_for_commit in $files_staged_for_commit
+do
+  if ! $(printf "$files_in_working_index" | grep -q "$file_staged_for_commit"); then
+    echo "Formatting $(pwd)/$file_staged_for_commit"
+    ./gradlew spotlessApply -PspotlessIdeHook="$(pwd)/$file_staged_for_commit"
+    git add $file_staged_for_commit
+  else
+    echo "File $(pwd)/$file_staged_for_commit has unstaged changes, skipping formatting"
+  fi
+done
