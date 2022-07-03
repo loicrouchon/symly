@@ -22,20 +22,22 @@ import picocli.CommandLine.Spec;
 class MainCommand implements Runnable {
 
     @Option(
+            names = {"-h", "--help"},
+            usageHelp = true,
+            description = "Prints this help message and exits",
+            scope = CommandLine.ScopeType.INHERIT)
+    boolean helpRequested;
+
+    @Option(
             names = {"-v", "--verbose"},
-            description = "Be verbose.")
+            description = "Be verbose.",
+            scope = CommandLine.ScopeType.INHERIT)
     boolean verbose = false;
 
     @Option(
             names = {"-V", "--version"},
             description = "Prints version information.")
     boolean version = false;
-
-    @Option(
-            names = {"-h", "--help"},
-            usageHelp = true,
-            description = "Prints this help message and exits")
-    boolean helpRequested;
 
     @Spec
     CommandSpec spec;
