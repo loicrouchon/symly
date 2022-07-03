@@ -1,5 +1,5 @@
 [versions]
-picocli = "4.6.1"
+picocli = "4.6.3"
 junit = "5.8.1"
 
 [libraries]
