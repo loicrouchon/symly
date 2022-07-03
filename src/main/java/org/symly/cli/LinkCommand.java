@@ -1,5 +1,6 @@
 package org.symly.cli;
 
+import java.lang.System.Logger.Level;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -41,9 +42,9 @@ class LinkCommand extends ValidatedCommand {
             paramLabel = "<repositories>",
             description =
                     """
-            Repositories containing files to link in the main directory. \
-            Repositories are to be listed by decreasing priority as the first ones will \
-            override the content of the later ones.""",
+                Repositories containing files to link in the main directory. \
+                Repositories are to be listed by decreasing priority as the first ones will \
+                override the content of the later ones.""",
             required = true,
             arity = "1..*")
     List<Repository> repositoriesList;
@@ -136,7 +137,8 @@ class LinkCommand extends ValidatedCommand {
 
     private void printAction(Action action, Path previousLink) {
         Link link = action.link();
-        console.printf("%-" + Action.Type.MAX_LENGTH + "s %s%n", action.type(), link);
+        Level level = printLevelForAction(action);
+        console.printf(level, "%-" + Action.Type.MAX_LENGTH + "s %s%n", action.type(), link);
         if (action.type().equals(Action.Type.UPDATE)) {
             if (previousLink != null) {
                 console.printf("> Previous link target was %s%n", previousLink);
@@ -144,6 +146,13 @@ class LinkCommand extends ValidatedCommand {
                 throw new IllegalStateException("Expecting a previous link to be found for " + link.source());
             }
         }
+    }
+
+    private Level printLevelForAction(Action action) {
+        if (action.type().equals(Action.Type.UP_TO_DATE)) {
+            return Level.DEBUG;
+        }
+        return Level.INFO;
     }
 
     private void printError(Action action, Action.Code error) {

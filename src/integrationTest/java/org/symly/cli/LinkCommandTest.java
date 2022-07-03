@@ -30,7 +30,7 @@ class LinkCommandTest extends IntegrationTest {
         // given
         given(env).withHome("home/doesnotexist");
         // when/then
-        whenRunningCommand("link", "--repositories", "to/dir", "/home/user/some/file")
+        whenRunningCommand("link", "-v", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
@@ -42,7 +42,7 @@ class LinkCommandTest extends IntegrationTest {
         // given
         given(env);
         // when/then
-        whenRunningCommand("link", "--repositories", "to/dir", "/home/user/some/file")
+        whenRunningCommand("link", "-v", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
@@ -54,7 +54,7 @@ class LinkCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("D to/dir");
         // when/then
-        whenRunningCommand("link", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.creatingLinks(env.home().toString(), List.of("to/dir")))
@@ -71,7 +71,7 @@ class LinkCommandTest extends IntegrationTest {
             D to/other-dir
             """);
         // when/then
-        whenRunningCommand("link", "--dir", "main/dir", "--repositories", "to/dir", "to/other-dir")
+        whenRunningCommand("link", "-v", "--dir", "main/dir", "--repositories", "to/dir", "to/other-dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.creatingLinks("main/dir", List.of("to/dir", "to/other-dir")))
@@ -88,7 +88,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/nested/file
             """);
         // when/then
-        whenRunningCommand("link", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("home/user/file", "home/user/to/dir/file"))
@@ -112,7 +112,7 @@ class LinkCommandTest extends IntegrationTest {
             F opt/file
             """);
         // when/then
-        whenRunningCommand("link", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("home/user/link", "home/user/to/dir/link"))
@@ -130,7 +130,7 @@ class LinkCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("D home/user/to/dir/sub/dir");
         // when/then
-        whenRunningCommand("link", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withFileTreeDiff(Diff.empty());
@@ -141,7 +141,7 @@ class LinkCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("F home/user/to/dir/sub/dir/.symlink");
         // when/then
-        whenRunningCommand("link", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("home/user/sub/dir", "home/user/to/dir/sub/dir"))
@@ -156,7 +156,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .failWithError()
                 .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/to/dir/file"))
@@ -172,7 +172,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .failWithError()
                 .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/to/dir/file"))
@@ -190,7 +190,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessages(msg.linkActionUpdate("home/user/file", "home/user/to/dir/file", "home/user/other-file"))
@@ -212,7 +212,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionUpToDate("home/user/file", "home/user/to/dir/file"))
@@ -227,7 +227,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "--force", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--force", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessages(List.of(
@@ -253,7 +253,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "--force", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--force", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessages(List.of(
