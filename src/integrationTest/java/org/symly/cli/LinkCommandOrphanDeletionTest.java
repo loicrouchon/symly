@@ -55,6 +55,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withoutMessage(msg.linkActionDelete("home/user/file", "to/otherdir/file"))
+                .withMessage(msg.everythingUpToDate())
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -104,6 +105,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withoutMessage(msg.linkActionDelete("home/user/level1/level2/file", "to/dir/level1/level2/file"))
+                .withMessage(msg.everythingUpToDate())
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -173,6 +175,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
                 .succeed()
                 .withoutMessage(msg.linkActionDelete(
                         "home/user/sub/dir/level1/level2/file", "to/dir/sub/dir/level1/level2/file"))
+                .withMessage(msg.everythingUpToDate())
                 .withFileTreeDiff(Diff.empty());
     }
 

@@ -77,4 +77,8 @@ class LinkCommandMessageFactory {
                         "> Regular file %s already exist. To overwrite it, use the --replace-file option.",
                         env.path(from)));
     }
+
+    public String everythingUpToDate() {
+        return "Everything is already up to date";
+    }
 }

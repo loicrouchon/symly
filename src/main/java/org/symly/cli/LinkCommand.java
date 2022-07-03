@@ -4,6 +4,7 @@ import java.lang.System.Logger.Level;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.Result;
@@ -78,6 +79,8 @@ class LinkCommand extends ValidatedCommand {
     @NonNull
     private final LinksFinder linksFinder;
 
+    private int updates;
+
     @Override
     protected Collection<Constraint> constraints() {
         return List.of(
@@ -90,6 +93,7 @@ class LinkCommand extends ValidatedCommand {
 
     @Override
     public void execute() {
+        updates = 0;
         console.printf("Creating links ");
         if (dryRun) {
             console.printf("(dry-run mode) ");
@@ -99,6 +103,9 @@ class LinkCommand extends ValidatedCommand {
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(repositories, mutator);
         deleteOrphans(mainDirectory, repositories, mutator);
+        if (updates == 0) {
+            console.printf("Everything is already up to date%n");
+        }
     }
 
     private FileSystemWriter getFilesMutatorService() {
@@ -120,9 +127,11 @@ class LinkCommand extends ValidatedCommand {
     }
 
     private void deleteOrphans(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
-        linksFinder
-                .findOrphans(mainDirectory.toPath(), maxDepth, repositories)
-                .forEach(orphan -> deleteOrphan(orphan, mutator));
+        Stream<Link> orphans = linksFinder.findOrphans(mainDirectory.toPath(), maxDepth, repositories);
+        orphans.forEach(orphan -> {
+            updates++;
+            deleteOrphan(orphan, mutator);
+        });
     }
 
     private void deleteOrphan(Link orphan, FileSystemWriter mutator) {
@@ -137,7 +146,13 @@ class LinkCommand extends ValidatedCommand {
 
     private void printAction(Action action, Path previousLink) {
         Link link = action.link();
-        Level level = printLevelForAction(action);
+        Level level;
+        if (action.type().equals(Action.Type.UP_TO_DATE)) {
+            level = Level.DEBUG;
+        } else {
+            updates++;
+            level = Level.INFO;
+        }
         console.printf(level, "%-" + Action.Type.MAX_LENGTH + "s %s%n", action.type(), link);
         if (action.type().equals(Action.Type.UPDATE)) {
             if (previousLink != null) {
@@ -146,13 +161,6 @@ class LinkCommand extends ValidatedCommand {
                 throw new IllegalStateException("Expecting a previous link to be found for " + link.source());
             }
         }
-    }
-
-    private Level printLevelForAction(Action action) {
-        if (action.type().equals(Action.Type.UP_TO_DATE)) {
-            return Level.DEBUG;
-        }
-        return Level.INFO;
     }
 
     private void printError(Action action, Action.Code error) {

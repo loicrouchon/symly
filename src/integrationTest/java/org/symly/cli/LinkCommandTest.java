@@ -216,6 +216,7 @@ class LinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionUpToDate("home/user/file", "home/user/to/dir/file"))
+                .withMessage(msg.everythingUpToDate())
                 .withFileTreeDiff(Diff.empty());
     }
 
