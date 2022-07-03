@@ -32,7 +32,12 @@ class MainCommand implements Runnable {
             names = {"-v", "--verbose"},
             description = "Be verbose.",
             scope = CommandLine.ScopeType.INHERIT)
-    boolean verbose = false;
+    public void setVerbose(boolean verbose) {
+        config.verbose(verbose);
+        if (verbose) {
+            console.enableVerboseMode();
+        }
+    }
 
     @Option(
             names = {"-V", "--version"},
@@ -50,7 +55,6 @@ class MainCommand implements Runnable {
 
     @Override
     public void run() {
-        config.verbose(verbose);
         CommandLine commandLine = spec.commandLine();
         if (helpRequested || !version) {
             commandLine.usage(console.writer());
