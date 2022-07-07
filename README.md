@@ -61,7 +61,8 @@ directory but any other directory can be used.
 **Core features:**
 
 * [x] Replication of the repository files tree structure in the directory
-* [x] Symbolic link creation/update/deletion for files (default mode)
+* [x] Symbolic link creation/update/deletion for simple files (default mode)
+* [x] Symbolic link creation/update/deletion for symbolic links (default mode)
 * [x] Symbolic link creation/update/deletion for directories (on demand only)
 * [x] Orphan links detection/deletion
 * [x] Forced link creation
@@ -207,10 +208,10 @@ Create/update links from 'directory' to the 'to' repositories
 > symly link --repositories ~/my/repository
 
 Creating links in ~ to [~/my/repository]
-[CREATE] ~/.bashrc -> ~/my/repository/.bashrc
-[CREATE] ~/.gitconfig -> ~/my/repository/.gitconfig
-[CREATE] ~/.config/starship.toml -> ~/my/repository/.config/starship.toml
-[CREATE] ~/.config/fish/config.fish -> ~/my/repository/.config/fish/config.fish
+added:      ~/.bashrc -> ~/my/repository/.bashrc
+added:      ~/.gitconfig -> ~/my/repository/.gitconfig
+added:      ~/.config/starship.toml -> ~/my/repository/.config/starship.toml
+added:      ~/.config/fish/config.fish -> ~/my/repository/.config/fish/config.fish
 ```  
 
 * Supports multiple `repositories`: The first repository defining a link has the priority, defaults are last
@@ -229,9 +230,9 @@ Creating links in ~ to [~/my/repository]
 > symly link --repositories ~/my/repositories/custom ~/my/repositories/defaults
 
 Creating links in ~ to [~/my/repositories/custom, ~/my/repositories/defaults]
-[CREATE] ~/.bashrc -> ~/my/repositories/custom/.bashrc
-[CREATE] ~/.gitconfig -> ~/my/repositories/custom/.gitconfig
-[CREATE] ~/.config/starship.toml -> ~/my/repositories/defaults/.config/starship.toml
+added:      ~/.bashrc -> ~/my/repositories/custom/.bashrc
+added:      ~/.gitconfig -> ~/my/repositories/custom/.gitconfig
+added:      ~/.config/starship.toml -> ~/my/repositories/defaults/.config/starship.toml
 ```  
 
 * Supports directory linking when a `.symlink` file is present in the directory.
@@ -247,7 +248,7 @@ Creating links in ~ to [~/my/repositories/custom, ~/my/repositories/defaults]
 > symly link --repositories ~/my/repository
 
 Creating links in ~ to [~/my/repository]
-[CREATE] ~/.config/fish -> ~/my/repository/.config/fish
+added:      ~/.config/fish -> ~/my/repository/.config/fish
 ```
 
 ## Installation

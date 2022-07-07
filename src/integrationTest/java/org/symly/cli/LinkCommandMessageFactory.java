@@ -38,44 +38,44 @@ class LinkCommandMessageFactory {
     }
 
     public String linkActionCreate(String from, String to) {
-        return action("CREATE", from, to);
+        return action("added", from, to);
     }
 
     public String linkActionConflict(String from, String to) {
-        return action("CONFLICT", from, to);
+        return action("!conflict", from, to);
     }
 
     public List<String> linkActionUpdate(String from, String to, String previousTo) {
         return List.of(
-                action("UPDATE", from, to), String.format("> Previous link target was %s", env.path(previousTo)));
+                action("modified", from, to), String.format("> Previous link target was %s", env.path(previousTo)));
     }
 
     public String linkActionUpToDate(String from, String to) {
-        return action("UP_TO_DATE", from, to);
+        return action("up-to-date", from, to);
     }
 
     public String linkActionDelete(String from, String to) {
-        return action("DELETE", from, to);
+        return action("deleted", from, to);
     }
 
     public String linkActionDelete(String from) {
-        return String.format("%s %s", padAction("DELETE"), env.path(from));
+        return action("deleted", from);
+    }
+
+    public String action(String action, String from) {
+        return String.format("%-12s %s", action + ":", from);
     }
 
     public String action(String action, String from, String to) {
-        return String.format("%s %s -> %s", padAction(action), env.path(from), env.path(to));
-    }
-
-    private String padAction(String action) {
-        return String.format("%-10s", action);
+        return String.format("%-12s %s -> %s", action + ":", from, env.path(to));
     }
 
     public List<String> cannotCreateLinkError(String from, String to) {
+        Path absFrom = env.path(env.home().resolve(from).toString());
         return List.of(
-                String.format("Unable to create link %s -> %s", env.path(from), env.path(to)),
+                String.format("Unable to create link %s -> %s", absFrom, env.path(to)),
                 String.format(
-                        "> Regular file %s already exist. To overwrite it, use the --replace-file option.",
-                        env.path(from)));
+                        "> Regular file %s already exist. To overwrite it, use the --replace-file option.", absFrom));
     }
 
     public String everythingUpToDate() {

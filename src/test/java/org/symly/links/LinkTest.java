@@ -72,7 +72,7 @@ class LinkTest {
                 .hasSize(1)
                 .first()
                 .isInstanceOf(UpdateLinkAction.class)
-                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.UPDATE));
+                .satisfies(action -> assertThat(action.type()).isEqualTo(Action.Type.MODIFY));
     }
 
     @Test

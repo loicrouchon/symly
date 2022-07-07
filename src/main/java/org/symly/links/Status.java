@@ -41,8 +41,6 @@ public record Status(Type type, Link link) {
         UP_TO_DATE,
         LINK_CONFLICT,
         FILE_CONFLICT,
-        MISSING;
-
-        public static final int MAX_LENGTH = 13;
+        MISSING
     }
 }

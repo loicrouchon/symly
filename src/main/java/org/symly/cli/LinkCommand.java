@@ -121,6 +121,9 @@ class LinkCommand extends ValidatedCommand {
             List<Action> actions = status.toActions(force);
             for (Action action : actions) {
                 Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
+                if (!action.type().equals(Action.Type.UP_TO_DATE)) {
+                    updates++;
+                }
                 printStatus(action, result);
             }
         }
@@ -150,13 +153,20 @@ class LinkCommand extends ValidatedCommand {
         if (action.type().equals(Action.Type.UP_TO_DATE)) {
             level = Level.DEBUG;
         } else {
-            updates++;
             level = Level.INFO;
         }
-        console.printf(level, "%-" + Action.Type.MAX_LENGTH + "s %s%n", action.type(), link);
-        if (action.type().equals(Action.Type.UPDATE)) {
+        String actionType =
+                switch (action.type()) {
+                    case UP_TO_DATE -> "up-to-date";
+                    case CREATE -> "added";
+                    case MODIFY -> "modified";
+                    case DELETE -> "deleted";
+                    case CONFLICT -> "!conflict";
+                };
+        console.printf(level, "%-12s %s%n", actionType + ":", link.toString(mainDirectory));
+        if (action.type().equals(Action.Type.MODIFY)) {
             if (previousLink != null) {
-                console.printf("> Previous link target was %s%n", previousLink);
+                console.printf(level, "> Previous link target was %s%n", previousLink);
             } else {
                 throw new IllegalStateException("Expecting a previous link to be found for " + link.source());
             }

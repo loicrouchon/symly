@@ -18,7 +18,7 @@ public interface Action {
     }
 
     static Action replace(Link link) {
-        return new UpdateLinkAction(Type.UPDATE, link);
+        return new UpdateLinkAction(Type.MODIFY, link);
     }
 
     static Action conflict(Link link) {
@@ -35,12 +35,10 @@ public interface Action {
 
     enum Type {
         UP_TO_DATE,
-        UPDATE,
         CONFLICT,
+        MODIFY,
         CREATE,
-        DELETE;
-
-        public static final int MAX_LENGTH = 10;
+        DELETE
     }
 
     record Code(State state, String details, Path previousPath) {

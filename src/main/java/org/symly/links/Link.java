@@ -3,6 +3,7 @@ package org.symly.links;
 import java.nio.file.Path;
 import java.util.Objects;
 import org.symly.files.FileSystemReader;
+import org.symly.repositories.MainDirectory;
 
 /**
  * Conceptual representation of a symbolic link.
@@ -32,6 +33,13 @@ public record Link(Path source, Path target) {
             return source.toString();
         }
         return source + " -> " + target;
+    }
+
+    public String toString(MainDirectory mainDirectory) {
+        if (target == null) {
+            return mainDirectory.relativize(source).toString();
+        }
+        return mainDirectory.relativize(source) + " -> " + target;
     }
 
     public static Link of(Path source, Path target) {

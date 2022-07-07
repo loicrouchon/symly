@@ -131,8 +131,8 @@ class UnlinkCommandTest extends IntegrationTest {
         whenRunningCommand("unlink", "--repositories", "to-dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.actionUnlink("home/user/file", "to-dir/file"))
-                .withMessage(msg.actionUnlink("home/user/nested/file", "to-dir/nested/file"))
+                .withMessage(msg.actionUnlink("file", "to-dir/file"))
+                .withMessage(msg.actionUnlink("nested/file", "to-dir/nested/file"))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """
@@ -156,8 +156,8 @@ class UnlinkCommandTest extends IntegrationTest {
         whenRunningCommand("unlink", "--repositories", "to-dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.actionUnlink("home/user/some-dir", "to-dir/some-dir"))
-                .withMessage(msg.actionUnlink("home/user/nested/some-dir", "to-dir/nested/some-dir"))
+                .withMessage(msg.actionUnlink("some-dir", "to-dir/some-dir"))
+                .withMessage(msg.actionUnlink("nested/some-dir", "to-dir/nested/some-dir"))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """
@@ -179,7 +179,7 @@ class UnlinkCommandTest extends IntegrationTest {
         whenRunningCommand("unlink", "--repositories", "to-dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.actionUnlink("home/user/some/file", "to-dir/some/file"))
+                .withMessage(msg.actionUnlink("some/file", "to-dir/some/file"))
                 .withFileTreeDiff(Diff.ofChanges(
                         """
                 -L home/user/some/file -> to-dir/some/file
@@ -215,7 +215,7 @@ class UnlinkCommandTest extends IntegrationTest {
         whenRunningCommand("unlink", "--repositories", "to-dir", "--max-depth", "3")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.actionUnlink("home/user/some/nested/file", "to-dir/some/nested/file"))
+                .withMessage(msg.actionUnlink("some/nested/file", "to-dir/some/nested/file"))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """

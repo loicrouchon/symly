@@ -37,9 +37,9 @@ class UnlinkCommand extends ValidatedCommand {
             paramLabel = "<repositories>",
             description =
                     """
-            Repositories containing files to link in the main directory. \
-            Repositories are to be listed by decreasing priority as the first ones will \
-            override the content of the later ones.""",
+                Repositories containing files to link in the main directory. \
+                Repositories are to be listed by decreasing priority as the first ones will \
+                override the content of the later ones.""",
             required = true,
             arity = "1..*")
     List<Repository> allRepositories;
@@ -114,7 +114,11 @@ class UnlinkCommand extends ValidatedCommand {
 
     private void printAction(Action action) {
         Link link = action.link();
-        console.printf("%-" + Action.Type.MAX_LENGTH + "s %s%n", action.type(), link);
+        if (!action.type().equals(Action.Type.DELETE)) {
+            throw new SymlyExecutionException(
+                    String.format("Unable to unlink %s%n> Invalid action type %s%n", link, action.type()));
+        }
+        console.printf("%-12s %s%n", "unlink" + ":", link);
     }
 
     private void printError(Action action, Action.Code error) {
@@ -125,7 +129,7 @@ class UnlinkCommand extends ValidatedCommand {
         if (dryRun) {
             console.eprintf("> %s%n", details);
         } else {
-            throw new SymlyExecutionException(String.format("Unable to create link %s%n> %s%n", link, details));
+            throw new SymlyExecutionException(String.format("Unable to unlink %s%n> %s%n", link, details));
         }
     }
 }

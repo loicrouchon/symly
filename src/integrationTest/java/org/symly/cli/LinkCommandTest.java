@@ -91,8 +91,8 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionCreate("home/user/file", "home/user/to/dir/file"))
-                .withMessage(msg.linkActionCreate("home/user/nested/file", "home/user/to/dir/nested/file"))
+                .withMessage(msg.linkActionCreate("file", "home/user/to/dir/file"))
+                .withMessage(msg.linkActionCreate("nested/file", "home/user/to/dir/nested/file"))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """
@@ -115,8 +115,8 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionCreate("home/user/link", "home/user/to/dir/link"))
-                .withMessage(msg.linkActionCreate("home/user/nested/link", "home/user/to/dir/nested/link"))
+                .withMessage(msg.linkActionCreate("link", "home/user/to/dir/link"))
+                .withMessage(msg.linkActionCreate("nested/link", "home/user/to/dir/nested/link"))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """
@@ -144,7 +144,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionCreate("home/user/sub/dir", "home/user/to/dir/sub/dir"))
+                .withMessage(msg.linkActionCreate("sub/dir", "home/user/to/dir/sub/dir"))
                 .withFileTreeDiff(Diff.ofChanges("+L home/user/sub/dir -> home/user/to/dir/sub/dir"));
     }
 
@@ -159,8 +159,8 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .failWithError()
-                .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/to/dir/file"))
-                .withMessage(msg.linkActionConflict("home/user/file", "home/user/to/dir/file"))
+                .withErrorMessages(msg.cannotCreateLinkError("file", "home/user/to/dir/file"))
+                .withMessage(msg.linkActionConflict("file", "home/user/to/dir/file"))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -175,8 +175,8 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .failWithError()
-                .withErrorMessages(msg.cannotCreateLinkError("home/user/file", "home/user/to/dir/file"))
-                .withMessage(msg.linkActionConflict("home/user/file", "home/user/to/dir/file"))
+                .withErrorMessages(msg.cannotCreateLinkError("file", "home/user/to/dir/file"))
+                .withMessage(msg.linkActionConflict("file", "home/user/to/dir/file"))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -193,7 +193,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessages(msg.linkActionUpdate("home/user/file", "home/user/to/dir/file", "home/user/other-file"))
+                .withMessages(msg.linkActionUpdate("file", "home/user/to/dir/file", "home/user/other-file"))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """
@@ -215,7 +215,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionUpToDate("home/user/file", "home/user/to/dir/file"))
+                .withMessage(msg.linkActionUpToDate("file", "home/user/to/dir/file"))
                 .withMessage(msg.everythingUpToDate())
                 .withFileTreeDiff(Diff.empty());
     }
@@ -231,9 +231,8 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--force", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
-                .withMessages(List.of(
-                        msg.linkActionDelete("home/user/file"),
-                        msg.linkActionCreate("home/user/file", "home/user/to/dir/file")))
+                .withMessages(
+                        List.of(msg.linkActionDelete("file"), msg.linkActionCreate("file", "home/user/to/dir/file")))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """
@@ -258,10 +257,10 @@ class LinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessages(List.of(
-                        msg.linkActionDelete("home/user/file/parent-is-a-dir"),
-                        msg.linkActionDelete("home/user/file/dir/this-is-a-file"),
-                        msg.linkActionDelete("home/user/file"),
-                        msg.linkActionCreate("home/user/file", "home/user/to/dir/file")))
+                        msg.linkActionDelete("file/parent-is-a-dir"),
+                        msg.linkActionDelete("file/dir/this-is-a-file"),
+                        msg.linkActionDelete("file"),
+                        msg.linkActionCreate("file", "home/user/to/dir/file")))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """

@@ -34,14 +34,12 @@ class UnlinkCommandMessageFactory {
     }
 
     public String actionUnlink(String from, String to) {
-        return action("DELETE", from, to);
+        return action("unlink", from, to);
     }
 
     public String action(String action, String from, String to) {
-        return String.format("%s %s -> %s", padAction(action), env.path(from), env.path(to));
-    }
-
-    private String padAction(String action) {
-        return String.format("%-10s", action);
+        return String.format(
+                "%-12s %s -> %s",
+                action + ":", env.path(env.home().resolve(from).toString()), env.path(to));
     }
 }
