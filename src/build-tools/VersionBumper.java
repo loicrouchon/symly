@@ -24,6 +24,7 @@ public class VersionBumper {
         Version baseVersion = Version.parse(args[0]);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
             String subVersion = br.lines()
+                .map(version -> version.replaceFirst("^v", ""))
                 .filter(version -> version.startsWith(baseVersion.version() + "."))
                 .map(version -> version.substring(baseVersion.version().length() + 1))
                 .max(VersionBumper::compareVersion)
