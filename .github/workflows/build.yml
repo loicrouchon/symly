@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+            # required for compute-next-version to properly compute next version version
+            fetch-depth: 0
 
       - uses: actions/setup-java@v2
         with:
