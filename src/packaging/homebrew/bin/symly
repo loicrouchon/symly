@@ -1,3 +1,5 @@
 #!/bin/sh
-export JAVA_HOME="/usr/local/opt/openjdk"
+if [ "$HOMEBREW_PREFIX" != "" ] && [ -d "$HOMEBREW_PREFIX/opt/openjdk" ]; then
+    export JAVA_HOME="$HOMEBREW_PREFIX/opt/openjdk"
+fi
 "$(dirname "$(realpath "$0")")/../libexec/bin/symly" "$@"
