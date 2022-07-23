@@ -2,9 +2,7 @@ package org.symly.repositories;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.symly.cli.SymlyExecutionException;
@@ -22,8 +20,10 @@ public class Repository extends Directory {
 
     Stream<RepositoryEntry> entries(FileSystemReader fsReader) {
         Path path = toPath();
+        Map<Path, Collection<IgnoreRule>> ignoreRules = new HashMap<>();
         try {
             return fsReader.walk(path)
+                    .filter(filePath -> shouldProcessPath(fsReader, filePath, ignoreRules))
                     .map(filePath -> RepositoryEntry.of(relativize(filePath), filePath, type(fsReader, filePath)));
         } catch (IOException e) {
             throw new SymlyExecutionException(String.format("Unable to analyze repository structure %s", path), e);
@@ -35,6 +35,23 @@ public class Repository extends Directory {
             return RepositoryEntry.Type.DIRECTORY;
         }
         return RepositoryEntry.Type.FILE;
+    }
+
+    private boolean shouldProcessPath(
+            FileSystemReader fsReader, Path filePath, Map<Path, Collection<IgnoreRule>> ignoreRules) {
+        Path pathName = relativize(filePath);
+        Collection<IgnoreRule> rules = new ArrayList<>();
+        for (Path pathElement : pathName) {
+            rules.addAll(ignoreRules.computeIfAbsent(pathElement, key -> IgnoreList.read(fsReader, key)));
+            if (ignorePath(pathElement.toString(), rules)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean ignorePath(String name, Collection<IgnoreRule> rules) {
+        return rules.stream().anyMatch(rule -> rule.match(name));
     }
 
     public static Repository of(Path path) {
