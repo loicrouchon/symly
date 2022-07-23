@@ -1,11 +1,14 @@
 package org.symly.repositories;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import org.symly.cli.SymlyExecutionException;
+import org.symly.files.FileSystemReader;
 import org.symly.links.Directory;
 
 /**
@@ -17,13 +20,21 @@ public class Repository extends Directory {
         super(path);
     }
 
-    Stream<RepositoryEntry> entries() {
+    Stream<RepositoryEntry> entries(FileSystemReader fsReader) {
         Path path = toPath();
         try {
-            return Files.walk(path).map(filePath -> RepositoryEntry.of(relativize(filePath), filePath));
+            return fsReader.walk(path)
+                    .map(filePath -> RepositoryEntry.of(relativize(filePath), filePath, type(fsReader, filePath)));
         } catch (IOException e) {
             throw new SymlyExecutionException(String.format("Unable to analyze repository structure %s", path), e);
         }
+    }
+
+    private RepositoryEntry.Type type(FileSystemReader fsReader, Path path) {
+        if (fsReader.isDirectory(path)) {
+            return RepositoryEntry.Type.DIRECTORY;
+        }
+        return RepositoryEntry.Type.FILE;
     }
 
     public static Repository of(Path path) {

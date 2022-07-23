@@ -1,6 +1,5 @@
 package org.symly.repositories;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import lombok.NonNull;
 
@@ -17,16 +16,6 @@ public record RepositoryEntry(@NonNull Path name, @NonNull Path fullPath, @NonNu
     public enum Type {
         FILE,
         DIRECTORY
-    }
-
-    public static RepositoryEntry of(Path name, Path fullPath) {
-        Type type;
-        if (Files.isDirectory(fullPath)) {
-            type = Type.DIRECTORY;
-        } else {
-            type = Type.FILE;
-        }
-        return of(name, fullPath, type);
     }
 
     static RepositoryEntry of(Path name, Path fullPath, Type type) {

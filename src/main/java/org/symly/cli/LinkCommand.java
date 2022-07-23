@@ -99,7 +99,7 @@ class LinkCommand extends ValidatedCommand {
             console.printf("(dry-run mode) ");
         }
         console.printf("in %s to %s%n", mainDirectory, repositoriesList);
-        Repositories repositories = Repositories.of(repositoriesList);
+        Repositories repositories = Repositories.of(fsReader, repositoriesList);
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(repositories, mutator);
         deleteOrphans(mainDirectory, repositories, mutator);
@@ -118,7 +118,7 @@ class LinkCommand extends ValidatedCommand {
     private void createLinks(Repositories repositories, FileSystemWriter fsWriter) {
         for (Link link : repositories.links(mainDirectory)) {
             Status status = link.status(fsReader);
-            List<Action> actions = status.toActions(force);
+            List<Action> actions = status.toActions(fsReader, force);
             for (Action action : actions) {
                 Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
                 if (!action.type().equals(Action.Type.UP_TO_DATE)) {

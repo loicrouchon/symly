@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 
 /**
- * A representation of an ignore rule from the .symlyignore file.
+ * A representation of an "ignore rule" from the .symlyignore file.
  */
 @RequiredArgsConstructor
 class IgnoreRule {
@@ -22,8 +22,7 @@ class IgnoreRule {
 
     @Override
     public boolean equals(Object obj) {
-        return obj instanceof IgnoreRule ir
-            && pattern.pattern().equals(ir.pattern.pattern());
+        return obj instanceof IgnoreRule ir && pattern.pattern().equals(ir.pattern.pattern());
     }
 
     @Override

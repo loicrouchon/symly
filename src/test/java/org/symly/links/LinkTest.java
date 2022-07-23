@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.symly.files.FileSystemReader;
 import org.symly.files.IoMock;
 
 class LinkTest {
@@ -27,8 +28,9 @@ class LinkTest {
         // and
         ioMock.symlink(to, toRealPath);
         // when
-        Status status = link.status(ioMock.buildFileSystemReader());
-        List<Action> actions = status.toActions(false);
+        FileSystemReader fsReader = ioMock.buildFileSystemReader();
+        Status status = link.status(fsReader);
+        List<Action> actions = status.toActions(fsReader, false);
         // then
         assertThat(status.type()).isEqualTo(Status.Type.MISSING);
         assertThat(actions)
@@ -46,8 +48,9 @@ class LinkTest {
         ioMock.file(from);
         ioMock.symlink(to, toRealPath);
         // when
-        Status status = link.status(ioMock.buildFileSystemReader());
-        List<Action> actions = status.toActions(false);
+        FileSystemReader fsReader = ioMock.buildFileSystemReader();
+        Status status = link.status(fsReader);
+        List<Action> actions = status.toActions(fsReader, false);
         // then
         assertThat(status.type()).isEqualTo(Status.Type.FILE_CONFLICT);
         assertThat(actions)
@@ -64,8 +67,9 @@ class LinkTest {
         // and
         ioMock.symlink(from, Path.of("something"));
         // when
-        Status status = link.status(ioMock.buildFileSystemReader());
-        List<Action> actions = status.toActions(false);
+        FileSystemReader fsReader = ioMock.buildFileSystemReader();
+        Status status = link.status(fsReader);
+        List<Action> actions = status.toActions(fsReader, false);
         // then
         assertThat(status.type()).isEqualTo(Status.Type.LINK_CONFLICT);
         assertThat(actions)
@@ -82,8 +86,9 @@ class LinkTest {
         // and
         ioMock.symlink(from, to);
         // when
-        Status status = link.status(ioMock.buildFileSystemReader());
-        List<Action> actions = status.toActions(false);
+        FileSystemReader fsReader = ioMock.buildFileSystemReader();
+        Status status = link.status(fsReader);
+        List<Action> actions = status.toActions(fsReader, false);
         // then
         assertThat(status.type()).isEqualTo(Status.Type.UP_TO_DATE);
         assertThat(actions).hasSize(1).first().isInstanceOf(NoOpAction.class).satisfies(action -> assertThat(

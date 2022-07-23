@@ -63,7 +63,7 @@ class StatusCommand extends ValidatedCommand {
     @Override
     public void execute() {
         console.printf("Checking links status from %s to %s%n", mainDirectory, repositoriesList);
-        Repositories repositories = Repositories.of(repositoriesList);
+        Repositories repositories = Repositories.of(fsReader, repositoriesList);
         checkStatus(console, repositories);
     }
 

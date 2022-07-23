@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.symly.files.FileSystemReader;
 import org.symly.links.Link;
 
 /**
@@ -16,6 +17,9 @@ import org.symly.links.Link;
  */
 @RequiredArgsConstructor
 public class Repositories {
+
+    @NonNull
+    private final FileSystemReader fsReader;
 
     @NonNull
     private final List<Repository> repos;
@@ -37,15 +41,15 @@ public class Repositories {
      * @return a list of {@link Link} to be created in {@code mainDirectory}.
      */
     public List<Link> links(MainDirectory mainDirectory) {
-        try (Stream<RepositoryEntry> elements = entries()) {
+        try (Stream<RepositoryEntry> elements = entries(fsReader)) {
             return elements.map(element -> toLink(element, mainDirectory)).toList();
         }
     }
 
-    private Stream<RepositoryEntry> entries() {
+    private Stream<RepositoryEntry> entries(FileSystemReader fs) {
         Set<Path> addedNames = new HashSet<>();
         List<Path> addedDirs = new ArrayList<>();
-        List<RepositoryEntry> allEntries = allEntries().toList();
+        List<RepositoryEntry> allEntries = allEntries(fs).toList();
         Set<Path> allEntriesFullPaths =
                 allEntries.stream().map(RepositoryEntry::fullPath).collect(Collectors.toSet());
         return allEntries.stream()
@@ -84,7 +88,7 @@ public class Repositories {
      * @return the list of directories present in the repositories.
      */
     public List<Path> allDirectoriesNames() {
-        try (Stream<RepositoryEntry> allElements = allEntries()) {
+        try (Stream<RepositoryEntry> allElements = allEntries(fsReader)) {
             return allElements
                     .filter(e -> e.type() == DIRECTORY)
                     .map(RepositoryEntry::name)
@@ -94,11 +98,11 @@ public class Repositories {
         }
     }
 
-    private Stream<RepositoryEntry> allEntries() {
-        return repos.stream().flatMap(Repository::entries);
+    private Stream<RepositoryEntry> allEntries(FileSystemReader fs) {
+        return repos.stream().flatMap(repo -> repo.entries(fs));
     }
 
-    public static Repositories of(List<Repository> repositories) {
-        return new Repositories(repositories);
+    public static Repositories of(FileSystemReader fsReader, List<Repository> repositories) {
+        return new Repositories(fsReader, repositories);
     }
 }

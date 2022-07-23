@@ -1,7 +1,6 @@
 package org.symly.repositories;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,6 +9,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.symly.cli.SymlyExecutionException;
+import org.symly.files.FileSystemReader;
 
 /**
  * Parses <strong>.symlyignore</strong> file in order to produce a collection of {@link IgnoreRule}. Such rules can be
@@ -22,19 +22,18 @@ class IgnoreList {
     private static final Pattern COMMENT = Pattern.compile("#.*$");
 
     private static final Collection<Conversion> PATTERN_CONVERSIONS = List.of(
-        // escape dots
-        new Conversion("\\.", "\\\\."),
-        // wildcard support
-        new Conversion("\\*", ".*"),
-        // trimming leading/trailing whitespaces
-        new Conversion("^\s+", ""),
-        new Conversion("\s+$", "")
-    );
+            // escape dots
+            new Conversion("\\.", "\\\\."),
+            // wildcard support
+            new Conversion("\\*", ".*"),
+            // trimming leading/trailing whitespaces
+            new Conversion("^\s+", ""),
+            new Conversion("\s+$", ""));
 
-    static Collection<IgnoreRule> read(Path path) {
+    static Collection<IgnoreRule> read(FileSystemReader fsReader, Path path) {
         Path ignoreList = path.resolve(SYMLY_IGNORE);
-        if (Files.exists(ignoreList)) {
-            try (Stream<String> lines = Files.lines(ignoreList)) {
+        if (fsReader.exists(ignoreList)) {
+            try (Stream<String> lines = fsReader.lines(ignoreList)) {
                 return parse(lines);
             } catch (IOException e) {
                 throw new SymlyExecutionException(String.format("Unable to analyze repository structure %s", path), e);
@@ -44,11 +43,10 @@ class IgnoreList {
     }
 
     static List<IgnoreRule> parse(Stream<String> lines) {
-        return lines
-            .map(line -> COMMENT.matcher(line).replaceAll(""))
-            .filter(line -> !line.isBlank())
-            .map(IgnoreList::toPattern)
-            .toList();
+        return lines.map(line -> COMMENT.matcher(line).replaceAll(""))
+                .filter(line -> !line.isBlank())
+                .map(IgnoreList::toPattern)
+                .toList();
     }
 
     private static IgnoreRule toPattern(String line) {

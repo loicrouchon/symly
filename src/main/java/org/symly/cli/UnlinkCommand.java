@@ -84,7 +84,7 @@ class UnlinkCommand extends ValidatedCommand {
             console.printf("(dry-run mode) ");
         }
         console.printf("in %s to %s%n", mainDirectory, allRepositories);
-        Repositories repositories = Repositories.of(allRepositories);
+        Repositories repositories = Repositories.of(fsReader, allRepositories);
         FileSystemWriter mutator = getFilesMutatorService();
         unlink(mainDirectory, repositories, mutator);
     }

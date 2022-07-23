@@ -3,6 +3,7 @@ package org.symly.files;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 import org.symly.cli.SymlyExecutionException;
 import org.symly.links.Directory;
 
@@ -31,5 +32,13 @@ public class FileSystemReader {
             throw new SymlyExecutionException(
                     String.format("Unable to read link %s real path: %s", link, e.getMessage()), e);
         }
+    }
+
+    public Stream<Path> walk(Path path) throws IOException {
+        return Files.walk(path);
+    }
+
+    public Stream<String> lines(Path path) throws IOException {
+        return Files.lines(path);
     }
 }
