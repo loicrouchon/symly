@@ -10,43 +10,69 @@ import java.util.stream.Stream;
 import org.symly.cli.SymlyExecutionException;
 import org.symly.links.Directory;
 
-public class FileSystemReader {
+public interface FileSystemReader {
 
-    public boolean exists(Path path) {
-        return Files.exists(path);
+    boolean exists(Path path);
+
+    boolean isDirectory(Path path);
+
+    default boolean isADirectory(Directory directory) {
+        return isDirectory(directory.toPath());
     }
 
-    public boolean isDirectory(Path path) {
-        return Files.isDirectory(path);
-    }
+    boolean isSymbolicLink(Path path);
 
-    public boolean isADirectory(Directory directory) {
-        return Files.isDirectory(directory.toPath());
-    }
+    Path readSymbolicLink(Path link);
 
-    public boolean isSymbolicLink(Path path) {
-        return Files.isSymbolicLink(path);
-    }
+    Stream<String> lines(Path path) throws IOException;
 
-    public Path readSymbolicLink(Path link) {
-        try {
-            return Files.readSymbolicLink(link);
-        } catch (IOException e) {
-            throw new SymlyExecutionException(
-                    String.format("Unable to read link %s real path: %s", link, e.getMessage()), e);
+    Stream<Path> walk(Path path) throws IOException;
+
+    void walkFileTree(Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
+            throws IOException;
+
+    class RealFileSystemReader implements FileSystemReader {
+
+        @Override
+        public boolean exists(Path path) {
+            return Files.exists(path);
         }
-    }
 
-    public Stream<Path> walk(Path path) throws IOException {
-        return Files.walk(path);
-    }
+        @Override
+        public boolean isDirectory(Path path) {
+            return Files.isDirectory(path);
+        }
 
-    public void walkFileTree(Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
-            throws IOException {
-        Files.walkFileTree(start, options, maxDepth, visitor);
-    }
+        @Override
+        public boolean isSymbolicLink(Path path) {
+            return Files.isSymbolicLink(path);
+        }
 
-    public Stream<String> lines(Path path) throws IOException {
-        return Files.lines(path);
+        @Override
+        public Path readSymbolicLink(Path link) {
+            try {
+                return Files.readSymbolicLink(link);
+            } catch (IOException e) {
+                throw new SymlyExecutionException(
+                        String.format("Unable to read link %s real path: %s", link, e.getMessage()), e);
+            }
+        }
+
+        @Override
+        public Stream<String> lines(Path path) throws IOException {
+            return Files.lines(path);
+        }
+
+        @Override
+        public Stream<Path> walk(Path path) throws IOException {
+            return Files.walk(path);
+        }
+
+        @Override
+        public void walkFileTree(
+                Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
+                throws IOException {
+            Files.walkFileTree(start, options, maxDepth, visitor);
+        }
     }
 }

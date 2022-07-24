@@ -21,7 +21,7 @@ public class BeanFactory implements CommandLine.IFactory {
     public BeanFactory() {
         registerBean(Config.class, Config::new);
         registerBean(CliConsole.class, () -> new CliConsole(new PrintWriter(System.out), new PrintWriter(System.err)));
-        registerBean(FileSystemReader.class, FileSystemReader::new);
+        registerBean(FileSystemReader.class, FileSystemReader.RealFileSystemReader::new);
         registerBean(FileSystemWriter.class, FileSystemWriterImpl::new);
         registerBean(LinksFinder.class, () -> new LinksFinder(create(FileSystemReader.class)));
         registerBean(VersionProvider.class, () -> new VersionProvider(create(Config.class)));

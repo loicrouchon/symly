@@ -1,60 +1,106 @@
 package org.symly.files;
 
+import java.io.IOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitor;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import org.symly.links.Directory;
+import org.symly.cli.SymlyExecutionException;
 
 public class IoMock {
 
-    private final Set<Path> exists = new HashSet<>();
-    private final Map<Path, Path> links = new HashMap<>();
+    private final Map<Path, FSEntry> fsEntries = new HashMap<>();
 
     public void file(Path path) {
-        exists.add(path);
+        directory(path.getParent());
+        fsEntries.put(path, new File(path, ""));
     }
 
-    public void symlink(Path source, Path target) {
-        file(source);
-        links.put(source, target);
+    private void directory(Path path) {
+        if (path != null) {
+            directory(path.getParent());
+            fsEntries.put(path, new Directory(path));
+        }
+    }
+
+    public void symlink(Path path, Path target) {
+        directory(path.getParent());
+        fsEntries.put(path, new Symlink(path, target));
     }
 
     public FileSystemReader buildFileSystemReader() {
-        return new FileSystemReaderStub(Set.copyOf(exists), Map.copyOf(links));
+        return new FileSystemReaderStub(fsEntries);
+    }
+}
+
+sealed interface FSEntry permits File, Directory, Symlink {}
+
+record File(Path path, String lines) implements FSEntry {}
+
+record Directory(Path path) implements FSEntry {}
+
+record Symlink(Path path, Path target) implements FSEntry {}
+
+@RequiredArgsConstructor
+class FileSystemReaderStub implements FileSystemReader {
+
+    private final Map<Path, FSEntry> fsEntries;
+
+    @Override
+    public boolean exists(Path path) {
+        return fsEntries.containsKey(path);
     }
 
-    @RequiredArgsConstructor
-    private static class FileSystemReaderStub extends FileSystemReader {
+    @Override
+    public boolean isDirectory(Path path) {
+        return fsEntries.get(path) instanceof Directory;
+    }
 
-        private final Set<Path> exists;
-        private final Map<Path, Path> links;
+    @Override
+    public boolean isSymbolicLink(Path path) {
+        return fsEntries.get(path) instanceof Symlink;
+    }
 
-        @Override
-        public boolean exists(Path path) {
-            return exists.contains(path);
+    @Override
+    public Path readSymbolicLink(Path path) {
+        try {
+            Symlink link = getOfType(Symlink.class, path);
+            if (link == null) {
+                return null;
+            }
+            return link.target();
+        } catch (IOException e) {
+            throw new SymlyExecutionException(
+                    String.format("Unable to read link %s real path: %s", path, e.getMessage()), e);
         }
+    }
 
-        @Override
-        public boolean isDirectory(Path path) {
-            throw new UnsupportedOperationException();
-        }
+    public Stream<String> lines(Path path) throws IOException {
+        File file = getOfType(File.class, path);
+        return Arrays.stream(file.lines().split("\n"));
+    }
 
-        @Override
-        public boolean isADirectory(Directory directory) {
-            throw new UnsupportedOperationException();
+    private <T extends FSEntry> T getOfType(Class<T> fsEntryClass, Path path) throws IOException {
+        FSEntry fsEntry = fsEntries.get(path);
+        if (fsEntry == null) {
+            throw new IOException(String.format("File system entry %s does not exist", path));
         }
+        if (fsEntryClass.isInstance(fsEntry)) {
+            return fsEntryClass.cast(fsEntry);
+        }
+        throw new IOException(String.format(
+                "Path %s is not a %s but is a %s",
+                path, fsEntryClass.getSimpleName(), fsEntry.getClass().getSimpleName()));
+    }
 
-        @Override
-        public boolean isSymbolicLink(Path path) {
-            return links.containsKey(path);
-        }
+    public Stream<Path> walk(Path path) {
+        return fsEntries.keySet().stream().filter(p -> p.startsWith(path));
+    }
 
-        @Override
-        public Path readSymbolicLink(Path link) {
-            return links.get(link);
-        }
+    public void walkFileTree(Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
+            throws IOException {
+        throw new IOException("This operation is not stubbed");
     }
 }
