@@ -71,6 +71,7 @@ directory but any other directory can be used.
 
 * [x] Support for multiple repositories
 * [x] Layering of repositories allowing for custom files and defaults ones
+* [x] Ignored files in repositories via .symlyignore
 
 **Integrations:**
 
