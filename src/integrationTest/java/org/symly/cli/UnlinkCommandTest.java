@@ -54,7 +54,7 @@ class UnlinkCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("D to/dir");
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to/dir")
+        whenRunningCommand("unlink", "-v", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.unlink(env.home().toString(), List.of("to/dir")))
@@ -71,7 +71,7 @@ class UnlinkCommandTest extends IntegrationTest {
             D to/other-dir
             """);
         // when/then
-        whenRunningCommand("unlink", "--dir", "main/dir", "--repositories", "to/dir", "to/other-dir")
+        whenRunningCommand("unlink", "-v", "--dir", "main/dir", "--repositories", "to/dir", "to/other-dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.unlink("main/dir", List.of("to/dir", "to/other-dir")))

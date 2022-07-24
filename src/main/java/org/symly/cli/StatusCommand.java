@@ -62,7 +62,7 @@ class StatusCommand extends ValidatedCommand {
 
     @Override
     public void execute() {
-        console.printf("Checking links status from %s to %s%n", mainDirectory, repositoriesList);
+        console.printf(Level.DEBUG, "Checking links status from %s to %s%n", mainDirectory, repositoriesList);
         Repositories repositories = Repositories.of(fsReader, repositoriesList);
         checkStatus(console, repositories);
     }
@@ -87,7 +87,7 @@ class StatusCommand extends ValidatedCommand {
                 switch (status.type()) {
                     case UP_TO_DATE -> "up-to-date";
                     case MISSING -> "missing";
-                    case LINK_CONFLICT, FILE_CONFLICT -> "conflict";
+                    case LINK_CONFLICT, FILE_CONFLICT -> "!conflict";
                 };
         Level level;
         if (status.type().equals(Status.Type.UP_TO_DATE)) {

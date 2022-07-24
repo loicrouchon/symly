@@ -38,8 +38,6 @@ class UnlinkCommandMessageFactory {
     }
 
     public String action(String action, String from, String to) {
-        return String.format(
-                "%-12s %s -> %s",
-                action + ":", env.path(env.home().resolve(from).toString()), env.path(to));
+        return String.format("%-12s %s -> %s", action + ":", from, env.path(to));
     }
 }

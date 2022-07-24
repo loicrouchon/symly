@@ -94,11 +94,11 @@ class LinkCommand extends ValidatedCommand {
     @Override
     public void execute() {
         updates = 0;
-        console.printf("Creating links ");
+        console.printf(Level.DEBUG, "Creating links ");
         if (dryRun) {
-            console.printf("(dry-run mode) ");
+            console.printf(Level.DEBUG, "(dry-run mode) ");
         }
-        console.printf("in %s to %s%n", mainDirectory, repositoriesList);
+        console.printf(Level.DEBUG, "in %s to %s%n", mainDirectory, repositoriesList);
         Repositories repositories = Repositories.of(fsReader, repositoriesList);
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(repositories, mutator);
@@ -149,28 +149,23 @@ class LinkCommand extends ValidatedCommand {
 
     private void printAction(Action action, Path previousLink) {
         Link link = action.link();
-        Level level;
-        if (action.type().equals(Action.Type.UP_TO_DATE)) {
-            level = Level.DEBUG;
-        } else {
-            level = Level.INFO;
-        }
-        String actionType =
-                switch (action.type()) {
-                    case UP_TO_DATE -> "up-to-date";
-                    case CREATE -> "added";
-                    case MODIFY -> "modified";
-                    case DELETE -> "deleted";
-                    case CONFLICT -> "!conflict";
-                };
-        console.printf(level, "%-12s %s%n", actionType + ":", link.toString(mainDirectory));
-        if (action.type().equals(Action.Type.MODIFY)) {
-            if (previousLink != null) {
-                console.printf(level, "> Previous link target was %s%n", previousLink);
-            } else {
-                throw new IllegalStateException("Expecting a previous link to be found for " + link.source());
+        switch (action.type()) {
+            case UP_TO_DATE -> printAction(Level.DEBUG, "up-to-date", link);
+            case CREATE -> printAction(Level.INFO, "added", link);
+            case MODIFY -> {
+                if (previousLink == null) {
+                    throw new IllegalStateException("Expecting a previous link to be found for " + link.source());
+                }
+                printAction(Level.INFO, "deleted", new Link(link.source(), previousLink));
+                printAction(Level.INFO, "added", link);
             }
+            case DELETE -> printAction(Level.INFO, "deleted", link);
+            case CONFLICT -> printAction(Level.INFO, "!conflict", link);
         }
+    }
+
+    private void printAction(Level level, String actionType, Link link) {
+        console.printf(level, "%-12s %s%n", actionType + ":", link.toString(mainDirectory));
     }
 
     private void printError(Action action, Action.Code error) {
@@ -181,7 +176,7 @@ class LinkCommand extends ValidatedCommand {
                     case INVALID_SOURCE -> String.format("Source %s does not exist", link.source());
                     case INVALID_DESTINATION -> String.format("Destination %s does not exist", link.target());
                     case CONFLICT -> String.format(
-                            "Regular file %s already exist. To overwrite it, use the --replace-file option.",
+                            "Regular file %s already exist. To overwrite it, use the -f (--force) option.",
                             link.source());
                     case ERROR -> String.format("An error occurred during linkage: - %s", error.details());
                 };

@@ -54,7 +54,7 @@ class StatusCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("D to/dir");
         // when/then
-        whenRunningCommand("status", "--repositories", "to/dir")
+        whenRunningCommand("status", "-v", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks("home/user", List.of("to/dir")))
@@ -71,7 +71,7 @@ class StatusCommandTest extends IntegrationTest {
             D to/other-dir
             """);
         // when/then
-        whenRunningCommand("status", "--dir", "main/dir", "--repositories", "to/dir", "to/other-dir")
+        whenRunningCommand("status", "-v", "--dir", "main/dir", "--repositories", "to/dir", "to/other-dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks("main/dir", List.of("to/dir", "to/other-dir")))

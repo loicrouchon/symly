@@ -1,7 +1,9 @@
 package org.symly.cli;
 
+import java.lang.System.Logger.Level;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -79,11 +81,11 @@ class UnlinkCommand extends ValidatedCommand {
 
     @Override
     public void execute() {
-        console.printf("Removing links ");
+        console.printf(Level.DEBUG, "Removing links ");
         if (dryRun) {
-            console.printf("(dry-run mode) ");
+            console.printf(Level.DEBUG, "(dry-run mode) ");
         }
-        console.printf("in %s to %s%n", mainDirectory, allRepositories);
+        console.printf(Level.DEBUG, "in %s to %s%n", mainDirectory, allRepositories);
         Repositories repositories = Repositories.of(fsReader, allRepositories);
         FileSystemWriter mutator = getFilesMutatorService();
         unlink(mainDirectory, repositories, mutator);
@@ -99,6 +101,8 @@ class UnlinkCommand extends ValidatedCommand {
     private void unlink(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
         linksFinder
                 .findLinks(mainDirectory.toPath(), maxDepth, repositories)
+                .sorted(Comparator.comparing(Link::source))
+                .distinct()
                 .forEach(orphan -> unlink(orphan, mutator));
     }
 
@@ -118,7 +122,7 @@ class UnlinkCommand extends ValidatedCommand {
             throw new SymlyExecutionException(
                     String.format("Unable to unlink %s%n> Invalid action type %s%n", link, action.type()));
         }
-        console.printf("%-12s %s%n", "unlink" + ":", link);
+        console.printf("%-12s %s%n", "unlink" + ":", link.toString(mainDirectory));
     }
 
     private void printError(Action action, Action.Code error) {

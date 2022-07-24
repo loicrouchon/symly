@@ -46,8 +46,7 @@ class LinkCommandMessageFactory {
     }
 
     public List<String> linkActionUpdate(String from, String to, String previousTo) {
-        return List.of(
-                action("modified", from, to), String.format("> Previous link target was %s", env.path(previousTo)));
+        return List.of(action("deleted", from, previousTo), action("added", from, to));
     }
 
     public String linkActionUpToDate(String from, String to) {
@@ -75,7 +74,7 @@ class LinkCommandMessageFactory {
         return List.of(
                 String.format("Unable to create link %s -> %s", absFrom, env.path(to)),
                 String.format(
-                        "> Regular file %s already exist. To overwrite it, use the --replace-file option.", absFrom));
+                        "> Regular file %s already exist. To overwrite it, use the -f (--force) option.", absFrom));
     }
 
     public String everythingUpToDate() {
