@@ -1,7 +1,10 @@
 package org.symly.repositories;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.function.Predicate;
@@ -64,7 +67,7 @@ public class LinksFinder {
         Set<Path> excludedDirs = directSubDirectories(dir, exclusions);
         LinkVisitor visitor = new LinkVisitor(fileSystemReader, filter, excludedDirs);
         try {
-            Files.walkFileTree(dir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), maxDepth, visitor);
+            fileSystemReader.walkFileTree(dir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), maxDepth, visitor);
         } catch (IOException e) {
             throw new SymlyExecutionException(String.format("Failed to find orphan links in %s", dir), e);
         }
