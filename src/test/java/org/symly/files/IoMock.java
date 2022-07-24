@@ -14,30 +14,46 @@ public class IoMock {
     private final Map<Path, FSEntry> fsEntries = new HashMap<>();
 
     public void file(Path path) {
-        directory(path.getParent());
-        fsEntries.put(path, new File(path, ""));
+        file(path, "");
     }
 
-    private void directory(Path path) {
+    public void file(Path path, String content) {
+        path = path.toAbsolutePath();
+        if (fsEntries.containsKey(path)) {
+            throw new IllegalArgumentException(String.format("File system entry %s is already defined", path));
+        }
+        directory(path.getParent());
+        fsEntries.put(path, new File(path, content));
+    }
+
+    public void directory(Path path) {
         if (path != null) {
+            path = path.toAbsolutePath();
+            if (fsEntries.get(path) != null && !(fsEntries.get(path) instanceof Directory)) {
+                throw new IllegalArgumentException(String.format("File system entry %s is already defined", path));
+            }
             directory(path.getParent());
             fsEntries.put(path, new Directory(path));
         }
     }
 
     public void symlink(Path path, Path target) {
+        path = path.toAbsolutePath();
+        if (fsEntries.containsKey(path)) {
+            throw new IllegalArgumentException(String.format("File system entry %s is already defined", path));
+        }
         directory(path.getParent());
         fsEntries.put(path, new Symlink(path, target));
     }
 
     public FileSystemReader buildFileSystemReader() {
-        return new FileSystemReaderStub(fsEntries);
+        return new FileSystemReaderStub(Map.copyOf(fsEntries));
     }
 }
 
 sealed interface FSEntry permits File, Directory, Symlink {}
 
-record File(Path path, String lines) implements FSEntry {}
+record File(Path path, String content) implements FSEntry {}
 
 record Directory(Path path) implements FSEntry {}
 
@@ -50,17 +66,17 @@ class FileSystemReaderStub implements FileSystemReader {
 
     @Override
     public boolean exists(Path path) {
-        return fsEntries.containsKey(path);
+        return fsEntries.containsKey(path.toAbsolutePath());
     }
 
     @Override
     public boolean isDirectory(Path path) {
-        return fsEntries.get(path) instanceof Directory;
+        return fsEntries.get(path.toAbsolutePath()) instanceof Directory;
     }
 
     @Override
     public boolean isSymbolicLink(Path path) {
-        return fsEntries.get(path) instanceof Symlink;
+        return fsEntries.get(path.toAbsolutePath()) instanceof Symlink;
     }
 
     @Override
@@ -79,11 +95,11 @@ class FileSystemReaderStub implements FileSystemReader {
 
     public Stream<String> lines(Path path) throws IOException {
         File file = getOfType(File.class, path);
-        return Arrays.stream(file.lines().split("\n"));
+        return Arrays.stream(file.content().split("\n"));
     }
 
     private <T extends FSEntry> T getOfType(Class<T> fsEntryClass, Path path) throws IOException {
-        FSEntry fsEntry = fsEntries.get(path);
+        FSEntry fsEntry = fsEntries.get(path.toAbsolutePath());
         if (fsEntry == null) {
             throw new IOException(String.format("File system entry %s does not exist", path));
         }
@@ -96,7 +112,8 @@ class FileSystemReaderStub implements FileSystemReader {
     }
 
     public Stream<Path> walk(Path path) {
-        return fsEntries.keySet().stream().filter(p -> p.startsWith(path));
+        Path absolutePath = path.toAbsolutePath();
+        return fsEntries.keySet().stream().filter(p -> p.startsWith(absolutePath));
     }
 
     public void walkFileTree(Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)

@@ -21,6 +21,7 @@ public class Repository extends Directory {
     Stream<RepositoryEntry> entries(FileSystemReader fsReader) {
         Path path = toPath();
         Map<Path, Collection<IgnoreRule>> ignoreRules = new HashMap<>();
+        ignoreRules.put(path, IgnoreList.read(fsReader, path));
         try {
             return fsReader.walk(path)
                     .filter(filePath -> shouldProcessPath(fsReader, filePath, ignoreRules))
@@ -40,9 +41,14 @@ public class Repository extends Directory {
     private boolean shouldProcessPath(
             FileSystemReader fsReader, Path filePath, Map<Path, Collection<IgnoreRule>> ignoreRules) {
         Path pathName = relativize(filePath);
-        Collection<IgnoreRule> rules = new ArrayList<>();
+        if (filePath.endsWith(IgnoreList.SYMLY_IGNORE)) {
+            return false;
+        }
+        Path currentPath = toPath();
+        Collection<IgnoreRule> rules = new ArrayList<>(ignoreRules.get(currentPath));
         for (Path pathElement : pathName) {
-            rules.addAll(ignoreRules.computeIfAbsent(pathElement, key -> IgnoreList.read(fsReader, key)));
+            currentPath = currentPath.resolve(pathElement);
+            rules.addAll(ignoreRules.computeIfAbsent(currentPath, key -> IgnoreList.read(fsReader, key)));
             if (ignorePath(pathElement.toString(), rules)) {
                 return false;
             }

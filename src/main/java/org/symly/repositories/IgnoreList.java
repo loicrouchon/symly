@@ -17,7 +17,7 @@ import org.symly.files.FileSystemReader;
  */
 class IgnoreList {
 
-    private static final String SYMLY_IGNORE = ".symlyignore";
+    static final String SYMLY_IGNORE = ".symlyignore";
 
     private static final Pattern COMMENT = Pattern.compile("#.*$");
 
