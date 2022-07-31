@@ -1,6 +1,6 @@
 package org.symly.repositories;
 
-import static java.util.Spliterator.*;
+import static java.util.Spliterator.ORDERED;
 import static java.util.Spliterators.spliteratorUnknownSize;
 import static org.symly.links.Configuration.symlinkMarker;
 import static org.symly.repositories.RepositoryEntry.Type.DIRECTORY;
@@ -26,6 +26,10 @@ public class Repositories {
 
     @NonNull
     private final Deque<Repository> layers;
+
+    public Collection<Repository> repositories() {
+        return List.copyOf(layers);
+    }
 
     /**
      * Returns {@code true} if the absolute path given is contained in one of the repositories.

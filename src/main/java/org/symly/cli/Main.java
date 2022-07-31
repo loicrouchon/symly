@@ -1,9 +1,6 @@
 package org.symly.cli;
 
-import org.symly.cli.converters.MainDirectoryTypeConverter;
-import org.symly.cli.converters.RepositoryTypeConverter;
-import org.symly.repositories.MainDirectory;
-import org.symly.repositories.Repository;
+import java.nio.file.Path;
 import picocli.CommandLine;
 
 public class Main {
@@ -26,10 +23,8 @@ public class Main {
         CommandLine commandLine = new CommandLine(factory.create(MainCommand.class), factory);
         commandLine.setOut(console.writer());
         commandLine.setErr(console.ewriter());
-        commandLine.setDefaultValueProvider(new EnvironmentVariableDefaultsProvider());
         commandLine.setExecutionExceptionHandler(factory.create(ExceptionHandler.class));
-        commandLine.registerConverter(MainDirectory.class, new MainDirectoryTypeConverter());
-        commandLine.registerConverter(Repository.class, new RepositoryTypeConverter());
+        commandLine.registerConverter(Path.class, new PathTypeConverter());
         return commandLine;
     }
 }

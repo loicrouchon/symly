@@ -1,20 +1,16 @@
 package org.symly.cli;
 
-import static picocli.CommandLine.Help;
-
 import java.lang.System.Logger.Level;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.symly.cli.validation.Constraint;
 import org.symly.files.FileSystemReader;
 import org.symly.links.Link;
 import org.symly.links.Status;
-import org.symly.repositories.MainDirectory;
-import org.symly.repositories.Repositories;
-import org.symly.repositories.Repository;
+import org.symly.repositories.ContextConfig;
+import org.symly.repositories.ContextConfig.Context;
+import org.symly.repositories.ContextConfig.InputContext;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -28,10 +24,8 @@ class StatusCommand extends ValidatedCommand {
     @Option(
             names = {"-d", "--dir", "--directory"},
             paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created",
-            required = true,
-            showDefaultValue = Help.Visibility.ALWAYS)
-    MainDirectory mainDirectory;
+            description = "Main directory in which links will be created")
+    Path mainDirectory;
 
     @Option(
             names = {"-r", "--repositories"},
@@ -41,9 +35,8 @@ class StatusCommand extends ValidatedCommand {
             Repositories containing files to link in the main directory. \
             Repositories are to be listed by decreasing priority as the first ones will \
             override the content of the later ones.""",
-            required = true,
-            arity = "1..*")
-    List<Repository> repositoriesList;
+            arity = "0..*")
+    List<Path> repositoriesList;
 
     @NonNull
     private final CliConsole console;
@@ -51,25 +44,24 @@ class StatusCommand extends ValidatedCommand {
     @NonNull
     private final FileSystemReader fsReader;
 
-    @Override
-    protected Collection<Constraint> constraints() {
-        return List.of(
-                Constraint.ofArg(
-                        "main-directory", mainDirectory, "must be an existing directory", fsReader::isADirectory),
-                Constraint.ofArg(
-                        "repositories", repositoriesList, "must be an existing directory", fsReader::isADirectory));
-    }
+    private Context context;
 
     @Override
-    public void execute() {
-        console.printf(Level.DEBUG, "Checking links status from %s to %s%n", mainDirectory, repositoriesList);
-        Repositories repositories = Repositories.of(fsReader, repositoriesList);
-        checkStatus(console, repositories);
+    public void run() {
+        InputContext inputContext = new InputContext(mainDirectory, repositoriesList);
+        context = Context.from(fsReader, ContextConfig.read(fsReader), inputContext);
+        validate(context.constraints(fsReader));
+        console.printf(
+                Level.DEBUG,
+                "Checking links status from %s to %s%n",
+                context.mainDirectory(),
+                context.repositories().repositories());
+        checkStatus(console);
     }
 
-    private void checkStatus(CliConsole console, Repositories repositories) {
+    private void checkStatus(CliConsole console) {
         int updates = 0;
-        for (Link link : repositories.links(mainDirectory)) {
+        for (Link link : context.links()) {
             Status status = link.status(fsReader);
             if (!status.type().equals(Status.Type.UP_TO_DATE)) {
                 updates++;
@@ -95,7 +87,7 @@ class StatusCommand extends ValidatedCommand {
         } else {
             level = Level.INFO;
         }
-        console.printf(level, "%-12s%s%n", statusType, link.toString(mainDirectory));
+        console.printf(level, "%-12s%s%n", statusType, link.toString(context.mainDirectory()));
         if (status.type() == Status.Type.LINK_CONFLICT) {
             Path realPath = fsReader.readSymbolicLink(link.source());
             console.printf("> Symbolic link conflict. Current target is %s%n", realPath);

@@ -14,14 +14,26 @@ class LinkCommandTest extends IntegrationTest {
     private final LinkCommandMessageFactory msg = new LinkCommandMessageFactory(env);
 
     @Test
-    void shouldFail_whenRequiredArgsAreMissing() {
+    void shouldFail_whenMainDirectoryIsNotDefined() {
         // given
         given(env);
         // when/then
         whenRunningCommand("link")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.missingTargetDirectories())
+                .withErrorMessage(msg.mainDirectoryIsNotDefined())
+                .withFileTreeDiff(Diff.empty());
+    }
+
+    @Test
+    void shouldFail_whenRepositoriesAreNotDefined() {
+        // given
+        given(env);
+        // when/then
+        whenRunningCommand("link", "--dir", "~")
+                .thenItShould()
+                .failWithConfigurationError()
+                .withErrorMessage(msg.repositoriesAreNotDefined())
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -30,7 +42,7 @@ class LinkCommandTest extends IntegrationTest {
         // given
         given(env).withHome("home/doesnotexist");
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir", "/home/user/some/file")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
@@ -38,14 +50,14 @@ class LinkCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldFail_whenTargetDirectoryDoesNotExist() {
+    void shouldFail_whenRepositoryDoesNotExist() {
         // given
         given(env);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir", "/home/user/some/file")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
+                .withErrorMessage(msg.repositoryDoesNotExist("to/dir"))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -54,7 +66,7 @@ class LinkCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("D to/dir");
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.creatingLinks(env.home().toString(), List.of("to/dir")))
@@ -88,7 +100,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/nested/file
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("file", "home/user/to/dir/file"))
@@ -112,7 +124,7 @@ class LinkCommandTest extends IntegrationTest {
             F opt/file
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("link", "home/user/to/dir/link"))
@@ -130,7 +142,7 @@ class LinkCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("D home/user/to/dir/sub/dir");
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withFileTreeDiff(Diff.empty());
@@ -141,7 +153,7 @@ class LinkCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("F home/user/to/dir/sub/dir/.symlink");
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate("sub/dir", "home/user/to/dir/sub/dir"))
@@ -156,7 +168,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .failWithError()
                 .withErrorMessages(msg.cannotCreateLinkError("file", "home/user/to/dir/file"))
@@ -172,7 +184,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .failWithError()
                 .withErrorMessages(msg.cannotCreateLinkError("file", "home/user/to/dir/file"))
@@ -190,7 +202,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessages(msg.linkActionUpdate("file", "home/user/to/dir/file", "home/user/other-file"))
@@ -212,7 +224,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionUpToDate("file", "home/user/to/dir/file"))
@@ -228,7 +240,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--force", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--force", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessages(
@@ -253,7 +265,7 @@ class LinkCommandTest extends IntegrationTest {
             F home/user/to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--force", "--repositories", "home/user/to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--force", "--repositories", "home/user/to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessages(List.of(

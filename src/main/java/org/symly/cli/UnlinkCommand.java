@@ -2,23 +2,20 @@ package org.symly.cli;
 
 import java.lang.System.Logger.Level;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.Result;
-import org.symly.cli.validation.Constraint;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
 import org.symly.links.Link;
+import org.symly.repositories.ContextConfig;
+import org.symly.repositories.ContextConfig.Context;
+import org.symly.repositories.ContextConfig.InputContext;
 import org.symly.repositories.LinksFinder;
-import org.symly.repositories.MainDirectory;
-import org.symly.repositories.Repositories;
-import org.symly.repositories.Repository;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -29,10 +26,8 @@ class UnlinkCommand extends ValidatedCommand {
     @Option(
             names = {"-d", "--dir", "--directory"},
             paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created",
-            required = true,
-            showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
-    MainDirectory mainDirectory;
+            description = "Main directory in which links will be created")
+    Path mainDirectory;
 
     @Option(
             names = {"-r", "--repositories"},
@@ -42,9 +37,8 @@ class UnlinkCommand extends ValidatedCommand {
                 Repositories containing files to link in the main directory. \
                 Repositories are to be listed by decreasing priority as the first ones will \
                 override the content of the later ones.""",
-            required = true,
-            arity = "1..*")
-    List<Repository> allRepositories;
+            arity = "0..*")
+    List<Path> repositoriesList;
 
     @Option(
             names = {"--dry-run"},
@@ -55,7 +49,7 @@ class UnlinkCommand extends ValidatedCommand {
             names = {"--max-depth"},
             paramLabel = "<max-depth>",
             description = "Depth of the lookup for orphans deletion")
-    int maxDepth = 2;
+    Integer maxDepth;
 
     @NonNull
     private final CliConsole console;
@@ -69,26 +63,24 @@ class UnlinkCommand extends ValidatedCommand {
     @NonNull
     private final LinksFinder linksFinder;
 
-    @Override
-    protected Collection<Constraint> constraints() {
-        return List.of(
-                Constraint.ofArg(
-                        "main-directory", mainDirectory, "must be an existing directory", fsReader::isADirectory),
-                Constraint.ofArg(
-                        "repositories", allRepositories, "must be an existing directory", fsReader::isADirectory),
-                Constraint.ofArg("max-depth", maxDepth, "must be a positive integer", depth -> depth >= 0));
-    }
+    private Context context;
 
     @Override
-    public void execute() {
+    public void run() {
+        InputContext inputContext = new InputContext(mainDirectory, repositoriesList, maxDepth);
+        context = Context.from(fsReader, ContextConfig.read(fsReader), inputContext);
+        validate(context.constraints(fsReader));
         console.printf(Level.DEBUG, "Removing links ");
         if (dryRun) {
             console.printf(Level.DEBUG, "(dry-run mode) ");
         }
-        console.printf(Level.DEBUG, "in %s to %s%n", mainDirectory, allRepositories);
-        Repositories repositories = Repositories.of(fsReader, allRepositories);
+        console.printf(
+                Level.DEBUG,
+                "in %s to %s%n",
+                context.mainDirectory(),
+                context.repositories().repositories());
         FileSystemWriter mutator = getFilesMutatorService();
-        unlink(mainDirectory, repositories, mutator);
+        unlink(mutator);
     }
 
     private FileSystemWriter getFilesMutatorService() {
@@ -98,9 +90,9 @@ class UnlinkCommand extends ValidatedCommand {
         return fileSystemWriter;
     }
 
-    private void unlink(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
+    private void unlink(FileSystemWriter mutator) {
         linksFinder
-                .findLinks(mainDirectory.toPath(), maxDepth, repositories)
+                .findLinks(context.mainDirectory().toPath(), context.orphanMaxDepth(), context.repositories())
                 .sorted(Comparator.comparing(Link::source))
                 .distinct()
                 .forEach(orphan -> unlink(orphan, mutator));
@@ -122,7 +114,7 @@ class UnlinkCommand extends ValidatedCommand {
             throw new SymlyExecutionException(
                     String.format("Unable to unlink %s%n> Invalid action type %s%n", link, action.type()));
         }
-        console.printf("%-12s %s%n", "unlink" + ":", link.toString(mainDirectory));
+        console.printf("%-12s %s%n", "unlink" + ":", link.toString(context.mainDirectory()));
     }
 
     private void printError(Action action, Action.Code error) {

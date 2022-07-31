@@ -10,10 +10,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.cli.BeanFactory;
 import org.symly.cli.CliConsole;
-import org.symly.cli.EnvironmentVariableDefaultsProvider;
 import org.symly.cli.Main;
-import org.symly.cli.converters.PathAdapter;
 import org.symly.files.FileTree;
+import org.symly.repositories.PathAdapter;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
@@ -34,7 +33,7 @@ public class MainCommand {
         try (SystemProperties sysProps = new SystemProperties();
                 PrintChannel stdOut = new PrintChannel();
                 PrintChannel stdErr = new PrintChannel()) {
-            sysProps.set(EnvironmentVariableDefaultsProvider.USER_HOME, home);
+            sysProps.set("user.home", home);
             sysProps.set(PathAdapter.SYMLY_CWD_PROPERTY, workingDir.toAbsolutePath());
             BeanFactory beanFactory = new BeanFactory();
             beanFactory.registerBean(

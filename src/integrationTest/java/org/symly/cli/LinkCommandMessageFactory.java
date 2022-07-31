@@ -10,25 +10,27 @@ import org.symly.env.Env;
 @RequiredArgsConstructor
 class LinkCommandMessageFactory {
 
-    private static final String MISSING_REQUIRED_OPTION_TO = "Missing required option: '--repositories=<repositories>'";
-
     @NonNull
     private final Env env;
 
-    public String missingTargetDirectories() {
-        return MISSING_REQUIRED_OPTION_TO;
+    public String mainDirectoryIsNotDefined() {
+        return "Main directory is not defined";
     }
 
-    public String targetDirectoryDoesNotExist(String path) {
-        return String.format("Argument <repositories> (%s): must be an existing directory", env.path(path));
+    public String repositoriesAreNotDefined() {
+        return "Repositories are not defined";
     }
 
     public String mainDirectoryDoesNotExist(String path) {
-        return String.format("Argument <main-directory> (%s): must be an existing directory", env.path(path));
+        return String.format("Main directory (%s) is not an existing directory", env.path(path));
+    }
+
+    public String repositoryDoesNotExist(String path) {
+        return String.format("Repository (%s) is not an existing directory", env.path(path));
     }
 
     public String maxDepthMustBePositive(int maxDepth) {
-        return String.format("Argument <max-depth> (%d): must be a positive integer", maxDepth);
+        return String.format("Orphan lookup max-depth (%d) must be a positive integer", maxDepth);
     }
 
     public String creatingLinks(String to, List<String> from) {

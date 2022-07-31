@@ -14,14 +14,26 @@ class UnlinkCommandTest extends IntegrationTest {
     private final UnlinkCommandMessageFactory msg = new UnlinkCommandMessageFactory(env);
 
     @Test
-    void shouldFail_whenRequiredArgsAreMissing() {
+    void shouldFail_whenMainDirectoryIsNotDefined() {
         // given
         given(env);
         // when/then
         whenRunningCommand("unlink")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.missingTargetDirectories())
+                .withErrorMessage(msg.mainDirectoryIsNotDefined())
+                .withFileTreeDiff(Diff.empty());
+    }
+
+    @Test
+    void shouldFail_whenRepositoriesAreNotDefined() {
+        // given
+        given(env);
+        // when/then
+        whenRunningCommand("unlink", "--dir", "~")
+                .thenItShould()
+                .failWithConfigurationError()
+                .withErrorMessage(msg.repositoriesAreNotDefined())
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -30,7 +42,7 @@ class UnlinkCommandTest extends IntegrationTest {
         // given
         given(env).withHome("home/doesnotexist");
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to/dir", "/home/user/some/file")
+        whenRunningCommand("unlink", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
@@ -42,7 +54,7 @@ class UnlinkCommandTest extends IntegrationTest {
         // given
         given(env);
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to/dir", "/home/user/some/file")
+        whenRunningCommand("unlink", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
@@ -54,7 +66,7 @@ class UnlinkCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("D to/dir");
         // when/then
-        whenRunningCommand("unlink", "-v", "--repositories", "to/dir")
+        whenRunningCommand("unlink", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.unlink(env.home().toString(), List.of("to/dir")))
@@ -91,7 +103,7 @@ class UnlinkCommandTest extends IntegrationTest {
             F to-dir/nested/file
             """);
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to-dir")
+        whenRunningCommand("unlink", "--dir", "~", "--repositories", "to-dir")
                 .thenItShould()
                 .succeed()
                 .withFileTreeDiff(Diff.empty());
@@ -110,7 +122,7 @@ class UnlinkCommandTest extends IntegrationTest {
             D to-dir
             """);
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to-dir")
+        whenRunningCommand("unlink", "--dir", "~", "--repositories", "to-dir")
                 .thenItShould()
                 .succeed()
                 .withFileTreeDiff(Diff.empty());
@@ -128,7 +140,7 @@ class UnlinkCommandTest extends IntegrationTest {
             F to-dir/nested/file
             """);
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to-dir")
+        whenRunningCommand("unlink", "--dir", "~", "--repositories", "to-dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.actionUnlink("file", "to-dir/file"))
@@ -153,7 +165,7 @@ class UnlinkCommandTest extends IntegrationTest {
             D to-dir/nested/some-dir
             """);
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to-dir")
+        whenRunningCommand("unlink", "--dir", "~", "--repositories", "to-dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.actionUnlink("some-dir", "to-dir/some-dir"))
@@ -176,7 +188,7 @@ class UnlinkCommandTest extends IntegrationTest {
             D to-dir
             """);
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to-dir")
+        whenRunningCommand("unlink", "--dir", "~", "--repositories", "to-dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.actionUnlink("some/file", "to-dir/some/file"))
@@ -196,7 +208,7 @@ class UnlinkCommandTest extends IntegrationTest {
             D to-dir
             """);
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to-dir")
+        whenRunningCommand("unlink", "--dir", "~", "--repositories", "to-dir")
                 .thenItShould()
                 .succeed()
                 .withFileTreeDiff(Diff.empty());
@@ -212,7 +224,7 @@ class UnlinkCommandTest extends IntegrationTest {
             D to-dir
             """);
         // when/then
-        whenRunningCommand("unlink", "--repositories", "to-dir", "--max-depth", "3")
+        whenRunningCommand("unlink", "--dir", "~", "--repositories", "to-dir", "--max-depth", "3")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.actionUnlink("some/nested/file", "to-dir/some/nested/file"))

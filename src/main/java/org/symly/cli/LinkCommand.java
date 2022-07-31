@@ -2,24 +2,21 @@ package org.symly.cli;
 
 import java.lang.System.Logger.Level;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.Result;
-import org.symly.cli.validation.Constraint;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
 import org.symly.links.Link;
 import org.symly.links.Status;
+import org.symly.repositories.ContextConfig;
+import org.symly.repositories.ContextConfig.Context;
+import org.symly.repositories.ContextConfig.InputContext;
 import org.symly.repositories.LinksFinder;
-import org.symly.repositories.MainDirectory;
-import org.symly.repositories.Repositories;
-import org.symly.repositories.Repository;
-import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
@@ -33,10 +30,8 @@ class LinkCommand extends ValidatedCommand {
     @Option(
             names = {"-d", "--dir", "--directory"},
             paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created",
-            required = true,
-            showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
-    MainDirectory mainDirectory;
+            description = "Main directory in which links will be created")
+    Path mainDirectory;
 
     @Option(
             names = {"-r", "--repositories"},
@@ -46,9 +41,8 @@ class LinkCommand extends ValidatedCommand {
                 Repositories containing files to link in the main directory. \
                 Repositories are to be listed by decreasing priority as the first ones will \
                 override the content of the later ones.""",
-            required = true,
-            arity = "1..*")
-    List<Repository> repositoriesList;
+            arity = "0..*")
+    List<Path> repositoriesList;
 
     @Option(
             names = {"--dry-run"},
@@ -65,7 +59,7 @@ class LinkCommand extends ValidatedCommand {
             names = {"--max-depth"},
             paramLabel = "<max-depth>",
             description = "Depth of the lookup for orphans deletion")
-    int maxDepth = 2;
+    Integer maxDepth;
 
     @NonNull
     private final CliConsole console;
@@ -80,29 +74,26 @@ class LinkCommand extends ValidatedCommand {
     private final LinksFinder linksFinder;
 
     private int updates;
+    private Context context;
 
     @Override
-    protected Collection<Constraint> constraints() {
-        return List.of(
-                Constraint.ofArg(
-                        "main-directory", mainDirectory, "must be an existing directory", fsReader::isADirectory),
-                Constraint.ofArg(
-                        "repositories", repositoriesList, "must be an existing directory", fsReader::isADirectory),
-                Constraint.ofArg("max-depth", maxDepth, "must be a positive integer", depth -> depth >= 0));
-    }
-
-    @Override
-    public void execute() {
+    public void run() {
+        InputContext inputContext = new InputContext(mainDirectory, repositoriesList, maxDepth);
+        context = Context.from(fsReader, ContextConfig.read(fsReader), inputContext);
+        validate(context.constraints(fsReader));
         updates = 0;
         console.printf(Level.DEBUG, "Creating links ");
         if (dryRun) {
             console.printf(Level.DEBUG, "(dry-run mode) ");
         }
-        console.printf(Level.DEBUG, "in %s to %s%n", mainDirectory, repositoriesList);
-        Repositories repositories = Repositories.of(fsReader, repositoriesList);
+        console.printf(
+                Level.DEBUG,
+                "in %s to %s%n",
+                context.mainDirectory(),
+                context.repositories().repositories());
         FileSystemWriter mutator = getFilesMutatorService();
-        createLinks(repositories, mutator);
-        deleteOrphans(mainDirectory, repositories, mutator);
+        createLinks(mutator);
+        deleteOrphans(mutator);
         if (updates == 0) {
             console.printf("Everything is already up to date%n");
         }
@@ -115,8 +106,8 @@ class LinkCommand extends ValidatedCommand {
         return fileSystemWriter;
     }
 
-    private void createLinks(Repositories repositories, FileSystemWriter fsWriter) {
-        for (Link link : repositories.links(mainDirectory)) {
+    private void createLinks(FileSystemWriter fsWriter) {
+        for (Link link : context.links()) {
             Status status = link.status(fsReader);
             List<Action> actions = status.toActions(fsReader, force);
             for (Action action : actions) {
@@ -129,8 +120,9 @@ class LinkCommand extends ValidatedCommand {
         }
     }
 
-    private void deleteOrphans(MainDirectory mainDirectory, Repositories repositories, FileSystemWriter mutator) {
-        Stream<Link> orphans = linksFinder.findOrphans(mainDirectory.toPath(), maxDepth, repositories);
+    private void deleteOrphans(FileSystemWriter mutator) {
+        Stream<Link> orphans = linksFinder.findOrphans(
+                context.mainDirectory().toPath(), context.orphanMaxDepth(), context.repositories());
         orphans.forEach(orphan -> {
             updates++;
             deleteOrphan(orphan, mutator);
@@ -165,7 +157,7 @@ class LinkCommand extends ValidatedCommand {
     }
 
     private void printAction(Level level, String actionType, Link link) {
-        console.printf(level, "%-12s %s%n", actionType + ":", link.toString(mainDirectory));
+        console.printf(level, "%-12s %s%n", actionType + ":", link.toString(context.mainDirectory()));
     }
 
     private void printError(Action action, Action.Code error) {

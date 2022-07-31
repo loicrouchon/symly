@@ -1,4 +1,4 @@
-package org.symly.cli.converters;
+package org.symly.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -6,6 +6,17 @@ import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
 class PathAdapterTest {
+
+    @Test
+    void userHome_shouldBeAdapted() {
+        assertThat(adapt("~", "/current/working/dir")).isEqualTo(Path.of(System.getProperty("user.home")));
+    }
+
+    @Test
+    void userHomeSubDir_shouldBeAdapted() {
+        assertThat(adapt("~/dir", "/current/working/dir"))
+                .isEqualTo(Path.of(System.getProperty("user.home")).resolve("dir"));
+    }
 
     @Test
     void absolutePath_shouldNotBeAdapted_whenNoCwdIsDefined() {

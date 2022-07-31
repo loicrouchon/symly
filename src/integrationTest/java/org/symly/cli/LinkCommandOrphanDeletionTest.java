@@ -17,7 +17,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
         // given
         given(env).withLayout("D to/dir");
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir", "--max-depth", "-1")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir", "--max-depth", "-1")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.maxDepthMustBePositive(-1))
@@ -35,7 +35,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             F to/dir/file
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withoutMessage(msg.linkActionDelete("file", "to/dir/file"))
@@ -51,7 +51,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withoutMessage(msg.linkActionDelete("file", "to/otherdir/file"))
@@ -67,7 +67,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("file", "to/dir/file"))
@@ -84,7 +84,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("level1/file", "to/dir/level1/file"))
@@ -101,7 +101,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withoutMessage(msg.linkActionDelete("level1/level2/file", "to/dir/level1/level2/file"))
@@ -119,7 +119,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir", "--max-depth", "3")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir", "--max-depth", "3")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("level1/level2/file", "to/dir/level1/level2/file"))
@@ -136,7 +136,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir/sub/dir
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("sub/dir/file", "to/dir/sub/dir/file"))
@@ -153,7 +153,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir/sub/dir
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("sub/dir/level1/file", "to/dir/sub/dir/level1/file"))
@@ -170,7 +170,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir/sub/dir
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withoutMessage(msg.linkActionDelete(
@@ -189,7 +189,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             D to/dir/sub/dir
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to/dir", "--max-depth", "3")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir", "--max-depth", "3")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionDelete("sub/dir/level1/level2/file", "to/dir/sub/dir/level1/level2/file"))
@@ -211,7 +211,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             F to-dir/dir/existingfile
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to-dir", "--max-depth", "1")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to-dir", "--max-depth", "1")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionUpToDate("dir/existingfile", "to-dir/dir/existingfile"))
@@ -233,7 +233,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
             F to-dir/sub/dir/existingfile
             """);
         // when/then
-        whenRunningCommand("link", "-v", "--repositories", "to-dir", "--max-depth", "1")
+        whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to-dir", "--max-depth", "1")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionUpToDate("sub/dir/existingfile", "to-dir/sub/dir/existingfile"))

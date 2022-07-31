@@ -14,14 +14,26 @@ class StatusCommandTest extends IntegrationTest {
     private final StatusCommandMessageFactory msg = new StatusCommandMessageFactory(env);
 
     @Test
-    void shouldFail_whenRequiredArgsAreMissing() {
+    void shouldFail_whenMainDirectoryIsNotDefined() {
         // given
         given(env);
         // when/then
         whenRunningCommand("status")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.missingTargetDirectories())
+                .withErrorMessage(msg.mainDirectoryIsNotDefined())
+                .withFileTreeDiff(FileTree.Diff.empty());
+    }
+
+    @Test
+    void shouldFail_whenRepositoriesAreNotDefined() {
+        // given
+        given(env);
+        // when/then
+        whenRunningCommand("status", "--dir", "~")
+                .thenItShould()
+                .failWithConfigurationError()
+                .withErrorMessage(msg.repositoriesAreNotDefined())
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -30,7 +42,7 @@ class StatusCommandTest extends IntegrationTest {
         // given
         given(env).withHome("home/doesnotexist");
         // when/then
-        whenRunningCommand("status", "--repositories", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
                 .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
@@ -38,14 +50,14 @@ class StatusCommandTest extends IntegrationTest {
     }
 
     @Test
-    void shouldFail_whenTargetDirectoryDoesNotExist() {
+    void shouldFail_whenRepositoryDoesNotExist() {
         // given
         given(env);
         // when/then
-        whenRunningCommand("status", "--repositories", "to/dir", "/home/user/some/file")
+        whenRunningCommand("status", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
+                .withErrorMessage(msg.repositoryDirectoryDoesNotExist("to/dir"))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -54,7 +66,7 @@ class StatusCommandTest extends IntegrationTest {
         // given
         given(env).withLayout("D to/dir");
         // when/then
-        whenRunningCommand("status", "-v", "--repositories", "to/dir")
+        whenRunningCommand("status", "-v", "--dir", "~", "--repositories", "to/dir")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.checkingLinks("home/user", List.of("to/dir")))
