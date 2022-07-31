@@ -1,5 +1,7 @@
 package org.symly.repositories;
 
+import static java.util.Spliterator.*;
+import static java.util.Spliterators.spliteratorUnknownSize;
 import static org.symly.links.Configuration.symlinkMarker;
 import static org.symly.repositories.RepositoryEntry.Type.DIRECTORY;
 
@@ -7,6 +9,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.files.FileSystemReader;
@@ -22,7 +25,7 @@ public class Repositories {
     private final FileSystemReader fsReader;
 
     @NonNull
-    private final List<Repository> repos;
+    private final Deque<Repository> layers;
 
     /**
      * Returns {@code true} if the absolute path given is contained in one of the repositories.
@@ -31,7 +34,7 @@ public class Repositories {
      * @return {@code true} if the absolute path given is contained in one of the repositories
      */
     public boolean containsPath(Path path) {
-        return repos.stream().anyMatch(r -> r.containsPath(path.toAbsolutePath()));
+        return layers.stream().anyMatch(r -> r.containsPath(path.toAbsolutePath()));
     }
 
     /**
@@ -99,10 +102,20 @@ public class Repositories {
     }
 
     private Stream<RepositoryEntry> allEntries(FileSystemReader fs) {
-        return repos.stream().flatMap(repo -> repo.entries(fs));
+        return layersByPriority().flatMap(repo -> repo.entries(fs));
     }
 
+    private Stream<Repository> layersByPriority() {
+        return StreamSupport.stream(spliteratorUnknownSize(layers.descendingIterator(), ORDERED), false);
+    }
+
+    /**
+     * Wraps an ordered list of {@link Repository} into a {@code Repositories} object.
+     * @param fsReader the file system reader
+     * @param repositories the ordered list of {@link Repository}. Ordered from the base layer first to the most specific one last
+     * @return the wrapped repositories
+     */
     public static Repositories of(FileSystemReader fsReader, List<Repository> repositories) {
-        return new Repositories(fsReader, repositories);
+        return new Repositories(fsReader, new ArrayDeque<>(repositories));
     }
 }

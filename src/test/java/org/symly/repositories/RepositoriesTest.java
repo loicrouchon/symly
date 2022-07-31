@@ -75,11 +75,11 @@ class RepositoriesTest {
         Repositories repositories = Repositories.of(
                 ioMock.buildFileSystemReader(),
                 List.of(
-                        repo("/symly/repo1", List.of("dir", "dir/nested"), List.of("file", "dir/file")),
                         repo(
                                 "/symly/repo2",
                                 List.of("dir", "other-dir/nested"),
-                                List.of("other-file", "dir/file", "other-dir/nested-file"))));
+                                List.of("other-file", "dir/file", "other-dir/nested-file")),
+                        repo("/symly/repo1", List.of("dir", "dir/nested"), List.of("file", "dir/file"))));
         // when/then
         assertThat(repositories.links(MAIN_DIR))
                 .containsExactly(
@@ -111,6 +111,23 @@ class RepositoriesTest {
                         link("/symly/main/dir/file", "/symly/repo1/dir/file"),
                         link("/symly/main/dir/nested", "/symly/repo1/dir/nested"),
                         link("/symly/main/dir/nested2/foo", "/symly/repo1/dir/nested2/foo"));
+    }
+
+    @Test
+    void links_shouldReturn_linksByRespectingLayersHierarchy() {
+        // given
+        Repositories repositories = Repositories.of(
+                ioMock.buildFileSystemReader(),
+                List.of(
+                        repo("/symly/layer0", List.of("dir"), List.of("foo", "dir/file1", "dir/file2")),
+                        repo("/symly/layer1", List.of("dir"), List.of("bar", "dir/file1"))));
+        // when/then
+        assertThat(repositories.links(MAIN_DIR))
+                .contains(
+                        link("/symly/main/bar", "/symly/layer1/bar"),
+                        link("/symly/main/foo", "/symly/layer0/foo"),
+                        link("/symly/main/dir/file1", "/symly/layer1/dir/file1"),
+                        link("/symly/main/dir/file2", "/symly/layer0/dir/file2"));
     }
 
     private Link link(String source, String target) {
