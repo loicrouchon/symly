@@ -26,7 +26,6 @@ java {
 }
 
 spotless {
-    ratchetFrom("origin/main")
     java {
         palantirJavaFormat()
     }
