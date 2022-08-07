@@ -44,6 +44,7 @@ public class BeanFactory implements CommandLine.IFactory {
                         create(LinksFinder.class)));
         registerBean(
                 StatusCommand.class, () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)));
+        registerBean(ContextInput.class, () -> new ContextInput(create(FileSystemReader.class)));
     }
 
     @Override

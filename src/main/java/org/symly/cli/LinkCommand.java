@@ -13,11 +13,10 @@ import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
 import org.symly.links.Link;
 import org.symly.links.Status;
-import org.symly.repositories.ContextConfig;
-import org.symly.repositories.ContextConfig.Context;
-import org.symly.repositories.ContextConfig.InputContext;
+import org.symly.repositories.Context;
 import org.symly.repositories.LinksFinder;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 @Command(
@@ -25,24 +24,10 @@ import picocli.CommandLine.Option;
         aliases = {"ln"},
         description = "Create/update links from 'directory' to the 'to' repositories")
 @RequiredArgsConstructor
-class LinkCommand extends ValidatedCommand {
+class LinkCommand implements Runnable {
 
-    @Option(
-            names = {"-d", "--dir", "--directory"},
-            paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created")
-    Path mainDirectory;
-
-    @Option(
-            names = {"-r", "--repositories"},
-            paramLabel = "<repositories>",
-            description =
-                    """
-                Repositories containing files to link in the main directory. \
-                Repositories are to be listed by decreasing priority as the first ones will \
-                override the content of the later ones.""",
-            arity = "0..*")
-    List<Path> repositoriesList;
+    @Mixin
+    ContextInput contextInput;
 
     @Option(
             names = {"--dry-run"},
@@ -54,12 +39,6 @@ class LinkCommand extends ValidatedCommand {
             description = "Force existing files and directories to be overwritten instead of failing in case of "
                     + "conflicts")
     boolean force = false;
-
-    @Option(
-            names = {"--max-depth"},
-            paramLabel = "<max-depth>",
-            description = "Depth of the lookup for orphans deletion")
-    Integer maxDepth;
 
     @NonNull
     private final CliConsole console;
@@ -78,9 +57,7 @@ class LinkCommand extends ValidatedCommand {
 
     @Override
     public void run() {
-        InputContext inputContext = new InputContext(mainDirectory, repositoriesList, maxDepth);
-        context = Context.from(fsReader, ContextConfig.read(fsReader), inputContext);
-        validate(context.constraints(fsReader));
+        context = contextInput.context();
         updates = 0;
         console.printf(Level.DEBUG, "Creating links ");
         if (dryRun) {

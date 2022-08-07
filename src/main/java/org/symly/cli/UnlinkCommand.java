@@ -3,7 +3,6 @@ package org.symly.cli;
 import java.lang.System.Logger.Level;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.Result;
@@ -12,44 +11,23 @@ import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
 import org.symly.links.Link;
-import org.symly.repositories.ContextConfig;
-import org.symly.repositories.ContextConfig.Context;
-import org.symly.repositories.ContextConfig.InputContext;
+import org.symly.repositories.Context;
 import org.symly.repositories.LinksFinder;
 import picocli.CommandLine.Command;
+import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
 @Command(name = "unlink", description = "Remove links in 'directory' pointing to the 'to' repositories")
 @RequiredArgsConstructor
-class UnlinkCommand extends ValidatedCommand {
+class UnlinkCommand implements Runnable {
 
-    @Option(
-            names = {"-d", "--dir", "--directory"},
-            paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created")
-    Path mainDirectory;
-
-    @Option(
-            names = {"-r", "--repositories"},
-            paramLabel = "<repositories>",
-            description =
-                    """
-                Repositories containing files to link in the main directory. \
-                Repositories are to be listed by decreasing priority as the first ones will \
-                override the content of the later ones.""",
-            arity = "0..*")
-    List<Path> repositoriesList;
+    @Mixin
+    ContextInput contextInput;
 
     @Option(
             names = {"--dry-run"},
             description = "Do not actually remove links but only displays which ones would be removed")
     boolean dryRun = false;
-
-    @Option(
-            names = {"--max-depth"},
-            paramLabel = "<max-depth>",
-            description = "Depth of the lookup for orphans deletion")
-    Integer maxDepth;
 
     @NonNull
     private final CliConsole console;
@@ -67,9 +45,7 @@ class UnlinkCommand extends ValidatedCommand {
 
     @Override
     public void run() {
-        InputContext inputContext = new InputContext(mainDirectory, repositoriesList, maxDepth);
-        context = Context.from(fsReader, ContextConfig.read(fsReader), inputContext);
-        validate(context.constraints(fsReader));
+        context = contextInput.context();
         console.printf(Level.DEBUG, "Removing links ");
         if (dryRun) {
             console.printf(Level.DEBUG, "(dry-run mode) ");

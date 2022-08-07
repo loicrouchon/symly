@@ -2,41 +2,24 @@ package org.symly.cli;
 
 import java.lang.System.Logger.Level;
 import java.nio.file.Path;
-import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.files.FileSystemReader;
 import org.symly.links.Link;
 import org.symly.links.Status;
-import org.symly.repositories.ContextConfig;
-import org.symly.repositories.ContextConfig.Context;
-import org.symly.repositories.ContextConfig.InputContext;
+import org.symly.repositories.Context;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
+import picocli.CommandLine.Mixin;
 
 @Command(
         name = "status",
         aliases = {"st"},
         description = "Displays the current synchronization status")
 @RequiredArgsConstructor
-class StatusCommand extends ValidatedCommand {
+class StatusCommand implements Runnable {
 
-    @Option(
-            names = {"-d", "--dir", "--directory"},
-            paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created")
-    Path mainDirectory;
-
-    @Option(
-            names = {"-r", "--repositories"},
-            paramLabel = "<repositories>",
-            description =
-                    """
-            Repositories containing files to link in the main directory. \
-            Repositories are to be listed by decreasing priority as the first ones will \
-            override the content of the later ones.""",
-            arity = "0..*")
-    List<Path> repositoriesList;
+    @Mixin
+    ContextInput contextInput;
 
     @NonNull
     private final CliConsole console;
@@ -48,9 +31,7 @@ class StatusCommand extends ValidatedCommand {
 
     @Override
     public void run() {
-        InputContext inputContext = new InputContext(mainDirectory, repositoriesList);
-        context = Context.from(fsReader, ContextConfig.read(fsReader), inputContext);
-        validate(context.constraints(fsReader));
+        context = contextInput.context();
         console.printf(
                 Level.DEBUG,
                 "Checking links status from %s to %s%n",

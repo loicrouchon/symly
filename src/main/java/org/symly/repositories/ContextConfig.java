@@ -1,73 +1,49 @@
 package org.symly.repositories;
 
-import static java.util.function.Predicate.not;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import org.symly.cli.validation.Constraint;
 import org.symly.files.FileSystemReader;
-import org.symly.links.Link;
 
+/**
+ * <p>Represents the context configuration read from the {@code symly.config} file in the current working directory.
+ * If no {@code symly.config} file exists in the current directory, a default {@code ContextConfig} is returned.</p>
+ * <p>The {@code symly.config} file is a properties file matching the Java properties files syntax. It is composed of the following entries:
+ * </p>
+ * <ul>
+ *     <li>{@link #DIRECTORY_PROPERTY}</li>
+ *     <li>{@link #REPOSITORIES_PROPERTY}</li>
+ *     <li>{@link #ORPHANS_MAX_DEPTH_PROPERTY}</li>
+ * </ul>
+ * <p>Paths expressed in this file can be:</p>
+ * <ul>
+ *     <li>Absolute paths: {@code /an/absolute/path}</li>
+ *     <li>User home's relative paths when starting with {@code ~}: {@code ~}, {@code ~/a/path}</li>
+ *     <li>Current working directory's relative paths: {@code a/path}</li>
+ * </ul>
+ */
 public class ContextConfig {
 
-    public record InputContext(Path mainDirectory, List<Path> repositories, Integer orphanMaxDepth) {
-
-        public InputContext(Path mainDirectory, List<Path> repositoriesList) {
-            this(mainDirectory, repositoriesList, null);
-        }
-    }
-
-    public record Context(MainDirectory mainDirectory, Repositories repositories, int orphanMaxDepth) {
-
-        public Collection<Constraint> constraints(FileSystemReader fsReader) {
-            Collection<Constraint> constraints = new ArrayList<>();
-            constraints.add(Constraint.of("Main directory is not defined", () -> mainDirectory != null));
-            constraints.add(Constraint.of(
-                    String.format("Main directory (%s) is not an existing directory", mainDirectory),
-                    () -> fsReader.isDirectory(mainDirectory.toPath())));
-            constraints.add(Constraint.of(
-                    "Repositories are not defined",
-                    () -> repositories != null && !repositories.repositories().isEmpty()));
-            repositories.repositories().forEach(repository -> {
-                constraints.add(Constraint.of(
-                        String.format("Repository (%s) is not an existing directory", repository.toPath()),
-                        () -> fsReader.isDirectory(repository.toPath())));
-            });
-            constraints.add(Constraint.of(
-                    String.format("Orphan lookup max-depth (%s) must be a positive integer", orphanMaxDepth),
-                    () -> orphanMaxDepth >= 0));
-            return constraints;
-        }
-
-        public static Context from(FileSystemReader fsReader, ContextConfig contextConfig, InputContext inputContext) {
-            MainDirectory directory = Optional.ofNullable(inputContext.mainDirectory)
-                    .or(contextConfig::directory)
-                    .map(MainDirectory::of)
-                    .orElse(null);
-            Repositories repositories = Repositories.of(
-                    fsReader,
-                    Optional.ofNullable(inputContext.repositories)
-                            .filter(not(Collection::isEmpty))
-                            .orElseGet(contextConfig::repositories)
-                            .stream()
-                            .map(Repository::of)
-                            .toList());
-            int orphanMaxDepth =
-                    Optional.ofNullable(inputContext.orphanMaxDepth()).orElseGet(contextConfig::orphanMaxDepth);
-            return new Context(directory, repositories, orphanMaxDepth);
-        }
-
-        public Collection<Link> links() {
-            return repositories.links(mainDirectory);
-        }
-    }
-
     private static final String SYMLY_CONFIG = "symly.config";
+
+    /**
+     * The main directory path.
+     */
     private static final String DIRECTORY_PROPERTY = "directory";
+    /**
+     * The repositories paths as a comma separated list.
+     * For example {@code first-path, ~/second-path, /third-path}
+     */
     private static final String REPOSITORIES_PROPERTY = "repositories";
+
+    /**
+     * The maximum depth for orphan-links lookup. The default value if not defined is {@link #ORPHAN_MAX_DEPTH_DEFAULT_VALUE}.
+     */
     private static final String ORPHANS_MAX_DEPTH_PROPERTY = "orphans.max-depth.search";
+
+    private static final String ORPHAN_MAX_DEPTH_DEFAULT_VALUE = "2";
+
     /**
      * The {@link Path} to consider as the parent directory of relative paths found in Symly configuration.
      */
@@ -83,11 +59,11 @@ public class ContextConfig {
         this.properties = properties;
     }
 
-    Optional<Path> directory() {
+    public Optional<Path> directory() {
         return Optional.ofNullable(properties.get(DIRECTORY_PROPERTY)).map(path -> PathAdapter.convert(path, baseDir));
     }
 
-    List<Path> repositories() {
+    public List<Path> repositories() {
         String repositories = properties.get(REPOSITORIES_PROPERTY);
         if (repositories == null) {
             return List.of();
@@ -98,7 +74,7 @@ public class ContextConfig {
                 .toList();
     }
 
-    int orphanMaxDepth() {
+    public int orphanMaxDepth() {
         return Integer.parseInt(properties.get(ORPHANS_MAX_DEPTH_PROPERTY));
     }
 
@@ -125,7 +101,7 @@ public class ContextConfig {
         HashMap<String, String> defaults = new HashMap<>();
         defaults.put(DIRECTORY_PROPERTY, null);
         defaults.put(REPOSITORIES_PROPERTY, null);
-        defaults.put(ORPHANS_MAX_DEPTH_PROPERTY, "2");
+        defaults.put(ORPHANS_MAX_DEPTH_PROPERTY, ORPHAN_MAX_DEPTH_DEFAULT_VALUE);
         return defaults;
     }
 }
