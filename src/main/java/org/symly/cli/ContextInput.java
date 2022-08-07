@@ -12,11 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.symly.cli.validation.Constraint;
 import org.symly.cli.validation.Validator;
 import org.symly.files.FileSystemReader;
-import org.symly.repositories.Context;
-import org.symly.repositories.ContextConfig;
-import org.symly.repositories.MainDirectory;
-import org.symly.repositories.Repositories;
-import org.symly.repositories.Repository;
+import org.symly.repositories.*;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
@@ -92,9 +88,11 @@ public class ContextInput {
         constraints.add(Constraint.of(
                 "Repositories are not defined",
                 () -> !repositories.repositories().isEmpty()));
-        repositories.repositories().forEach(repository -> constraints.add(Constraint.of(
-                String.format("Repository (%s) is not an existing directory", repository.toPath()),
-                () -> fsReader.isADirectory(repository))));
+        repositories
+                .repositories()
+                .forEach(repository -> constraints.add(Constraint.of(
+                        String.format("Repository (%s) is not an existing directory", repository.toPath()),
+                        () -> fsReader.isADirectory(repository))));
         validator.validate(constraints);
         return repositories;
     }

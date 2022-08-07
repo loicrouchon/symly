@@ -12,6 +12,7 @@ import org.symly.files.FileTree.Diff;
 class LinkCommandTest extends IntegrationTest {
 
     private final LinkCommandMessageFactory msg = new LinkCommandMessageFactory(env);
+    private final ContextInputMessageFactory ctxMsg = new ContextInputMessageFactory(env);
 
     @Test
     void shouldFail_whenMainDirectoryIsNotDefined() {
@@ -21,7 +22,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.mainDirectoryIsNotDefined())
+                .withErrorMessage(ctxMsg.mainDirectoryIsNotDefined())
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -33,7 +34,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "--dir", "~")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.repositoriesAreNotDefined())
+                .withErrorMessage(ctxMsg.repositoriesAreNotDefined())
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -45,7 +46,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
+                .withErrorMessage(ctxMsg.mainDirectoryDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -57,7 +58,7 @@ class LinkCommandTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.repositoryDoesNotExist("to/dir"))
+                .withErrorMessage(ctxMsg.repositoryDoesNotExist("to/dir"))
                 .withFileTreeDiff(Diff.empty());
     }
 

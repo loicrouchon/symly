@@ -11,6 +11,7 @@ import org.symly.files.FileTree.Diff;
 class LinkCommandOrphanDeletionTest extends IntegrationTest {
 
     private final LinkCommandMessageFactory msg = new LinkCommandMessageFactory(env);
+    private final ContextInputMessageFactory ctxMsg = new ContextInputMessageFactory(env);
 
     @Test
     void shouldFail_whenOrphanLookupMaxDepth_isInvalid() {
@@ -20,7 +21,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
         whenRunningCommand("link", "-v", "--dir", "~", "--repositories", "to/dir", "--max-depth", "-1")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.maxDepthMustBePositive(-1))
+                .withErrorMessage(ctxMsg.maxDepthMustBePositive(-1))
                 .withFileTreeDiff(Diff.empty());
     }
 

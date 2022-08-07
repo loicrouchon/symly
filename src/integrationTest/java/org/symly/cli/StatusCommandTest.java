@@ -13,6 +13,8 @@ class StatusCommandTest extends IntegrationTest {
 
     private final StatusCommandMessageFactory msg = new StatusCommandMessageFactory(env);
 
+    private final ContextInputMessageFactory ctxMsg = new ContextInputMessageFactory(env);
+
     @Test
     void shouldFail_whenMainDirectoryIsNotDefined() {
         // given
@@ -21,7 +23,7 @@ class StatusCommandTest extends IntegrationTest {
         whenRunningCommand("status")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.mainDirectoryIsNotDefined())
+                .withErrorMessage(ctxMsg.mainDirectoryIsNotDefined())
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -33,7 +35,7 @@ class StatusCommandTest extends IntegrationTest {
         whenRunningCommand("status", "--dir", "~")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.repositoriesAreNotDefined())
+                .withErrorMessage(ctxMsg.repositoriesAreNotDefined())
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -45,7 +47,7 @@ class StatusCommandTest extends IntegrationTest {
         whenRunningCommand("status", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
+                .withErrorMessage(ctxMsg.mainDirectoryDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 
@@ -57,7 +59,7 @@ class StatusCommandTest extends IntegrationTest {
         whenRunningCommand("status", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.repositoryDirectoryDoesNotExist("to/dir"))
+                .withErrorMessage(ctxMsg.repositoryDoesNotExist("to/dir"))
                 .withFileTreeDiff(FileTree.Diff.empty());
     }
 

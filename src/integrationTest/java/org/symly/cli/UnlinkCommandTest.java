@@ -13,6 +13,8 @@ class UnlinkCommandTest extends IntegrationTest {
 
     private final UnlinkCommandMessageFactory msg = new UnlinkCommandMessageFactory(env);
 
+    private final ContextInputMessageFactory ctxMsg = new ContextInputMessageFactory(env);
+
     @Test
     void shouldFail_whenMainDirectoryIsNotDefined() {
         // given
@@ -21,7 +23,7 @@ class UnlinkCommandTest extends IntegrationTest {
         whenRunningCommand("unlink")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.mainDirectoryIsNotDefined())
+                .withErrorMessage(ctxMsg.mainDirectoryIsNotDefined())
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -33,7 +35,7 @@ class UnlinkCommandTest extends IntegrationTest {
         whenRunningCommand("unlink", "--dir", "~")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.repositoriesAreNotDefined())
+                .withErrorMessage(ctxMsg.repositoriesAreNotDefined())
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -45,7 +47,7 @@ class UnlinkCommandTest extends IntegrationTest {
         whenRunningCommand("unlink", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.mainDirectoryDoesNotExist(env.home().toString()))
+                .withErrorMessage(ctxMsg.mainDirectoryDoesNotExist(env.home().toString()))
                 .withFileTreeDiff(Diff.empty());
     }
 
@@ -57,7 +59,7 @@ class UnlinkCommandTest extends IntegrationTest {
         whenRunningCommand("unlink", "--dir", "~", "--repositories", "to/dir", "/home/user/some/file")
                 .thenItShould()
                 .failWithConfigurationError()
-                .withErrorMessage(msg.targetDirectoryDoesNotExist("to/dir"))
+                .withErrorMessage(ctxMsg.repositoryDoesNotExist("to/dir"))
                 .withFileTreeDiff(Diff.empty());
     }
 

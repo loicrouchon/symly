@@ -13,22 +13,6 @@ class UnlinkCommandMessageFactory {
     @NonNull
     private final Env env;
 
-    public String mainDirectoryIsNotDefined() {
-        return "Main directory is not defined";
-    }
-
-    public String repositoriesAreNotDefined() {
-        return "Repositories are not defined";
-    }
-
-    public String mainDirectoryDoesNotExist(String path) {
-        return String.format("Main directory (%s) is not an existing directory", env.path(path));
-    }
-
-    public String targetDirectoryDoesNotExist(String path) {
-        return String.format("Repository (%s) is not an existing directory", env.path(path));
-    }
-
     public String unlink(String to, List<String> from) {
         return String.format(
                 "Removing links in %s to [%s]",
