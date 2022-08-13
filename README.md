@@ -47,8 +47,8 @@ want to deploy your centralized files.
 
 ### Is Symly limited to user configuration files?
 
-No, Symly is not limited to creating links in your user home folder. The user home folder is a sensible default for the
-directory but any other directory can be used.
+No, Symly is not limited to creating links in your user home folder. The user home folder is however a common use case
+for the directory but any other directory can be used.
 
 ## Features
 
@@ -197,7 +197,7 @@ Create/update links from 'directory' to the 'to' repositories
 * Links every file from the `repositories` into the `main directory` by preserving the structure.
 
 ```txt
-> tree ~/my/repository
+$ tree ~/my/repository
 ~/my/repository
  |-- .bashrc
  |-- .gitconfig
@@ -206,51 +206,85 @@ Create/update links from 'directory' to the 'to' repositories
      >-- fish
          |-- config.fish
 
-> symly link --repositories ~/my/repository
 
-Creating links in ~ to [~/my/repository]
-added:      ~/.bashrc -> ~/my/repository/.bashrc
-added:      ~/.gitconfig -> ~/my/repository/.gitconfig
-added:      ~/.config/starship.toml -> ~/my/repository/.config/starship.toml
-added:      ~/.config/fish/config.fish -> ~/my/repository/.config/fish/config.fish
+$ symly link --dir ~ --repositories ~/my/repository
+
+added:      .bashrc -> ~/my/repository/.bashrc
+added:      .gitconfig -> ~/my/repository/.gitconfig
+added:      .config/starship.toml -> ~/my/repository/.config/starship.toml
+added:      .config/fish/config.fish -> ~/my/repository/.config/fish/config.fish
 ```  
 
-* Supports multiple `repositories`: The first repository defining a link has the priority, defaults are last
+* Supports multiple `repositories`: Repositories are listed by increasing order of priority (default first, overrides
+  last). When two repositories define a link, the link will be created to the repository with the higher priority.
 
 ```txt
-> tree ~/my/repositories
+$ tree ~/my/repositories
 ~/my/repositories
  |-- custom
- |   |-- .gitconfig
  |   >-- .bashrc
  >-- defaults
      |-- .gitconfig
      >-- .config
         >-- starship.toml
 
-> symly link --repositories ~/my/repositories/custom ~/my/repositories/defaults
 
-Creating links in ~ to [~/my/repositories/custom, ~/my/repositories/defaults]
-added:      ~/.bashrc -> ~/my/repositories/custom/.bashrc
-added:      ~/.gitconfig -> ~/my/repositories/custom/.gitconfig
-added:      ~/.config/starship.toml -> ~/my/repositories/defaults/.config/starship.toml
+$ symly link --dir ~ --repositories ~/my/repositories/defaults ~/my/repositories/custom
+
+added:      .bashrc -> ~/my/repositories/custom/.bashrc
+added:      .gitconfig -> ~/my/repositories/default/.gitconfig
+added:      .config/starship.toml -> ~/my/repositories/defaults/.config/starship.toml
+
+$ echo "Let's override the default .gitconfig and see how symly reacts"
+
+$ touch ~/my/repositories/custom/.gitconfig
+
+$ symly link --dir ~ --repositories ~/my/repositories/defaults ~/my/repositories/custom
+
+deleted:    .gitconfig -> ~/my/repositories/default/.gitconfig
+added:      .gitconfig -> ~/my/repositories/custom/.gitconfig
 ```  
 
 * Supports directory linking when a `.symlink` file is present in the directory.
 
 ```txt
-> tree ~/my/repository
+$ tree ~/my/repository
 ~/my/repository
  >-- .config
      >-- fish
          |-- .symlink
          >-- config.fish
 
-> symly link --repositories ~/my/repository
+$ symly link  --dir ~ --repositories ~/my/repository
 
-Creating links in ~ to [~/my/repository]
 added:      ~/.config/fish -> ~/my/repository/.config/fish
 ```
+
+## The symly.config file
+
+It might be annoying to keep giving the `--dir` and `--repositories` options, even when using the short names.
+To this end, it is possible to define a `symly.config` file that will automatically be picked up by symly.
+
+_For the file to be detected by symly, it needs to be present in the current working directory._
+
+The following entries are supported:
+
+* `directory`: the main directory.
+* `repositories`: the list of repositories, separated by a `,`.
+* `orphans.max-depth.search`: the max depth to look-up for orphan links.
+
+For example:
+
+```properties
+directory=~
+repositories=defaults, linux, work
+```
+
+Paths defined in this file can be:
+
+* absolute paths.
+* relative to the user directory when starting with `~`.
+* relative to the file parent directory.
 
 ## Installation
 
@@ -313,7 +347,7 @@ This will install the application locally in the `./build/install/symly/`. The a
 using `./build/install/symly/bin/symly <ARGS>` or using `./build/install/symly/bin/symly.bat` on Windows.
 
 ```txt
-> ./build/install/symly/bin/symly
+$ ./build/install/symly/bin/symly
 
 Usage: symly [-hv] [COMMAND]
 symly create links
