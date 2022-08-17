@@ -1,0 +1,45 @@
+<project>
+    <property name="build-dir" value="build/ant"/>
+
+    <property name="module-name" value="org.symly"/>
+    <property name="main-class" value="org.symly.cli.Main"/>
+    <property name="main-module-path" value="${build-dir}/jar/symly.jar"/>
+
+    <property name="lombokpath" value="/home/loic/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.22/9c08ea24c6eb714e2d6170e8122c069a0ba9aacf/lombok-1.18.22.jar"/>
+    <property name="modulepath"
+              value="/home/loic/.gradle/caches/modules-2/files-2.1/info.picocli/picocli/4.6.3/18177f4c3d65cc94e6d4039775ec5aed8089f8d0/picocli-4.6.3.jar"/>
+
+    <target name="clean">
+        <delete dir="${build-dir}"/>
+    </target>
+
+    <target name="compile" depends="clean">
+        <mkdir dir="${build-dir}/classes"/>
+        <javac includeantruntime="false"
+               srcdir="src/main/java"
+               destdir="${build-dir}/classes"
+               release="17">
+            <classpath location="${lombokpath}"/>
+            <modulepath location="${lombokpath}"/>
+            <modulepath location="${modulepath}" />
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${build-dir}/jar"/>
+        <jar destfile="${build-dir}/jar/symly.jar" basedir="${build-dir}/classes">
+            <manifest>
+                <attribute name="Main-Class"
+                           value="${main-class}"/>
+            </manifest>
+            <fileset dir="src/main/resources"/>
+        </jar>
+    </target>
+
+    <target name="run">
+        <java fork="true" module="${module-name}/${main-class}">
+            <modulepath location="${main-module-path}" />
+            <modulepath location="${modulepath}" />
+        </java>
+    </target>
+</project>
