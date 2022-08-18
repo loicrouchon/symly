@@ -5,14 +5,14 @@
 [![GitHub](https://img.shields.io/github/license/loicrouchon/symly)](https://github.com/loicrouchon/symly/blob/main/LICENSE)
 [![code-size](https://img.shields.io/github/languages/code-size/loicrouchon/symly)](https://github.com/loicrouchon/symly/archive/refs/heads/main.zip)
 
-Symly is a tool helping to replicate and maintain the file structure of one or multiple `repositories` into a
-`directory` by creating symbolic links.
+Symly is a tool helping to centralize sparse file trees. It replicates and maintains a file tree structure of one or
+multiple `repository` layers into a `directory` by creating symbolic links.
 
 ##### Table of Contents
 
 * [What is symly useful for?](#what-is-symly-useful-for)
-* [Features](#features)
 * [Concepts](#concepts)
+* [Features](#features)
 * [Usage](#usage)
 * [Installation](#installation)
 * [Build](#build)
@@ -50,49 +50,14 @@ want to deploy your centralized files.
 No, Symly is not limited to creating links in your user home folder. The user home folder is however a common use case
 for the directory but any other directory can be used.
 
-## Features
-
-**Commands**:
-
-* [x] link: link the content of the repositories into the directory.
-* [x] unlink: unlink the content of the repositories into the directory.
-* [x] status: displays the links status
-
-**Core features:**
-
-* [x] Replication of the repository files tree structure in the directory
-* [x] Symbolic link creation/update/deletion for simple files (default mode)
-* [x] Symbolic link creation/update/deletion for symbolic links (default mode)
-* [x] Symbolic link creation/update/deletion for directories (on demand only)
-* [x] Orphan links detection/deletion
-* [x] Forced link creation
-
-**Flexible repositories:**
-
-* [x] Support for multiple repositories
-* [x] Layering of repositories allowing for custom files and defaults ones
-* [x] Ignored files in repositories via .symlyignore
-
-**Integrations:**
-
-* [x] Seamless integration with editors, use your preferred editor or command line tools to alter your files. They don't
-  even need to be aware of Symly
-* [x] Seamless integration with synchronization, diff and merge tools. No need to learn a new one
-* [x] Not limited to dotfiles, can be used for any other directory/file types
-
-### Roadmap
-
-* [ ] Command to add and link a new file to a repository
-* [ ] Command to restore a file in the directory
-* [ ] Command to restore a full repository
-
 ## Concepts
 
 Symly is based on the following major concepts:
 
-* The _repository_: a folder containing a file structured to be linked in a _directory_. For example `/some/path`
-  , `~/repositories/defaults`.
-* The _directory_: The folder in which the _repositories_ content will be linked. For example `~`.
+* The _**repositories**_: Repositories are folders containing a file structured to be linked in a _directory_. For
+  example `/some/path`, `~/repositories/defaults`. **You can specify one or more repositories**. Each repository acts
+  as its own layer, overriding previous layers with its content.
+* The _**directory**_: The folder in which the _repositories_ content will be linked. For example `~`.
 
 Consider the following repository file structure:
 
@@ -155,6 +120,42 @@ This principle is has the following implications:
   allows for Seamless integration with tools modifying dotfiles directly on the directory (like git config user.name
   ..., …)
 * Immediate visibility on modifications made on the directory files
+
+## Features
+
+**Commands:**
+
+* [x] link: link the content of the repositories into the directory.
+* [x] unlink: unlink the content of the repositories into the directory.
+* [x] status: displays the links status
+
+**Flexible repositories:**
+
+* [x] Support for multiple repositories
+* [x] Layering of repositories allowing for a default layer and zero to many custom ones on top.
+* [x] Ignored files in repositories via .symlyignore
+
+**Core features:**
+
+* [x] Replication of the repository files tree structure in the directory
+* [x] Symbolic link creation/update/deletion for simple files (default mode)
+* [x] Symbolic link creation/update/deletion for symbolic links (default mode)
+* [x] Symbolic link creation/update/deletion for directories (on demand only)
+* [x] Orphan links detection/deletion
+* [x] Optional forced link creation (overwriting destination file)
+
+**Integrations:**
+
+* [x] Seamless integration with editors, use your preferred editor or command line tools to alter your files. They don't
+  even need to be aware of Symly
+* [x] Seamless integration with synchronization, diff and merge tools. No need to learn a new one
+* [x] Not limited to dotfiles, can be used for any other directory/file types
+
+### Roadmap
+
+* [ ] Command to add and link a new file to a repository
+* [ ] Command to restore a file in the directory
+* [ ] Command to restore a full repository
 
 ## Usage
 
