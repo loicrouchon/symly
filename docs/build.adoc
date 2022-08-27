@@ -1,0 +1,29 @@
+= Build
+
+You can also clone this repository and build Symly using the instructions below:
+
+== Pre-requisites
+
+* JDK 17
+
+== Packaging and running the application
+
+The application can be built using the `installDist` task:
+
+----
+./gradlew clean check installDist
+----
+
+This will install the application locally in the `./build/install/symly/`.
+The application can be run using `./build/install/symly/bin/symly <ARGS>` or using `./build/install/symly/bin/symly.bat` on Windows.
+
+----
+$ ./build/install/symly/bin/symly
+
+Usage: symly [-hv] [COMMAND]
+symly create links
+  -h, --help      Prints this help message and exits
+  -v, --verbose   Be verbose.
+Commands:
+  link  link
+----

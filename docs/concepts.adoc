@@ -1,0 +1,75 @@
+= Concepts
+
+Symly is based on the following major concepts:
+
+* The _*repositories*_: Repositories are folders containing a file structured to be linked in a _directory_.
+For example `/some/path`, `~/repositories/defaults`. *You can specify one or more repositories*.
+Each repository acts as its own layer, overriding previous layers with its content.
+* The _*directory*_: The folder in which the _repositories_ content will be linked.
+For example `~`.
+
+Consider the following repository file structure:
+
+----
+~/repository
+  |-- .gitconfig
+  >-- .config
+      >-- starship.toml
+----
+
+When linked with symly in the `~` directory, the following links will be created:
+
+----
+~/.gitconfig             -> ~/repository/.gitconfig
+~/.config/starship.toml  -> ~/repository/config/starship.toml
+----
+
+_Links_ are composed of two attributes:
+
+* *source*: The path of the link.
+* *target*: The path pointed by the link.
+
+They are materialized on the file system as [symbolic links](https://en.wikipedia.org/wiki/Symbolic_link).
+
+For example: `~/.config/starship.toml -> ~/repository/.config/starship.toml`
+
+Those two attributes can be determined from the _directory_, and the _repository_ using a third one: the _link name_.
+
+The _link name_ is the common part of the path between the link source and target.
+It is both:
+
+* The relative path of a link source to its main directory.
+* The relative path of a link target to its repository.
+
+Example:
+
+* `.gitconfig` for link `~/.gitconfig -> ~/repository/.gitconfig`
+* `.config/starship.toml` for link `~/.config/starship.toml -> ~/repository/.config/starship.toml`
+
+== Summary
+
+Here is how all the previous notions play together:
+
+----
+ ~          /  .config/starship.toml  ->  ~/repositories/defaults  /  .config/starship.toml
+[DIRECTORY] / [NAME                 ] -> [REPOSITORY             ] / [NAME                 ]
+[SOURCE                             ] -> [TARGET                                           ]
+----
+
+== The "repository file tree is the state" principle
+
+On top of those concept, an important principle applies:
+
+> _*The repository file tree is the state*_
+
+This principle is has the following implications:
+
+* No command to add a file to a repository, just drop it there
+* No command to delete a file from a repository, just delete it
+* No command to edit a file in a repository, just edit it directly or through its symbolic link in the directory.
+This allows for Seamless integration with tools modifying dotfiles directly on the directory (like git config user.name ..., …)
+* Immediate visibility on modifications made on the directory files
+
+'''
+
+Let's put those concepts into application by looking at the link:usage.adoc[usage manual].
