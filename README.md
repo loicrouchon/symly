@@ -1,9 +1,9 @@
 # Symly
 
-[![build](https://github.com/loicrouchon/symly/actions/workflows/build.yml/badge.svg)](https://github.com/loicrouchon/symly/actions/workflows/build.yml)
-[![build](https://github.com/loicrouchon/symly/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/loicrouchon/symly/actions/workflows/codeql-analysis.yml)
-[![GitHub](https://img.shields.io/github/license/loicrouchon/symly)](https://github.com/loicrouchon/symly/blob/main/LICENSE)
-[![code-size](https://img.shields.io/github/languages/code-size/loicrouchon/symly)](https://github.com/loicrouchon/symly/archive/refs/heads/main.zip)
+[![Build](https://img.shields.io/github/workflow/status/loicrouchon/symly/Build?logo=GitHub&style=for-the-badge)](https://github.com/loicrouchon/symly/actions?query=workflow%3A%22Build%22)
+[![CodeQL](https://img.shields.io/github/workflow/status/loicrouchon/symly/CodeQL?logo=GitHub&style=for-the-badge&label=CodeQL)](https://github.com/loicrouchon/symly/actions?query=workflow%3A%22CodeQL%22)
+[![License](https://img.shields.io/github/license/loicrouchon/symly?style=for-the-badge&logo=apache)](https://github.com/loicrouchon/symly/blob/main/LICENSE)
+[![Code Size](https://img.shields.io/github/languages/code-size/loicrouchon/symly?logo=java&style=for-the-badge)](https://github.com/loicrouchon/symly/archive/refs/heads/main.zip)
 
 Symly is a tool helping to centralize sparse file trees. It replicates and maintains a file tree structure of one or
 multiple `repository` layers into a `directory` by creating symbolic links.
