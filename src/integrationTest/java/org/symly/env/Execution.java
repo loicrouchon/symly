@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.symly.doc.ExecutionDocReport;
 import org.symly.files.FileTree;
 import org.symly.files.FileTree.Diff;
 
@@ -136,6 +137,10 @@ public record Execution(
                     .describedAs("Should remove the following file system entries")
                     .containsExactlyInAnyOrderElementsOf(diff.getRemovedPaths());
             return this;
+        }
+
+        public ExecutionDocReport executionReport() {
+            return new ExecutionDocReport(execution);
         }
     }
 }

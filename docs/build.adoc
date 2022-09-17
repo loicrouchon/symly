@@ -17,13 +17,16 @@ The application can be built using the `installDist` task:
 This will install the application locally in the `./build/install/symly/`.
 The application can be run using `./build/install/symly/bin/symly <ARGS>` or using `./build/install/symly/bin/symly.bat` on Windows.
 
+// include::inline[name="locally-built-symly-default-output"]
 ----
 $ ./build/install/symly/bin/symly
-
-Usage: symly [-hv] [COMMAND]
+Usage: symly [-hvV] [COMMAND]
 symly create links
   -h, --help      Prints this help message and exits
   -v, --verbose   Be verbose.
+  -V, --version   Prints version information.
 Commands:
-  link  link
+  link, ln    Create/update links from 'directory' to the 'to' repositories
+  status, st  Displays the current synchronization status
+  unlink      Remove links in 'directory' pointing to the 'to' repositories
 ----

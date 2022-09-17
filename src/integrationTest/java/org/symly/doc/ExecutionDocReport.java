@@ -5,19 +5,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.symly.env.Execution;
 import org.symly.files.FileRef;
 import org.symly.files.FileTree;
 
-@RequiredArgsConstructor
-class ExecutionDocReport {
+public class ExecutionDocReport {
 
     @NonNull
     private final Execution execution;
 
-    @NonNull
-    private final Path root;
+    private final Path workingDir;
+
+    public ExecutionDocReport(@NonNull Execution execution) {
+        this.execution = execution;
+        workingDir = execution.rootDir().relativize(execution.workingDir());
+    }
 
     public String symlyExecution() {
         return maskChRoot("""
@@ -37,16 +39,16 @@ class ExecutionDocReport {
     private String fileTree(FileTree currentFileTree) {
         List<String> entries = currentFileTree
                 .layout()
-                .filter(fileRef -> !root.startsWith(fileRef.name()))
+                .filter(fileRef -> !workingDir.startsWith(fileRef.name()))
                 .map(this::fsEntry)
                 .toList();
         return maskChRoot("""
             $ tree %s
-            %s""".formatted(root, treeify(entries)));
+            %s""".formatted(workingDir, treeify(entries)));
     }
 
     private String fsEntry(FileRef fileRef) {
-        Path entry = root.relativize(fileRef.name());
+        Path entry = workingDir.relativize(fileRef.name());
         int nameCount = entry.getNameCount() + 1;
         StringBuilder sb = new StringBuilder();
         sb.append("|   ".repeat(Math.max(0, nameCount - 2)));
@@ -102,6 +104,6 @@ class ExecutionDocReport {
                 // hide the absolute real path of the temporary chroot in which the command was executed
                 .replaceAll(execution.rootDir().toString(), "")
                 // make the virtual 'root' name look like an absolute one
-                .replaceAll("(^| )" + root, "$1/" + root);
+                .replaceAll("(^| )" + workingDir, "$1/" + workingDir);
     }
 }

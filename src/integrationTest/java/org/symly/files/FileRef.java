@@ -44,8 +44,17 @@ public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileR
             FileTestUtils.createDirectory(path);
         }
 
+        @Override
+        public String toString() {
+            return "B " + name;
+        }
+
         static FileRef of(Path name) {
             return new DirectoryRef(name);
+        }
+
+        static FileRef parse(String name) {
+            return of(Path.of(name));
         }
     }
 
@@ -55,6 +64,11 @@ public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileR
         public void create(Path root) {
             Path path = root.resolve(name);
             FileTestUtils.createFile(path);
+        }
+
+        @Override
+        public String toString() {
+            return "F " + name;
         }
 
         static FileRef of(Path name) {
@@ -77,6 +91,11 @@ public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileR
         public void create(Path root) {
             Path path = root.resolve(name);
             FileTestUtils.createSymbolicLink(path, target);
+        }
+
+        @Override
+        public String toString() {
+            return "L " + name + LINK_SEPARATOR + target;
         }
 
         static boolean isLink(String ref) {

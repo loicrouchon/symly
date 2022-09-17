@@ -1,6 +1,5 @@
 package org.symly.doc;
 
-import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.symly.cli.LinkCommandMessageFactory;
 import org.symly.env.IntegrationTest;
@@ -18,6 +17,7 @@ class DocTest extends IntegrationTest {
     void shouldLinkFile_whenTargetFileDoesNotExist() {
         // given
         given(env)
+                .withWorkingDir("home/user")
                 .withLayout(
                         """
             F home/user/repository/.config/fish/config.fish
@@ -25,7 +25,7 @@ class DocTest extends IntegrationTest {
             F home/user/repository/.gitconfig
             """);
         // when/then
-        var execution = whenRunningCommand("link", "--dir", "~", "--repositories", "home/user/repository")
+        var executionReport = whenRunningCommand("link", "--dir", "~", "--repositories", "repository")
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.linkActionCreate(
@@ -42,6 +42,18 @@ class DocTest extends IntegrationTest {
                 """))
                 .execution();
 
-        System.out.println(new ExecutionDocReport(execution, Path.of("home/user")));
+        System.out.println(executionReport);
+    }
+
+    @Test
+    void displayHelpExample() {
+        // given
+        given(env).withWorkingDir("home/user");
+        // when/then
+        var executionReport = whenRunningCommand().thenItShould().succeed().executionReport();
+
+        Documentation.updateSnippets(
+                "locally-built-symly-default-output",
+                executionReport.symlyExecution().replaceFirst("symly", "./build/install/symly/bin/symly"));
     }
 }
