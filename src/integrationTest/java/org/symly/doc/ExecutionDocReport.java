@@ -44,7 +44,9 @@ public class ExecutionDocReport {
                 .toList();
         return maskChRoot("""
             $ tree %s
-            %s""".formatted(workingDir, treeify(entries)));
+            %s:
+            %s"""
+                .formatted(workingDir, workingDir, treeify(entries)));
     }
 
     private String fsEntry(FileRef fileRef) {
@@ -104,6 +106,6 @@ public class ExecutionDocReport {
                 // hide the absolute real path of the temporary chroot in which the command was executed
                 .replaceAll(execution.rootDir().toString(), "")
                 // make the virtual 'root' name look like an absolute one
-                .replaceAll("(^| )" + workingDir, "$1/" + workingDir);
+                .replaceAll("(^|\n| )" + workingDir, "$1/" + workingDir);
     }
 }

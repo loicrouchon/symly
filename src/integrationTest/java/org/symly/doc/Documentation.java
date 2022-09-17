@@ -38,6 +38,11 @@ class Documentation {
     public static void updateSnippets(String id, String value) {
         ADOC_FILES.forEach(file -> file.updateSnippet(id, value));
     }
+
+    public static void updateSnippets(String id, String... commands) {
+        String value = String.join("\n\n", commands);
+        ADOC_FILES.forEach(file -> file.updateSnippet(id, value));
+    }
 }
 
 @RequiredArgsConstructor
@@ -84,7 +89,7 @@ class AsciiDocFile {
         content = content.substring(0, blockStartIndex + BLOCK_DELIMITER.length())
                 + value
                 + content.substring(blockEndIndex);
-        Files.write(path, content.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, content);
     }
 
     private void checkIndex(int index, String id, String content, int snippetDeclarationIndex) {

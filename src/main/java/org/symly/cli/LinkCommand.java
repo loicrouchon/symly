@@ -22,7 +22,13 @@ import picocli.CommandLine.Option;
 @Command(
         name = "link",
         aliases = {"ln"},
-        description = "Create/update links from 'directory' to the 'to' repositories")
+        description =
+                """
+            Create/update/delete links from 'directory' to the 'repositories'.
+
+            Repositories should be specified with base layers first and overriding layers next.\
+            In case two repositories contain a file with the same path, the file in the latest\
+            repository will be used as the target for the link for the given path""")
 @RequiredArgsConstructor
 class LinkCommand implements Runnable {
 

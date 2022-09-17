@@ -46,15 +46,11 @@ public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileR
 
         @Override
         public String toString() {
-            return "B " + name;
+            return "D " + name;
         }
 
         static FileRef of(Path name) {
             return new DirectoryRef(name);
-        }
-
-        static FileRef parse(String name) {
-            return of(Path.of(name));
         }
     }
 
