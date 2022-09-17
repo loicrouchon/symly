@@ -25,7 +25,7 @@ class FileTreeTest extends IntegrationTest {
                 """)
                 .getRootFileTree();
         // then
-        assertThat(tree.getLayout()).containsExactly("F hello", "F my/name/is", "F world");
+        assertThat(tree.getFilesLayout()).containsExactly("F hello", "F my/name/is", "F world");
     }
 
     @Test
@@ -38,7 +38,7 @@ class FileTreeTest extends IntegrationTest {
                 """)
                 .getRootFileTree();
         // then
-        assertThat(tree.getLayout()).containsExactly("L hello -> world", "F world");
+        assertThat(tree.getFilesLayout()).containsExactly("L hello -> world", "F world");
     }
 
     @Test
@@ -51,7 +51,7 @@ class FileTreeTest extends IntegrationTest {
                 """)
                 .getRootFileTree();
         // then
-        assertThat(tree.getLayout()).containsExactly("L hello -> some/dir");
+        assertThat(tree.getFilesLayout()).containsExactly("L hello -> some/dir");
     }
 
     @Test
@@ -63,7 +63,7 @@ class FileTreeTest extends IntegrationTest {
                 """)
                 .getRootFileTree();
         // then
-        assertThat(tree.getLayout()).containsExactly("L hello -> anyone");
+        assertThat(tree.getFilesLayout()).containsExactly("L hello -> anyone");
     }
 
     @Test
@@ -81,7 +81,7 @@ class FileTreeTest extends IntegrationTest {
                 """)
                 .getRootFileTree();
         // then
-        assertThat(tree.getLayout())
+        assertThat(tree.getFilesLayout())
                 .containsExactly(
                         "L hello1 -> world", "L hello2 -> some/dir", "L hello3 -> some/dir/other/dir", "F world");
     }
@@ -100,7 +100,7 @@ class FileTreeTest extends IntegrationTest {
                 """)
                 .getFileTree("tree");
         // then
-        assertThat(tree.getLayout()).containsExactly("L hello -> ../real-hello", "F toto");
+        assertThat(tree.getFilesLayout()).containsExactly("L hello -> ../real-hello", "F toto");
     }
 
     @Test
@@ -110,6 +110,6 @@ class FileTreeTest extends IntegrationTest {
         // when
         FileTree tree = given(env).create(initial).getRootFileTree();
         // then
-        assertThat(tree.getLayout()).containsExactly("F hello/world", "L how/are/you -> doing/today");
+        assertThat(tree.getFilesLayout()).containsExactly("F hello/world", "L how/are/you -> doing/today");
     }
 }

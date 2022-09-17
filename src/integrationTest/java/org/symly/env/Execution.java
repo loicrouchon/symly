@@ -16,49 +16,33 @@ import org.symly.files.FileTree.Diff;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
-@RequiredArgsConstructor
-public class Execution {
-
-    @NonNull
-    private final FileTree snapshot;
-
-    @NonNull
-    private final Path rootDir;
-
-    @NonNull
-    private final Path workingDir;
-
-    private final int exitCode;
-
-    @NonNull
-    private final List<String> stdOut;
-
-    @NonNull
-    private final List<String> stdErr;
+public record Execution(
+        FileTree snapshot,
+        Path rootDir,
+        Path workingDir,
+        List<String> command,
+        int exitCode,
+        List<String> stdOut,
+        List<String> stdErr) {
 
     public Diff fileSystemEntriesDiff() {
-        return snapshot.diff(FileTree.fromPath(rootDir));
+        return snapshot.diff(currentFileTree());
     }
 
-    public Path workingDir() {
-        return workingDir;
-    }
-
-    public int exitCode() {
-        return this.exitCode;
-    }
-
-    public List<String> stdOut() {
-        return this.stdOut;
-    }
-
-    public List<String> stdErr() {
-        return this.stdErr;
+    public FileTree currentFileTree() {
+        return FileTree.fromPath(rootDir);
     }
 
     public static Execution of(
-            FileTree rootFileTreeSnapshot, Path rootDir, Path workingDir, int exitCode, Reader stdOut, Reader stdErr) {
-        return new Execution(rootFileTreeSnapshot, rootDir, workingDir, exitCode, lines(stdOut), lines(stdErr));
+            FileTree rootFileTreeSnapshot,
+            Path rootDir,
+            Path workingDir,
+            List<String> command,
+            int exitCode,
+            Reader stdOut,
+            Reader stdErr) {
+        return new Execution(
+                rootFileTreeSnapshot, rootDir, workingDir, command, exitCode, lines(stdOut), lines(stdErr));
     }
 
     private static List<String> lines(Reader reader) {
@@ -116,11 +100,7 @@ public class Execution {
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class OutputAssert {
-
-        @NonNull
-        private final Execution execution;
+    public record OutputAssert(Execution execution) {
 
         public OutputAssert withMessage(String message) {
             assertThat(execution.stdOut()).contains(message);
@@ -147,7 +127,7 @@ public class Execution {
             return this;
         }
 
-        public void withFileTreeDiff(Diff diff) {
+        public OutputAssert withFileTreeDiff(Diff diff) {
             Diff actual = execution.fileSystemEntriesDiff();
             assertThat(actual.getNewPaths())
                     .describedAs("Should create the following file system entries")
@@ -155,6 +135,7 @@ public class Execution {
             assertThat(actual.getRemovedPaths())
                     .describedAs("Should remove the following file system entries")
                     .containsExactlyInAnyOrderElementsOf(diff.getRemovedPaths());
+            return this;
         }
     }
 }

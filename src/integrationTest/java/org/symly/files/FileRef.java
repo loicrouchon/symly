@@ -1,9 +1,12 @@
 package org.symly.files;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
+import lombok.NonNull;
 
-interface FileRef {
+public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileRef, FileRef.DirectoryRef {
 
     Path name();
 
@@ -20,6 +23,8 @@ interface FileRef {
                 targetPath = target;
             }
             return LinkFileRef.of(currentPath, targetPath);
+        } else if (Files.isDirectory(path)) {
+            return DirectoryRef.of(currentPath);
         }
         return SimpleFileRef.of(currentPath);
     }
@@ -29,5 +34,63 @@ interface FileRef {
             return LinkFileRef.parse(ref);
         }
         return SimpleFileRef.parse(ref);
+    }
+
+    record DirectoryRef(@NonNull Path name) implements FileRef {
+
+        @Override
+        public void create(Path root) {
+            Path path = root.resolve(name);
+            FileTestUtils.createDirectory(path);
+        }
+
+        static FileRef of(Path name) {
+            return new DirectoryRef(name);
+        }
+    }
+
+    record SimpleFileRef(@NonNull Path name) implements FileRef {
+
+        @Override
+        public void create(Path root) {
+            Path path = root.resolve(name);
+            FileTestUtils.createFile(path);
+        }
+
+        static FileRef of(Path name) {
+            return new SimpleFileRef(name);
+        }
+
+        static FileRef parse(String name) {
+            return of(Path.of(name));
+        }
+    }
+
+    @SuppressWarnings({
+        "java:S5960", // Assertions should not be used in production code (This is test code)
+    })
+    record LinkFileRef(@NonNull Path name, @NonNull Path target) implements FileRef {
+
+        private static final String LINK_SEPARATOR = " -> ";
+
+        @Override
+        public void create(Path root) {
+            Path path = root.resolve(name);
+            FileTestUtils.createSymbolicLink(path, target);
+        }
+
+        static boolean isLink(String ref) {
+            return ref.contains(LinkFileRef.LINK_SEPARATOR);
+        }
+
+        static LinkFileRef of(Path name, Path target) {
+            return new LinkFileRef(name, target);
+        }
+
+        static LinkFileRef parse(String ref) {
+            String[] parts = ref.split(LinkFileRef.LINK_SEPARATOR);
+            assertThat(parts).hasSize(2);
+            return LinkFileRef.of(Path.of(parts[0]), Path.of(parts[1]));
+        }
     }
 }

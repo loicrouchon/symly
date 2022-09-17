@@ -4,7 +4,9 @@ import static org.assertj.core.api.Fail.fail;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +41,11 @@ public class MainCommand {
             beanFactory.registerBean(
                     CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
             int exitCode = Main.runCommand(beanFactory, args);
-            return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, exitCode, stdOut.reader(), stdErr.reader());
+            List<String> command = new ArrayList<>();
+            command.add("symly");
+            command.addAll(List.of(args));
+            return Execution.of(
+                    rootFileTreeSnapshot, rootDir, workingDir, command, exitCode, stdOut.reader(), stdErr.reader());
         } catch (Exception e) {
             fail("Command execution failed", e);
             throw new IllegalStateException("unreachable");

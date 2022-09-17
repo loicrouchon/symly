@@ -55,7 +55,8 @@ public class JvmCommand {
             }
             try (Reader stdOut = toReader(process.getInputStream());
                     Reader stdErr = toReader(process.getErrorStream())) {
-                return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, process.exitValue(), stdOut, stdErr);
+                return Execution.of(
+                        rootFileTreeSnapshot, rootDir, workingDir, command, process.exitValue(), stdOut, stdErr);
             }
         } catch (InterruptedException | IOException e) {
             Thread.currentThread().interrupt();

@@ -24,8 +24,14 @@ public class FileTree {
         }
     }
 
-    public Stream<String> getLayout() {
-        return layout.stream().map(FileRef::toString);
+    public Stream<FileRef> layout() {
+        return layout.stream();
+    }
+
+    public Stream<String> getFilesLayout() {
+        return layout.stream()
+                .filter(fileRef -> !(fileRef instanceof FileRef.DirectoryRef))
+                .map(FileRef::toString);
     }
 
     @Override
@@ -43,10 +49,8 @@ public class FileTree {
     }
 
     public static FileTree fromPath(Path root) {
-        try {
-            return of(Files.walk(root)
-                    .filter(p -> Files.isRegularFile(p) || Files.isSymbolicLink(p))
-                    .map(path -> FileRef.of(root, path)));
+        try (Stream<Path> files = Files.walk(root)) {
+            return of(files.filter(path -> !Objects.equals(root, path)).map(path -> FileRef.of(root, path)));
         } catch (IOException e) {
             fail(String.format("Unable to initialize FileTree for path %s", root), e);
             throw new IllegalStateException("unreachable");
@@ -54,8 +58,8 @@ public class FileTree {
     }
 
     public Diff diff(FileTree other) {
-        Set<String> currentLayout = getLayout().collect(Collectors.toSet());
-        Set<String> otherLayout = other.getLayout().collect(Collectors.toSet());
+        Set<String> currentLayout = getFilesLayout().collect(Collectors.toSet());
+        Set<String> otherLayout = other.getFilesLayout().collect(Collectors.toSet());
         Set<String> created = diff(currentLayout, otherLayout);
         Set<String> deleted = diff(otherLayout, currentLayout);
         return new Diff(created, deleted);
