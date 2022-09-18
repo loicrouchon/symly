@@ -44,9 +44,10 @@ public class FileTree {
 
     public static FileTree fromPath(Path root) {
         try {
-            return of(Files.walk(root)
-                    .filter(p -> Files.isRegularFile(p) || Files.isSymbolicLink(p))
-                    .map(path -> FileRef.of(root, path)));
+            try (Stream<Path> files = Files.walk(root)) {
+                return of(files.filter(p -> Files.isRegularFile(p) || Files.isSymbolicLink(p))
+                        .map(path -> FileRef.of(root, path)));
+            }
         } catch (IOException e) {
             fail(String.format("Unable to initialize FileTree for path %s", root), e);
             throw new IllegalStateException("unreachable");
