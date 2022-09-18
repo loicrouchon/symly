@@ -96,6 +96,7 @@ class FileSystemReaderStub implements FileSystemReader {
         }
     }
 
+    @Override
     public Stream<String> lines(Path path) throws IOException {
         File file = getOfType(File.class, path);
         return Arrays.stream(file.content().split("\n"));
@@ -114,11 +115,13 @@ class FileSystemReaderStub implements FileSystemReader {
                 path, fsEntryClass.getSimpleName(), fsEntry.getClass().getSimpleName()));
     }
 
+    @Override
     public Stream<Path> walk(Path path) {
         Path absolutePath = path.toAbsolutePath();
         return fsEntries.keySet().stream().filter(p -> p.startsWith(absolutePath));
     }
 
+    @Override
     public void walkFileTree(Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
             throws IOException {
         throw new IOException("This operation is not stubbed");

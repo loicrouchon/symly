@@ -30,6 +30,6 @@ public class Validator {
     }
 
     private ParameterException violation(String message, Object... args) {
-        return new ParameterException(spec.commandLine(), String.format(message, args));
+        return new ParameterException(spec.commandLine(), message.formatted(args));
     }
 }

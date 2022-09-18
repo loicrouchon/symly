@@ -1,6 +1,8 @@
 package org.symly.cli;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -20,7 +22,7 @@ public class BeanFactory implements CommandLine.IFactory {
 
     public BeanFactory() {
         registerBean(Config.class, Config::new);
-        registerBean(CliConsole.class, () -> new CliConsole(new PrintWriter(System.out), new PrintWriter(System.err)));
+        registerBean(CliConsole.class, () -> new CliConsole(printWriter(System.out), printWriter(System.err)));
         registerBean(FileSystemReader.class, FileSystemReader.RealFileSystemReader::new);
         registerBean(FileSystemWriter.class, FileSystemWriterImpl::new);
         registerBean(LinksFinder.class, () -> new LinksFinder(create(FileSystemReader.class)));
@@ -45,6 +47,10 @@ public class BeanFactory implements CommandLine.IFactory {
         registerBean(
                 StatusCommand.class, () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)));
         registerBean(ContextInput.class, () -> new ContextInput(create(FileSystemReader.class)));
+    }
+
+    private static PrintWriter printWriter(PrintStream outputStream) {
+        return new PrintWriter(outputStream, true, StandardCharsets.UTF_8);
     }
 
     @Override

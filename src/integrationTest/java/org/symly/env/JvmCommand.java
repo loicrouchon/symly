@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,7 +66,7 @@ public class JvmCommand {
     }
 
     private Reader toReader(InputStream inputStream) {
-        return new InputStreamReader(inputStream);
+        return new InputStreamReader(inputStream, StandardCharsets.UTF_8);
     }
 
     private List<String> command(String[] args) {

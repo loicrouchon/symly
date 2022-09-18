@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
-public interface Result<S, E> {
+public sealed interface Result<S, E> permits Result.Success, Result.Error {
 
     void accept(Consumer<S> successConsumer, Consumer<E> errorConsumer);
 
@@ -17,7 +17,7 @@ public interface Result<S, E> {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    class Success<S, E> implements Result<S, E> {
+    final class Success<S, E> implements Result<S, E> {
 
         private final S value;
 
@@ -28,7 +28,7 @@ public interface Result<S, E> {
     }
 
     @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    class Error<S, E> implements Result<S, E> {
+    final class Error<S, E> implements Result<S, E> {
 
         private final E value;
 

@@ -86,9 +86,7 @@ public class LinksFinder {
         private final FileSystemReader fsReader;
         private final Predicate<Path> targetFilter;
         private final Set<Path> excluded;
-
         final Collection<Link> links = new ArrayList<>();
-        long files = 0L;
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
@@ -103,7 +101,6 @@ public class LinksFinder {
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            files++;
             if (fsReader.isSymbolicLink(file)) {
                 handleSymbolicLink(file);
                 return FileVisitResult.CONTINUE;
