@@ -133,6 +133,7 @@ public record Execution(
             return this;
         }
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withFileTreeDiff(Diff diff) {
             Diff actual = execution.fileSystemEntriesDiff();
             assertThat(actual.getNewPaths())

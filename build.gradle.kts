@@ -1,3 +1,4 @@
+import org.symly.doc.AsciiDocIncludeUpdaterTask
 import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
@@ -36,8 +37,8 @@ spotless {
 
 tasks.withType<AbstractArchiveTask>().configureEach {
     // Enable reproducible builds
-    setPreserveFileTimestamps(false)
-    setReproducibleFileOrder(true)
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
 }
 
 tasks.processResources {
@@ -102,6 +103,11 @@ dependencies {
     implementation(libs.picocli.core)
     annotationProcessor(libs.picocli.codegen)
 }
+
+val updateDocSnippets = tasks.register<AsciiDocIncludeUpdaterTask>("updateDocSnippets") {
+    dependsOn(testing.suites.named("integrationTest"))
+}
+tasks.check.get().dependsOn(updateDocSnippets)
 
 tasks.jacocoTestReport {
     dependsOn(testing.suites.named("test"), testing.suites.named("integrationTest"))

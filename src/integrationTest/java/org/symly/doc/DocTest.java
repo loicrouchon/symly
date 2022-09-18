@@ -20,8 +20,8 @@ class DocTest extends IntegrationTest {
         // when/then
         var executionReport = whenRunningCommand().thenItShould().succeed().executionReport();
 
-        Documentation.updateSnippets("symly-default-output", executionReport.symlyExecution());
-        Documentation.updateSnippets(
+        AsciiDocSnippet.save("symly-default-output", executionReport.symlyExecution());
+        AsciiDocSnippet.save(
                 "locally-built-symly-default-output",
                 executionReport.symlyExecution().replaceFirst("symly", "./build/install/symly/bin/symly"));
     }
@@ -34,7 +34,7 @@ class DocTest extends IntegrationTest {
         var executionReport =
                 whenRunningCommand("link", "--help").thenItShould().succeed().executionReport();
 
-        Documentation.updateSnippets("symly-link-help", executionReport.symlyExecution());
+        AsciiDocSnippet.save("symly-link-help", executionReport.symlyExecution());
     }
 
     @Test
@@ -69,7 +69,7 @@ class DocTest extends IntegrationTest {
     """))
                 .executionReport();
 
-        Documentation.updateSnippets("symly-link-basic-example", executionReport.toString());
+        AsciiDocSnippet.save("symly-link-basic-example", executionReport.toString());
     }
 
     @Test
@@ -122,12 +122,13 @@ F home/user/repositories/defaults/.gitconfig
 """))
                 .executionReport();
 
-        Documentation.updateSnippets(
+        AsciiDocSnippet.save(
                 "symly-link-multiple-repositories-example",
-                firstExecFileTreeBefore,
-                firstExecSymlyExecution,
-                "$ touch repositories/custom/.gitconfig",
-                executionReport.symlyExecution());
+                commands(
+                        firstExecFileTreeBefore,
+                        firstExecSymlyExecution,
+                        "$ touch repositories/custom/.gitconfig",
+                        executionReport.symlyExecution()));
     }
 
     @Test
@@ -151,9 +152,12 @@ F home/user/repository/.config/fish/.symlink
 """))
                 .executionReport();
 
-        Documentation.updateSnippets(
+        AsciiDocSnippet.save(
                 "symly-link-directory-linking-example",
-                executionReport.fileTreeBefore(),
-                executionReport.symlyExecution());
+                commands(executionReport.fileTreeBefore(), executionReport.symlyExecution()));
+    }
+
+    private String commands(String... commands) {
+        return String.join("\n\n", commands);
     }
 }
