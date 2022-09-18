@@ -6,6 +6,7 @@ plugins {
     id("com.diffplug.spotless") version "6.7.2"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
     id("nebula.ospackage") version "9.0.0"
+    id("net.ltgt.errorprone") version "2.0.2"
 }
 
 val appModuleName = "org.${project.name}"
@@ -87,6 +88,8 @@ testing {
 }
 
 dependencies {
+    configurations["errorprone"](libs.errorprone)
+
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
 
