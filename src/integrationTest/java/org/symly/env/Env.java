@@ -40,11 +40,13 @@ public class Env {
         return home;
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     public Env withHome(String path) {
         home = path(path);
         return this;
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     public Env withWorkingDir(String path) {
         workingDirectory = path(path);
         return this;
@@ -54,11 +56,13 @@ public class Env {
         return root().resolve(path);
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     public Env withLayout(String layout) {
         layout.lines().forEach(this::processLayoutLine);
         return this;
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     public Env create(FileTree tree) {
         tree.create(root);
         return this;
@@ -125,6 +129,7 @@ public class Env {
         throw new IllegalArgumentException("Invalid layout: " + layoutLine);
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     private Env withFiles(String... paths) {
         for (String path : paths) {
             FileTestUtils.createFile(path(path));
@@ -132,6 +137,7 @@ public class Env {
         return this;
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     private Env withDirectories(String... paths) {
         for (String path : paths) {
             FileTestUtils.createDirectory(path(path));
@@ -139,6 +145,7 @@ public class Env {
         return this;
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     private Env withSymbolicLink(String sourcePath, String targetPath) {
         FileTestUtils.createSymbolicLink(path(sourcePath), path(targetPath));
         return this;

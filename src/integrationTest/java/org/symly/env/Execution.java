@@ -122,26 +122,31 @@ public class Execution {
         @NonNull
         private final Execution execution;
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withMessage(String message) {
             assertThat(execution.stdOut()).contains(message);
             return this;
         }
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withoutMessage(String message) {
             assertThat(execution.stdOut()).doesNotContain(message);
             return this;
         }
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withMessages(List<String> messages) {
             messages.forEach(this::withMessage);
             return this;
         }
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withErrorMessage(String message) {
             assertThat(execution.stdErr()).contains(message);
             return this;
         }
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withErrorMessages(List<String> messages) {
             messages.forEach(this::withErrorMessage);
             return this;
