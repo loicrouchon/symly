@@ -2,7 +2,7 @@
 
 General command help:
 
-// include::inline[name="symly-default-output"]
+// include::docs/snippets/symly-default-output.adoc[]
 ----
 $ symly
 Usage: symly [-hvV] [COMMAND]
@@ -20,12 +20,13 @@ Commands:
   status, st  Displays the current synchronization status
   unlink      Remove links in 'directory' pointing to the 'repositories'
 ----
+// end::include
 
 == The `link` subcommand
 
 The `link` subcommand is the main subcommand that will perform the linking.
 
-// include::inline[name="symly-link-help"]
+// include::docs/snippets/symly-link-help.adoc[]
 ----
 $ symly link --help
 Usage: symly link [-fhv] [--dry-run] [-d=<main-directory>]
@@ -50,10 +51,11 @@ the latestrepository will be used as the target for the link for the given path
                     first ones will override the content of the later ones.
   -v, --verbose   Be verbose.
 ----
+// end::include
 
 * Links every file from the `repositories` into the `main directory` by preserving the structure.
 
-// include::inline[name="symly-link-basic-example"]
+// include::docs/snippets/symly-link-basic-example.adoc[]
 ----
 $ tree /home/user
 /home/user:
@@ -87,11 +89,11 @@ $ tree /home/user
     |   \-- starship.toml
     \-- .gitconfig
 ----
-
+// end::include
 * Supports multiple `repositories`: Repositories are listed by increasing order of priority (default first, overrides last).
 When two repositories define a link, the link will be created to the repository with the higher priority.
 
-// include::inline[name="symly-link-multiple-repositories-example"]
+// include::docs/snippets/symly-link-multiple-repositories-example.adoc[]
 ----
 $ tree /home/user
 /home/user:
@@ -114,10 +116,11 @@ $ symly link --dir ~ --repositories repositories/defaults repositories/custom
 deleted:     .gitconfig -> /home/user/repositories/defaults/.gitconfig
 added:       .gitconfig -> /home/user/repositories/custom/.gitconfig
 ----
+// end::include
 
 * Supports directory linking when a `.symlink` file is present in the directory.
 
-// include::inline[name="symly-link-directory-linking-example"]
+// include::docs/snippets/symly-link-directory-linking-example.adoc[]
 ----
 $ tree /home/user
 /home/user:
@@ -130,6 +133,7 @@ $ tree /home/user
 $ symly link --dir ~ --repositories repository
 added:       .config/fish -> /home/user/repository/.config/fish
 ----
+// end::include
 
 == The symly.config file
 

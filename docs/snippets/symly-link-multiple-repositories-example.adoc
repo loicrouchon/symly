@@ -1,0 +1,22 @@
+----
+$ tree /home/user
+/home/user:
+\-- repositories/
+    |-- custom/
+    |   \-- .bashrc
+    \-- defaults/
+        |-- .config/
+        |   \-- starship.toml
+        \-- .gitconfig
+
+$ symly link --dir ~ --repositories repositories/defaults repositories/custom
+added:       .bashrc -> /home/user/repositories/custom/.bashrc
+added:       .config/starship.toml -> /home/user/repositories/defaults/.config/starship.toml
+added:       .gitconfig -> /home/user/repositories/defaults/.gitconfig
+
+$ touch repositories/custom/.gitconfig
+
+$ symly link --dir ~ --repositories repositories/defaults repositories/custom
+deleted:     .gitconfig -> /home/user/repositories/defaults/.gitconfig
+added:       .gitconfig -> /home/user/repositories/custom/.gitconfig
+----

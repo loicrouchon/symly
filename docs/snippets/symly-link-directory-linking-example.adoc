@@ -1,0 +1,12 @@
+----
+$ tree /home/user
+/home/user:
+\-- repository/
+    \-- .config/
+        \-- fish/
+            |-- .symlink
+            \-- config.fish
+
+$ symly link --dir ~ --repositories repository
+added:       .config/fish -> /home/user/repository/.config/fish
+----
