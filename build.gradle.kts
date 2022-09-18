@@ -56,7 +56,7 @@ testing {
 
             dependencies {
                 compileOnly(libs.lombok)
-                // annotationProcessor(libs.lombok)
+                annotationProcessor(libs.lombok)
                 implementation(libs.assertj)
             }
         }
@@ -66,7 +66,7 @@ testing {
 
             dependencies {
                 compileOnly(libs.lombok)
-                // annotationProcessor(libs.lombok)
+                annotationProcessor(libs.lombok)
                 implementation(libs.assertj)
                 implementation(project)
                 implementation(libs.picocli.core)
@@ -89,8 +89,6 @@ testing {
 dependencies {
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
-    testAnnotationProcessor(libs.lombok)
-    configurations["integrationTestAnnotationProcessor"](libs.lombok)
 
     implementation(libs.picocli.core)
     annotationProcessor(libs.picocli.codegen)
