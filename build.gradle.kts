@@ -1,3 +1,5 @@
+import net.ltgt.gradle.errorprone.errorprone
+
 plugins {
     application
     `jvm-test-suite`
@@ -44,6 +46,10 @@ tasks.processResources {
     filesMatching("**/application.properties") {
         expand(props)
     }
+}
+
+tasks.withType<JavaCompile> {
+    options.errorprone.disable("InvalidParam")
 }
 
 repositories {
