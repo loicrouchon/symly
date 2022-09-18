@@ -142,17 +142,16 @@ class LinkCommand implements Runnable {
         Link link = action.link();
         String details =
                 switch (error.state()) {
-                    case INVALID_SOURCE -> String.format("Source %s does not exist", link.source());
-                    case INVALID_DESTINATION -> String.format("Destination %s does not exist", link.target());
-                    case CONFLICT -> String.format(
-                            "Regular file %s already exist. To overwrite it, use the -f (--force) option.",
-                            link.source());
-                    case ERROR -> String.format("An error occurred during linkage: - %s", error.details());
+                    case INVALID_SOURCE -> "Source %s does not exist".formatted(link.source());
+                    case INVALID_DESTINATION -> "Destination %s does not exist".formatted(link.target());
+                    case CONFLICT -> "Regular file %s already exist. To overwrite it, use the -f (--force) option."
+                            .formatted(link.source());
+                    case ERROR -> "An error occurred during linkage: - %s".formatted(error.details());
                 };
         if (dryRun) {
             console.eprintf("> %s%n", details);
         } else {
-            throw new SymlyExecutionException(String.format("Unable to create link %s%n> %s%n", link, details));
+            throw new SymlyExecutionException("Unable to create link %s%n> %s%n".formatted(link, details));
         }
     }
 }

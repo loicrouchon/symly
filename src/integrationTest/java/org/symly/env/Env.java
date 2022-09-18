@@ -16,11 +16,11 @@ import org.symly.files.RIOException;
 public class Env {
 
     private static final String PATH_ELEMENT_PATTERN = "[a-zA-X0-9-\\.]+";
-    private static final String PATH_PATTERN = String.format("(%1$s(?:/%1$s)*)", PATH_ELEMENT_PATTERN);
-    private static final Pattern LAYOUT_DIRECTORY_PATTERN = Pattern.compile(String.format("^D %s$", PATH_PATTERN));
-    private static final Pattern LAYOUT_FILE_PATTERN = Pattern.compile(String.format("^F %s$", PATH_PATTERN));
+    private static final String PATH_PATTERN = "(%1$s(?:/%1$s)*)".formatted(PATH_ELEMENT_PATTERN);
+    private static final Pattern LAYOUT_DIRECTORY_PATTERN = Pattern.compile("^D %s$".formatted(PATH_PATTERN));
+    private static final Pattern LAYOUT_FILE_PATTERN = Pattern.compile("^F %s$".formatted(PATH_PATTERN));
     private static final Pattern LAYOUT_LINK_PATTERN =
-            Pattern.compile(String.format("^L %1$s(?:\\s+)->(?:\\s+)%1$s$", PATH_PATTERN));
+            Pattern.compile("^L %1$s(?:\\s+)->(?:\\s+)%1$s$".formatted(PATH_PATTERN));
 
     private final Path root;
     private Path home;
@@ -93,7 +93,7 @@ public class Env {
             boolean allDeleted =
                     walker.sorted(Comparator.reverseOrder()).map(Path::toFile).allMatch(File::delete);
             if (!allDeleted) {
-                throw new RIOException(String.format("Unable to delete all files from %s", root));
+                throw new RIOException("Unable to delete all files from %s".formatted(root));
             }
         } catch (IOException e) {
             throw new RIOException(e);

@@ -49,7 +49,7 @@ public class FileTree {
                         .map(path -> FileRef.of(root, path)));
             }
         } catch (IOException e) {
-            fail(String.format("Unable to initialize FileTree for path %s", root), e);
+            fail("Unable to initialize FileTree for path %s".formatted(root), e);
             throw new IllegalStateException("unreachable");
         }
     }

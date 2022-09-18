@@ -23,7 +23,7 @@ public class IoMock {
     public void file(Path path, String content) {
         path = path.toAbsolutePath();
         if (fsEntries.containsKey(path)) {
-            throw new IllegalArgumentException(String.format("File system entry %s is already defined", path));
+            throw new IllegalArgumentException("File system entry %s is already defined".formatted(path));
         }
         directory(path.getParent());
         fsEntries.put(path, new File(path, content));
@@ -33,7 +33,7 @@ public class IoMock {
         if (path != null) {
             path = path.toAbsolutePath();
             if (fsEntries.get(path) != null && !(fsEntries.get(path) instanceof Directory)) {
-                throw new IllegalArgumentException(String.format("File system entry %s is already defined", path));
+                throw new IllegalArgumentException("File system entry %s is already defined".formatted(path));
             }
             directory(path.getParent());
             fsEntries.put(path, new Directory(path));
@@ -43,7 +43,7 @@ public class IoMock {
     public void symlink(Path path, Path target) {
         path = path.toAbsolutePath();
         if (fsEntries.containsKey(path)) {
-            throw new IllegalArgumentException(String.format("File system entry %s is already defined", path));
+            throw new IllegalArgumentException("File system entry %s is already defined".formatted(path));
         }
         directory(path.getParent());
         fsEntries.put(path, new Symlink(path, target));
@@ -92,7 +92,7 @@ class FileSystemReaderStub implements FileSystemReader {
             return link.target();
         } catch (IOException e) {
             throw new SymlyExecutionException(
-                    String.format("Unable to read link %s real path: %s", path, e.getMessage()), e);
+                    "Unable to read link %s real path: %s".formatted(path, e.getMessage()), e);
         }
     }
 
@@ -105,14 +105,14 @@ class FileSystemReaderStub implements FileSystemReader {
     private <T extends FSEntry> T getOfType(Class<T> fsEntryClass, Path path) throws IOException {
         FSEntry fsEntry = fsEntries.get(path.toAbsolutePath());
         if (fsEntry == null) {
-            throw new IOException(String.format("File system entry %s does not exist", path));
+            throw new IOException("File system entry %s does not exist".formatted(path));
         }
         if (fsEntryClass.isInstance(fsEntry)) {
             return fsEntryClass.cast(fsEntry);
         }
-        throw new IOException(String.format(
-                "Path %s is not a %s but is a %s",
-                path, fsEntryClass.getSimpleName(), fsEntry.getClass().getSimpleName()));
+        throw new IOException("Path %s is not a %s but is a %s"
+                .formatted(
+                        path, fsEntryClass.getSimpleName(), fsEntry.getClass().getSimpleName()));
     }
 
     @Override

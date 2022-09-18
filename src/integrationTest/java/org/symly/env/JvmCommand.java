@@ -26,7 +26,7 @@ public class JvmCommand {
 
     private static final long TIMEOUT = 5L;
 
-    private static final String JAVA_BINARY = String.format("%s/bin/java", System.getProperty("java.home"));
+    private static final String JAVA_BINARY = "%s/bin/java".formatted(System.getProperty("java.home"));
     private static final List<String> JVM_OPTIONS =
             List.of("-XX:TieredStopAtLevel=1", "-Xmx8m", "-XX:+ShowCodeDetailsInExceptionMessages");
     private static final String CLASSPATH_SYSTEM_PROPERTY = "symly.runtime.classpath";
@@ -73,7 +73,7 @@ public class JvmCommand {
         List<String> command = new ArrayList<>();
         command.add(JAVA_BINARY);
         command.addAll(JVM_OPTIONS);
-        command.add(String.format("-Duser.home=%s", home));
+        command.add("-Duser.home=%s".formatted(home));
         jacocoAgent().ifPresent(command::add);
         command.add("-cp");
         command.add(System.getProperty(CLASSPATH_SYSTEM_PROPERTY));
@@ -99,6 +99,6 @@ public class JvmCommand {
     }
 
     private String commandFailureMessage(String message, List<String> command) {
-        return String.format("%s%n\tworking directory:%n\t\t%s%n\tCommand:%n\t\t%s", message, workingDir, command);
+        return "%s%n\tworking directory:%n\t\t%s%n\tCommand:%n\t\t%s".formatted(message, workingDir, command);
     }
 }

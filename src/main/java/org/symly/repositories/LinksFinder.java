@@ -69,7 +69,7 @@ public class LinksFinder {
         try {
             fileSystemReader.walkFileTree(dir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), maxDepth, visitor);
         } catch (IOException e) {
-            throw new SymlyExecutionException(String.format("Failed to find orphan links in %s", dir), e);
+            throw new SymlyExecutionException("Failed to find orphan links in %s".formatted(dir), e);
         }
         return visitor.links.stream();
     }

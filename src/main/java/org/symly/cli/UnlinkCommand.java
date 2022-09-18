@@ -88,7 +88,7 @@ class UnlinkCommand implements Runnable {
         Link link = action.link();
         if (!action.type().equals(Action.Type.DELETE)) {
             throw new SymlyExecutionException(
-                    String.format("Unable to unlink %s%n> Invalid action type %s%n", link, action.type()));
+                    "Unable to unlink %s%n> Invalid action type %s%n".formatted(link, action.type()));
         }
         console.printf("%-12s %s%n", "unlink" + ":", link.toString(context.mainDirectory()));
     }
@@ -96,12 +96,12 @@ class UnlinkCommand implements Runnable {
     private void printError(Action action, Action.Code error) {
         printAction(action);
         Link link = action.link();
-        String details = String.format(
-                "An error occurred while deleting link: %s%n> - %s: %s", link, error.state(), error.details());
+        String details =
+                "An error occurred while deleting link: %s%n> - %s: %s".formatted(link, error.state(), error.details());
         if (dryRun) {
             console.eprintf("> %s%n", details);
         } else {
-            throw new SymlyExecutionException(String.format("Unable to unlink %s%n> %s%n", link, details));
+            throw new SymlyExecutionException("Unable to unlink %s%n> %s%n".formatted(link, details));
         }
     }
 }
