@@ -14,9 +14,10 @@ class UnlinkCommandMessageFactory {
     private final Env env;
 
     public String unlink(String to, List<String> from) {
-        return String.format(
-                "Removing links in %s to [%s]",
-                env.path(to), from.stream().map(env::path).map(Path::toString).collect(Collectors.joining(", ")));
+        return "Removing links in %s to [%s]"
+                .formatted(
+                        env.path(to),
+                        from.stream().map(env::path).map(Path::toString).collect(Collectors.joining(", ")));
     }
 
     public String actionUnlink(String from, String to) {
@@ -24,6 +25,6 @@ class UnlinkCommandMessageFactory {
     }
 
     public String action(String action, String from, String to) {
-        return String.format("%-12s %s -> %s", action + ":", from, env.path(to));
+        return "%-12s %s -> %s".formatted(action + ":", from, env.path(to));
     }
 }

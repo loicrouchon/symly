@@ -29,7 +29,7 @@ public record Status(Type type, Link link) {
                         .forEach(actions::add);
             } catch (IOException e) {
                 throw new SymlyExecutionException(
-                        String.format("Unable to list files to be deleted for conflicting link %s", link), e);
+                        "Unable to list files to be deleted for conflicting link %s".formatted(link), e);
             }
             actions.add(Action.create(link));
             return actions;

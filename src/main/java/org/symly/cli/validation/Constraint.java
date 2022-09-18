@@ -15,7 +15,7 @@ public interface Constraint {
 
     static <T> Constraint ofArg(String name, T value, String reason, Predicate<T> validator) {
         return new SimpleConstraint(
-                () -> String.format("Argument <%s> (%s): %s", name, value, reason), () -> validator.test(value));
+                () -> "Argument <%s> (%s): %s".formatted(name, value, reason), () -> validator.test(value));
     }
 
     static <T> Constraint ofArg(String name, Collection<T> values, String reason, Predicate<T> validator) {

@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.symly.files.IoMock;
-import org.symly.repositories.RepositoryEntry.Type;
 
 class RepositoryTest {
 
@@ -127,14 +126,14 @@ class RepositoryTest {
     }
 
     private RepositoryEntry file(Path repo, String name) {
-        return entry(Type.FILE, repo, name);
+        return entry(RepositoryEntry.Type.FILE, repo, name);
     }
 
     private RepositoryEntry dir(Path repo, String name) {
-        return entry(Type.DIRECTORY, repo, name);
+        return entry(RepositoryEntry.Type.DIRECTORY, repo, name);
     }
 
-    private RepositoryEntry entry(Type type, Path repo, String name) {
+    private RepositoryEntry entry(RepositoryEntry.Type type, Path repo, String name) {
         return RepositoryEntry.of(Path.of(name), repo.resolve(name).toAbsolutePath(), type);
     }
 }

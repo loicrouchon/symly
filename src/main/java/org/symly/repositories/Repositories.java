@@ -56,7 +56,10 @@ public class Repositories {
     private Stream<RepositoryEntry> entries(FileSystemReader fs) {
         Set<Path> addedNames = new HashSet<>();
         List<Path> addedDirs = new ArrayList<>();
-        List<RepositoryEntry> allEntries = allEntries(fs).toList();
+        List<RepositoryEntry> allEntries;
+        try (Stream<RepositoryEntry> stream = allEntries(fs)) {
+            allEntries = stream.toList();
+        }
         Set<Path> allEntriesFullPaths =
                 allEntries.stream().map(RepositoryEntry::fullPath).collect(Collectors.toSet());
         return allEntries.stream()

@@ -4,6 +4,7 @@ junit = "5.8.1"
 
 [libraries]
 
+errorprone = "com.google.errorprone:error_prone_core:2.15.0"
 lombok = "org.projectlombok:lombok:1.18.22"
 
 picocli-core = { module = "info.picocli:picocli", version.ref = "picocli" }

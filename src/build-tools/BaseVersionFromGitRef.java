@@ -21,6 +21,6 @@ public class BaseVersionFromGitRef {
         if (ref.startsWith(RELEASE_REF) && ref.length() > RELEASE_REF.length()) {
             return ref.substring(RELEASE_REF.length());
         }
-        return String.format("0-dev+%.7s%n", commitHash);
+        return "0-dev+%.7s%n".formatted(commitHash);
     }
 }

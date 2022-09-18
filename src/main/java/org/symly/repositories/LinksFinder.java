@@ -69,7 +69,7 @@ public class LinksFinder {
         try {
             fileSystemReader.walkFileTree(dir, EnumSet.of(FileVisitOption.FOLLOW_LINKS), maxDepth, visitor);
         } catch (IOException e) {
-            throw new SymlyExecutionException(String.format("Failed to find orphan links in %s", dir), e);
+            throw new SymlyExecutionException("Failed to find orphan links in %s".formatted(dir), e);
         }
         return visitor.links.stream();
     }
@@ -86,9 +86,7 @@ public class LinksFinder {
         private final FileSystemReader fsReader;
         private final Predicate<Path> targetFilter;
         private final Set<Path> excluded;
-
         final Collection<Link> links = new ArrayList<>();
-        long files = 0L;
 
         @Override
         public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
@@ -103,7 +101,6 @@ public class LinksFinder {
 
         @Override
         public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-            files++;
             if (fsReader.isSymbolicLink(file)) {
                 handleSymbolicLink(file);
                 return FileVisitResult.CONTINUE;

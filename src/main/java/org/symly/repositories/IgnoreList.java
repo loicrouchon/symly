@@ -36,7 +36,7 @@ class IgnoreList {
             try (Stream<String> lines = fsReader.lines(ignoreList)) {
                 return parse(lines);
             } catch (IOException e) {
-                throw new SymlyExecutionException(String.format("Unable to analyze repository structure %s", path), e);
+                throw new SymlyExecutionException("Unable to analyze repository structure %s".formatted(path), e);
             }
         }
         return Collections.emptyList();

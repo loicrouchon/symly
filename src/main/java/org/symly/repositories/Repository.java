@@ -30,7 +30,7 @@ public class Repository extends Directory {
                     .filter(filePath -> shouldProcessPath(fsReader, filePath, ignoreRules))
                     .map(filePath -> RepositoryEntry.of(relativize(filePath), filePath, type(fsReader, filePath)));
         } catch (IOException e) {
-            throw new SymlyExecutionException(String.format("Unable to analyze repository structure %s", path), e);
+            throw new SymlyExecutionException("Unable to analyze repository structure %s".formatted(path), e);
         }
     }
 

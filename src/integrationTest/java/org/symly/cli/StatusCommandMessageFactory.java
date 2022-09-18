@@ -14,9 +14,9 @@ class StatusCommandMessageFactory {
     private final Env env;
 
     public String checkingLinks(String mainDirectory, List<String> repositories) {
-        return String.format(
-                "Checking links status from %s to [%s]",
-                env.path(mainDirectory),
-                repositories.stream().map(env::path).map(Path::toString).collect(Collectors.joining(", ")));
+        return "Checking links status from %s to [%s]"
+                .formatted(
+                        env.path(mainDirectory),
+                        repositories.stream().map(env::path).map(Path::toString).collect(Collectors.joining(", ")));
     }
 }

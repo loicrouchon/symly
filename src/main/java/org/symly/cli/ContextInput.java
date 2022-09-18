@@ -70,7 +70,7 @@ public class ContextInput {
         validator.validate(
                 Constraint.of("Main directory is not defined", () -> mainDirectory != null),
                 Constraint.of(
-                        String.format("Main directory (%s) is not an existing directory", mainDirectory),
+                        "Main directory (%s) is not an existing directory".formatted(mainDirectory),
                         () -> fsReader.isADirectory(mainDirectory)));
         return mainDirectory;
     }
@@ -91,7 +91,7 @@ public class ContextInput {
         repositories
                 .repositories()
                 .forEach(repository -> constraints.add(Constraint.of(
-                        String.format("Repository (%s) is not an existing directory", repository.toPath()),
+                        "Repository (%s) is not an existing directory".formatted(repository.toPath()),
                         () -> fsReader.isADirectory(repository))));
         validator.validate(constraints);
         return repositories;
@@ -100,7 +100,7 @@ public class ContextInput {
     private int orphanMaxDepth(ContextConfig contextConfig) {
         int orphanMaxDepth = Optional.ofNullable(maxDepth).orElseGet(contextConfig::orphanMaxDepth);
         validator.validate(Constraint.of(
-                String.format("Orphan lookup max-depth (%s) must be a positive integer", orphanMaxDepth),
+                "Orphan lookup max-depth (%s) must be a positive integer".formatted(orphanMaxDepth),
                 () -> orphanMaxDepth >= 0));
         return orphanMaxDepth;
     }
