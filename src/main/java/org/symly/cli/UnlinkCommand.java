@@ -17,7 +17,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "unlink", description = "Remove links in 'directory' pointing to the 'repositories'")
+@Command(name = "unlink", description = "Remove links in the 'directory' pointing to the 'repositories'")
 @RequiredArgsConstructor
 class UnlinkCommand implements Runnable {
 

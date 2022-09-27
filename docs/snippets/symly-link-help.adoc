@@ -5,8 +5,8 @@ Usage: symly link [-fhv] [--dry-run] [-d=<main-directory>]
 Create/update/delete links from 'directory' to the 'repositories'.
 
 Repositories should be specified with base layers first and overriding layers
-next.In case two repositories contain a file with the same path, the file in
-the latestrepository will be used as the target for the link for the given path
+next. In case two repositories contain a file with the same path, the file in
+the latest repository will be used as the target for the link for the given path
   -d, --dir, --directory=<main-directory>
                   Main directory in which links will be created
       --dry-run   Do not actually create links but only displays which ones
