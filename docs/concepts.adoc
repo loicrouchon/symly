@@ -4,8 +4,8 @@ Symly is based on the following major concepts:
 
 * The _*repositories*_: Repositories are folders containing a file structured to be linked in a _directory_.
 For example `/some/path`, `~/repositories/defaults`. *You can specify one or more repositories*.
-Each repository acts as its own layer, overriding previous layers with its content.
-* The _*directory*_: The folder in which the _repositories_ content will be linked.
+Each repository acts as a layer, overriding previous layers with its content.
+* The _*directory*_: The folder in which the _repositories'_ content will be linked.
 For example `~`.
 
 Consider the following repository file structure:
@@ -58,18 +58,18 @@ Here is how all the previous notions play together:
 
 == The "repository file tree is the state" principle
 
-On top of those concept, an important principle applies:
+On top of those concepts, an important principle applies:
 
 > _*The repository file tree is the state*_
 
-This principle is has the following implications:
+This principle has the following implications:
 
 * No command to add a file to a repository, just drop it there
 * No command to delete a file from a repository, just delete it
 * No command to edit a file in a repository, just edit it directly or through its symbolic link in the directory.
-This allows for Seamless integration with tools modifying dotfiles directly on the directory (like git config user.name ..., …)
-* Immediate visibility on modifications made on the directory files
+This allows for seamless integration with tools modifying files directly. Like `git config user.name ...` for example.
+* Immediate visibility of modifications made to the directory files
 
 '''
 
-Let's put those concepts into application by looking at the link:usage.adoc[usage manual].
+Let's apply those concepts by looking at the link:usage.adoc[usage manual].

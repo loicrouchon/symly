@@ -6,13 +6,14 @@ image:https://img.shields.io/github/languages/code-size/loicrouchon/symly?logo=j
 == Symly, centralize sparse file trees
 
 Symly is a tool helping to centralize sparse file trees.
-It replicates and maintains a file tree structure of one or multiple `repository` layers into a `directory` by creating symbolic links.
+It replicates and maintains a file tree structure of one or more `repository` layers into a `directory` by creating symbolic links.
 
-* *Layers*: Symly supports the definition of multiple repositories which will be combined in an overriding fashion similar to what is by https://en.wikipedia.org/wiki/OverlayFS[OverlayFS].
+* *Layers*: Symly supports the definition of multiple repositories.
+  Those repositories will be combined in an overriding fashion similar to what is done by https://en.wikipedia.org/wiki/OverlayFS[OverlayFS].
 * *No database*: the filesystem is the state
-* *Backup, Sharing and Synchronization tool of your choice*: Symly replicates the file tree of the repositories inside another file tree using symbolic links.
- But it doesn't provide a way to share, synchronize, backup, ... the repositories content.
- You can then decide to use one or more tools of your choice for this task: git, rsync, Dropbox, Tresorit, ...
+* *Backup, Sharing, and Synchronization tool of your choice*: Symly replicates the file tree of the repositories inside another file tree using symbolic links.
+ But it doesn't provide a way to share, synchronize, or back up the content of the repositories.
+You can then decide to use one or more tools of your choice for this task: git, rsync, Dropbox, Tresorit, ...
 
 === Common use cases
 
@@ -21,7 +22,7 @@ It replicates and maintains a file tree structure of one or multiple `repository
 
 === Getting started
 
-* link:./docs/what-is-symly-useful-for.adoc[What is symly useful for?]
+* link:./docs/what-is-symly-useful-for.adoc[What is Symly useful for?]
 * link:./docs/install.adoc[Installation]
 * link:./docs/concepts.adoc[Concepts]
 * link:./docs/usage.adoc[Usage]
@@ -29,4 +30,4 @@ It replicates and maintains a file tree structure of one or multiple `repository
 
 === How to build Symly
 
-The build instructions are available one the link:./docs/build.adoc[build instructions] page.
+The build instructions are available on the link:./docs/build.adoc[build instructions] page.

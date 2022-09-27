@@ -1,13 +1,13 @@
 = Features
 
 .Commands
-* [x] link: link the content of the repositories into the directory.
-* [x] unlink: unlink the content of the repositories into the directory.
-* [x] status: displays the links status
+* [x] link: link the content of the repositories into the directory
+* [x] unlink: unlink the content of the repositories into the directory
+* [x] status: displays the status of the links
 
 .Flexible repositories
 * [x] Support for multiple repositories
-* [x] Layering of repositories allowing for a default layer and zero to many custom ones on top.
+* [x] Layering of repositories allowing for a default layer and zero to many custom ones on top
 * [x] Ignored files in repositories via .symlyignore
 
 .Core features

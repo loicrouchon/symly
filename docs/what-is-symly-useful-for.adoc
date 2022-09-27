@@ -1,7 +1,7 @@
-= What is symly useful for?
+= What is Symly useful for?
 
-Symly has been created to address the synchronization issue of user's configuration files between different machines.
-But Symly is not a synchronization tool, nor is limited to deal with user configuration files also known as
+Symly has been created to address the synchronization issue of users' configuration files between different machines.
+But Symly is not a synchronization tool, nor is limited to dealing with user configuration files also known as
 _dotfiles_.
 
 > *Symly is not a synchronization tool.*
@@ -9,20 +9,22 @@ _dotfiles_.
 == There are many synchronization tools out there, how is Symly different?
 
 Symly is not a synchronization tool.
-Symly is a tool allowing you to centralize a list of files and directories and to create symbolic links to them.
-You can then use your preferred synchronization tool whether it is a service like Dropbox, Tresorit, or a more developer and versioning-oriented tool like git.
+Symly is a tool allowing you to centralize a list of files and directories and create symbolic links to them.
+You can then use your preferred synchronization tool whether it is a service like Dropbox, or Tresorit, or a more developer/versioning-oriented tool like git.
 
-== Why creating symbolic links and not copy the files over?
+== Why create symbolic links and not copy the files over?
 
-The main use case of symly is about user configuration files.
-The particularity of those files is that they are not read-only.
-They are written to by a wide variety of tools like your preferred text-editor, scripts appending to your `.bashrc`, other tools like `git config --global`, ... Using a file copy would destroy such updates every time you want to deploy your centralized files.
+The main use case of Symly is about user configuration files.
+The particularity of those files is that they are not read-only files.
+They are written to by a wide variety of tools like your preferred text-editor, scripts appending to your `.bashrc`, or other tools like `git config --global`, ... Using a file copy would destroy such updates every time you want to deploy your centralized files.
+
+Using symbolic links allows for the following characteristics:
 
 * *Seamless integration*:
-by using symbolic links every change to tracked files will be immediately and available in the repository, no matter the tool used to edit the files.
+by using symbolic links every change to tracked files will be immediately available in the repository, no matter what tool made those changes.
 * *Synchronization/Versioning ready*:
-Any versioning or synchronization tool can be used on the repository.
-Gain instant benefit from your favorite tool diffs and rollbacks for your files.
+You can use any versioning or synchronization tool for the repositories.
+Gain instant benefits from your favorite tools for backups, diffs, and rollbacks for your files.
 
 == Is Symly limited to user configuration files?
 

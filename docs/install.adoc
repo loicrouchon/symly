@@ -1,6 +1,6 @@
 = Installation
 
-Symly is available through different package managers for linux and macOS
+Symly is available through different package managers for Linux and macOS
 
 .DEB: Debian, Ubuntu, Linux Mint, ...
 ----
@@ -19,9 +19,9 @@ sudo dnf config-manager --add-repo https://packages.loicrouchon.fr/rpm
 sudo dnf install symly
 ----
 
-It is also available via HomeBrew for macOS and other linux distributions.
+It is also available via HomeBrew for macOS and other Linux distributions.
 
-.Homebrew (MacOS/Linux)
+.Homebrew (macOS/Linux)
 ----
 brew install loicrouchon/symly/symly
 ----
@@ -34,14 +34,14 @@ Artifacts can also be downloaded manually from link:https://github.com/loicrouch
 
 The following artifacts are available:
 
-* Jar application with bootstrap script.
+* Jar application with a bootstrap script.
 Requires JVM 17+
 * `.deb` and `.rpm` packages.
 --
 
 .Build
 The last option is to build symly from source.
-More details available on the link:./build.adoc[build instructions] page.
+More details are available on the link:./build.adoc[build instructions] page.
 
 '''
 
