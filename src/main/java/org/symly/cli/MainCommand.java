@@ -11,7 +11,10 @@ import picocli.CommandLine.Spec;
 
 @Command(
         name = "symly",
-        description = "symly create links",
+        description =
+                """
+            Symly creates, updates and removes links allowing for \
+            centralized management of sparse file-trees.""",
         versionProvider = VersionProvider.class,
         subcommands = {
             LinkCommand.class,
@@ -21,6 +24,7 @@ import picocli.CommandLine.Spec;
 @RequiredArgsConstructor
 class MainCommand implements Runnable {
 
+    @SuppressWarnings("unused") // used by picocli
     @Option(
             names = {"-h", "--help"},
             usageHelp = true,
@@ -28,6 +32,7 @@ class MainCommand implements Runnable {
             scope = CommandLine.ScopeType.INHERIT)
     boolean helpRequested;
 
+    @SuppressWarnings("unused") // used by picocli
     @Option(
             names = {"-v", "--verbose"},
             description = "Be verbose.",
@@ -39,9 +44,11 @@ class MainCommand implements Runnable {
         }
     }
 
+    @SuppressWarnings("unused") // used by picocli
     @Option(
             names = {"-V", "--version"},
-            description = "Prints version information.")
+            description = "Prints version information.",
+            versionHelp = true)
     boolean version = false;
 
     @Spec
@@ -56,11 +63,10 @@ class MainCommand implements Runnable {
     @Override
     public void run() {
         CommandLine commandLine = spec.commandLine();
-        if (helpRequested || !version) {
-            commandLine.usage(console.writer());
-        }
-        if (version) {
+        if (commandLine.isVersionHelpRequested()) {
             commandLine.printVersionHelp(console.writer());
+        } else {
+            commandLine.usage(console.writer());
         }
     }
 }

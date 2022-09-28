@@ -42,7 +42,7 @@ public class ContextConfig {
      */
     private static final String ORPHANS_MAX_DEPTH_PROPERTY = "orphans.max-depth.search";
 
-    private static final String ORPHAN_MAX_DEPTH_DEFAULT_VALUE = "2";
+    public static final String ORPHAN_MAX_DEPTH_DEFAULT_VALUE = "2";
 
     /**
      * The {@link Path} to consider as the parent directory of relative paths found in Symly configuration.

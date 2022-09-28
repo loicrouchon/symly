@@ -37,7 +37,7 @@ class LinkCommand implements Runnable {
 
     @Option(
             names = {"--dry-run"},
-            description = "Do not actually create links but only displays which ones would be created")
+            description = "Do not create links but only displays which ones would be created")
     boolean dryRun = false;
 
     @Option(

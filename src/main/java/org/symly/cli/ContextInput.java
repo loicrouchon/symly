@@ -13,6 +13,7 @@ import org.symly.cli.validation.Constraint;
 import org.symly.cli.validation.Validator;
 import org.symly.files.FileSystemReader;
 import org.symly.repositories.*;
+import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
@@ -43,7 +44,9 @@ public class ContextInput {
     @Option(
             names = {"--max-depth"},
             paramLabel = "<max-depth>",
-            description = "Depth of the lookup for orphans deletion")
+            description = "Depth of the lookup for orphans deletion",
+            defaultValue = ContextConfig.ORPHAN_MAX_DEPTH_DEFAULT_VALUE,
+            showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     Integer maxDepth;
 
     private Validator validator;

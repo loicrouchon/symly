@@ -1,7 +1,8 @@
 ----
 $ symly
 Usage: symly [-hvV] [COMMAND]
-symly create links
+Symly creates, updates and removes links allowing for centralized management of
+sparse file-trees.
   -h, --help      Prints this help message and exits
   -v, --verbose   Be verbose.
   -V, --version   Prints version information.

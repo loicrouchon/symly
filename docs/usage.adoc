@@ -1,12 +1,13 @@
 = Usage
 
-General command help:
+== General commands overview
 
 // include::docs/snippets/symly-default-output.adoc[]
 ----
 $ symly
 Usage: symly [-hvV] [COMMAND]
-symly create links
+Symly creates, updates and removes links allowing for centralized management of
+sparse file-trees.
   -h, --help      Prints this help message and exits
   -v, --verbose   Be verbose.
   -V, --version   Prints version information.
@@ -22,9 +23,48 @@ Commands:
 ----
 // end::include
 
+== The `symly.config` file
+
+It might be annoying to give the `--dir` and `--repositories` options every time you're calling Symly; even when using the short names.
+To this end, it is possible to define a `symly.config` file that will automatically be picked up by symly.
+
+_For the file to be detected by symly, it needs to be present in the current working directory._
+
+The following entries are supported:
+
+* `directory`: the main directory.
+* `repositories`: the list of repositories, separated by a `,`.
+  Repositories are ordered as per the `--repositories` command line option.
+  The first layer in the list will be the base one.
+  Subsequent layers will be overriding ones, the last one having the highest priority.
+* `orphans.max-depth.search`: the max depth to lookup for orphan links.
+
+For example:
+
+[source,properties]
+----
+directory=~
+repositories=defaults, linux, work
+----
+
+Paths defined in this file can be:
+
+* absolute paths.
+* relative to the user directory when starting with `~`.
+* relative to the `symly.config` file's parent directory.
+
 == The `link` subcommand
 
-The `link` subcommand is the main subcommand that will perform the linking.
+The `link` subcommand is the main subcommand.
+It links every file from the `repositories` into the main `directory` by preserving the file-tree structure.
+
+It will:
+
+* Create new links
+* Update existing links
+* Delete unnecessary links (orphan ones)
+
+=== `link` command synopsis
 
 // include::docs/snippets/symly-link-help.adoc[]
 ----
@@ -38,13 +78,14 @@ next. In case two repositories contain a file with the same path, the file in
 the latest repository will be used as the target for the link for the given path
   -d, --dir, --directory=<main-directory>
                   Main directory in which links will be created
-      --dry-run   Do not actually create links but only displays which ones
-                    would be created
+      --dry-run   Do not create links but only displays which ones would be
+                    created
   -f, --force     Force existing files and directories to be overwritten
                     instead of failing in case of conflicts
   -h, --help      Prints this help message and exits
       --max-depth=<max-depth>
                   Depth of the lookup for orphans deletion
+                    Default: 2
   -r, --repositories[=<repositories>...]
                   Repositories containing files to link in the main directory.
                     Repositories are to be listed by decreasing priority as the
@@ -53,7 +94,10 @@ the latest repository will be used as the target for the link for the given path
 ----
 // end::include
 
-* Links every file from the `repositories` into the `main directory` by preserving the structure.
+=== `link` command usage
+
+Consider the following example.
+The folder `/home/user/repository` contains a file-tree to be linked in `/home/user`.
 
 // include::docs/snippets/symly-link-basic-example.adoc[]
 ----
@@ -90,8 +134,14 @@ $ tree /home/user
     \-- .gitconfig
 ----
 // end::include
-* Supports multiple `repositories`: Repositories are listed by increasing order of priority (default first, overrides last).
-When two repositories define a link, the link will be created to the repository with the higher priority.
+
+Symly supports more than a single `repository`.
+When more than one `repository` is defined, they will be applied in layers.
+The first one in the list is the base layer.
+Subsequent repositories will be overriding layers, the last one having the highest priority.
+
+The notion of layers' priority is important to understand how Symly will resolve conflicts.
+When two repositories define a link, Symly will point the link to the repository with the higher priority.
 
 // include::docs/snippets/symly-link-multiple-repositories-example.adoc[]
 ----
@@ -118,7 +168,9 @@ added:       .gitconfig -> /home/user/repositories/custom/.gitconfig
 ----
 // end::include
 
-* Supports directory linking when a `.symlink` file is present in the directory.
+On top of supporting links creation for files, Symly can also link directories themselves.
+This can be achieved by creating an empty `.symlink` file in the directory of a repository you want to link.
+When linking a directory, Symly will not create links for the directory's content.
 
 // include::docs/snippets/symly-link-directory-linking-example.adoc[]
 ----
@@ -135,29 +187,18 @@ added:       .config/fish -> /home/user/repository/.config/fish
 ----
 // end::include
 
-== The symly.config file
+One advantage of linking a directory instead of linking each file is when you expect external tools or processes to create files in this directory.
+By linking the directory itself, those new files will automatically be visible to the synchronization tool which is watching over the repositories.
 
-It might be annoying to keep giving the `--dir` and `--repositories` options, even when using the short names.
-To this end, it is possible to define a `symly.config` file that will automatically be picked up by symly.
+[NOTE]
+====
+The content of lower layers will be ignored when a higher layer defines a `.symlink` file for a directory in a particular repository layer.
+====
 
-_For the file to be detected by symly, it needs to be present in the current working directory._
+== The `unlink` subcommand
 
-The following entries are supported:
+**_Coming soon..._**
 
-* `directory`: the main directory.
-* `repositories`: the list of repositories, separated by a `,`.
-* `orphans.max-depth.search`: the max depth to lookup for orphan links.
+== The `status` subcommand
 
-For example:
-
-[source,properties]
-----
-directory=~
-repositories=defaults, linux, work
-----
-
-Paths defined in this file can be:
-
-* absolute paths.
-* relative to the user directory when starting with `~`.
-* relative to the file parent directory.
+**_Coming soon..._**
