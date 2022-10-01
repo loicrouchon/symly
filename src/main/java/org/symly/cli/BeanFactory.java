@@ -44,9 +44,7 @@ public class BeanFactory implements CommandLine.IFactory {
                         create(FileSystemWriter.class),
                         create(LinksFinder.class)));
         register(
-                StatusCommand.class,
-                () -> new StatusCommand(
-                        create(CliConsole.class), create(FileSystemReader.class), create(LinksFinder.class)));
+                StatusCommand.class, () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)));
         register(ContextInput.class, () -> new ContextInput(create(FileSystemReader.class)));
     }
 

@@ -5,10 +5,9 @@ import java.nio.file.Path;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.files.FileSystemReader;
-import org.symly.links.Link;
+import org.symly.links.LinkStatus;
 import org.symly.links.Status;
 import org.symly.repositories.Context;
-import org.symly.repositories.LinksFinder;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
@@ -28,9 +27,6 @@ class StatusCommand implements Runnable {
     @NonNull
     private final FileSystemReader fsReader;
 
-    @NonNull
-    private final LinksFinder linksFinder;
-
     private Context context;
 
     private int updates;
@@ -48,7 +44,7 @@ class StatusCommand implements Runnable {
 
     private void checkStatus(CliConsole console) {
         updates = 0;
-        try (var statuses = context.linksStatuses(linksFinder, fsReader)) {
+        try (var statuses = context.status(fsReader)) {
             statuses.forEach(status -> {
                 if (!status.type().equals(Status.Type.UP_TO_DATE)) {
                     updates++;
@@ -62,7 +58,7 @@ class StatusCommand implements Runnable {
     }
 
     private void printStatus(CliConsole console, Status status) {
-        Link link = status.link();
+        LinkStatus link = status.link();
         String statusType =
                 switch (status.type()) {
                     case UP_TO_DATE -> "up-to-date";
@@ -76,7 +72,7 @@ class StatusCommand implements Runnable {
         } else {
             level = Level.INFO;
         }
-        console.printf(level, "%-12s%s%n", statusType, link.toString(context.mainDirectory()));
+        console.printf(level, "%-12s%s%n", statusType, link.desired().toString(context.mainDirectory()));
         if (status.type() == Status.Type.LINK_CONFLICT) {
             Path realPath = fsReader.readSymbolicLink(link.source());
             console.printf("> Symbolic link conflict. Current target is %s%n", realPath);

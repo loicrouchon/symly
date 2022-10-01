@@ -26,6 +26,8 @@ public interface FileSystemReader {
 
     Stream<String> lines(Path path) throws IOException;
 
+    Stream<Path> list(Path path) throws IOException;
+
     Stream<Path> walk(Path path) throws IOException;
 
     void walkFileTree(Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
@@ -61,6 +63,11 @@ public interface FileSystemReader {
         @Override
         public Stream<String> lines(Path path) throws IOException {
             return Files.lines(path);
+        }
+
+        @Override
+        public Stream<Path> list(Path path) throws IOException {
+            return Files.list(path);
         }
 
         @Override

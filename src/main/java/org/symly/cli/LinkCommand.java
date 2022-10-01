@@ -1,7 +1,6 @@
 package org.symly.cli;
 
 import java.lang.System.Logger.Level;
-import java.nio.file.Path;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.Result;
@@ -10,6 +9,7 @@ import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
 import org.symly.links.Link;
+import org.symly.links.LinkStatus;
 import org.symly.repositories.Context;
 import org.symly.repositories.LinksFinder;
 import picocli.CommandLine.Command;
@@ -86,10 +86,10 @@ class LinkCommand implements Runnable {
     }
 
     private void createLinks(FileSystemWriter fsWriter) {
-        try (var statuses = context.linksStatuses(linksFinder, fsReader)) {
+        try (var statuses = context.status(fsReader)) {
             statuses.map(status -> status.toActions(fsReader, force)).forEach(actions -> {
                 for (Action action : actions) {
-                    Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
+                    Result<Void, Action.Code> result = action.apply(fsReader, fsWriter);
                     if (!action.type().equals(Action.Type.UP_TO_DATE)) {
                         updates++;
                     }
@@ -99,24 +99,24 @@ class LinkCommand implements Runnable {
         }
     }
 
-    private void printStatus(Action action, Result<Path, Action.Code> result) {
-        result.accept(previousLink -> printAction(action, previousLink), error -> printError(action, error));
+    private void printStatus(Action action, Result<Void, Action.Code> result) {
+        result.accept(success -> printAction(action), error -> printError(action, error));
     }
 
-    private void printAction(Action action, Path previousLink) {
-        Link link = action.link();
+    private void printAction(Action action) {
+        LinkStatus link = action.link();
         switch (action.type()) {
-            case UP_TO_DATE -> printAction(Level.DEBUG, "up-to-date", link);
-            case CREATE -> printAction(Level.INFO, "added", link);
+            case UP_TO_DATE -> printAction(Level.DEBUG, "up-to-date", link.desired());
+            case CREATE -> printAction(Level.INFO, "added", link.desired());
             case MODIFY -> {
-                if (previousLink == null) {
+                if (link.currentTarget() == null) {
                     throw new IllegalStateException("Expecting a previous link to be found for " + link.source());
                 }
-                printAction(Level.INFO, "deleted", new Link(link.source(), previousLink));
-                printAction(Level.INFO, "added", link);
+                printAction(Level.INFO, "deleted", link.current());
+                printAction(Level.INFO, "added", link.desired());
             }
-            case DELETE -> printAction(Level.INFO, "deleted", link);
-            case CONFLICT -> printAction(Level.INFO, "!conflict", link);
+            case DELETE -> printAction(Level.INFO, "deleted", link.current());
+            case CONFLICT -> printAction(Level.INFO, "!conflict", link.desired());
         }
     }
 
@@ -125,12 +125,12 @@ class LinkCommand implements Runnable {
     }
 
     private void printError(Action action, Action.Code error) {
-        printAction(action, error.previousPath());
-        Link link = action.link();
+        LinkStatus link = action.link();
+        printAction(action);
         String details =
                 switch (error.state()) {
                     case INVALID_SOURCE -> "Source %s does not exist".formatted(link.source());
-                    case INVALID_DESTINATION -> "Destination %s does not exist".formatted(link.target());
+                    case INVALID_DESTINATION -> "Destination %s does not exist".formatted(link.desiredTarget());
                     case CONFLICT -> "Regular file %s already exist. To overwrite it, use the -f (--force) option."
                             .formatted(link.source());
                     case ERROR -> "An error occurred during linkage: - %s".formatted(error.details());
@@ -138,7 +138,7 @@ class LinkCommand implements Runnable {
         if (dryRun) {
             console.eprintf("> %s%n", details);
         } else {
-            throw new SymlyExecutionException("Unable to create link %s%n> %s%n".formatted(link, details));
+            throw new SymlyExecutionException("Unable to create link %s%n> %s%n".formatted(link.desired(), details));
         }
     }
 }

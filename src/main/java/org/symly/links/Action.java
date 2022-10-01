@@ -1,6 +1,5 @@
 package org.symly.links;
 
-import java.nio.file.Path;
 import org.symly.Result;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
@@ -9,27 +8,27 @@ public interface Action {
 
     Type type();
 
-    Link link();
+    LinkStatus link();
 
-    Result<Path, Code> apply(FileSystemReader fsReader, FileSystemWriter fsWriter);
+    Result<Void, Code> apply(FileSystemReader fsReader, FileSystemWriter fsWriter);
 
-    static Action upToDate(Link link) {
+    static Action upToDate(LinkStatus link) {
         return new NoOpAction(Type.UP_TO_DATE, link);
     }
 
-    static Action replace(Link link) {
+    static Action replace(LinkStatus link) {
         return new UpdateLinkAction(Type.MODIFY, link);
     }
 
-    static Action conflict(Link link) {
+    static Action conflict(LinkStatus link) {
         return new ConflictAction(Type.CONFLICT, link);
     }
 
-    static Action create(Link link) {
+    static Action create(LinkStatus link) {
         return new CreateLinkAction(Type.CREATE, link);
     }
 
-    static Action delete(Link link) {
+    static Action delete(LinkStatus link) {
         return new DeleteLinkAction(Type.DELETE, link);
     }
 
@@ -41,7 +40,7 @@ public interface Action {
         DELETE
     }
 
-    record Code(State state, String details, Path previousPath) {
+    record Code(State state, String details) {
 
         public enum State {
             CONFLICT,

@@ -116,6 +116,14 @@ class FileSystemReaderStub implements FileSystemReader {
     }
 
     @Override
+    public Stream<Path> list(Path path) {
+        Path absolutePath = path.toAbsolutePath();
+        int directChildrenNameCount = absolutePath.getNameCount() + 1;
+        return fsEntries.keySet().stream()
+                .filter(p -> p.startsWith(absolutePath) && p.getNameCount() == directChildrenNameCount);
+    }
+
+    @Override
     public Stream<Path> walk(Path path) {
         Path absolutePath = path.toAbsolutePath();
         return fsEntries.keySet().stream().filter(p -> p.startsWith(absolutePath));

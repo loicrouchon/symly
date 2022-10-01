@@ -9,7 +9,7 @@ import java.util.stream.Stream;
 import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 
-public record Status(Type type, Link link) {
+public record Status(Type type, LinkStatus link) {
 
     public List<Action> toActions(FileSystemReader fsReader, boolean force) {
         return switch (type) {
@@ -26,7 +26,7 @@ public record Status(Type type, Link link) {
             List<Action> actions = new ArrayList<>();
             try (Stream<Path> files = fsReader.walk(link.source())) {
                 files.sorted(Comparator.comparing(Path::toString).reversed())
-                        .map(path -> Action.delete(Link.of(path, null)))
+                        .map(path -> Action.delete(new LinkStatus(path, null, null)))
                         .forEach(actions::add);
             } catch (IOException e) {
                 throw new SymlyExecutionException(

@@ -1,7 +1,6 @@
 package org.symly.cli;
 
 import java.lang.System.Logger.Level;
-import java.nio.file.Path;
 import java.util.Comparator;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +10,7 @@ import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
 import org.symly.links.Link;
+import org.symly.links.LinkStatus;
 import org.symly.repositories.Context;
 import org.symly.repositories.LinksFinder;
 import picocli.CommandLine.Command;
@@ -75,27 +75,27 @@ class UnlinkCommand implements Runnable {
     }
 
     private void unlink(Link orphan, FileSystemWriter mutator) {
-        Action action = Action.delete(orphan);
-        Result<Path, Action.Code> status = action.apply(fsReader, mutator);
+        Action action = Action.delete(new LinkStatus(orphan.source(), orphan.target(), null));
+        Result<Void, Action.Code> status = action.apply(fsReader, mutator);
         printStatus(action, status);
     }
 
-    private void printStatus(Action action, Result<Path, Action.Code> result) {
+    private void printStatus(Action action, Result<Void, Action.Code> result) {
         result.accept(previousLink -> printAction(action), error -> printError(action, error));
     }
 
     private void printAction(Action action) {
-        Link link = action.link();
+        LinkStatus link = action.link();
         if (!action.type().equals(Action.Type.DELETE)) {
             throw new SymlyExecutionException(
                     "Unable to unlink %s%n> Invalid action type %s%n".formatted(link, action.type()));
         }
-        console.printf("%-12s %s%n", "unlink" + ":", link.toString(context.mainDirectory()));
+        console.printf("%-12s %s%n", "unlink" + ":", link.current().toString(context.mainDirectory()));
     }
 
     private void printError(Action action, Action.Code error) {
         printAction(action);
-        Link link = action.link();
+        LinkStatus link = action.link();
         String details =
                 "An error occurred while deleting link: %s%n> - %s: %s".formatted(link, error.state(), error.details());
         if (dryRun) {
