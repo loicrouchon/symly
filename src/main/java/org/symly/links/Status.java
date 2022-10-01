@@ -17,6 +17,7 @@ public record Status(Type type, Link link) {
             case LINK_CONFLICT -> List.of(Action.replace(link));
             case FILE_CONFLICT -> resolveConflict(fsReader, force);
             case MISSING -> List.of(Action.create(link));
+            case ORPHAN -> List.of(Action.delete(link));
         };
     }
 
@@ -41,6 +42,7 @@ public record Status(Type type, Link link) {
         UP_TO_DATE,
         LINK_CONFLICT,
         FILE_CONFLICT,
-        MISSING
+        MISSING,
+        ORPHAN
     }
 }

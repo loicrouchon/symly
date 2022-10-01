@@ -38,8 +38,7 @@ public class MainCommand {
             sysProps.set("user.home", home);
             sysProps.set(PathAdapter.SYMLY_CWD_PROPERTY, workingDir.toAbsolutePath());
             BeanFactory beanFactory = new BeanFactory();
-            beanFactory.registerBean(
-                    CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
+            beanFactory.register(CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
             int exitCode = Main.runCommand(beanFactory, args);
             List<String> command = new ArrayList<>();
             command.add("symly");

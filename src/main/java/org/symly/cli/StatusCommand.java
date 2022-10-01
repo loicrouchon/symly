@@ -8,6 +8,7 @@ import org.symly.files.FileSystemReader;
 import org.symly.links.Link;
 import org.symly.links.Status;
 import org.symly.repositories.Context;
+import org.symly.repositories.LinksFinder;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
@@ -27,7 +28,12 @@ class StatusCommand implements Runnable {
     @NonNull
     private final FileSystemReader fsReader;
 
+    @NonNull
+    private final LinksFinder linksFinder;
+
     private Context context;
+
+    private int updates;
 
     @Override
     public void run() {
@@ -41,13 +47,14 @@ class StatusCommand implements Runnable {
     }
 
     private void checkStatus(CliConsole console) {
-        int updates = 0;
-        for (Link link : context.links()) {
-            Status status = link.status(fsReader);
-            if (!status.type().equals(Status.Type.UP_TO_DATE)) {
-                updates++;
-            }
-            printStatus(console, status);
+        updates = 0;
+        try (var statuses = context.linksStatuses(linksFinder, fsReader)) {
+            statuses.forEach(status -> {
+                if (!status.type().equals(Status.Type.UP_TO_DATE)) {
+                    updates++;
+                }
+                printStatus(console, status);
+            });
         }
         if (updates == 0) {
             console.printf("Everything is already up to date%n");
@@ -60,6 +67,7 @@ class StatusCommand implements Runnable {
                 switch (status.type()) {
                     case UP_TO_DATE -> "up-to-date";
                     case MISSING -> "missing";
+                    case ORPHAN -> "orphan";
                     case LINK_CONFLICT, FILE_CONFLICT -> "!conflict";
                 };
         Level level;

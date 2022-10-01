@@ -2,8 +2,6 @@ package org.symly.cli;
 
 import java.lang.System.Logger.Level;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.Result;
@@ -12,7 +10,6 @@ import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
 import org.symly.links.Link;
-import org.symly.links.Status;
 import org.symly.repositories.Context;
 import org.symly.repositories.LinksFinder;
 import picocli.CommandLine.Command;
@@ -76,7 +73,6 @@ class LinkCommand implements Runnable {
                 context.repositories().repositories());
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(mutator);
-        deleteOrphans(mutator);
         if (updates == 0) {
             console.printf("Everything is already up to date%n");
         }
@@ -90,32 +86,17 @@ class LinkCommand implements Runnable {
     }
 
     private void createLinks(FileSystemWriter fsWriter) {
-        for (Link link : context.links()) {
-            Status status = link.status(fsReader);
-            List<Action> actions = status.toActions(fsReader, force);
-            for (Action action : actions) {
-                Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
-                if (!action.type().equals(Action.Type.UP_TO_DATE)) {
-                    updates++;
+        try (var statuses = context.linksStatuses(linksFinder, fsReader)) {
+            statuses.map(status -> status.toActions(fsReader, force)).forEach(actions -> {
+                for (Action action : actions) {
+                    Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
+                    if (!action.type().equals(Action.Type.UP_TO_DATE)) {
+                        updates++;
+                    }
+                    printStatus(action, result);
                 }
-                printStatus(action, result);
-            }
+            });
         }
-    }
-
-    private void deleteOrphans(FileSystemWriter mutator) {
-        Stream<Link> orphans = linksFinder.findOrphans(
-                context.mainDirectory().toPath(), context.orphanMaxDepth(), context.repositories());
-        orphans.forEach(orphan -> {
-            updates++;
-            deleteOrphan(orphan, mutator);
-        });
-    }
-
-    private void deleteOrphan(Link orphan, FileSystemWriter mutator) {
-        Action action = Action.delete(orphan);
-        Result<Path, Action.Code> status = action.apply(fsReader, mutator);
-        printStatus(action, status);
     }
 
     private void printStatus(Action action, Result<Path, Action.Code> result) {

@@ -24,23 +24,6 @@ public class LinksFinder {
     private final FileSystemReader fileSystemReader;
 
     /**
-     * <p>Find links in {@code rootDir} that points to the {@link Repositories} and which destination does not
-     * exist.</p>
-     * <p>Note: the search will be performed in {@code rootDir} for every single directory of {@link Repositories}. See
-     * {@link Repositories#allDirectoriesNames()} for information on which directories in the repositories will be
-     * considered. Within each of those, the search will be done using the specified {@code maxDepth} to limit the
-     * search.</p>
-     *
-     * @param rootDir the root directory in which the search should be made.
-     * @param maxDepth the maximum depth of the search per directory listed in the {@link Repositories}.
-     * @param repositories the repositories targeted.
-     * @return orphan links in {@code rootDir} pointing to the {@link Repositories}.
-     */
-    public Stream<Link> findOrphans(Path rootDir, int maxDepth, Repositories repositories) {
-        return findLinks(rootDir, maxDepth, repositories).filter(link -> !fileSystemReader.exists(link.target()));
-    }
-
-    /**
      * <p>Find links in {@code rootDir} that points to the {@link Repositories}.</p>
      * <p>Note: the search will be performed in {@code rootDir} for every single directory of {@link Repositories}. See
      * {@link Repositories#allDirectoriesNames()} for information on which directories in the repositories will be
@@ -53,17 +36,16 @@ public class LinksFinder {
      * @return links in {@code rootDir} pointing to the {@link Repositories}.
      */
     public Stream<Link> findLinks(Path rootDir, int maxDepth, Repositories repositories) {
-        return findFiles(rootDir, maxDepth, repositories, repositories::containsPath);
+        return findFiles(rootDir, repositories.allDirectoriesNames(), maxDepth, repositories::containsPath);
     }
 
-    private Stream<Link> findFiles(Path rootDir, int maxDepth, Repositories repositories, Predicate<Path> filter) {
-        List<Path> dirs = repositories.allDirectoriesNames();
+    private Stream<Link> findFiles(Path rootDir, List<Path> dirs, int maxDepth, Predicate<Path> filter) {
         return dirs.stream()
                 .map(path -> rootDir.resolve(path).toAbsolutePath().normalize())
                 .flatMap(dir -> findLinksInDirectory(dir, dirs, maxDepth, filter));
     }
 
-    private Stream<Link> findLinksInDirectory(Path dir, List<Path> exclusions, int maxDepth, Predicate<Path> filter) {
+    Stream<Link> findLinksInDirectory(Path dir, List<Path> exclusions, int maxDepth, Predicate<Path> filter) {
         Set<Path> excludedDirs = directSubDirectories(dir, exclusions);
         LinkVisitor visitor = new LinkVisitor(fileSystemReader, filter, excludedDirs);
         try {

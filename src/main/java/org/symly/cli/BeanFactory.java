@@ -21,32 +21,33 @@ public class BeanFactory implements CommandLine.IFactory {
     private final CommandLine.IFactory parentFactory = CommandLine.defaultFactory();
 
     public BeanFactory() {
-        registerBean(Config.class, Config::new);
-        registerBean(CliConsole.class, () -> new CliConsole(printWriter(System.out), printWriter(System.err)));
-        registerBean(FileSystemReader.class, FileSystemReader.RealFileSystemReader::new);
-        registerBean(FileSystemWriter.class, FileSystemWriterImpl::new);
-        registerBean(LinksFinder.class, () -> new LinksFinder(create(FileSystemReader.class)));
-        registerBean(VersionProvider.class, () -> new VersionProvider(create(Config.class)));
-        registerBean(MainCommand.class, () -> new MainCommand(create(Config.class), create(CliConsole.class)));
-        registerBean(
-                ExceptionHandler.class, () -> new ExceptionHandler(create(Config.class), create(CliConsole.class)));
-        registerBean(
+        register(Config.class, Config::new);
+        register(CliConsole.class, () -> new CliConsole(printWriter(System.out), printWriter(System.err)));
+        register(FileSystemReader.class, FileSystemReader.RealFileSystemReader::new);
+        register(FileSystemWriter.class, FileSystemWriterImpl::new);
+        register(LinksFinder.class, () -> new LinksFinder(create(FileSystemReader.class)));
+        register(VersionProvider.class, () -> new VersionProvider(create(Config.class)));
+        register(MainCommand.class, () -> new MainCommand(create(Config.class), create(CliConsole.class)));
+        register(ExceptionHandler.class, () -> new ExceptionHandler(create(Config.class), create(CliConsole.class)));
+        register(
                 LinkCommand.class,
                 () -> new LinkCommand(
                         create(CliConsole.class),
                         create(FileSystemReader.class),
                         create(FileSystemWriter.class),
                         create(LinksFinder.class)));
-        registerBean(
+        register(
                 UnlinkCommand.class,
                 () -> new UnlinkCommand(
                         create(CliConsole.class),
                         create(FileSystemReader.class),
                         create(FileSystemWriter.class),
                         create(LinksFinder.class)));
-        registerBean(
-                StatusCommand.class, () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)));
-        registerBean(ContextInput.class, () -> new ContextInput(create(FileSystemReader.class)));
+        register(
+                StatusCommand.class,
+                () -> new StatusCommand(
+                        create(CliConsole.class), create(FileSystemReader.class), create(LinksFinder.class)));
+        register(ContextInput.class, () -> new ContextInput(create(FileSystemReader.class)));
     }
 
     private static PrintWriter printWriter(PrintStream outputStream) {
@@ -74,7 +75,7 @@ public class BeanFactory implements CommandLine.IFactory {
         }
     }
 
-    public <K> void registerBean(Class<K> cls, Supplier<K> constructor) {
+    public <K> void register(Class<K> cls, Supplier<K> constructor) {
         constructors.put(cls, constructor);
     }
 }
