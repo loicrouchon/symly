@@ -78,9 +78,10 @@ public record Context(@NonNull MainDirectory mainDirectory, @NonNull Repositorie
 
         private void walkIt(DirectoryToAnalyze dir) {
             Path currentDirPath = dir.path();
-            if (!fsReader.isDirectory(currentDirPath)) {
+            if (!fsReader.isDirectory(currentDirPath) || !fsReader.isReadable(currentDirPath)) {
                 return;
             }
+
             int remainingOrphanDepthLookup = dir.remainingOrphanDepthLookup() - 1;
             try (Stream<Path> paths = fsReader.list(currentDirPath)) {
                 paths.forEach(path -> {
@@ -94,7 +95,8 @@ public record Context(@NonNull MainDirectory mainDirectory, @NonNull Repositorie
                     }
                 });
             } catch (IOException e) {
-                System.out.println(e); // TODO
+                // TODO replace with a proper exception
+                throw new RuntimeException("Unable to read directory %s".formatted(currentDirPath), e);
             }
             dirsToLookup.remove(currentDirPath);
         }

@@ -14,6 +14,8 @@ public interface FileSystemReader {
 
     boolean exists(Path path);
 
+    boolean isReadable(Path path);
+
     boolean isDirectory(Path path);
 
     default boolean isADirectory(Directory directory) {
@@ -38,6 +40,11 @@ public interface FileSystemReader {
         @Override
         public boolean exists(Path path) {
             return Files.exists(path);
+        }
+
+        @Override
+        public boolean isReadable(Path path) {
+            return Files.isReadable(path);
         }
 
         @Override

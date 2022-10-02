@@ -73,6 +73,11 @@ class FileSystemReaderStub implements FileSystemReader {
     }
 
     @Override
+    public boolean isReadable(Path path) {
+        return true;
+    }
+
+    @Override
     public boolean isDirectory(Path path) {
         return fsEntries.get(path.toAbsolutePath()) instanceof Directory;
     }
