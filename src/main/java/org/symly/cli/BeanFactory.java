@@ -32,10 +32,7 @@ public class BeanFactory implements CommandLine.IFactory {
         register(
                 LinkCommand.class,
                 () -> new LinkCommand(
-                        create(CliConsole.class),
-                        create(FileSystemReader.class),
-                        create(FileSystemWriter.class),
-                        create(LinksFinder.class)));
+                        create(CliConsole.class), create(FileSystemReader.class), create(FileSystemWriter.class)));
         register(
                 UnlinkCommand.class,
                 () -> new UnlinkCommand(

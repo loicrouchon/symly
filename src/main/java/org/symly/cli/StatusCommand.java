@@ -5,9 +5,8 @@ import java.nio.file.Path;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.files.FileSystemReader;
-import org.symly.links.LinkStatus;
-import org.symly.links.Status;
-import org.symly.repositories.Context;
+import org.symly.links.Context;
+import org.symly.links.LinkState;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 
@@ -44,12 +43,12 @@ class StatusCommand implements Runnable {
 
     private void checkStatus(CliConsole console) {
         updates = 0;
-        try (var statuses = context.status(fsReader)) {
-            statuses.forEach(status -> {
-                if (!status.type().equals(Status.Type.UP_TO_DATE)) {
+        try (var linkStates = context.status(fsReader)) {
+            linkStates.forEach(linkState -> {
+                if (!linkState.type().equals(LinkState.Type.UP_TO_DATE)) {
                     updates++;
                 }
-                printStatus(console, status);
+                printStatus(console, linkState);
             });
         }
         if (updates == 0) {
@@ -57,24 +56,23 @@ class StatusCommand implements Runnable {
         }
     }
 
-    private void printStatus(CliConsole console, Status status) {
-        LinkStatus link = status.link();
+    private void printStatus(CliConsole console, LinkState linkState) {
         String statusType =
-                switch (status.type()) {
+                switch (linkState.type()) {
                     case UP_TO_DATE -> "up-to-date";
                     case MISSING -> "missing";
                     case ORPHAN -> "orphan";
                     case LINK_CONFLICT, FILE_CONFLICT -> "!conflict";
                 };
         Level level;
-        if (status.type().equals(Status.Type.UP_TO_DATE)) {
+        if (linkState.type().equals(LinkState.Type.UP_TO_DATE)) {
             level = Level.DEBUG;
         } else {
             level = Level.INFO;
         }
-        console.printf(level, "%-12s%s%n", statusType, link.desired().toString(context.mainDirectory()));
-        if (status.type() == Status.Type.LINK_CONFLICT) {
-            Path realPath = fsReader.readSymbolicLink(link.source());
+        console.printf(level, "%-12s%s%n", statusType, linkState.desired().toString(context.mainDirectory()));
+        if (linkState.type() == LinkState.Type.LINK_CONFLICT) {
+            Path realPath = fsReader.readSymbolicLink(linkState.source());
             console.printf("> Symbolic link conflict. Current target is %s%n", realPath);
         }
     }

@@ -9,9 +9,10 @@ import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.Action;
+import org.symly.links.Context;
+import org.symly.links.DeleteLinkAction;
 import org.symly.links.Link;
-import org.symly.links.LinkStatus;
-import org.symly.repositories.Context;
+import org.symly.links.LinkState;
 import org.symly.repositories.LinksFinder;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
@@ -75,33 +76,34 @@ class UnlinkCommand implements Runnable {
     }
 
     private void unlink(Link orphan, FileSystemWriter mutator) {
-        Action action = Action.delete(new LinkStatus(orphan.source(), orphan.target(), null));
-        Result<Void, Action.Code> status = action.apply(fsReader, mutator);
-        printStatus(action, status);
-    }
-
-    private void printStatus(Action action, Result<Void, Action.Code> result) {
-        result.accept(previousLink -> printAction(action), error -> printError(action, error));
-    }
-
-    private void printAction(Action action) {
-        LinkStatus link = action.link();
-        if (!action.type().equals(Action.Type.DELETE)) {
-            throw new SymlyExecutionException(
-                    "Unable to unlink %s%n> Invalid action type %s%n".formatted(link, action.type()));
+        LinkState linkState = new LinkState(
+                context.mainDirectory(), orphan.source(), LinkState.Entry.linkEntry(orphan.target(), false), null);
+        for (Action action : linkState.toActions(fsReader, false)) {
+            Result<Void, Action.Code> result = action.apply(fsReader, mutator);
+            printStatus(linkState, action, result);
         }
-        console.printf("%-12s %s%n", "unlink" + ":", link.current().toString(context.mainDirectory()));
     }
 
-    private void printError(Action action, Action.Code error) {
-        printAction(action);
-        LinkStatus link = action.link();
-        String details =
-                "An error occurred while deleting link: %s%n> - %s: %s".formatted(link, error.state(), error.details());
+    private void printStatus(LinkState linkState, Action action, Result<Void, Action.Code> result) {
+        result.accept(previousLink -> printAction(linkState, action), error -> printError(linkState, action, error));
+    }
+
+    private void printAction(LinkState linkState, Action action) {
+        if (!(action instanceof DeleteLinkAction dla)) {
+            throw new SymlyExecutionException(
+                    "Unable to unlink %s%n> Invalid action type %s%n".formatted(linkState, action.getClass()));
+        }
+        console.printf("%-12s %s%n", "unlink" + ":", dla.link().toString(context.mainDirectory()));
+    }
+
+    private void printError(LinkState linkState, Action action, Action.Code error) {
+        printAction(linkState, action);
+        String details = "An error occurred while deleting link: %s%n> - %s: %s"
+                .formatted(linkState.source(), error.state(), error.details());
         if (dryRun) {
             console.eprintf("> %s%n", details);
         } else {
-            throw new SymlyExecutionException("Unable to unlink %s%n> %s%n".formatted(link, details));
+            throw new SymlyExecutionException("Unable to unlink %s%n> %s%n".formatted(linkState.source(), details));
         }
     }
 }

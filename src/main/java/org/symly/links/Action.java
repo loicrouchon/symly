@@ -1,43 +1,34 @@
 package org.symly.links;
 
+import java.nio.file.Path;
 import org.symly.Result;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 
-public interface Action {
+public sealed interface Action permits NoOpAction, CreateLinkAction, DeleteLinkAction, ConflictAction, DeleteAction {
 
-    Type type();
-
-    LinkStatus link();
+    Path path();
 
     Result<Void, Code> apply(FileSystemReader fsReader, FileSystemWriter fsWriter);
 
-    static Action upToDate(LinkStatus link) {
-        return new NoOpAction(Type.UP_TO_DATE, link);
+    static Action upToDate(Link link) {
+        return new NoOpAction(link);
     }
 
-    static Action replace(LinkStatus link) {
-        return new UpdateLinkAction(Type.MODIFY, link);
+    static Action conflict(Link link) {
+        return new ConflictAction(link);
     }
 
-    static Action conflict(LinkStatus link) {
-        return new ConflictAction(Type.CONFLICT, link);
+    static Action create(Link link) {
+        return new CreateLinkAction(link);
     }
 
-    static Action create(LinkStatus link) {
-        return new CreateLinkAction(Type.CREATE, link);
+    static Action deleteLink(Link link) {
+        return new DeleteLinkAction(link);
     }
 
-    static Action delete(LinkStatus link) {
-        return new DeleteLinkAction(Type.DELETE, link);
-    }
-
-    enum Type {
-        UP_TO_DATE,
-        CONFLICT,
-        MODIFY,
-        CREATE,
-        DELETE
+    static Action delete(Path path) {
+        return new DeleteAction(path);
     }
 
     record Code(State state, String details) {

@@ -45,7 +45,7 @@ public class LinksFinder {
                 .flatMap(dir -> findLinksInDirectory(dir, dirs, maxDepth, filter));
     }
 
-    Stream<Link> findLinksInDirectory(Path dir, List<Path> exclusions, int maxDepth, Predicate<Path> filter) {
+    private Stream<Link> findLinksInDirectory(Path dir, List<Path> exclusions, int maxDepth, Predicate<Path> filter) {
         Set<Path> excludedDirs = directSubDirectories(dir, exclusions);
         LinkVisitor visitor = new LinkVisitor(fileSystemReader, filter, excludedDirs);
         try {

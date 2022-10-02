@@ -8,7 +8,7 @@ public sealed interface Result<S, E> permits Result.Success, Result.ErrorResult 
 
     void accept(Consumer<S> successConsumer, Consumer<E> errorConsumer);
 
-    static <Void, E> Success<Void, E> success() {
+    static <E> Success<Void, E> success() {
         return new Success<>(null);
     }
 
