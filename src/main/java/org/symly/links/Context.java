@@ -20,10 +20,6 @@ import org.symly.repositories.Repositories;
  */
 public record Context(@NonNull MainDirectory mainDirectory, @NonNull Repositories repositories, int orphanMaxDepth) {
 
-    public Collection<Link> links() {
-        return repositories.links(mainDirectory);
-    }
-
     public Stream<LinkState> status(FileSystemReader fsReader) {
         LinkStateIterator it = new LinkStateIterator(this, fsReader);
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(it, 0), false);
@@ -141,8 +137,7 @@ record RepositoryLink(Link link) implements Entry {
             return new LinkState(mainDirectory, source, LinkState.Entry.fileEntry(), newTarget);
         }
         Path currentTarget = fsReader.readSymbolicLink(source);
-        boolean exists = fsReader.exists(source);
-        return new LinkState(mainDirectory, source, LinkState.Entry.linkEntry(currentTarget, exists), newTarget);
+        return new LinkState(mainDirectory, source, LinkState.Entry.linkEntry(currentTarget), newTarget);
     }
 }
 
@@ -155,7 +150,7 @@ record OrphanLink(Link link) implements Entry {
 
     @Override
     public LinkState toLinkState(FileSystemReader fsReader, MainDirectory mainDirectory) {
-        return new LinkState(mainDirectory, link.source(), LinkState.Entry.linkEntry(link.target(), false), null);
+        return new LinkState(mainDirectory, link.source(), LinkState.Entry.linkEntry(link.target()), null);
     }
 }
 

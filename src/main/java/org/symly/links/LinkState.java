@@ -12,23 +12,39 @@ import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 import org.symly.repositories.MainDirectory;
 
-public record LinkState(MainDirectory mainDirectory, Path source, LinkState.Entry currentState, Path desiredTarget) {
+/**
+ * Conceptual representation of a linkage status.
+ *
+ * @param mainDirectory the {@link MainDirectory} in the source should belong to.
+ * @param source the absolute {@link Path} to the source.
+ * @param currentState the current state for the source.
+ * @param desiredTarget the absolute path to the desired target for the source to point to.
+ *
+ */
+public record LinkState(
+        @NonNull MainDirectory mainDirectory, @NonNull Path source, @NonNull Entry currentState, Path desiredTarget) {
 
     public LinkState {
-        checkSourcePath(mainDirectory, source);
-        checkConsistency(source, currentState, desiredTarget);
-    }
-
-    private static void checkSourcePath(MainDirectory mainDirectory, Path source) {
-        if (!mainDirectory.containsPath(source)) {
-            throw new IllegalArgumentException("Name %s must be a subpath of %s".formatted(source, mainDirectory));
+        if (!source.isAbsolute()) {
+            throw new IllegalStateException("Source %s must be an absolute path".formatted(source));
         }
+        if (desiredTarget != null && !desiredTarget.isAbsolute()) {
+            throw new IllegalStateException("Desired target %s must be an absolute path".formatted(desiredTarget));
+        }
+        if (!mainDirectory.containsPath(source)) {
+            throw new IllegalStateException("Source %s must be a sub-path of %s".formatted(source, mainDirectory));
+        }
+        checkConsistency(source, currentState, desiredTarget);
     }
 
     private static void checkConsistency(Path source, LinkState.Entry currentState, Path desiredTarget) {
         type(source, currentState, desiredTarget);
     }
 
+    /**
+     * The name of the link. It is the relative path of the {@link #source} to the {@link #mainDirectory}.
+     * @return the name of the link.
+     */
     public Path name() {
         return mainDirectory.relativize(source);
     }
@@ -70,11 +86,11 @@ public record LinkState(MainDirectory mainDirectory, Path source, LinkState.Entr
         return switch (type()) {
             case UP_TO_DATE -> List.of(Action.upToDate(desired()));
             case LINK_CONFLICT -> List.of(
-                    Action.deleteLink(new Link(source, ((Entry.LinkEntry) currentState).target)),
+                    Action.deleteLink(new Link(source, ((Entry.LinkEntry) currentState).target())),
                     Action.create(desired()));
             case FILE_CONFLICT -> resolveConflict(fsReader, force);
             case MISSING -> List.of(Action.create(desired()));
-            case ORPHAN -> List.of(Action.deleteLink(new Link(source, ((Entry.LinkEntry) currentState).target)));
+            case ORPHAN -> List.of(Action.deleteLink(new Link(source, ((Entry.LinkEntry) currentState).target())));
         };
     }
 
@@ -113,23 +129,23 @@ public record LinkState(MainDirectory mainDirectory, Path source, LinkState.Entr
             return LinkState.Entry.DirectoryEntry.INSTANCE;
         }
 
-        static LinkState.Entry linkEntry(Path target, boolean targetExists) {
-            return new LinkState.Entry.LinkEntry(target, targetExists);
+        static LinkState.Entry linkEntry(Path target) {
+            return new LinkState.Entry.LinkEntry(target);
         }
 
         record MissingEntry() implements LinkState.Entry {
-            private static MissingEntry INSTANCE = new MissingEntry();
+            private static final MissingEntry INSTANCE = new MissingEntry();
         }
 
         record FileEntry() implements LinkState.Entry {
-            private static FileEntry INSTANCE = new FileEntry();
+            private static final FileEntry INSTANCE = new FileEntry();
         }
 
         record DirectoryEntry() implements LinkState.Entry {
-            private static DirectoryEntry INSTANCE = new DirectoryEntry();
+            private static final DirectoryEntry INSTANCE = new DirectoryEntry();
         }
 
-        record LinkEntry(@NonNull Path target, boolean targetExists) implements LinkState.Entry {}
+        record LinkEntry(@NonNull Path target) implements LinkState.Entry {}
     }
 
     public enum Type {

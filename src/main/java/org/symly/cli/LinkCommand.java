@@ -110,6 +110,8 @@ class LinkCommand implements Runnable {
             printAction(Level.INFO, "deleted", new Link(a.path(), null));
         } else if (action instanceof ConflictAction a) {
             printAction(Level.INFO, "!conflict", a.link());
+        } else {
+            throw new IllegalStateException("Not reachable, normally " + action);
         }
     }
 
