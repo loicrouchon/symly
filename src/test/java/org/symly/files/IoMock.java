@@ -1,13 +1,10 @@
 package org.symly.files;
 
 import java.io.IOException;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitor;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.symly.cli.SymlyExecutionException;
@@ -132,11 +129,5 @@ class FileSystemReaderStub implements FileSystemReader {
     public Stream<Path> walk(Path path) {
         Path absolutePath = path.toAbsolutePath();
         return fsEntries.keySet().stream().filter(p -> p.startsWith(absolutePath));
-    }
-
-    @Override
-    public void walkFileTree(Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
-            throws IOException {
-        throw new IOException("This operation is not stubbed");
     }
 }

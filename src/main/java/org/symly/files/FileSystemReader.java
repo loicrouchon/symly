@@ -1,11 +1,8 @@
 package org.symly.files;
 
 import java.io.IOException;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Set;
 import java.util.stream.Stream;
 import org.symly.cli.SymlyExecutionException;
 import org.symly.links.Directory;
@@ -31,9 +28,6 @@ public interface FileSystemReader {
     Stream<Path> list(Path path) throws IOException;
 
     Stream<Path> walk(Path path) throws IOException;
-
-    void walkFileTree(Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
-            throws IOException;
 
     class RealFileSystemReader implements FileSystemReader {
 
@@ -80,13 +74,6 @@ public interface FileSystemReader {
         @Override
         public Stream<Path> walk(Path path) throws IOException {
             return Files.walk(path);
-        }
-
-        @Override
-        public void walkFileTree(
-                Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
-                throws IOException {
-            Files.walkFileTree(start, options, maxDepth, visitor);
         }
     }
 }

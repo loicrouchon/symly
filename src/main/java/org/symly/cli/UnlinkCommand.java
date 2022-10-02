@@ -1,19 +1,14 @@
 package org.symly.cli;
 
 import java.lang.System.Logger.Level;
-import java.util.Comparator;
+import java.util.stream.Stream;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.symly.Result;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
-import org.symly.links.Action;
-import org.symly.links.Context;
-import org.symly.links.DeleteLinkAction;
-import org.symly.links.Link;
-import org.symly.links.LinkState;
-import org.symly.repositories.LinksFinder;
+import org.symly.links.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
@@ -38,9 +33,6 @@ class UnlinkCommand implements Runnable {
 
     @NonNull
     private final FileSystemWriter fileSystemWriter;
-
-    @NonNull
-    private final LinksFinder linksFinder;
 
     private Context context;
 
@@ -68,20 +60,19 @@ class UnlinkCommand implements Runnable {
     }
 
     private void unlink(FileSystemWriter mutator) {
-        linksFinder
-                .findLinks(context.mainDirectory().toPath(), context.orphanMaxDepth(), context.repositories())
-                .sorted(Comparator.comparing(Link::source))
-                .distinct()
-                .forEach(orphan -> unlink(orphan, mutator));
+        try (Stream<LinkState> linkStates = context.status(fsReader)) {
+            linkStates
+                    .filter(ls -> ls.currentState() instanceof LinkState.Entry.LinkEntry le
+                            && context.repositories().containsPath(le.target()))
+                    .forEach(ls -> unlink(ls, mutator));
+        }
     }
 
-    private void unlink(Link orphan, FileSystemWriter mutator) {
-        LinkState linkState = new LinkState(
-                context.mainDirectory(), orphan.source(), LinkState.Entry.linkEntry(orphan.target(), false), null);
-        for (Action action : linkState.toActions(fsReader, false)) {
-            Result<Void, Action.Code> result = action.apply(fsReader, mutator);
-            printStatus(linkState, action, result);
-        }
+    private void unlink(LinkState linkState, FileSystemWriter mutator) {
+        Action action = Action.deleteLink(
+                new Link(linkState.source(), ((LinkState.Entry.LinkEntry) linkState.currentState()).target()));
+        Result<Void, Action.Code> result = action.apply(fsReader, mutator);
+        printStatus(linkState, action, result);
     }
 
     private void printStatus(LinkState linkState, Action action, Result<Void, Action.Code> result) {

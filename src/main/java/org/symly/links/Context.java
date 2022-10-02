@@ -65,9 +65,9 @@ class LinkStateIterator implements Iterator<LinkState> {
     public boolean hasNext() {
         while (!remainingEntries.isEmpty()) {
             Entry firstElement = remainingEntries.element();
-            if (firstElement instanceof DirectoryToAnalyze rd) {
+            if (firstElement instanceof DirectoryToAnalyze dir) {
                 remainingEntries.remove();
-                processDirectory(rd);
+                processDirectory(dir);
             } else {
                 return true;
             }
