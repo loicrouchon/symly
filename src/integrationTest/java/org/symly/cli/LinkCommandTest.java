@@ -286,4 +286,21 @@ class LinkCommandTest extends IntegrationTest {
                 +L home/user/file -> home/user/to/dir/file
                 """));
     }
+
+    @Test
+    void shouldPrintActions_butNotModifyFileSystem_whenDryRunisEnabled() {
+        // given
+        given(env).withLayout("""
+    L home/user/file -> home/user/repo/file
+    F home/user/repo/dir/file
+    """);
+        // when/then
+        whenRunningCommand("link", "-v", "--dry-run", "--dir", "~", "--force", "--repositories", "home/user/repo")
+                .thenItShould()
+                .succeed()
+                .withMessages(List.of(
+                        msg.linkActionCreate("dir/file", "home/user/repo/dir/file"),
+                        msg.linkActionDelete("file", "home/user/repo/file")))
+                .withFileTreeDiff(Diff.empty());
+    }
 }

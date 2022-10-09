@@ -12,11 +12,6 @@ public class FileSystemWriterImpl implements FileSystemWriter {
     }
 
     @Override
-    public void move(Path from, Path to) throws IOException {
-        Files.move(from, to);
-    }
-
-    @Override
     public void createDirectories(Path path) throws IOException {
         Files.createDirectories(path);
     }
@@ -24,10 +19,5 @@ public class FileSystemWriterImpl implements FileSystemWriter {
     @Override
     public void createSymbolicLink(Path from, Path to) throws IOException {
         Files.createSymbolicLink(from, to);
-    }
-
-    @Override
-    public void createEmptyFile(Path path) throws IOException {
-        Files.createFile(path);
     }
 }
