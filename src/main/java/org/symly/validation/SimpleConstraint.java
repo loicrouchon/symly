@@ -1,4 +1,4 @@
-package org.symly.cli.validation;
+package org.symly.validation;
 
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
