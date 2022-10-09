@@ -7,13 +7,14 @@ public class Main {
 
     public static void main(String... args) {
         BeanFactory beanFactory = new BeanFactory();
-        int exitCode = runCommand(beanFactory, args);
+        int exitCode = runCommand(beanFactory, CommandLine.Help.Ansi.AUTO, args);
         System.exit(exitCode);
     }
 
-    public static int runCommand(BeanFactory beanFactory, String... args) {
+    public static int runCommand(BeanFactory beanFactory, CommandLine.Help.Ansi ansi, String... args) {
         CliConsole console = beanFactory.create(CliConsole.class);
         CommandLine commandLine = initializeCommandLine(beanFactory, console);
+        commandLine.setColorScheme(CommandLine.Help.defaultColorScheme(ansi));
         int exitCode = commandLine.execute(args);
         console.flush();
         return exitCode;

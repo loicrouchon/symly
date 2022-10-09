@@ -15,6 +15,7 @@ import org.symly.cli.CliConsole;
 import org.symly.cli.Main;
 import org.symly.files.FileTree;
 import org.symly.repositories.PathAdapter;
+import picocli.CommandLine;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
@@ -39,7 +40,7 @@ public class MainCommand {
             sysProps.set(PathAdapter.SYMLY_CWD_PROPERTY, workingDir.toAbsolutePath());
             BeanFactory beanFactory = new BeanFactory();
             beanFactory.register(CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
-            int exitCode = Main.runCommand(beanFactory, args);
+            int exitCode = Main.runCommand(beanFactory, CommandLine.Help.Ansi.OFF, args);
             List<String> command = new ArrayList<>();
             command.add("symly");
             command.addAll(List.of(args));
