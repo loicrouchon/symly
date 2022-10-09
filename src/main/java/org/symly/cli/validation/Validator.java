@@ -29,7 +29,7 @@ public class Validator {
         throw violation(violation);
     }
 
-    private ParameterException violation(String message, Object... args) {
+    public ParameterException violation(String message, Object... args) {
         return new ParameterException(spec.commandLine(), message.formatted(args));
     }
 }

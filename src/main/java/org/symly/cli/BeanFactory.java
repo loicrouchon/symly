@@ -19,6 +19,10 @@ public class BeanFactory implements CommandLine.IFactory {
 
     private final CommandLine.IFactory parentFactory = CommandLine.defaultFactory();
 
+    @SuppressWarnings({
+        // Standard outputs should not be used directly to log anything: CLI tool
+        "java:S106"
+    })
     public BeanFactory() {
         register(Config.class, Config::new);
         register(CliConsole.class, () -> new CliConsole(printWriter(System.out), printWriter(System.err)));
@@ -42,6 +46,7 @@ public class BeanFactory implements CommandLine.IFactory {
         return new PrintWriter(outputStream, true, StandardCharsets.UTF_8);
     }
 
+    @SuppressWarnings("unchecked")
     private <K> K get(Class<K> cls) {
         if (!beans.containsKey(cls)) {
             loadBean(cls);
@@ -50,7 +55,6 @@ public class BeanFactory implements CommandLine.IFactory {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <K> K create(Class<K> cls) {
         return get(cls);
     }

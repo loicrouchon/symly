@@ -35,7 +35,7 @@ public class AsciiDocIncludeUpdaterTask extends DefaultTask {
             try {
                 return Files.walk(path).filter(Files::isRegularFile);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new AsciiDocIncludeException(e);
             }
         }
         return Stream.of(path);
@@ -73,7 +73,7 @@ class AsciiDocFile {
             }
             Files.writeString(path, content);
         } catch (IOException e) {
-            throw new RuntimeException("Unable to process Asciidoc file includes. %s".formatted(e.getMessage()));
+            throw new AsciiDocIncludeException("Unable to process Asciidoc file includes. %s".formatted(e.getMessage()));
         }
     }
 
@@ -82,12 +82,12 @@ class AsciiDocFile {
         try {
             return Files.readString(includePath);
         } catch (IOException e) {
-            throw new RuntimeException("Unable to read content for include %s at %s. %s"
+            throw new AsciiDocIncludeException("Unable to read content for include %s at %s. %s"
                     .formatted(includePath, location(content, index), e));
         }
     }
 
-    private String applyInclude(String content, int startIndex, int endIndex, String value) throws IOException {
+    private String applyInclude(String content, int startIndex, int endIndex, String value) {
         return content.substring(0, startIndex) + "\n" + value + "\n" + content.substring(endIndex);
     }
 
@@ -106,5 +106,16 @@ class AsciiDocFile {
 
     private static long lineNumber(String content, int index) {
         return content.substring(0, index).chars().filter(c -> c == '\n').count();
+    }
+}
+
+class AsciiDocIncludeException extends RuntimeException {
+
+    public AsciiDocIncludeException(String message) {
+        super(message);
+    }
+
+    public AsciiDocIncludeException(Exception e) {
+        super(e);
     }
 }

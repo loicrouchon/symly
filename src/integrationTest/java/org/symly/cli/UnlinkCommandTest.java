@@ -6,8 +6,12 @@ import org.symly.env.IntegrationTest;
 import org.symly.files.FileTree.Diff;
 
 @SuppressWarnings({
-    "java:S100", // Method names should comply with a naming convention (test method names)
-    "java:S1192", // String literals should not be duplicated
+    // Method names should comply with a naming convention (test method names)
+    "java:S100",
+    // String literals should not be duplicated
+    "java:S1192",
+    // Tests should include assertions: assertions are actually performed by the `.thenItShould()....` chain
+    "java:S2699"
 })
 class UnlinkCommandTest extends IntegrationTest {
 

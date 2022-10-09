@@ -18,22 +18,27 @@ class LinkStateTest {
 
     @Test
     void linkState_cannotBeCreated_whenSourceDoesNotBelongToMainDir() {
-        assertThatThrownBy(
-                        () -> new LinkState(mainDir, Path.of("/main-dir2/name"), Entry.missingEntry(), desiredTarget))
+        Path source = Path.of("/main-dir2/name");
+        Entry missingEntry = Entry.missingEntry();
+        assertThatThrownBy(() -> new LinkState(mainDir, source, missingEntry, desiredTarget))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Source /main-dir2/name must be a sub-path of /main-dir");
     }
 
     @Test
     void linkState_cannotBeCreated_whenSourceIsNotAnAbsolutePath() {
-        assertThatThrownBy(() -> new LinkState(mainDir, Path.of("name"), Entry.missingEntry(), desiredTarget))
+        Path source = Path.of("name");
+        Entry missingEntry = Entry.missingEntry();
+        assertThatThrownBy(() -> new LinkState(mainDir, source, missingEntry, desiredTarget))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Source name must be an absolute path");
     }
 
     @Test
     void linkState_cannotBeCreated_whenDesiredTargetIsNotAnAbsolutePath() {
-        assertThatThrownBy(() -> new LinkState(mainDir, source, Entry.missingEntry(), Path.of("desired/target")))
+        Path desiredTarget = Path.of("desired/target");
+        Entry missingEntry = Entry.missingEntry();
+        assertThatThrownBy(() -> new LinkState(mainDir, source, missingEntry, desiredTarget))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Desired target desired/target must be an absolute path");
     }

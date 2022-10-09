@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 
 /**
@@ -91,7 +92,8 @@ public class ContextConfig {
                 properties.load(br);
                 properties.forEach((key, value) -> props.put((String) key, (String) value));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new SymlyExecutionException(
+                        "Failed to read the symly configuration file %s: %s".formatted(config, e.getMessage()), e);
             }
         }
         return new ContextConfig(config.getParent(), props);

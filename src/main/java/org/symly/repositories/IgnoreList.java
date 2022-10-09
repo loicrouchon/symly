@@ -30,6 +30,8 @@ class IgnoreList {
             new Conversion("^\s+", ""),
             new Conversion("\s+$", ""));
 
+    private IgnoreList() {}
+
     static Collection<IgnoreRule> read(FileSystemReader fsReader, Path path) {
         Path ignoreList = path.resolve(SYMLY_IGNORE);
         if (fsReader.exists(ignoreList)) {

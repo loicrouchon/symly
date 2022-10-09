@@ -83,7 +83,7 @@ class LinkCommand implements Runnable {
     private void createLinks(FileSystemWriter fsWriter) {
         try (var linkStates = context.status(fsReader)) {
             linkStates.forEach(linkState -> {
-                if (!(linkState.type() == LinkState.Type.UP_TO_DATE)) {
+                if (linkState.type() != LinkState.Type.UP_TO_DATE) {
                     updates++;
                 }
                 List<Action> actions = linkState.toActions(fsReader, force);

@@ -2,6 +2,10 @@ public class BaseVersionFromGitRef {
 
     private static final String RELEASE_REF = "refs/heads/release/";
 
+    @SuppressWarnings({
+        // Standard outputs should not be used directly to log anything: CLI tool
+        "java:S106"
+    })
     public static void main(String[] args) {
         if (args.length != 2) {
             System.out.println("""

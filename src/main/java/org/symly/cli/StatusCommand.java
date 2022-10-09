@@ -38,11 +38,14 @@ class StatusCommand implements Runnable {
                 "Checking links status from %s to %s%n",
                 context.mainDirectory(),
                 context.repositories().repositories());
+        updates = 0;
         checkStatus(console);
+        if (updates == 0) {
+            console.printf("Everything is already up to date%n");
+        }
     }
 
     private void checkStatus(CliConsole console) {
-        updates = 0;
         try (var linkStates = context.status(fsReader)) {
             linkStates.forEach(linkState -> {
                 if (!linkState.type().equals(LinkState.Type.UP_TO_DATE)) {
@@ -50,9 +53,6 @@ class StatusCommand implements Runnable {
                 }
                 printStatus(console, linkState);
             });
-        }
-        if (updates == 0) {
-            console.printf("Everything is already up to date%n");
         }
     }
 

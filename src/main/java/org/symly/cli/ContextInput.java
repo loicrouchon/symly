@@ -13,7 +13,10 @@ import org.symly.cli.validation.Constraint;
 import org.symly.cli.validation.Validator;
 import org.symly.files.FileSystemReader;
 import org.symly.links.Context;
-import org.symly.repositories.*;
+import org.symly.repositories.ContextConfig;
+import org.symly.repositories.MainDirectory;
+import org.symly.repositories.Repositories;
+import org.symly.repositories.Repository;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -70,12 +73,10 @@ public class ContextInput {
         MainDirectory mainDirectory = Optional.ofNullable(mainDirectoryPath)
                 .or(contextConfig::directory)
                 .map(MainDirectory::of)
-                .orElse(null);
-        validator.validate(
-                Constraint.of("Main directory is not defined", () -> mainDirectory != null),
-                Constraint.of(
-                        "Main directory (%s) is not an existing directory".formatted(mainDirectory),
-                        () -> fsReader.isADirectory(mainDirectory)));
+                .orElseThrow(() -> validator.violation("Main directory is not defined"));
+        validator.validate(Constraint.of(
+                "Main directory (%s) is not an existing directory".formatted(mainDirectory),
+                () -> fsReader.isADirectory(mainDirectory)));
         return mainDirectory;
     }
 

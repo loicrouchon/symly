@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import lombok.NonNull;
+import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 import org.symly.repositories.MainDirectory;
 import org.symly.repositories.Repositories;
@@ -80,8 +81,8 @@ class LinkStateIterator implements Iterator<LinkState> {
         try (Stream<Path> paths = fsReader.list(currentDirPath)) {
             paths.forEach(path -> processDirectoryEntry(remainingOrphanDepthLookup, path));
         } catch (IOException e) {
-            // TODO replace with a proper exception
-            throw new RuntimeException("Unable to read directory %s".formatted(currentDirPath), e);
+            throw new SymlyExecutionException(
+                    "Unable to read directory %s: %s".formatted(currentDirPath, e.getMessage()), e);
         }
     }
 
@@ -104,7 +105,7 @@ class LinkStateIterator implements Iterator<LinkState> {
     public LinkState next() {
         Entry entry = remainingEntries.poll();
         if (entry == null) {
-            return null;
+            throw new NoSuchElementException();
         }
         return entry.toLinkState(fsReader, mainDirectory);
     }
