@@ -33,7 +33,8 @@ class IgnoreList {
 
     private static String processWildcards(String str) {
         String matchAnythingPattern = ".*";
-        String quoted = ASTERISK_PATTERN.splitAsStream(str)
+        String quoted = ASTERISK_PATTERN
+                .splitAsStream(str)
                 .map(s -> s.isEmpty() ? s : Pattern.quote(s))
                 .collect(Collectors.joining(matchAnythingPattern));
         if (str.endsWith("*")) {
