@@ -64,7 +64,41 @@ This is done on a per-value basis, meaning it is possible to specify some parame
 
 == The `.symlyignore` file
 
-**_Coming soon..._**
+In some circumstances, it is desirable to tell symly not to consider some files for the linking process.
+A typical example is the macOS `.DS_Store` file which is better not to link.
+
+Symly has `.symlyignore` files to support such use cases.
+
+=== Content of a `.symlyignore` file: ignore rules
+
+A `.symlyignore` file is composed of ignore rules and comments.
+
+Ignore rules can be of 3 types:
+
+* Static ignore rules: ignore files or directory with an exact match.
+For example: `.DS_Store`, `.git`, ...
+* Pattern ignore rules: where a `*` wildcard can be used.
+For example: `*.log`, `log-*`
+
+Comments start with `#`.
+Everything after the `#` is ignored until the end of the line.
+
+For example:
+
+[source,.symlyignore]
+----
+# full line comment
+
+.DS_Store # static rule, ignore macOS folder's custom attributes
+
+*.log # pattern rule, ignore all files which extension is .log
+----
+
+=== Where to define a `.symlyignore` file
+
+It is possible to define `.symlyignore` files in any folders within a repository.
+The ignore rules contained in a `.symlyignore` file only apply to the folder it is in as well as all of its children (direct or indirect).
+In case a folder contains a `.symlyignore` and its parent folder does too, the ignore rules from both files will apply.
 
 == The `link` command
 
