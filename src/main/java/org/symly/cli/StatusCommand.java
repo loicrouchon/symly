@@ -70,7 +70,8 @@ class StatusCommand implements Runnable {
         } else {
             level = Level.INFO;
         }
-        console.printf(level, "%-12s%s%n", statusType, linkState.desired().toString(context.mainDirectory()));
+        console.printf(
+                level, "%-12s %s%n", statusType + ":", linkState.desired().toString(context.mainDirectory()));
         if (linkState.type() == LinkState.Type.LINK_CONFLICT) {
             Path realPath = fsReader.readSymbolicLink(linkState.source());
             console.printf("> Symbolic link conflict. Current target is %s%n", realPath);

@@ -2,6 +2,7 @@ package org.symly.doc;
 
 import org.junit.jupiter.api.Test;
 import org.symly.cli.LinkCommandMessageFactory;
+import org.symly.cli.StatusCommandMessageFactory;
 import org.symly.env.IntegrationTest;
 import org.symly.files.FileTree.Diff;
 
@@ -16,7 +17,8 @@ import org.symly.files.FileTree.Diff;
 })
 class DocTest extends IntegrationTest {
 
-    private final LinkCommandMessageFactory msg = new LinkCommandMessageFactory(env);
+    private final LinkCommandMessageFactory linkMsgs = new LinkCommandMessageFactory(env);
+    private final StatusCommandMessageFactory statusMsgs = new StatusCommandMessageFactory(env);
 
     @Test
     void displayHelpExample() {
@@ -58,12 +60,12 @@ class DocTest extends IntegrationTest {
         var executionReport = whenRunningCommand("link", "--dir", "~", "--repositories", "repository")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionCreate(
+                .withMessage(linkMsgs.linkActionCreate(
                         ".config/fish/config.fish", "home/user/repository/.config/fish/config.fish"))
-                .withMessage(
-                        msg.linkActionCreate(".config/starship.toml", "home/user/repository/.config/starship.toml"))
-                .withMessage(msg.linkActionCreate(".bashrc", "home/user/repository/.bashrc"))
-                .withMessage(msg.linkActionCreate(".gitconfig", "home/user/repository/.gitconfig"))
+                .withMessage(linkMsgs.linkActionCreate(
+                        ".config/starship.toml", "home/user/repository/.config/starship.toml"))
+                .withMessage(linkMsgs.linkActionCreate(".bashrc", "home/user/repository/.bashrc"))
+                .withMessage(linkMsgs.linkActionCreate(".gitconfig", "home/user/repository/.gitconfig"))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """
@@ -93,10 +95,10 @@ F home/user/repositories/defaults/.gitconfig
                         "link", "--dir", "~", "--repositories", "repositories/defaults", "repositories/custom")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionCreate(
+                .withMessage(linkMsgs.linkActionCreate(
                         ".config/starship.toml", "home/user/repositories/defaults/.config/starship.toml"))
-                .withMessage(msg.linkActionCreate(".bashrc", "home/user/repositories/custom/.bashrc"))
-                .withMessage(msg.linkActionCreate(".gitconfig", "home/user/repositories/defaults/.gitconfig"))
+                .withMessage(linkMsgs.linkActionCreate(".bashrc", "home/user/repositories/custom/.bashrc"))
+                .withMessage(linkMsgs.linkActionCreate(".gitconfig", "home/user/repositories/defaults/.gitconfig"))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """
@@ -117,8 +119,8 @@ F home/user/repositories/defaults/.gitconfig
                         "link", "--dir", "~", "--repositories", "repositories/defaults", "repositories/custom")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionDelete(".gitconfig", "home/user/repositories/defaults/.gitconfig"))
-                .withMessage(msg.linkActionCreate(".gitconfig", "home/user/repositories/custom/.gitconfig"))
+                .withMessage(linkMsgs.linkActionDelete(".gitconfig", "home/user/repositories/defaults/.gitconfig"))
+                .withMessage(linkMsgs.linkActionCreate(".gitconfig", "home/user/repositories/custom/.gitconfig"))
                 .withFileTreeDiff(
                         Diff.ofChanges(
                                 """
@@ -150,7 +152,7 @@ F home/user/repository/.config/fish/.symlink
         var executionReport = whenRunningCommand("link", "--dir", "~", "--repositories", "repository")
                 .thenItShould()
                 .succeed()
-                .withMessage(msg.linkActionCreate(".config/fish", "home/user/repository/.config/fish"))
+                .withMessage(linkMsgs.linkActionCreate(".config/fish", "home/user/repository/.config/fish"))
                 .withFileTreeDiff(
                         Diff.ofChanges("""
 +L home/user/.config/fish -> home/user/repository/.config/fish
@@ -160,6 +162,53 @@ F home/user/repository/.config/fish/.symlink
         AsciiDocSnippet.save(
                 "symly-link-directory-linking-example",
                 commands(executionReport.fileTreeBefore(), executionReport.symlyExecution()));
+    }
+
+    @Test
+    void displayStatusHelpExample() {
+        // given
+        given(env).withWorkingDir("home/user");
+        // when/then
+        var executionReport =
+                whenRunningCommand("status", "--help").thenItShould().succeed().executionReport();
+
+        AsciiDocSnippet.save("symly-status-help", executionReport.symlyExecution());
+    }
+
+    @Test
+    void displayStatusBasicExample() {
+        // given
+        given(env)
+                .withWorkingDir("home/user")
+                .withLayout(
+                        """
+L home/user/.gitconfig -> home/user/repository/.gitconfig
+L home/user/.zshrc -> home/user/repository/.zshrc
+F home/user/repository/.bashrc
+F home/user/repository/.gitconfig
+""");
+        // when/then
+        var executionReport = whenRunningCommand("status", "--dir", "~", "--repositories", "repository")
+                .thenItShould()
+                .succeed()
+                .withMessage(statusMsgs.missingLink(".bashrc", "home/user/repository/.bashrc"))
+                .withMessage(statusMsgs.orphanLink(".zshrc"))
+                .executionReport();
+
+        AsciiDocSnippet.save(
+                "symly-status-basic-example",
+                commands(executionReport.fileTreeBefore(), executionReport.symlyExecution()));
+    }
+
+    @Test
+    void displayUnlinkHelpExample() {
+        // given
+        given(env).withWorkingDir("home/user");
+        // when/then
+        var executionReport =
+                whenRunningCommand("unlink", "--help").thenItShould().succeed().executionReport();
+
+        AsciiDocSnippet.save("symly-unlink-help", executionReport.symlyExecution());
     }
 
     private String commands(String... commands) {

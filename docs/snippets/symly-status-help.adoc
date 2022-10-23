@@ -1,0 +1,27 @@
+----
+$ symly status --help
+Usage: symly status [-hv] [-d=<main-directory>] [--max-depth=<max-depth>] [-r
+                    [=<repositories>...]]...
+Displays the current links' synchronization status
+  -d, --dir, --directory=<main-directory>
+                  Main directory in which links will be created. If not given
+                    as a command line argument, symly will look for the
+                    'directory' property in the symly.config file present in
+                    the current working directory
+  -h, --help      Prints this help message and exits
+      --max-depth=<max-depth>
+                  Depth of the lookup for orphans deletion.If not given as a
+                    command line argument, symly will look for the 'orphans.
+                    max-depth.search' property in the symly.config file present
+                    in the current working directory. If no property is found,
+                    default value will be used.
+                    Default: 2
+  -r, --repositories[=<repositories>...]
+                  Repositories containing files to link in the main directory.
+                    Repositories are to be listed by decreasing priority as the
+                    first ones will override the content of the later ones. If
+                    not given as a command line argument, symly will look for
+                    the 'repositories' property in the symly.config file
+                    present in the current working directory
+  -v, --verbose   Be verbose.
+----

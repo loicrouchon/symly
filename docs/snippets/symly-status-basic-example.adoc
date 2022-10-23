@@ -1,0 +1,13 @@
+----
+$ tree /home/user
+/home/user:
+|-- .gitconfig -> /home/user/repository/.gitconfig
+|-- .zshrc -> /home/user/repository/.zshrc
+\-- repository/
+    |-- .bashrc
+    \-- .gitconfig
+
+$ symly status --dir ~ --repositories repository
+missing:     .bashrc -> /home/user/repository/.bashrc
+orphan:      .zshrc
+----

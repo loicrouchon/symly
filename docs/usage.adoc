@@ -62,6 +62,10 @@ Paths defined in this file can be:
 When both command line arguments are given and a `symly.config` file is present, the command line argument has precedence over the value in the configuration file.
 This is done on a per-value basis, meaning it is possible to specify some parameters in the `symly.config` file and to override some of them on the command line.
 
+== The `.symlyignore` file
+
+**_Coming soon..._**
+
 == The `link` subcommand
 
 The `link` subcommand is the main subcommand.
@@ -214,10 +218,69 @@ By linking the directory itself, those new files will automatically be visible t
 The content of lower layers will be ignored when a higher layer defines a `.symlink` file for a directory in a particular repository layer.
 ====
 
-== The `unlink` subcommand
-
-**_Coming soon..._**
-
 == The `status` subcommand
+
+The `status` subcommand gives an overview over the current synchronization status.
+It will show links which should be created, updated or deleted.
+
+=== `status` command synopsis
+
+// include::docs/snippets/symly-status-help.adoc[]
+----
+$ symly status --help
+Usage: symly status [-hv] [-d=<main-directory>] [--max-depth=<max-depth>] [-r
+                    [=<repositories>...]]...
+Displays the current links' synchronization status
+  -d, --dir, --directory=<main-directory>
+                  Main directory in which links will be created. If not given
+                    as a command line argument, symly will look for the
+                    'directory' property in the symly.config file present in
+                    the current working directory
+  -h, --help      Prints this help message and exits
+      --max-depth=<max-depth>
+                  Depth of the lookup for orphans deletion.If not given as a
+                    command line argument, symly will look for the 'orphans.
+                    max-depth.search' property in the symly.config file present
+                    in the current working directory. If no property is found,
+                    default value will be used.
+                    Default: 2
+  -r, --repositories[=<repositories>...]
+                  Repositories containing files to link in the main directory.
+                    Repositories are to be listed by decreasing priority as the
+                    first ones will override the content of the later ones. If
+                    not given as a command line argument, symly will look for
+                    the 'repositories' property in the symly.config file
+                    present in the current working directory
+  -v, --verbose   Be verbose.
+----
+// end::include
+
+=== `status` command usage
+
+Consider the following example.
+The folder `/home/user/repository` contains a file-tree to be linked in `/home/user`.
+
+* The `.bashrc` was added to the repository but is not yet linked
+* The `.zshrc` was previously linked but has since been removed from the repository
+
+The `status` command reports those respectively as `missing`, and `orphan`.
+
+// include::docs/snippets/symly-status-basic-example.adoc[]
+----
+$ tree /home/user
+/home/user:
+|-- .gitconfig -> /home/user/repository/.gitconfig
+|-- .zshrc -> /home/user/repository/.zshrc
+\-- repository/
+    |-- .bashrc
+    \-- .gitconfig
+
+$ symly status --dir ~ --repositories repository
+missing:     .bashrc -> /home/user/repository/.bashrc
+orphan:      .zshrc
+----
+// end::include
+
+== The `unlink` subcommand
 
 **_Coming soon..._**
