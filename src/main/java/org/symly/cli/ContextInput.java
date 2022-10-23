@@ -31,7 +31,11 @@ public class ContextInput {
     @Option(
             names = {"-d", "--dir", "--directory"},
             paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created")
+            description =
+                    """
+    Main directory in which links will be created. \
+    If not given as a command line argument, symly will look for the 'directory' property \
+    in the symly.config file present in the current working directory""")
     Path mainDirectoryPath;
 
     @Option(
@@ -41,14 +45,21 @@ public class ContextInput {
                     """
         Repositories containing files to link in the main directory. \
         Repositories are to be listed by decreasing priority as the first ones will \
-        override the content of the later ones.""",
+        override the content of the later ones. \
+        If not given as a command line argument, symly will look for the 'repositories' property \
+        in the symly.config file present in the current working directory""",
             arity = "0..*")
     List<Path> repositoriesPaths;
 
     @Option(
             names = {"--max-depth"},
             paramLabel = "<max-depth>",
-            description = "Depth of the lookup for orphans deletion",
+            description =
+                    """
+            Depth of the lookup for orphans deletion.\
+            If not given as a command line argument, symly will look for the 'orphans.max-depth.search' property \
+            in the symly.config file present in the current working directory. \
+            If no property is found, default value will be used.""",
             defaultValue = ContextConfig.ORPHAN_MAX_DEPTH_DEFAULT_VALUE,
             showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     Integer maxDepth;

@@ -86,19 +86,29 @@ Repositories should be specified with base layers first and overriding layers
 next. In case two repositories contain a file with the same path, the file in
 the latest repository will be used as the target for the link for the given path
   -d, --dir, --directory=<main-directory>
-                  Main directory in which links will be created
+                  Main directory in which links will be created. If not given
+                    as a command line argument, symly will look for the
+                    'directory' property in the symly.config file present in
+                    the current working directory
       --dry-run   Do not create links but only displays which ones would be
                     created
   -f, --force     Force existing files and directories to be overwritten
                     instead of failing in case of conflicts
   -h, --help      Prints this help message and exits
       --max-depth=<max-depth>
-                  Depth of the lookup for orphans deletion
+                  Depth of the lookup for orphans deletion.If not given as a
+                    command line argument, symly will look for the 'orphans.
+                    max-depth.search' property in the symly.config file present
+                    in the current working directory. If no property is found,
+                    default value will be used.
                     Default: 2
   -r, --repositories[=<repositories>...]
                   Repositories containing files to link in the main directory.
                     Repositories are to be listed by decreasing priority as the
-                    first ones will override the content of the later ones.
+                    first ones will override the content of the later ones. If
+                    not given as a command line argument, symly will look for
+                    the 'repositories' property in the symly.config file
+                    present in the current working directory
   -v, --verbose   Be verbose.
 ----
 // end::include
