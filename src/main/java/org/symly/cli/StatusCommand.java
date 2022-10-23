@@ -13,7 +13,7 @@ import picocli.CommandLine.Mixin;
 @Command(
         name = "status",
         aliases = {"st"},
-        description = "Displays the current synchronization status")
+        description = "Displays the current links' synchronization status")
 @RequiredArgsConstructor
 class StatusCommand implements Runnable {
 

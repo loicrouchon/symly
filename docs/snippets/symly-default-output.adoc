@@ -13,6 +13,10 @@ Commands:
                 overriding layers next. In case two repositories contain a file
                 with the same path, the file in the latest repository will be
                 used as the target for the link for the given path
-  status, st  Displays the current synchronization status
-  unlink      Remove links in the 'directory' pointing to the 'repositories'
+  status, st  Displays the current links' synchronization status
+  unlink      Remove links in the 'directory' pointing to the 'repositories'.
+
+              Note this operation does not restore files in the destination. If
+                that is the desired behavior, use the 'restore' command instead.
+
 ----

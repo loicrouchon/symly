@@ -13,7 +13,15 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "unlink", description = "Remove links in the 'directory' pointing to the 'repositories'")
+@Command(
+        name = "unlink",
+        description =
+                """
+    Remove links in the 'directory' pointing to the 'repositories'.
+
+    Note this operation does not restore files in the destination. \
+    If that is the desired behavior, use the 'restore' command instead.
+    """)
 @RequiredArgsConstructor
 class UnlinkCommand implements Runnable {
 
