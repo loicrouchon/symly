@@ -57,6 +57,11 @@ Paths defined in this file can be:
 * relative to the user directory when starting with `~`.
 * relative to the `symly.config` file's parent directory.
 
+=== Combining the `symly.config` file with command line arguments.
+
+When both command line arguments are given and a `symly.config` file is present, the command line argument has precedence over the value in the configuration file.
+This is done on a per-value basis, meaning it is possible to specify some parameters in the `symly.config` file and to override some of them on the command line.
+
 == The `link` subcommand
 
 The `link` subcommand is the main subcommand.
