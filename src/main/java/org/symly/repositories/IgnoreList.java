@@ -5,7 +5,9 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.symly.cli.SymlyExecutionException;
@@ -20,15 +22,28 @@ class IgnoreList {
     static final String SYMLY_IGNORE = ".symlyignore";
 
     private static final Pattern COMMENT = Pattern.compile("#.*$");
+    private static final Pattern ASTERISK_PATTERN = Pattern.compile("\\*");
 
-    private static final Collection<Conversion> PATTERN_CONVERSIONS = List.of(
-            // escape dots
-            new Conversion("\\.", "\\\\."),
-            // wildcard support
-            new Conversion("\\*", ".*"),
+    private static final Collection<UnaryOperator<String>> PATTERN_CONVERSIONS = List.of(
             // trimming leading/trailing whitespaces
-            new Conversion("^\s+", ""),
-            new Conversion("\s+$", ""));
+            new RegexConversion("^\s+", ""),
+            new RegexConversion("\s+$", ""),
+            // wildcard support
+            IgnoreList::processWildcards);
+
+    private static String processWildcards(String str) {
+        String matchAnythingPattern = ".*";
+        String quoted = ASTERISK_PATTERN.splitAsStream(str)
+                .map(s -> s.isEmpty() ? s : Pattern.quote(s))
+                .collect(Collectors.joining(matchAnythingPattern));
+        if (str.endsWith("*")) {
+            // For prefix matches, there is no problem, however
+            // split does not create an empty cell for suffix matches
+            // hence this code to manually handle it
+            return quoted + matchAnythingPattern;
+        }
+        return quoted;
+    }
 
     private IgnoreList() {}
 
@@ -52,25 +67,25 @@ class IgnoreList {
     }
 
     private static IgnoreRule toPattern(String line) {
-        for (Conversion conversion : PATTERN_CONVERSIONS) {
-            line = conversion.convert(line);
+        for (UnaryOperator<String> conversion : PATTERN_CONVERSIONS) {
+            line = conversion.apply(line);
         }
         return new IgnoreRule(Pattern.compile("^" + line + "$"));
     }
 }
 
 @RequiredArgsConstructor
-class Conversion {
+class RegexConversion implements UnaryOperator<String> {
 
     private final Pattern pattern;
     private final String replacement;
 
-    public Conversion(String regex, String replacement) {
+    public RegexConversion(String regex, String replacement) {
         this.pattern = Pattern.compile(regex);
         this.replacement = replacement;
     }
 
-    public String convert(String str) {
+    public String apply(String str) {
         return pattern.matcher(str).replaceAll(replacement);
     }
 }
