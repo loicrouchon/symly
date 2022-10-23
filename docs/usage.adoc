@@ -38,9 +38,9 @@ The following entries are supported:
 
 * `directory`: the main directory.
 * `repositories`: the list of repositories, separated by a `,`.
-  Repositories are ordered as per the `--repositories` command line option.
-  The first layer in the list will be the base one.
-  Subsequent layers will be overriding ones, the last one having the highest priority.
+Repositories are ordered as per the `--repositories` command line option.
+The first layer in the list will be the base one.
+Subsequent layers will be overriding ones, the last one having the highest priority.
 * `orphans.max-depth.search`: the max depth to lookup for orphan links.
 
 For example:
@@ -66,9 +66,9 @@ This is done on a per-value basis, meaning it is possible to specify some parame
 
 **_Coming soon..._**
 
-== The `link` subcommand
+== The `link` command
 
-The `link` subcommand is the main subcommand.
+The `link` command is the main command.
 It links every file from the `repositories` into the main `directory` by preserving the file-tree structure.
 
 It will:
@@ -218,9 +218,9 @@ By linking the directory itself, those new files will automatically be visible t
 The content of lower layers will be ignored when a higher layer defines a `.symlink` file for a directory in a particular repository layer.
 ====
 
-== The `status` subcommand
+== The `status` command
 
-The `status` subcommand gives an overview over the current synchronization status.
+The `status` command gives an overview over the current synchronization status.
 It will show links which should be created, updated or deleted.
 
 === `status` command synopsis
@@ -281,6 +281,81 @@ orphan:      .zshrc
 ----
 // end::include
 
-== The `unlink` subcommand
+== The `unlink` command
+
+The `unlink` command deletes the links from the directory that point to any of the repositories.
+
+[NOTE]
+====
+The unlink command does not restore files in the directory.
+It only deletes links.
+If you want to remove the links and replace them by the actual files the links where pointing to, you shall use the `restore` command.
+====
+
+=== `unlink` command synopsis
+
+// include::docs/snippets/symly-unlink-help.adoc[]
+----
+$ symly unlink --help
+Usage: symly unlink [-hv] [--dry-run] [-d=<main-directory>]
+                    [--max-depth=<max-depth>] [-r[=<repositories>...]]...
+Remove links in the 'directory' pointing to the 'repositories'.
+
+Note this operation does not restore files in the destination. If that is the
+desired behavior, use the 'restore' command instead.
+
+  -d, --dir, --directory=<main-directory>
+                  Main directory in which links will be created. If not given
+                    as a command line argument, symly will look for the
+                    'directory' property in the symly.config file present in
+                    the current working directory
+      --dry-run   Do not actually remove links but only displays which ones
+                    would be removed
+  -h, --help      Prints this help message and exits
+      --max-depth=<max-depth>
+                  Depth of the lookup for orphans deletion.If not given as a
+                    command line argument, symly will look for the 'orphans.
+                    max-depth.search' property in the symly.config file present
+                    in the current working directory. If no property is found,
+                    default value will be used.
+                    Default: 2
+  -r, --repositories[=<repositories>...]
+                  Repositories containing files to link in the main directory.
+                    Repositories are to be listed by decreasing priority as the
+                    first ones will override the content of the later ones. If
+                    not given as a command line argument, symly will look for
+                    the 'repositories' property in the symly.config file
+                    present in the current working directory
+  -v, --verbose   Be verbose.
+----
+// end::include
+
+=== `unlink` command usage
+
+Consider the following example.
+The folder `/home/user/repository` contains a file-tree that was previously linked in `/home/user`.
+
+* The `.bashrc` was added to the repository but is not yet linked and therefore does not need to be unlinked
+* The `.gitconfig` is currently linked and will be removed
+* The `.zshrc` was previously linked but has since been removed from the repository.
+It is an orphan link and will be removed
+
+// include::docs/snippets/symly-unlink-basic-example.adoc[]
+----
+$ tree /home/user
+/home/user:
+|-- .gitconfig -> /home/user/repository/.gitconfig
+|-- .zshrc -> /home/user/repository/.zshrc
+\-- repository/
+    |-- .bashrc
+    \-- .gitconfig
+
+$ symly unlink --dir ~ --repositories repository
+unlink:      .gitconfig -> /home/user/repository/.gitconfig
+unlink:      .zshrc -> /home/user/repository/.zshrc
+----
+// end::include
+
+=== The `restore` command
 
 **_Coming soon..._**

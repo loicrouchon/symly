@@ -3,6 +3,7 @@ package org.symly.doc;
 import org.junit.jupiter.api.Test;
 import org.symly.cli.LinkCommandMessageFactory;
 import org.symly.cli.StatusCommandMessageFactory;
+import org.symly.cli.UnlinkCommandMessageFactory;
 import org.symly.env.IntegrationTest;
 import org.symly.files.FileTree.Diff;
 
@@ -19,6 +20,8 @@ class DocTest extends IntegrationTest {
 
     private final LinkCommandMessageFactory linkMsgs = new LinkCommandMessageFactory(env);
     private final StatusCommandMessageFactory statusMsgs = new StatusCommandMessageFactory(env);
+
+    private final UnlinkCommandMessageFactory unlinkMsgs = new UnlinkCommandMessageFactory(env);
 
     @Test
     void displayHelpExample() {
@@ -209,6 +212,31 @@ F home/user/repository/.gitconfig
                 whenRunningCommand("unlink", "--help").thenItShould().succeed().executionReport();
 
         AsciiDocSnippet.save("symly-unlink-help", executionReport.symlyExecution());
+    }
+
+    @Test
+    void displayUnlinkBasicExample() {
+        // given
+        given(env)
+                .withWorkingDir("home/user")
+                .withLayout(
+                        """
+L home/user/.gitconfig -> home/user/repository/.gitconfig
+L home/user/.zshrc -> home/user/repository/.zshrc
+F home/user/repository/.bashrc
+F home/user/repository/.gitconfig
+""");
+        // when/then
+        var executionReport = whenRunningCommand("unlink", "--dir", "~", "--repositories", "repository")
+                .thenItShould()
+                .succeed()
+                .withMessage(unlinkMsgs.actionUnlink(".gitconfig", "home/user/repository/.gitconfig"))
+                .withMessage(unlinkMsgs.actionUnlink(".zshrc", "home/user/repository/.zshrc"))
+                .executionReport();
+
+        AsciiDocSnippet.save(
+                "symly-unlink-basic-example",
+                commands(executionReport.fileTreeBefore(), executionReport.symlyExecution()));
     }
 
     private String commands(String... commands) {

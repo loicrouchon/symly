@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.symly.env.Env;
 
 @RequiredArgsConstructor
-class UnlinkCommandMessageFactory {
+public class UnlinkCommandMessageFactory {
 
     @NonNull
     private final Env env;
