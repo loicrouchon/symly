@@ -25,7 +25,10 @@ rm -rf "out"
 ./gradlew clean build -Pversion="${JRELEASER_PROJECT_VERSION}" --console=plain > /dev/null
 
 echo "Performing jreleaser releasing verification"
-jreleaser full-release --dry-run
+jreleaser assemble
+jreleaser sign
+jreleaser package
+jreleaser changelog
 
 echo "Changelog"
 CHANGELOG=out/jreleaser/release/CHANGELOG.md
