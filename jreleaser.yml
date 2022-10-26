@@ -39,7 +39,8 @@ distributions:
 
   homebrew:
     type: JAVA_BINARY
-    executable: symly
+    executable:
+      name: symly
     artifacts:
       - path: build/distributions/{{projectName}}-{{projectVersion}}-homebrew-bottle.zip
     brew:
@@ -53,7 +54,7 @@ distributions:
         name: homebrew-symly
       multiPlatform: true
       extraProperties:
-        skipJava: true # Avoids automatic dependency on ffixed JDK
+        skipJava: true # Avoids automatic dependency on fixed JDK
       dependencies:
         coreutils:
         openjdk: # latest JDK

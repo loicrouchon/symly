@@ -18,7 +18,7 @@ export JRELEASER_GITHUB_TOKEN="none"
 echo "Computing release for version ${JRELEASER_PROJECT_VERSION}"
 rm -rf "out"
 ./gradlew clean build -Pversion="${JRELEASER_PROJECT_VERSION}" --console=plain
-jreleaser full-release --dryrun
+jreleaser full-release --dry-run
 
 CHANGELOG=out/jreleaser/release/CHANGELOG.md
 
