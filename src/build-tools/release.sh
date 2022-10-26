@@ -37,7 +37,7 @@ if [ ! "${CURRENT_MAIN_COMMIT}" = "${REMOTE_MAIN_COMMIT}" ]; then
 fi
 
 echo "Checking application tests"
-./gradlew clean build --console=plain > /dev/null
+./gradlew clean check --console=plain > /dev/null
 
 echo "Checking for uncommitted changes"
 UNCOMMITTED_CHANGES="$(git status --porcelain)"
