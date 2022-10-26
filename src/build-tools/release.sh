@@ -58,7 +58,7 @@ echo "Enter next release base version:"
 IFS= read -r NEXT_RELEASE_BASE_VERSION
 NEXT_RELEASE="release/${NEXT_RELEASE_BASE_VERSION}"
 echo "Creating branch ${NEXT_RELEASE} from ${MAIN_BRANCH}"
-git branch -c "${MAIN_BRANCH}" "${NEXT_RELEASE}"
+git branch -c "${NEXT_RELEASE}"
 git switch "${NEXT_RELEASE}"
 
 NEXT_RELEASE_VERSION="$("./${DIR}/compute-next-version.sh")"
@@ -75,3 +75,4 @@ if [ ! "${PROCEED_WITH_RELEASE}" = "y" ]; then
 fi
 
 git push -u origin "${NEXT_RELEASE}"
+echo "Release branch pushed to GitHub, CI will be triggered soon"
