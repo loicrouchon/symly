@@ -22,16 +22,6 @@ if [ ! "${CURRENT_BRANCH}" = "${MAIN_BRANCH}" ]; then
     exit 1
 fi
 
-echo "Checking for uncommitted changes"
-UNCOMMITTED_CHANGES="$(git status --porcelain)"
-if [ ! "${UNCOMMITTED_CHANGES}" = "" ]; then
-    format_red
-    echo "There are uncommitted changes, commit them before releasing" >&2
-    echo "${UNCOMMITTED_CHANGES}"
-    format_clear
-    exit 1
-fi
-
 echo "Checking for divergence with origin/${MAIN_BRANCH}"
 git fetch origin
 CURRENT_MAIN_COMMIT="$(git rev-parse --verify --short HEAD)"
@@ -48,6 +38,16 @@ fi
 
 echo "Checking application tests"
 ./gradlew clean build --console=plain > /dev/null
+
+echo "Checking for uncommitted changes"
+UNCOMMITTED_CHANGES="$(git status --porcelain)"
+if [ ! "${UNCOMMITTED_CHANGES}" = "" ]; then
+    format_red
+    echo "There are uncommitted changes, commit them before releasing" >&2
+    echo "${UNCOMMITTED_CHANGES}"
+    format_clear
+    exit 1
+fi
 
 echo "Checking last release branches"
 LATEST_RELEASE_BRANCH="$(git branch -r --list "origin/release/*" | sort -V | tail -n 1 | sed -r 's#^ *origin/(.+)$#origin/\1#')"
