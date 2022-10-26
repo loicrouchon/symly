@@ -47,7 +47,7 @@ if [ ! "${CURRENT_MAIN_COMMIT}" = "${REMOTE_MAIN_COMMIT}" ]; then
 fi
 
 echo "Checking application tests"
-./gradlew clean check --console=plain > /dev/null
+./gradlew clean build --console=plain > /dev/null
 
 echo "Checking last release branches"
 LATEST_RELEASE_BRANCH="$(git branch -r --list "origin/release/*" | sort -V | tail -n 1 | sed -r 's#^ *origin/(.+)$#origin/\1#')"
