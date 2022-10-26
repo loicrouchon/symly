@@ -5,7 +5,7 @@ on: push
 jobs:
   env:
     name: Initialize environment
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
       gradle-args: ${{ steps.gradle.outputs.args }}
@@ -35,7 +35,7 @@ jobs:
   test:
     name: Test
     needs: [ env ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -115,7 +115,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/')
     needs: [ env, test ]
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
