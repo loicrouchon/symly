@@ -4,18 +4,18 @@ Symly is available through different package managers for Linux and macOS
 
 .DEB: Debian, Ubuntu, Linux Mint, ...
 ----
-sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/deb/dists/latest/Release.gpg.key | gpg --dearmor > /etc/apt/trusted.gpg.d/loicrouchon-packages.gpg'
-sudo sh -c 'echo "deb [arch=amd64] https://packages.loicrouchon.fr/deb latest main" > /etc/apt/sources.list.d/symly.list'
+sudo sh -c 'curl -1sLf https://packages.loicrouchon.com/deb/dists/latest/Release.gpg.key | gpg --dearmor | tee -a /usr/share/keyrings/packages-loicrouchon.com.gpg > /dev/null'
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/packages-loicrouchon.com.gpg] https://packages.loicrouchon.com/deb latest main" | tee /etc/apt/sources.list.d/symly.list'
 sudo apt update
 sudo apt install symly
 ----
 
 .RPM: Fedora, CentOS, Red Hat, ...
 ----
-sudo sh -c 'curl -1sLf https://packages.loicrouchon.fr/rpm/Release.gpg.key > /tmp/symly.gpg.key'
+sudo sh -c 'curl -1sLf https://packages.loicrouchon.com/rpm/Release.gpg.key > /tmp/symly.gpg.key'
 sudo rpm --import /tmp/symly.gpg.key
 sudo dnf install 'dnf-command(config-manager)'
-sudo dnf config-manager --add-repo https://packages.loicrouchon.fr/rpm
+sudo dnf config-manager --add-repo https://packages.loicrouchon.com/rpm
 sudo dnf install symly
 ----
 
