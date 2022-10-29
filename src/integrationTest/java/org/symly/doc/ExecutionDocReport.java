@@ -22,35 +22,38 @@ public class ExecutionDocReport {
     }
 
     public String symlyExecution() {
-        return maskChRoot("""
-            $ %s
-            %s"""
-                .formatted(String.join(" ", execution.command()), String.join("\n", execution.stdOut())));
+        return maskChRoot(
+            workingDir,
+            "$ %s%n%s".formatted(String.join(" ", execution.command()), String.join("\n", execution.stdOut())));
+    }
+
+    public FileTree currentFileTree() {
+        return execution.currentFileTree();
     }
 
     public String fileTreeBefore() {
-        return fileTree(execution.snapshot());
+        return fsTreeAsString(execution.snapshot(), workingDir);
     }
 
     public String fileTreeAfter() {
-        return fileTree(execution.currentFileTree());
+        return fsTreeAsString(execution.currentFileTree(), workingDir);
     }
 
-    private String fileTree(FileTree currentFileTree) {
-        List<String> entries = currentFileTree
-                .layout()
-                .filter(fileRef -> !workingDir.startsWith(fileRef.name()))
-                .map(this::fsEntry)
+    public String fsTreeAsString(FileTree fileTree, Path root) {
+        List<String> entries = fileTree.layout()
+                .filter(fileRef -> isSubDirectory(root, fileRef))
+                .map(fileRef1 -> fsEntry(root, fileRef1))
                 .toList();
-        return maskChRoot("""
-            $ tree %s
-            %s:
-            %s"""
-                .formatted(workingDir, workingDir, treeify(entries)));
+        return maskChRoot(root, "$ tree %s%n%s:%n%s".formatted(root, root, treeify(entries)));
     }
 
-    private String fsEntry(FileRef fileRef) {
-        Path entry = workingDir.relativize(fileRef.name());
+    private static boolean isSubDirectory(Path root, FileRef fileRef) {
+        Path path = fileRef.name();
+        return path.startsWith(root) && !path.equals(root);
+    }
+
+    private static String fsEntry(Path root, FileRef fileRef) {
+        Path entry = root.relativize(fileRef.name());
         int nameCount = entry.getNameCount() + 1;
         StringBuilder sb = new StringBuilder();
         sb.append("|   ".repeat(Math.max(0, nameCount - 2)));
@@ -101,11 +104,11 @@ public class ExecutionDocReport {
         return "%s%n%n%s%n%n%s".formatted(fileTreeBefore(), symlyExecution(), fileTreeAfter());
     }
 
-    private String maskChRoot(String str) {
+    private String maskChRoot(Path root, String str) {
         return str
                 // hide the absolute real path of the temporary chroot in which the command was executed
                 .replaceAll(execution.rootDir().toString(), "")
                 // make the virtual 'root' name look like an absolute one
-                .replaceAll("(^|\n| )" + workingDir, "$1/" + workingDir);
+                .replaceAll("(^|\n| )" + root, "$1/" + root);
     }
 }

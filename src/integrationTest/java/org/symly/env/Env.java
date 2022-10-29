@@ -137,6 +137,10 @@ public class Env {
         return this;
     }
 
+    public void withFileContent(String path, String content) {
+        FileTestUtils.createOrUpdateFile(path(path), content);
+    }
+
     @SuppressWarnings("CanIgnoreReturnValueSuggester")
     private Env withDirectories(String... paths) {
         for (String path : paths) {
@@ -148,6 +152,11 @@ public class Env {
     @SuppressWarnings("CanIgnoreReturnValueSuggester")
     private Env withSymbolicLink(String sourcePath, String targetPath) {
         FileTestUtils.createSymbolicLink(path(sourcePath), path(targetPath));
+        return this;
+    }
+
+    public Env deleteFile(String path) {
+        FileTestUtils.deleteIfExists(path(path));
         return this;
     }
 

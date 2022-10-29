@@ -1,0 +1,8 @@
+----
+$ tree /home/user/mydotfiles
+/home/user/mydotfiles:
+|-- .bashrc
+|-- .config/
+|   \-- starship.toml
+\-- .gitconfig
+----

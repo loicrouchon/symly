@@ -1,0 +1,226 @@
+= Dotfiles management tutorial
+
+== The problem with dotfiles
+
+A https://en.wikipedia.org/wiki/Hidden_file_and_hidden_directory[dotfile] or "dot file" is a hidden folder or file.
+They usually contain configurations for specific software or tools.
+Most of the user-specific configuration files lie in those dotfiles.
+
+The problem is that those files are not centralized in any way.
+They are located in many places in the user's home directory.
+Also, not all of them are interesting to back up.
+
+Let's take a look at how Symly can help us manage our dotfiles.
+
+== An example
+
+Let's consider our current home directory containing the following files:
+
+* `~/.bashrc`: the bash config file
+* `~/.config/starship.toml`: the https://starship.rs/[Starship prompt] config file
+* `~/.gitconfig`: the git config file
+
+What we want to achieve is to colocate those files under a single folder that can be managed by some tool of your choice like git or Dropbox.
+
+=== Preparing the repository
+
+Let's create this folder which in Symly terminology is called a repository
+
+----
+$ mkdir -p ~/mydotfiles
+----
+
+In this directory, we will recreate the exact structure of the home directory.
+It is important to re-create the exact directory structure so that Symly knows how to create the links.
+For more details, take a look at the link:concepts.adoc[concepts].
+
+----
+$ mkdir -p ~/mydotfiles/.config ~/mydotfiles/.config/fish
+
+$ mv ~/.config/fish/config.fish ~/mydotfiles/.config/fish/config.fish
+$ mv ~/.config/starship.toml    ~/mydotfiles/.config/starship.toml
+$ mv ~/.gitconfig               ~/mydotfiles/.gitconfig
+----
+
+The `/home/user/mydotfiles` repository now looks as below:
+
+// include::docs/snippets/dotfiles-management-tutorial-1-simple-repo-structure.adoc[]
+----
+$ tree /home/user/mydotfiles
+/home/user/mydotfiles:
+|-- .bashrc
+|-- .config/
+|   \-- starship.toml
+\-- .gitconfig
+----
+// end::include
+
+=== Linking the repository
+
+Now that our `/home/user/mydotfiles` _"repository"_ is ready, it is time to link it to the home folder which is known as the target _"directory"_.
+
+// include::docs/snippets/dotfiles-management-tutorial-2-initial-repo-linking.adoc[]
+----
+$ symly link --dir ~ --repositories .
+added:       .bashrc -> /home/user/mydotfiles/.bashrc
+added:       .config/starship.toml -> /home/user/mydotfiles/.config/starship.toml
+added:       .gitconfig -> /home/user/mydotfiles/.gitconfig
+----
+// end::include
+
+If we check in our home folder `/home/user`, we can see the following links have been created:
+
+// include::docs/snippets/dotfiles-management-tutorial-3-initial-repo-linking-state.adoc[]
+----
+$ tree /home/user
+/home/user:
+|-- .bashrc -> /home/user/mydotfiles/.bashrc
+|-- .config/
+|   \-- starship.toml -> /home/user/mydotfiles/.config/starship.toml
+\-- .gitconfig -> /home/user/mydotfiles/.gitconfig
+----
+// end::include
+
+[NOTE]
+====
+In this example, the command was executed from the repository itself.
+But the Symly command can be executed from any directory given that the `--dir` and `--repositories` arguments are updated accordingly.
+====
+
+=== Updating content in the repository
+
+Let's assume I want to change my shell from bash to https://fishshell.com[Fish].
+
+----
+rm ~/mydotfiles/.bashrc
+vi ~/mydotfiles/.config/fish/config.fish
+----
+
+// include::docs/snippets/dotfiles-management-tutorial-4-repo-update-linking.adoc[]
+----
+$ symly link --dir ~ --repositories .
+deleted:     .bashrc -> /home/user/mydotfiles/.bashrc
+added:       .config/fish/config.fish -> /home/user/mydotfiles/.config/fish/config.fish
+----
+// end::include
+
+// include::docs/snippets/dotfiles-management-tutorial-5-repo-update-linking-state.adoc[]
+----
+$ tree /home/user
+/home/user:
+|-- .config/
+|   |-- fish/
+|   |   \-- config.fish -> /home/user/mydotfiles/.config/fish/config.fish
+|   \-- starship.toml -> /home/user/mydotfiles/.config/starship.toml
+\-- .gitconfig -> /home/user/mydotfiles/.gitconfig
+----
+// end::include
+
+[NOTE]
+====
+Symly deleted the `.bashrc` link because:
+
+* It was an orphan link. i.e. the target of the link does not exist
+* The target of the link pointed inside the repository being processed
+
+This means that Symly will not delete existing links if they are not orphaned or if their target is outside the processed repositories.
+====
+
+=== Switch to contextual mode
+
+Because it is annoying to have to repeat the arguments every time you need to update the links, Symly provides a contextual mode.
+In this mode, the context is provided by a `Symly.config` file present in the current working directory.
+
+Let's write such a `Symly.config` file and save it in `/home/user/mydotfiles/` with the following content
+
+[source,properties]
+----
+directory = ~
+repositories = .
+----
+
+The paths contained in this file can be:
+
+* Absolute paths: `/home/user/...`
+* Relative paths: `.`, `repo/personal`, ...
+* Relative to the user directory: `~`, `~/mydotfiles`, ...
+
+From this moment, any Symly command executed from the directory containing the `Symly.config` will automatically load this configuration.
+
+Let's verify this is working fine by using the Symly `status` in verbose mode.
+
+// include::docs/snippets/dotfiles-management-tutorial-6-repo-status.adoc[]
+----
+$ symly status -v
+Checking links status from /home/user to [/home/user/mydotfiles]
+up-to-date:  .config/fish/config.fish -> /home/user/mydotfiles/.config/fish/config.fish
+up-to-date:  .config/starship.toml -> /home/user/mydotfiles/.config/starship.toml
+up-to-date:  .gitconfig -> /home/user/mydotfiles/.gitconfig
+Everything is already up to date
+----
+// end::include
+
+=== Multiple repositories
+
+At this point, we have a perfectly working dotfiles management system in place for our home folder.
+But let's say you have a second machine you would like to share those dotfiles with.
+Maybe it's a different profile, work vs personal, maybe it's a different OS, or maybe it's both.
+
+Symly allows you to define more than one repository for this purpose.
+Let's see how we can achieve this.
+
+We will define two sub-folders in `/home/user/mydotfiles`:
+
+* `/home/user/mydotfiles/defaults`: for files that should be linked everywhere
+* `/home/user/mydotfiles/work`: for files that are work-specific
+
+We will move the current content of the `/home/user/mydotfiles` folder to `/home/user/mydotfiles/defaults`.
+
+----
+$ mkdir -p defaults work
+# Moves the current repository content to default
+$ mv .config .gitconfig defaults/
+# Update the configuration to use defaults and work as repositories
+$ sed -i '' 's/repositories = \./repositories = defaults, work' Symly.config
+$ cat Symly.config
+directory = ~
+repositories = defaults, work
+----
+
+[NOTE]
+====
+The order of the repositories has importance as they are applied in layers.
+The first one being specified will be the base layers.
+The next ones will override the base layer by adding new files or overriding previous layers.
+====
+
+// include::docs/snippets/dotfiles-management-tutorial-7-multi-repo-setup.adoc[]
+----
+$ symly link
+deleted:     .config/fish/config.fish -> /home/user/mydotfiles/.config/fish/config.fish
+added:       .config/fish/config.fish -> /home/user/mydotfiles/defaults/.config/fish/config.fish
+deleted:     .config/starship.toml -> /home/user/mydotfiles/.config/starship.toml
+added:       .config/starship.toml -> /home/user/mydotfiles/defaults/.config/starship.toml
+deleted:     .gitconfig -> /home/user/mydotfiles/.gitconfig
+added:       .gitconfig -> /home/user/mydotfiles/defaults/.gitconfig
+----
+// end::include
+
+Now let's add our work-specific version of the `.gitconfig` in `/home/user/mydotfiles/work/.gitconfig` and link again:
+
+// include::docs/snippets/dotfiles-management-tutorial-8-multi-repo-override.adoc[]
+----
+$ symly link
+deleted:     .gitconfig -> /home/user/mydotfiles/defaults/.gitconfig
+added:       .gitconfig -> /home/user/mydotfiles/work/.gitconfig
+----
+// end::include
+
+=== A note about multiple repositories
+
+One of the strengths of Symly is its capability of handling multiple repositories.
+This gives a lot of flexibility to deal with different OS/contexts.
+
+But it also enables sharing.
+
+Some repositories could be shared with your team or even communities.

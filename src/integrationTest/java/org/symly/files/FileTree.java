@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.*;
@@ -32,6 +33,10 @@ public class FileTree {
         return layout.stream()
                 .filter(fileRef -> !(fileRef instanceof FileRef.DirectoryRef))
                 .map(FileRef::toString);
+    }
+
+    public FileTree subtree(Predicate<? super FileRef> predicate) {
+        return of(layout.stream().filter(predicate));
     }
 
     @Override

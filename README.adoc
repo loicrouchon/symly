@@ -17,7 +17,7 @@ You can then decide to use one or more tools of your choice for this task: git, 
 
 === Common use cases
 
-* dotfiles management
+* link:./docs/dotfiles-management-tutorial.adoc[Dotfiles management tutorial]
 * Application installation
 
 === Getting started
