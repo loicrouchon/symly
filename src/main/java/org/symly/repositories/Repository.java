@@ -24,7 +24,7 @@ public class Repository extends Directory {
     Stream<RepositoryEntry> entries(FileSystemReader fsReader) {
         Path path = toPath();
         Map<Path, Collection<IgnoreRule>> ignoreRules = new HashMap<>();
-        ignoreRules.put(path, IgnoreList.read(fsReader, path));
+        ignoreRules.put(path, IgnoreList.readTopLevel(fsReader, path));
         try {
             return fsReader.walk(path)
                     .filter(filePath -> shouldProcessPath(fsReader, filePath, ignoreRules))

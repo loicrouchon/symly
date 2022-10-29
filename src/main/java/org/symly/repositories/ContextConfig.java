@@ -26,7 +26,7 @@ import org.symly.files.FileSystemReader;
  */
 public class ContextConfig {
 
-    private static final String SYMLY_CONFIG = "symly.config";
+    static final String SYMLY_CONFIG = "symly.config";
 
     /**
      * The main directory path.

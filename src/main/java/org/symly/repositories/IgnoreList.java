@@ -46,9 +46,20 @@ class IgnoreList {
         return quoted;
     }
 
+    private static final List<IgnoreRule> TOP_LEVEL_DEFAULT_IGNORE_RULES =
+            List.of(toPattern(ContextConfig.SYMLY_CONFIG));
+
     private IgnoreList() {}
 
+    static Collection<IgnoreRule> readTopLevel(FileSystemReader fsReader, Path path) {
+        return readIt(path, fsReader, TOP_LEVEL_DEFAULT_IGNORE_RULES);
+    }
+
     static Collection<IgnoreRule> read(FileSystemReader fsReader, Path path) {
+        return readIt(path, fsReader, Collections.emptyList());
+    }
+
+    private static List<IgnoreRule> readIt(Path path, FileSystemReader fsReader, List<IgnoreRule> defaultValue) {
         Path ignoreList = path.resolve(SYMLY_IGNORE);
         if (fsReader.exists(ignoreList)) {
             try (Stream<String> lines = fsReader.lines(ignoreList)) {
@@ -57,7 +68,7 @@ class IgnoreList {
                 throw new SymlyExecutionException("Unable to analyze repository structure %s".formatted(path), e);
             }
         }
-        return Collections.emptyList();
+        return defaultValue;
     }
 
     static List<IgnoreRule> parse(Stream<String> lines) {
