@@ -97,6 +97,7 @@ class RegexConversion implements UnaryOperator<String> {
         this.replacement = replacement;
     }
 
+    @Override
     public String apply(String str) {
         return pattern.matcher(str).replaceAll(replacement);
     }

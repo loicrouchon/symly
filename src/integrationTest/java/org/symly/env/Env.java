@@ -137,6 +137,7 @@ public class Env {
         return this;
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     public void withFileContent(String path, String content) {
         FileTestUtils.createOrUpdateFile(path(path), content);
     }
@@ -155,6 +156,7 @@ public class Env {
         return this;
     }
 
+    @SuppressWarnings("CanIgnoreReturnValueSuggester")
     public Env deleteFile(String path) {
         FileTestUtils.deleteIfExists(path(path));
         return this;

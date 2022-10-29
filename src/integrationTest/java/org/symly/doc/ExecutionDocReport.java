@@ -23,8 +23,8 @@ public class ExecutionDocReport {
 
     public String symlyExecution() {
         return maskChRoot(
-            workingDir,
-            "$ %s%n%s".formatted(String.join(" ", execution.command()), String.join("\n", execution.stdOut())));
+                workingDir,
+                "$ %s%n%s".formatted(String.join(" ", execution.command()), String.join("\n", execution.stdOut())));
     }
 
     public FileTree currentFileTree() {
