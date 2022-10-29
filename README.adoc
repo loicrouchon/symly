@@ -24,6 +24,7 @@ You can then decide to use one or more tools of your choice for this task: git, 
 
 * link:./docs/what-is-symly-useful-for.adoc[What is Symly useful for?]
 * link:./docs/install.adoc[Installation]
+* link:./docs/dotfiles-management-tutorial.adoc[Getting started with dotfiles management]
 * link:./docs/concepts.adoc[Concepts]
 * link:./docs/usage.adoc[Usage]
 * link:./docs/features.adoc[Features and roadmap]
