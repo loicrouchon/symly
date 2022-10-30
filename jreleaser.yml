@@ -1,6 +1,12 @@
 project:
   name: symly
-  description: Symbolic link management tool
+  description: A tool for managing symbolic links
+  longDescription: |
+    Symly is a tool helping to centralize sparse file trees.
+    It replicates and maintains a file tree structure of one
+    or more repository layers into a directory by creating
+    symbolic links.
+
   links:
     homepage: https://github.com/loicrouchon/symly
   license: Apache-2.0
