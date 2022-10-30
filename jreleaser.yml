@@ -1,17 +1,17 @@
 project:
   name: symly
   description: Symbolic link management tool
-  website: https://github.com/loicrouchon/symly
+  links:
+    homepage: https://github.com/loicrouchon/symly
+  license: Apache-2.0
+  inceptionYear: 2021
   authors:
     - Loïc Rouchon
-  license: Apache-2.0
   java:
     groupId: org.symly
     artifactId: symly
     version: 17
     mainClass: org.symly.cli.Main
-  extraProperties:
-    inceptionYear: 2021
 
 release:
   github:
