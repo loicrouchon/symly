@@ -32,6 +32,7 @@ distributions:
   jvm:
     artifacts:
       - path: build/distributions/{{projectName}}-{{projectVersion}}.zip
+      - path: build/distributions/{{projectName}}-{{projectVersion}}.tar
 
   deb:
     type: NATIVE_PACKAGE
