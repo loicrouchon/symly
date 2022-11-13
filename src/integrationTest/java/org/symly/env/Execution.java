@@ -7,10 +7,8 @@ import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.symly.doc.ExecutionDocReport;
 import org.symly.files.FileTree;
 import org.symly.files.FileTree.Diff;
@@ -54,15 +52,17 @@ public record Execution(
         return new ExitCodeAssert(this);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ExitCodeAssert {
 
         private static final int SUCCESS = 0;
         private static final int RUN_ERROR = 1;
         private static final int CONFIGURATION_ERROR = 2;
 
-        @NonNull
         private final Execution execution;
+
+        public ExitCodeAssert(Execution execution) {
+            this.execution = Objects.requireNonNull(execution);
+        }
 
         public OutputAssert succeed() {
             OutputAssert outputAssert = assertExitCodeIs(SUCCESS);
@@ -136,12 +136,12 @@ public record Execution(
         @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withFileTreeDiff(Diff diff) {
             Diff actual = execution.fileSystemEntriesDiff();
-            assertThat(actual.getNewPaths())
+            assertThat(actual.newPaths())
                     .describedAs("Should create the following file system entries")
-                    .containsExactlyInAnyOrderElementsOf(diff.getNewPaths());
-            assertThat(actual.getRemovedPaths())
+                    .containsExactlyInAnyOrderElementsOf(diff.newPaths());
+            assertThat(actual.removedPaths())
                     .describedAs("Should remove the following file system entries")
-                    .containsExactlyInAnyOrderElementsOf(diff.getRemovedPaths());
+                    .containsExactlyInAnyOrderElementsOf(diff.removedPaths());
             return this;
         }
 

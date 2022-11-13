@@ -9,7 +9,6 @@ import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
 import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 
@@ -86,7 +85,6 @@ class IgnoreList {
     }
 }
 
-@RequiredArgsConstructor
 class RegexConversion implements UnaryOperator<String> {
 
     private final Pattern pattern;

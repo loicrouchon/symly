@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
 import org.symly.cli.SymlyExecutionException;
 
 public class IoMock {
@@ -59,10 +58,13 @@ record Directory(Path path) implements FSEntry {}
 
 record Symlink(Path path, Path target) implements FSEntry {}
 
-@RequiredArgsConstructor
 class FileSystemReaderStub implements FileSystemReader {
 
     private final Map<Path, FSEntry> fsEntries;
+
+    FileSystemReaderStub(Map<Path, FSEntry> fsEntries) {
+        this.fsEntries = fsEntries;
+    }
 
     @Override
     public boolean exists(Path path) {

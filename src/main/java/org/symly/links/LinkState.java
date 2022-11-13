@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-import lombok.NonNull;
 import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 import org.symly.repositories.MainDirectory;
@@ -19,12 +18,15 @@ import org.symly.repositories.MainDirectory;
  * @param source the absolute {@link Path} to the source.
  * @param currentState the current state for the source.
  * @param desiredTarget the absolute path to the desired target for the source to point to.
+ *     TODO document this field can be null.
  *
  */
-public record LinkState(
-        @NonNull MainDirectory mainDirectory, @NonNull Path source, @NonNull Entry currentState, Path desiredTarget) {
+public record LinkState(MainDirectory mainDirectory, Path source, Entry currentState, Path desiredTarget) {
 
     public LinkState {
+        Objects.requireNonNull(mainDirectory);
+        Objects.requireNonNull(source);
+        Objects.requireNonNull(currentState);
         if (!source.isAbsolute()) {
             throw new IllegalStateException("Source %s must be an absolute path".formatted(source));
         }
@@ -145,7 +147,11 @@ public record LinkState(
             private static final DirectoryEntry INSTANCE = new DirectoryEntry();
         }
 
-        record LinkEntry(@NonNull Path target) implements LinkState.Entry {}
+        record LinkEntry(Path target) implements LinkState.Entry {
+            public LinkEntry {
+                Objects.requireNonNull(target);
+            }
+        }
     }
 
     public enum Type {

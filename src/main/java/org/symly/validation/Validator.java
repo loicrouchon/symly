@@ -1,15 +1,16 @@
 package org.symly.validation;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.ParameterException;
 
-@RequiredArgsConstructor
 public class Validator {
 
-    @NonNull
     private final CommandSpec spec;
+
+    public Validator(CommandSpec spec) {
+        this.spec = Objects.requireNonNull(spec);
+    }
 
     private void validate(Constraint validator) {
         validator.violation().ifPresent(this::throwViolation);

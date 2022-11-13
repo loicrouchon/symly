@@ -2,15 +2,15 @@ package org.symly.cli;
 
 import java.util.Arrays;
 import java.util.Objects;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import picocli.CommandLine;
 
-@RequiredArgsConstructor
 public class VersionProvider implements CommandLine.IVersionProvider {
 
-    @NonNull
     private final Config config;
+
+    public VersionProvider(Config config) {
+        this.config = Objects.requireNonNull(config);
+    }
 
     @Override
     public String[] getVersion() {

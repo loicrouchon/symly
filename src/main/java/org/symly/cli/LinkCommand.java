@@ -2,14 +2,12 @@ package org.symly.cli;
 
 import java.lang.System.Logger.Level;
 import java.util.List;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 import org.symly.Result;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
 import org.symly.links.*;
-import org.symly.links.Context;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
@@ -24,7 +22,6 @@ import picocli.CommandLine.Option;
             Repositories should be specified with base layers first and overriding layers next. \
             In case two repositories contain a file with the same path, the file in the latest \
             repository will be used as the target for the link for the given path""")
-@RequiredArgsConstructor
 class LinkCommand implements Runnable {
 
     @Mixin
@@ -41,17 +38,20 @@ class LinkCommand implements Runnable {
                     + "conflicts")
     boolean force = false;
 
-    @NonNull
     private final CliConsole console;
 
-    @NonNull
     private final FileSystemReader fsReader;
 
-    @NonNull
     private final FileSystemWriter fileSystemWriter;
 
     private int updates;
     private Context context;
+
+    public LinkCommand(CliConsole console, FileSystemReader fsReader, FileSystemWriter fileSystemWriter) {
+        this.console = Objects.requireNonNull(console);
+        this.fsReader = Objects.requireNonNull(fsReader);
+        this.fileSystemWriter = Objects.requireNonNull(fileSystemWriter);
+    }
 
     @Override
     public void run() {

@@ -3,21 +3,20 @@ package org.symly.doc;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import lombok.NonNull;
 import org.symly.env.Execution;
 import org.symly.files.FileRef;
 import org.symly.files.FileTree;
 
 public class ExecutionDocReport {
 
-    @NonNull
     private final Execution execution;
 
     private final Path workingDir;
 
-    public ExecutionDocReport(@NonNull Execution execution) {
-        this.execution = execution;
+    public ExecutionDocReport(Execution execution) {
+        this.execution = Objects.requireNonNull(execution);
         workingDir = execution.rootDir().relativize(execution.workingDir());
     }
 

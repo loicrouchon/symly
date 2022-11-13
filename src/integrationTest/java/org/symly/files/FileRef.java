@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import lombok.NonNull;
+import java.util.Objects;
 
 public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileRef, FileRef.DirectoryRef {
 
@@ -36,7 +36,10 @@ public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileR
         return SimpleFileRef.parse(ref);
     }
 
-    record DirectoryRef(@NonNull Path name) implements FileRef {
+    record DirectoryRef(Path name) implements FileRef {
+        public DirectoryRef {
+            Objects.requireNonNull(name);
+        }
 
         @Override
         public void create(Path root) {
@@ -54,7 +57,10 @@ public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileR
         }
     }
 
-    record SimpleFileRef(@NonNull Path name) implements FileRef {
+    record SimpleFileRef(Path name) implements FileRef {
+        public SimpleFileRef {
+            Objects.requireNonNull(name);
+        }
 
         @Override
         public void create(Path root) {
@@ -79,7 +85,11 @@ public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileR
     @SuppressWarnings({
         "java:S5960", // Assertions should not be used in production code (This is test code)
     })
-    record LinkFileRef(@NonNull Path name, @NonNull Path target) implements FileRef {
+    record LinkFileRef(Path name, Path target) implements FileRef {
+        public LinkFileRef {
+            Objects.requireNonNull(name);
+            Objects.requireNonNull(target);
+        }
 
         private static final String LINK_SEPARATOR = " -> ";
 

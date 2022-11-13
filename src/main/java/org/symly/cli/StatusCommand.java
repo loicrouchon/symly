@@ -2,8 +2,7 @@ package org.symly.cli;
 
 import java.lang.System.Logger.Level;
 import java.nio.file.Path;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 import org.symly.files.FileSystemReader;
 import org.symly.links.Context;
 import org.symly.links.LinkState;
@@ -14,21 +13,23 @@ import picocli.CommandLine.Mixin;
         name = "status",
         aliases = {"st"},
         description = "Displays the current links' synchronization status")
-@RequiredArgsConstructor
 class StatusCommand implements Runnable {
 
     @Mixin
     ContextInput contextInput;
 
-    @NonNull
     private final CliConsole console;
 
-    @NonNull
     private final FileSystemReader fsReader;
 
     private Context context;
 
     private int updates;
+
+    StatusCommand(CliConsole console, FileSystemReader fsReader) {
+        this.console = Objects.requireNonNull(console);
+        this.fsReader = Objects.requireNonNull(fsReader);
+    }
 
     @Override
     public void run() {

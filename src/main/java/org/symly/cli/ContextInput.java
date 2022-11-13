@@ -3,12 +3,7 @@ package org.symly.cli;
 import static java.util.function.Predicate.not;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.*;
 import org.symly.files.FileSystemReader;
 import org.symly.links.Context;
 import org.symly.repositories.ContextConfig;
@@ -22,10 +17,8 @@ import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-@RequiredArgsConstructor
 public class ContextInput {
 
-    @NonNull
     private final FileSystemReader fsReader;
 
     @Option(
@@ -65,6 +58,10 @@ public class ContextInput {
     Integer maxDepth;
 
     private Validator validator;
+
+    public ContextInput(FileSystemReader fsReader) {
+        this.fsReader = Objects.requireNonNull(fsReader);
+    }
 
     @Spec
     @SuppressWarnings("unused") // called by picocli

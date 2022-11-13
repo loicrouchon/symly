@@ -5,7 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 import org.symly.cli.SymlyExecutionException;
-import org.symly.links.Directory;
+import org.symly.repositories.Directory;
 
 public interface FileSystemReader {
 

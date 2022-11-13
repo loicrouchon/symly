@@ -2,8 +2,7 @@ package org.symly.cli;
 
 import static picocli.CommandLine.Command;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
@@ -21,7 +20,6 @@ import picocli.CommandLine.Spec;
             StatusCommand.class,
             UnlinkCommand.class,
         })
-@RequiredArgsConstructor
 class MainCommand implements Runnable {
 
     @SuppressWarnings("unused") // used by picocli
@@ -31,6 +29,11 @@ class MainCommand implements Runnable {
             description = "Prints this help message and exits",
             scope = CommandLine.ScopeType.INHERIT)
     boolean helpRequested;
+
+    MainCommand(Config config, CliConsole console) {
+        this.config = Objects.requireNonNull(config);
+        this.console = Objects.requireNonNull(console);
+    }
 
     @SuppressWarnings("unused") // used by picocli
     @Option(
@@ -54,10 +57,8 @@ class MainCommand implements Runnable {
     @Spec
     CommandSpec spec;
 
-    @NonNull
     private final Config config;
 
-    @NonNull
     private final CliConsole console;
 
     @Override

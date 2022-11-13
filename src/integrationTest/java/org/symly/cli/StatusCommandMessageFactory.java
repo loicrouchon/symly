@@ -2,16 +2,17 @@ package org.symly.cli;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.symly.env.Env;
 
-@RequiredArgsConstructor
 public class StatusCommandMessageFactory {
 
-    @NonNull
     private final Env env;
+
+    public StatusCommandMessageFactory(Env env) {
+        this.env = Objects.requireNonNull(env);
+    }
 
     public String checkingLinks(String mainDirectory, List<String> repositories) {
         return "Checking links status from %s to [%s]"

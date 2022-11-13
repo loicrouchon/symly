@@ -6,7 +6,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import lombok.NonNull;
 import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 import org.symly.repositories.MainDirectory;
@@ -19,7 +18,12 @@ import org.symly.repositories.Repositories;
  * @param repositories The repositories containing the files to be linked in {@link #mainDirectory}.
  * @param orphanMaxDepth the maximum depth for orphan-links lookup.
  */
-public record Context(@NonNull MainDirectory mainDirectory, @NonNull Repositories repositories, int orphanMaxDepth) {
+public record Context(MainDirectory mainDirectory, Repositories repositories, int orphanMaxDepth) {
+
+    public Context {
+        Objects.requireNonNull(mainDirectory);
+        Objects.requireNonNull(repositories);
+    }
 
     public Stream<LinkState> status(FileSystemReader fsReader) {
         LinkStateIterator it = new LinkStateIterator(this, fsReader);

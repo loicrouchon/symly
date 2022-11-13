@@ -1,9 +1,8 @@
 package org.symly.cli;
 
 import java.lang.System.Logger.Level;
+import java.util.Objects;
 import java.util.stream.Stream;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.symly.Result;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
@@ -22,7 +21,6 @@ import picocli.CommandLine.Option;
     Note this operation does not restore files in the destination. \
     If that is the desired behavior, use the 'restore' command instead.
     """)
-@RequiredArgsConstructor
 class UnlinkCommand implements Runnable {
 
     @Mixin
@@ -33,16 +31,19 @@ class UnlinkCommand implements Runnable {
             description = "Do not actually remove links but only displays which ones would be removed")
     boolean dryRun = false;
 
-    @NonNull
     private final CliConsole console;
 
-    @NonNull
     private final FileSystemReader fsReader;
 
-    @NonNull
     private final FileSystemWriter fileSystemWriter;
 
     private Context context;
+
+    UnlinkCommand(CliConsole console, FileSystemReader fsReader, FileSystemWriter fileSystemWriter) {
+        this.console = Objects.requireNonNull(console);
+        this.fsReader = Objects.requireNonNull(fsReader);
+        this.fileSystemWriter = Objects.requireNonNull(fileSystemWriter);
+    }
 
     @Override
     public void run() {

@@ -1,14 +1,15 @@
 package org.symly.cli;
 
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 import org.symly.env.Env;
 
-@RequiredArgsConstructor
 class ContextInputMessageFactory {
 
-    @NonNull
     protected final Env env;
+
+    ContextInputMessageFactory(Env env) {
+        this.env = Objects.requireNonNull(env);
+    }
 
     public String mainDirectoryIsNotDefined() {
         return "Main directory is not defined";

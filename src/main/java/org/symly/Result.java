@@ -1,8 +1,6 @@
 package org.symly;
 
 import java.util.function.Consumer;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 
 public sealed interface Result<S, E> permits Result.Success, Result.ErrorResult {
 
@@ -20,10 +18,13 @@ public sealed interface Result<S, E> permits Result.Success, Result.ErrorResult 
         return new ErrorResult<>(value);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     final class Success<S, E> implements Result<S, E> {
 
         private final S value;
+
+        private Success(S value) {
+            this.value = value;
+        }
 
         @Override
         public void accept(Consumer<S> successConsumer, Consumer<E> errorConsumer) {
@@ -31,10 +32,13 @@ public sealed interface Result<S, E> permits Result.Success, Result.ErrorResult 
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     final class ErrorResult<S, E> implements Result<S, E> {
 
         private final E value;
+
+        private ErrorResult(E value) {
+            this.value = value;
+        }
 
         @Override
         public void accept(Consumer<S> successConsumer, Consumer<E> errorConsumer) {

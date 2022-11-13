@@ -1,5 +1,5 @@
-import org.symly.doc.AsciiDocIncludeUpdaterTask
 import net.ltgt.gradle.errorprone.errorprone
+import org.symly.doc.AsciiDocIncludeUpdaterTask
 
 plugins {
     application
@@ -63,8 +63,6 @@ testing {
             useJUnitJupiter(libs.versions.junit.get())
 
             dependencies {
-                compileOnly(libs.lombok)
-                annotationProcessor(libs.lombok)
                 implementation(libs.assertj)
             }
         }
@@ -73,8 +71,6 @@ testing {
             useJUnitJupiter(libs.versions.junit.get())
 
             dependencies {
-                compileOnly(libs.lombok)
-                annotationProcessor(libs.lombok)
                 implementation(libs.assertj)
                 implementation(project)
                 implementation(libs.picocli.core)
@@ -96,9 +92,6 @@ testing {
 
 dependencies {
     configurations["errorprone"](libs.errorprone)
-
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
 
     implementation(libs.picocli.core)
     annotationProcessor(libs.picocli.codegen)

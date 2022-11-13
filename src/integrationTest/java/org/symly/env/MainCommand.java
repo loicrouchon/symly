@@ -4,12 +4,7 @@ import static org.assertj.core.api.Fail.fail;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.*;
 import org.symly.cli.BeanFactory;
 import org.symly.cli.CliConsole;
 import org.symly.cli.Main;
@@ -19,17 +14,19 @@ import picocli.CommandLine;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
-@RequiredArgsConstructor
 public class MainCommand {
 
-    @NonNull
     private final Path rootDir;
 
-    @NonNull
     private final Path workingDir;
 
-    @NonNull
     private final Path home;
+
+    public MainCommand(Path rootDir, Path workingDir, Path home) {
+        this.rootDir = Objects.requireNonNull(rootDir);
+        this.workingDir = Objects.requireNonNull(workingDir);
+        this.home = Objects.requireNonNull(home);
+    }
 
     public Execution run(String[] args) {
         FileTree rootFileTreeSnapshot = FileTree.fromPath(rootDir);

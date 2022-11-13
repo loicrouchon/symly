@@ -9,15 +9,16 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.*;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
-@RequiredArgsConstructor
 public class FileTree {
 
-    @NonNull
     private final SortedSet<FileRef> layout;
+
+    public FileTree(SortedSet<FileRef> layout) {
+        this.layout = Objects.requireNonNull(layout);
+    }
 
     public void create(Path root) {
         for (FileRef fileRef : layout) {
@@ -76,14 +77,9 @@ public class FileTree {
         return set;
     }
 
-    @Value
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Diff {
+    public record Diff(Set<String> newPaths, Set<String> removedPaths) {
 
         private static final Diff EMPTY = new Diff(Set.of(), Set.of());
-
-        Set<String> newPaths;
-        Set<String> removedPaths;
 
         public static Diff ofChanges(String layout) {
             Set<String> newPaths = new HashSet<>();

@@ -10,18 +10,12 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.symly.files.FileTree;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
-@RequiredArgsConstructor
 public class JvmCommand {
 
     private static final long TIMEOUT = 5L;
@@ -32,14 +26,17 @@ public class JvmCommand {
     private static final String CLASSPATH_SYSTEM_PROPERTY = "symly.runtime.classpath";
     private static final String MAIN_CLASS = "org.symly.cli.Main";
 
-    @NonNull
     private final Path rootDir;
 
-    @NonNull
     private final Path workingDir;
 
-    @NonNull
     private final Path home;
+
+    public JvmCommand(Path rootDir, Path workingDir, Path home) {
+        this.rootDir = Objects.requireNonNull(rootDir);
+        this.workingDir = Objects.requireNonNull(workingDir);
+        this.home = Objects.requireNonNull(home);
+    }
 
     public Execution run(String[] args) {
         FileTree rootFileTreeSnapshot = FileTree.fromPath(rootDir);
