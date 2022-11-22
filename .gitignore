@@ -3,6 +3,9 @@
 build/
 out/
 
+# Maven
+target/
+
 # Eclipse
 .project
 .classpath
