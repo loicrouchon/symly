@@ -10,7 +10,6 @@ target/
 .project
 .classpath
 .settings
-bin/
 
 # IntelliJ
 .idea
@@ -25,7 +24,6 @@ nb-configuration.xml
 # Visual Studio Code
 .vscode
 .factorypath
-bin/
 
 # OSX
 .DS_Store
