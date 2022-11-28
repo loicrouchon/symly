@@ -13,7 +13,7 @@ import org.symly.files.FileTree.Diff;
     // Tests should include assertions: assertions are actually performed by the `.thenItShould()....` chain
     "java:S2699"
 })
-class LinkCommandTest extends IntegrationTest {
+public class LinkCommandTest extends IntegrationTest {
 
     private final LinkCommandMessageFactory msg = new LinkCommandMessageFactory(env);
     private final ContextInputMessageFactory ctxMsg = new ContextInputMessageFactory(env);

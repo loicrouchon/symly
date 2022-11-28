@@ -15,7 +15,7 @@ public abstract class IntegrationTest {
     }
 
     @AfterEach
-    final void tearDownTemporaryEnvironment() {
+    public final void tearDownTemporaryEnvironment() {
         env.delete();
     }
 }

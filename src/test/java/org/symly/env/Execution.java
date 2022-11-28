@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import org.symly.doc.ExecutionDocReport;
 import org.symly.files.FileTree;
-import org.symly.files.FileTree.Diff;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
@@ -24,7 +23,7 @@ public record Execution(
         List<String> stdOut,
         List<String> stdErr) {
 
-    public Diff fileSystemEntriesDiff() {
+    public FileTree.Diff fileSystemEntriesDiff() {
         return snapshot.diff(currentFileTree());
     }
 
@@ -134,8 +133,8 @@ public record Execution(
         }
 
         @SuppressWarnings("CanIgnoreReturnValueSuggester")
-        public OutputAssert withFileTreeDiff(Diff diff) {
-            Diff actual = execution.fileSystemEntriesDiff();
+        public OutputAssert withFileTreeDiff(FileTree.Diff diff) {
+            FileTree.Diff actual = execution.fileSystemEntriesDiff();
             assertThat(actual.newPaths())
                     .describedAs("Should create the following file system entries")
                     .containsExactlyInAnyOrderElementsOf(diff.newPaths());

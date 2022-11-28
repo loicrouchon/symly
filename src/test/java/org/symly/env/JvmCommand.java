@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
+// import java.lang.management.ManagementFactory;
+// import java.lang.management.RuntimeMXBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
@@ -81,8 +81,9 @@ public class JvmCommand {
     }
 
     private Optional<String> jacocoAgent() {
-        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-        List<String> args = runtimeMXBean.getInputArguments();
+        //        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        //        List<String> args = runtimeMXBean.getInputArguments();
+        List<String> args = List.of();
         return args.stream()
                 .filter(arg -> arg.startsWith("-javaagent") && arg.contains("jacoco"))
                 .findFirst()
