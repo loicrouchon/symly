@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.symly</groupId>
     <artifactId>symly</artifactId>
@@ -46,8 +46,8 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <configuration>
+                    <excludedGroups>integration-test</excludedGroups>
                     <useModulePath>false</useModulePath>
-                    <excludes>**/*Command*Test.java</excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -63,8 +63,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <includes>**/*Test.java</includes>
+                    <groups>integration-test</groups>
                     <useModulePath>false</useModulePath>
-                    <includes>**/*Command*Test.java</includes>
                 </configuration>
             </plugin>
             <plugin>
@@ -104,7 +105,7 @@
                         <configuration>
                             <ratchetFrom>NONE</ratchetFrom>
                             <java>
-                                <palantirJavaFormat />
+                                <palantirJavaFormat/>
                             </java>
                         </configuration>
                         <executions>

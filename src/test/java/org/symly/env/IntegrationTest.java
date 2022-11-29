@@ -1,7 +1,9 @@
 package org.symly.env;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Tag;
 
+@Tag("integration-test")
 public abstract class IntegrationTest {
 
     protected final Env env = Env.of();
