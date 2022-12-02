@@ -1,15 +1,11 @@
 
-.PHONY: clean build release install-git-hooks
+.PHONY: clean build release
 
 build:
-	@./gradlew build --console=plain
+	@./mvnw verify
 
 clean:
-	@./gradlew clean --console=plain
+	@./mvnw clean
 
 release:
 	@./src/build-tools/release.sh
-
-install-git-hooks:
-	mkdir -p .git/hooks
-	ln -s "$(PWD)/git/hooks/pre-commit" ".git/hooks/pre-commit"

@@ -9,7 +9,7 @@ for file_staged_for_commit in $files_staged_for_commit
 do
   if ! printf "$files_in_working_index" | grep -q "$file_staged_for_commit"; then
     echo "Formatting $(pwd)/$file_staged_for_commit"
-    ./gradlew spotlessApply -PspotlessIdeHook="$(pwd)/$file_staged_for_commit"
+    ./mvnw spotless:apply -DspotlessIdeHook="$(pwd)/$file_staged_for_commit"
     git add $file_staged_for_commit
   else
     echo "File $(pwd)/$file_staged_for_commit has unstaged changes, skipping formatting"
