@@ -1,13 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.symly</groupId>
     <artifactId>symly</artifactId>
     <version>0.8-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <description>Symly, a tool to manage symbolic links</description>
     <name>Symly</name>
+    <description>Symly, a tool to manage symbolic links</description>
     <url>https://github.com/loicrouchon/symly</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -55,6 +56,11 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <includes>**/*Test.java</includes>
+                    <groups>integration-test</groups>
+                    <useModulePath>false</useModulePath>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -63,11 +69,6 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <includes>**/*Test.java</includes>
-                    <groups>integration-test</groups>
-                    <useModulePath>false</useModulePath>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -82,10 +83,10 @@
                 <executions>
                     <execution>
                         <id>make-assembly</id>
-                        <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <phase>package</phase>
                     </execution>
                 </executions>
             </plugin>
@@ -106,10 +107,10 @@
                         <executions>
                             <execution>
                                 <id>install-git-hooks</id>
-                                <phase>initialize</phase>
                                 <goals>
                                     <goal>copy-resources</goal>
                                 </goals>
+                                <phase>initialize</phase>
                                 <configuration>
                                     <outputDirectory>${basedir}/.git/hooks</outputDirectory>
                                     <resources>
@@ -128,15 +129,32 @@
                         <configuration>
                             <ratchetFrom>NONE</ratchetFrom>
                             <java>
-                                <palantirJavaFormat/>
+                                <palantirJavaFormat />
                             </java>
+                            <formats>
+                                <format>
+                                    <includes>
+                                        <include>**/*.xml</include>
+                                    </includes>
+                                    <trimTrailingWhitespace />
+                                    <endWithNewline />
+                                    <eclipseWtp>
+                                        <type>XML</type>
+                                        <files>
+                                            <file>
+                                                ${basedir}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs
+                                            </file>
+                                        </files>
+                                    </eclipseWtp>
+                                </format>
+                            </formats>
                         </configuration>
                         <executions>
                             <execution>
-                                <phase>compile</phase>
                                 <goals>
                                     <goal>check</goal>
                                 </goals>
+                                <phase>process-sources</phase>
                             </execution>
                         </executions>
                     </plugin>
@@ -144,15 +162,6 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>asciidoc-documentation-includes-update</id>
-                                <phase>post-integration-test</phase>
-                                <goals>
-                                    <goal>exec</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                         <configuration>
                             <executable>java</executable>
                             <workingDirectory>${basedir}</workingDirectory>
@@ -160,6 +169,15 @@
                                 <argument>${basedir}/src/build-tools/AsciiDocIncludeUpdater.java</argument>
                             </arguments>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>asciidoc-documentation-includes-update</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>post-integration-test</phase>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
