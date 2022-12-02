@@ -1,25 +1,19 @@
-package org.symly.doc;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
-
-import org.gradle.api.DefaultTask;
-import org.gradle.api.tasks.TaskAction;
 
 /**
  * <p>Execute after all tests are executed to process includes from asciidoc files.</p>
  * <p>This is unfortunately necessary as GitHub does not process asciidoc includes online and would otherwise only
  * display a link to the content.</p>
  */
-public class AsciiDocIncludeUpdaterTask extends DefaultTask {
+public class AsciiDocIncludeUpdater {
 
-    @TaskAction
-    public void run() {
+    public static void main(String[] args) {
         try (Stream<String> paths = Stream.of("README.adoc", "docs/")) {
             paths.map(Path::of)
-                    .flatMap(AsciiDocIncludeUpdaterTask::walk)
+                    .flatMap(AsciiDocIncludeUpdater::walk)
                     .filter(path -> path.getFileName().toString().endsWith(".adoc"))
                     .sorted()
                     .map(AsciiDocFile::new)
@@ -73,7 +67,8 @@ class AsciiDocFile {
             }
             Files.writeString(path, content);
         } catch (IOException e) {
-            throw new AsciiDocIncludeException("Unable to process Asciidoc file includes. %s".formatted(e.getMessage()));
+            throw new AsciiDocIncludeException(
+                    "Unable to process Asciidoc file includes. %s".formatted(e.getMessage()));
         }
     }
 

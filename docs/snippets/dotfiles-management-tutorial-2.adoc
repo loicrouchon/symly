@@ -1,6 +1,0 @@
-----
-$ symly link --dir ~ --repositories .
-added:       .bashrc -> /home/user/mydotfiles/.bashrc
-added:       .config/starship.toml -> /home/user/mydotfiles/.config/starship.toml
-added:       .gitconfig -> /home/user/mydotfiles/.gitconfig
-----
