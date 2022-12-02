@@ -11,6 +11,7 @@
     <description>Symly, a tool to manage symbolic links</description>
     <url>https://github.com/loicrouchon/symly</url>
     <properties>
+        <project.codename>symly</project.codename>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.release>17</maven.compiler.release>
         <!-- plugins versions -->
@@ -18,26 +19,37 @@
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-assembly-plugin.version>3.4.2</maven-assembly-plugin.version>
-        <spotless-maven-plugin.version>2.27.2</spotless-maven-plugin.version>
         <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
+        <spotless-maven-plugin.version>2.27.2</spotless-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+        <asciidoctor-maven-plugin.version>2.2.2</asciidoctor-maven-plugin.version>
+        <!-- dependencies versions -->
+        <picocli.version>4.6.3</picocli.version>
+        <junit-jupiter.version>5.8.1</junit-jupiter.version>
+        <assertj-core.version>3.21.0</assertj-core.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
-            <version>4.6.3</version>
+            <version>${picocli.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli-codegen</artifactId>
+            <version>${picocli.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>5.8.1</version>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.21.0</version>
+            <version>${assertj-core.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -47,6 +59,15 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>${picocli.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -167,13 +188,6 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
                         <version>${exec-maven-plugin.version}</version>
-                        <configuration>
-                            <executable>java</executable>
-                            <workingDirectory>${basedir}</workingDirectory>
-                            <arguments>
-                                <argument>${basedir}/src/build-tools/AsciiDocIncludeUpdater.java</argument>
-                            </arguments>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>asciidoc-documentation-includes-update</id>
@@ -181,6 +195,73 @@
                                     <goal>exec</goal>
                                 </goals>
                                 <phase>post-integration-test</phase>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <workingDirectory>${basedir}</workingDirectory>
+                                    <arguments>
+                                        <argument>${basedir}/src/build-tools/AsciiDocIncludeUpdater.java</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>generate-asciidoc-manpage</id>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <phase>prepare-package</phase>
+                                <configuration>
+                                    <mainClass>picocli.codegen.docgen.manpage.ManPageGenerator</mainClass>
+                                    <classpathScope>compile</classpathScope>
+                                    <arguments>
+                                        <argument>org.${project.codename}.cli.MainCommand</argument>
+                                        <argument>--factory=org.${project.codename}.cli.BeanFactory</argument>
+                                        <argument>--outdir=${project.build.directory}/docs/manpage/adoc</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctor-maven-plugin</artifactId>
+                        <version>${asciidoctor-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>asciidoc-manpage-to-manpage</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>process-asciidoc</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceDirectory>${project.build.directory}/docs/manpage/adoc</sourceDirectory>
+                                    <outputDirectory>${project.build.directory}/docs/manpage/manpage</outputDirectory>
+                                    <backend>manpage</backend>
+                                    <attributes>
+                                        <reproducible>true</reproducible>
+                                    </attributes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>asciidoc-manpage-to-html</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>process-asciidoc</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceDirectory>${project.build.directory}/docs/manpage/adoc</sourceDirectory>
+                                    <outputDirectory>${project.build.directory}/docs/manpage/html</outputDirectory>
+                                    <backend>html5</backend>
+                                    <attributes>
+                                        <reproducible>true</reproducible>
+                                    </attributes>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
