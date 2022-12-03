@@ -1,18 +1,17 @@
 package org.symly.files;
 
 import java.io.IOException;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Set;
 import java.util.stream.Stream;
 import org.symly.cli.SymlyExecutionException;
-import org.symly.links.Directory;
+import org.symly.repositories.Directory;
 
 public interface FileSystemReader {
 
     boolean exists(Path path);
+
+    boolean isReadable(Path path);
 
     boolean isDirectory(Path path);
 
@@ -26,16 +25,20 @@ public interface FileSystemReader {
 
     Stream<String> lines(Path path) throws IOException;
 
-    Stream<Path> walk(Path path) throws IOException;
+    Stream<Path> list(Path path) throws IOException;
 
-    void walkFileTree(Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
-            throws IOException;
+    Stream<Path> walk(Path path) throws IOException;
 
     class RealFileSystemReader implements FileSystemReader {
 
         @Override
         public boolean exists(Path path) {
             return Files.exists(path);
+        }
+
+        @Override
+        public boolean isReadable(Path path) {
+            return Files.isReadable(path);
         }
 
         @Override
@@ -54,7 +57,7 @@ public interface FileSystemReader {
                 return Files.readSymbolicLink(link);
             } catch (IOException e) {
                 throw new SymlyExecutionException(
-                        String.format("Unable to read link %s real path: %s", link, e.getMessage()), e);
+                        "Unable to read link %s real path: %s".formatted(link, e.getMessage()), e);
             }
         }
 
@@ -64,15 +67,13 @@ public interface FileSystemReader {
         }
 
         @Override
-        public Stream<Path> walk(Path path) throws IOException {
-            return Files.walk(path);
+        public Stream<Path> list(Path path) throws IOException {
+            return Files.list(path);
         }
 
         @Override
-        public void walkFileTree(
-                Path start, Set<FileVisitOption> options, int maxDepth, FileVisitor<? super Path> visitor)
-                throws IOException {
-            Files.walkFileTree(start, options, maxDepth, visitor);
+        public Stream<Path> walk(Path path) throws IOException {
+            return Files.walk(path);
         }
     }
 }

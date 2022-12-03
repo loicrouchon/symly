@@ -6,8 +6,12 @@ import org.symly.env.IntegrationTest;
 import org.symly.files.FileTree.Diff;
 
 @SuppressWarnings({
-    "java:S100", // Method names should comply with a naming convention (test method names)
-    "java:S1192", // String literals should not be duplicated
+    // Method names should comply with a naming convention (test method names)
+    "java:S100",
+    // String literals should not be duplicated
+    "java:S1192",
+    // Tests should include assertions: assertions are actually performed by the `.thenItShould()....` chain
+    "java:S2699"
 })
 class LinkCommandTest extends IntegrationTest {
 
@@ -281,5 +285,22 @@ class LinkCommandTest extends IntegrationTest {
                 -F home/user/file/parent-is-a-dir
                 +L home/user/file -> home/user/to/dir/file
                 """));
+    }
+
+    @Test
+    void shouldPrintActions_butNotModifyFileSystem_whenDryRunisEnabled() {
+        // given
+        given(env).withLayout("""
+    L home/user/file -> home/user/repo/file
+    F home/user/repo/dir/file
+    """);
+        // when/then
+        whenRunningCommand("link", "-v", "--dry-run", "--dir", "~", "--force", "--repositories", "home/user/repo")
+                .thenItShould()
+                .succeed()
+                .withMessages(List.of(
+                        msg.linkActionCreate("dir/file", "home/user/repo/dir/file"),
+                        msg.linkActionDelete("file", "home/user/repo/file")))
+                .withFileTreeDiff(Diff.empty());
     }
 }

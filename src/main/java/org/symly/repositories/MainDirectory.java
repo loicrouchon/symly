@@ -1,7 +1,6 @@
 package org.symly.repositories;
 
 import java.nio.file.Path;
-import org.symly.links.Directory;
 
 /**
  * The directory in which links will be created to files present in {@link Repositories}.

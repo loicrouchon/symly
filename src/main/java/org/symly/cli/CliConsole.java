@@ -2,15 +2,18 @@ package org.symly.cli;
 
 import java.io.PrintWriter;
 import java.lang.System.Logger.Level;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class CliConsole {
 
     private final PrintWriter out;
     private final PrintWriter err;
 
     private Level currentLevel = Level.INFO;
+
+    public CliConsole(PrintWriter out, PrintWriter err) {
+        this.out = out;
+        this.err = err;
+    }
 
     public void enableVerboseMode() {
         currentLevel = Level.DEBUG;

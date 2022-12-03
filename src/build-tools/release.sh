@@ -22,16 +22,6 @@ if [ ! "${CURRENT_BRANCH}" = "${MAIN_BRANCH}" ]; then
     exit 1
 fi
 
-echo "Checking for uncommitted changes"
-UNCOMMITTED_CHANGES="$(git status --porcelain)"
-if [ ! "${UNCOMMITTED_CHANGES}" = "" ]; then
-    format_red
-    echo "There are uncommitted changes, commit them before releasing" >&2
-    echo "${UNCOMMITTED_CHANGES}"
-    format_clear
-    exit 1
-fi
-
 echo "Checking for divergence with origin/${MAIN_BRANCH}"
 git fetch origin
 CURRENT_MAIN_COMMIT="$(git rev-parse --verify --short HEAD)"
@@ -49,6 +39,16 @@ fi
 echo "Checking application tests"
 ./gradlew clean check --console=plain > /dev/null
 
+echo "Checking for uncommitted changes"
+UNCOMMITTED_CHANGES="$(git status --porcelain)"
+if [ ! "${UNCOMMITTED_CHANGES}" = "" ]; then
+    format_red
+    echo "There are uncommitted changes, commit them before releasing" >&2
+    echo "${UNCOMMITTED_CHANGES}"
+    format_clear
+    exit 1
+fi
+
 echo "Checking last release branches"
 LATEST_RELEASE_BRANCH="$(git branch -r --list "origin/release/*" | sort -V | tail -n 1 | sed -r 's#^ *origin/(.+)$#origin/\1#')"
 LATEST_RELEASE_BASE_VERSION="$(echo "${LATEST_RELEASE_BRANCH}" | sed -r 's#^origin/release/(.+)$#\1#')"
@@ -58,7 +58,7 @@ echo "Enter next release base version:"
 IFS= read -r NEXT_RELEASE_BASE_VERSION
 NEXT_RELEASE="release/${NEXT_RELEASE_BASE_VERSION}"
 echo "Creating branch ${NEXT_RELEASE} from ${MAIN_BRANCH}"
-git branch -c "${MAIN_BRANCH}" "${NEXT_RELEASE}"
+git branch -c "${NEXT_RELEASE}"
 git switch "${NEXT_RELEASE}"
 
 NEXT_RELEASE_VERSION="$("./${DIR}/compute-next-version.sh")"
@@ -75,3 +75,4 @@ if [ ! "${PROCEED_WITH_RELEASE}" = "y" ]; then
 fi
 
 git push -u origin "${NEXT_RELEASE}"
+echo "Release branch pushed to GitHub, CI will be triggered soon"

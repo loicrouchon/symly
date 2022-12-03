@@ -1,0 +1,8 @@
+----
+$ symly status -v
+Checking links status from /home/user to [/home/user/mydotfiles]
+up-to-date:  .config/fish/config.fish -> /home/user/mydotfiles/.config/fish/config.fish
+up-to-date:  .config/starship.toml -> /home/user/mydotfiles/.config/starship.toml
+up-to-date:  .gitconfig -> /home/user/mydotfiles/.gitconfig
+Everything is already up to date
+----

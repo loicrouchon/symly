@@ -6,17 +6,19 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import lombok.*;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
-@RequiredArgsConstructor
 public class FileTree {
 
-    @NonNull
     private final SortedSet<FileRef> layout;
+
+    public FileTree(SortedSet<FileRef> layout) {
+        this.layout = Objects.requireNonNull(layout);
+    }
 
     public void create(Path root) {
         for (FileRef fileRef : layout) {
@@ -24,8 +26,18 @@ public class FileTree {
         }
     }
 
-    public Stream<String> getLayout() {
-        return layout.stream().map(FileRef::toString);
+    public Stream<FileRef> layout() {
+        return layout.stream();
+    }
+
+    public Stream<String> getFilesLayout() {
+        return layout.stream()
+                .filter(fileRef -> !(fileRef instanceof FileRef.DirectoryRef))
+                .map(FileRef::toString);
+    }
+
+    public FileTree subtree(Predicate<? super FileRef> predicate) {
+        return of(layout.stream().filter(predicate));
     }
 
     @Override
@@ -43,19 +55,17 @@ public class FileTree {
     }
 
     public static FileTree fromPath(Path root) {
-        try {
-            return of(Files.walk(root)
-                    .filter(p -> Files.isRegularFile(p) || Files.isSymbolicLink(p))
-                    .map(path -> FileRef.of(root, path)));
+        try (Stream<Path> files = Files.walk(root)) {
+            return of(files.filter(path -> !Objects.equals(root, path)).map(path -> FileRef.of(root, path)));
         } catch (IOException e) {
-            fail(String.format("Unable to initialize FileTree for path %s", root), e);
+            fail("Unable to initialize FileTree for path %s".formatted(root), e);
             throw new IllegalStateException("unreachable");
         }
     }
 
     public Diff diff(FileTree other) {
-        Set<String> currentLayout = getLayout().collect(Collectors.toSet());
-        Set<String> otherLayout = other.getLayout().collect(Collectors.toSet());
+        Set<String> currentLayout = getFilesLayout().collect(Collectors.toSet());
+        Set<String> otherLayout = other.getFilesLayout().collect(Collectors.toSet());
         Set<String> created = diff(currentLayout, otherLayout);
         Set<String> deleted = diff(otherLayout, currentLayout);
         return new Diff(created, deleted);
@@ -67,14 +77,9 @@ public class FileTree {
         return set;
     }
 
-    @Value
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Diff {
+    public record Diff(Set<String> newPaths, Set<String> removedPaths) {
 
         private static final Diff EMPTY = new Diff(Set.of(), Set.of());
-
-        Set<String> newPaths;
-        Set<String> removedPaths;
 
         public static Diff ofChanges(String layout) {
             Set<String> newPaths = new HashSet<>();

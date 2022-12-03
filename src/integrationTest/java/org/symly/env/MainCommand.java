@@ -4,29 +4,29 @@ import static org.assertj.core.api.Fail.fail;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.*;
 import org.symly.cli.BeanFactory;
 import org.symly.cli.CliConsole;
 import org.symly.cli.Main;
 import org.symly.files.FileTree;
 import org.symly.repositories.PathAdapter;
+import picocli.CommandLine;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
-@RequiredArgsConstructor
 public class MainCommand {
 
-    @NonNull
     private final Path rootDir;
 
-    @NonNull
     private final Path workingDir;
 
-    @NonNull
     private final Path home;
+
+    public MainCommand(Path rootDir, Path workingDir, Path home) {
+        this.rootDir = Objects.requireNonNull(rootDir);
+        this.workingDir = Objects.requireNonNull(workingDir);
+        this.home = Objects.requireNonNull(home);
+    }
 
     public Execution run(String[] args) {
         FileTree rootFileTreeSnapshot = FileTree.fromPath(rootDir);
@@ -36,10 +36,13 @@ public class MainCommand {
             sysProps.set("user.home", home);
             sysProps.set(PathAdapter.SYMLY_CWD_PROPERTY, workingDir.toAbsolutePath());
             BeanFactory beanFactory = new BeanFactory();
-            beanFactory.registerBean(
-                    CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
-            int exitCode = Main.runCommand(beanFactory, args);
-            return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, exitCode, stdOut.reader(), stdErr.reader());
+            beanFactory.register(CliConsole.class, () -> new CliConsole(stdOut.printWriter(), stdErr.printWriter()));
+            int exitCode = Main.runCommand(beanFactory, CommandLine.Help.Ansi.OFF, args);
+            List<String> command = new ArrayList<>();
+            command.add("symly");
+            command.addAll(List.of(args));
+            return Execution.of(
+                    rootFileTreeSnapshot, rootDir, workingDir, command, exitCode, stdOut.reader(), stdErr.reader());
         } catch (Exception e) {
             fail("Command execution failed", e);
             throw new IllegalStateException("unreachable");

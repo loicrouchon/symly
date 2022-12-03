@@ -1,0 +1,9 @@
+----
+$ tree /home/user
+/home/user:
+|-- .config/
+|   |-- fish/
+|   |   \-- config.fish -> /home/user/mydotfiles/.config/fish/config.fish
+|   \-- starship.toml -> /home/user/mydotfiles/.config/starship.toml
+\-- .gitconfig -> /home/user/mydotfiles/.gitconfig
+----

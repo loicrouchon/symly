@@ -1,10 +1,8 @@
-package org.symly.links;
+package org.symly.repositories;
 
 import java.nio.file.Path;
-import lombok.EqualsAndHashCode;
-import lombok.NonNull;
+import java.util.Objects;
 
-@EqualsAndHashCode
 public abstract class Directory {
 
     /**
@@ -12,8 +10,8 @@ public abstract class Directory {
      */
     private final Path path;
 
-    protected Directory(@NonNull Path path) {
-        this.path = path.toAbsolutePath().normalize();
+    protected Directory(Path path) {
+        this.path = Objects.requireNonNull(path).toAbsolutePath().normalize();
     }
 
     public Path toPath() {
@@ -30,6 +28,16 @@ public abstract class Directory {
 
     public Path resolve(Path subPath) {
         return path.resolve(subPath);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(path);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o || (o instanceof Directory directory && path.equals(directory.path));
     }
 
     @Override

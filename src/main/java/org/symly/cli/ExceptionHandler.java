@@ -1,15 +1,18 @@
 package org.symly.cli;
 
-import lombok.RequiredArgsConstructor;
 import picocli.CommandLine;
 import picocli.CommandLine.IExecutionExceptionHandler;
 import picocli.CommandLine.ParseResult;
 
-@RequiredArgsConstructor
 class ExceptionHandler implements IExecutionExceptionHandler {
 
     private final Config config;
     private final CliConsole console;
+
+    ExceptionHandler(Config config, CliConsole console) {
+        this.config = config;
+        this.console = console;
+    }
 
     @Override
     public int handleExecutionException(Exception e, CommandLine commandLine, ParseResult parseResult) {

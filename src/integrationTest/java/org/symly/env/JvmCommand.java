@@ -8,37 +8,35 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.symly.files.FileTree;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
-@RequiredArgsConstructor
 public class JvmCommand {
 
     private static final long TIMEOUT = 5L;
 
-    private static final String JAVA_BINARY = String.format("%s/bin/java", System.getProperty("java.home"));
+    private static final String JAVA_BINARY = "%s/bin/java".formatted(System.getProperty("java.home"));
     private static final List<String> JVM_OPTIONS =
             List.of("-XX:TieredStopAtLevel=1", "-Xmx8m", "-XX:+ShowCodeDetailsInExceptionMessages");
     private static final String CLASSPATH_SYSTEM_PROPERTY = "symly.runtime.classpath";
     private static final String MAIN_CLASS = "org.symly.cli.Main";
 
-    @NonNull
     private final Path rootDir;
 
-    @NonNull
     private final Path workingDir;
 
-    @NonNull
     private final Path home;
+
+    public JvmCommand(Path rootDir, Path workingDir, Path home) {
+        this.rootDir = Objects.requireNonNull(rootDir);
+        this.workingDir = Objects.requireNonNull(workingDir);
+        this.home = Objects.requireNonNull(home);
+    }
 
     public Execution run(String[] args) {
         FileTree rootFileTreeSnapshot = FileTree.fromPath(rootDir);
@@ -55,7 +53,8 @@ public class JvmCommand {
             }
             try (Reader stdOut = toReader(process.getInputStream());
                     Reader stdErr = toReader(process.getErrorStream())) {
-                return Execution.of(rootFileTreeSnapshot, rootDir, workingDir, process.exitValue(), stdOut, stdErr);
+                return Execution.of(
+                        rootFileTreeSnapshot, rootDir, workingDir, command, process.exitValue(), stdOut, stdErr);
             }
         } catch (InterruptedException | IOException e) {
             Thread.currentThread().interrupt();
@@ -65,14 +64,14 @@ public class JvmCommand {
     }
 
     private Reader toReader(InputStream inputStream) {
-        return new InputStreamReader(inputStream);
+        return new InputStreamReader(inputStream, StandardCharsets.UTF_8);
     }
 
     private List<String> command(String[] args) {
         List<String> command = new ArrayList<>();
         command.add(JAVA_BINARY);
         command.addAll(JVM_OPTIONS);
-        command.add(String.format("-Duser.home=%s", home));
+        command.add("-Duser.home=%s".formatted(home));
         jacocoAgent().ifPresent(command::add);
         command.add("-cp");
         command.add(System.getProperty(CLASSPATH_SYSTEM_PROPERTY));
@@ -98,6 +97,6 @@ public class JvmCommand {
     }
 
     private String commandFailureMessage(String message, List<String> command) {
-        return String.format("%s%n\tworking directory:%n\t\t%s%n\tCommand:%n\t\t%s", message, workingDir, command);
+        return "%s%n\tworking directory:%n\t\t%s%n\tCommand:%n\t\t%s".formatted(message, workingDir, command);
     }
 }

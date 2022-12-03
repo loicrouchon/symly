@@ -3,30 +3,32 @@ package org.symly.cli;
 import static java.util.function.Predicate.not;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import org.symly.cli.validation.Constraint;
-import org.symly.cli.validation.Validator;
+import java.util.*;
 import org.symly.files.FileSystemReader;
-import org.symly.repositories.*;
+import org.symly.links.Context;
+import org.symly.repositories.ContextConfig;
+import org.symly.repositories.MainDirectory;
+import org.symly.repositories.Repositories;
+import org.symly.repositories.Repository;
+import org.symly.validation.Constraint;
+import org.symly.validation.Validator;
+import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Spec;
 
-@RequiredArgsConstructor
 public class ContextInput {
 
-    @NonNull
     private final FileSystemReader fsReader;
 
     @Option(
             names = {"-d", "--dir", "--directory"},
             paramLabel = "<main-directory>",
-            description = "Main directory in which links will be created")
+            description =
+                    """
+    Main directory in which links will be created. \
+    If not given as a command line argument, symly will look for the 'directory' property \
+    in the symly.config file present in the current working directory""")
     Path mainDirectoryPath;
 
     @Option(
@@ -36,17 +38,30 @@ public class ContextInput {
                     """
         Repositories containing files to link in the main directory. \
         Repositories are to be listed by decreasing priority as the first ones will \
-        override the content of the later ones.""",
+        override the content of the later ones. \
+        If not given as a command line argument, symly will look for the 'repositories' property \
+        in the symly.config file present in the current working directory""",
             arity = "0..*")
     List<Path> repositoriesPaths;
 
     @Option(
             names = {"--max-depth"},
             paramLabel = "<max-depth>",
-            description = "Depth of the lookup for orphans deletion")
+            description =
+                    """
+            Depth of the lookup for orphans deletion.\
+            If not given as a command line argument, symly will look for the 'orphans.max-depth.search' property \
+            in the symly.config file present in the current working directory. \
+            If no property is found, default value will be used.""",
+            defaultValue = ContextConfig.ORPHAN_MAX_DEPTH_DEFAULT_VALUE,
+            showDefaultValue = CommandLine.Help.Visibility.ALWAYS)
     Integer maxDepth;
 
     private Validator validator;
+
+    public ContextInput(FileSystemReader fsReader) {
+        this.fsReader = Objects.requireNonNull(fsReader);
+    }
 
     @Spec
     @SuppressWarnings("unused") // called by picocli
@@ -66,12 +81,10 @@ public class ContextInput {
         MainDirectory mainDirectory = Optional.ofNullable(mainDirectoryPath)
                 .or(contextConfig::directory)
                 .map(MainDirectory::of)
-                .orElse(null);
-        validator.validate(
-                Constraint.of("Main directory is not defined", () -> mainDirectory != null),
-                Constraint.of(
-                        String.format("Main directory (%s) is not an existing directory", mainDirectory),
-                        () -> fsReader.isADirectory(mainDirectory)));
+                .orElseThrow(() -> validator.violation("Main directory is not defined"));
+        validator.validate(Constraint.of(
+                "Main directory (%s) is not an existing directory".formatted(mainDirectory),
+                () -> fsReader.isADirectory(mainDirectory)));
         return mainDirectory;
     }
 
@@ -91,7 +104,7 @@ public class ContextInput {
         repositories
                 .repositories()
                 .forEach(repository -> constraints.add(Constraint.of(
-                        String.format("Repository (%s) is not an existing directory", repository.toPath()),
+                        "Repository (%s) is not an existing directory".formatted(repository.toPath()),
                         () -> fsReader.isADirectory(repository))));
         validator.validate(constraints);
         return repositories;
@@ -100,7 +113,7 @@ public class ContextInput {
     private int orphanMaxDepth(ContextConfig contextConfig) {
         int orphanMaxDepth = Optional.ofNullable(maxDepth).orElseGet(contextConfig::orphanMaxDepth);
         validator.validate(Constraint.of(
-                String.format("Orphan lookup max-depth (%s) must be a positive integer", orphanMaxDepth),
+                "Orphan lookup max-depth (%s) must be a positive integer".formatted(orphanMaxDepth),
                 () -> orphanMaxDepth >= 0));
         return orphanMaxDepth;
     }

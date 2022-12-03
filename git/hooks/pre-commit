@@ -7,7 +7,7 @@ files_in_working_index="$(git --no-pager diff --name-status --no-color | awk '$1
 echo "Reformating code..."
 for file_staged_for_commit in $files_staged_for_commit
 do
-  if ! $(printf "$files_in_working_index" | grep -q "$file_staged_for_commit"); then
+  if ! printf "$files_in_working_index" | grep -q "$file_staged_for_commit"; then
     echo "Formatting $(pwd)/$file_staged_for_commit"
     ./gradlew spotlessApply -PspotlessIdeHook="$(pwd)/$file_staged_for_commit"
     git add $file_staged_for_commit

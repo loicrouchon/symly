@@ -1,0 +1,48 @@
+= Installation
+
+Symly is available through different package managers for Linux and macOS
+
+.DEB: Debian, Ubuntu, Linux Mint, ...
+----
+sudo sh -c 'curl -1sLf https://packages.loicrouchon.com/deb/dists/latest/Release.gpg.key | gpg --dearmor | tee -a /usr/share/keyrings/packages-loicrouchon.com.gpg > /dev/null'
+sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/packages-loicrouchon.com.gpg] https://packages.loicrouchon.com/deb latest main" | tee /etc/apt/sources.list.d/symly.list'
+sudo apt update
+sudo apt install symly
+----
+
+.RPM: Fedora, CentOS, Red Hat, ...
+----
+sudo sh -c 'curl -1sLf https://packages.loicrouchon.com/rpm/Release.gpg.key > /tmp/symly.gpg.key'
+sudo rpm --import /tmp/symly.gpg.key
+sudo dnf install 'dnf-command(config-manager)'
+sudo dnf config-manager --add-repo https://packages.loicrouchon.com/rpm
+sudo dnf install symly
+----
+
+It is also available via HomeBrew for macOS and other Linux distributions.
+
+.Homebrew (macOS/Linux)
+----
+brew install loicrouchon/symly/symly
+----
+
+If your package manager is not supported, you can take a look at the alternative installation options below:
+
+.Manual download
+--
+Artifacts can also be downloaded manually from link:https://github.com/loicrouchon/symly/releases[GitHub].
+
+The following artifacts are available:
+
+* Jar application with a bootstrap script.
+Requires JVM 17+
+* `.deb` and `.rpm` packages.
+--
+
+.Build
+The last option is to build symly from source.
+More details are available on the link:./build.adoc[build instructions] page.
+
+'''
+
+Now that symly is installed, it is time to take a look at the key link:concepts.adoc[concepts] behind it.

@@ -10,22 +10,22 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.symly.files.FileSystemReader;
 import org.symly.links.Link;
 
 /**
  * An ordered collection of {@link Repository} which files will be linked into the {@link MainDirectory}.
  */
-@RequiredArgsConstructor
 public class Repositories {
 
-    @NonNull
     private final FileSystemReader fsReader;
 
-    @NonNull
     private final Deque<Repository> layers;
+
+    public Repositories(FileSystemReader fsReader, Deque<Repository> layers) {
+        this.fsReader = Objects.requireNonNull(fsReader);
+        this.layers = Objects.requireNonNull(layers);
+    }
 
     public Collection<Repository> repositories() {
         return List.copyOf(layers);
@@ -56,7 +56,10 @@ public class Repositories {
     private Stream<RepositoryEntry> entries(FileSystemReader fs) {
         Set<Path> addedNames = new HashSet<>();
         List<Path> addedDirs = new ArrayList<>();
-        List<RepositoryEntry> allEntries = allEntries(fs).toList();
+        List<RepositoryEntry> allEntries;
+        try (Stream<RepositoryEntry> stream = allEntries(fs)) {
+            allEntries = stream.toList();
+        }
         Set<Path> allEntriesFullPaths =
                 allEntries.stream().map(RepositoryEntry::fullPath).collect(Collectors.toSet());
         return allEntries.stream()

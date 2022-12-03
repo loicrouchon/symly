@@ -5,7 +5,7 @@ on: push
 jobs:
   env:
     name: Initialize environment
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
       gradle-args: ${{ steps.gradle.outputs.args }}
@@ -35,7 +35,7 @@ jobs:
   test:
     name: Test
     needs: [ env ]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -115,7 +115,7 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/release/')
     needs: [ env, test ]
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -135,9 +135,9 @@ jobs:
           arguments: ${{ needs.env.outputs.gradle-args }} build
 
       - name: Run JReleaser
-        uses: jreleaser/release-action@v1
+        uses: jreleaser/release-action@v2
         with:
-          version: 0.10.0
+          version: 1.2.0
         env:
           JRELEASER_PROJECT_VERSION: ${{ needs.env.outputs.version }}
           JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

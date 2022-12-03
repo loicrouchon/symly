@@ -1,20 +1,13 @@
 package org.symly.cli;
 
 import java.lang.System.Logger.Level;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Stream;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 import org.symly.Result;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
-import org.symly.links.Action;
-import org.symly.links.Link;
-import org.symly.links.Status;
-import org.symly.repositories.Context;
-import org.symly.repositories.LinksFinder;
+import org.symly.links.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
@@ -22,8 +15,13 @@ import picocli.CommandLine.Option;
 @Command(
         name = "link",
         aliases = {"ln"},
-        description = "Create/update links from 'directory' to the 'to' repositories")
-@RequiredArgsConstructor
+        description =
+                """
+            Create/update/delete links from 'directory' to the 'repositories'.
+
+            Repositories should be specified with base layers first and overriding layers next. \
+            In case two repositories contain a file with the same path, the file in the latest \
+            repository will be used as the target for the link for the given path""")
 class LinkCommand implements Runnable {
 
     @Mixin
@@ -31,7 +29,7 @@ class LinkCommand implements Runnable {
 
     @Option(
             names = {"--dry-run"},
-            description = "Do not actually create links but only displays which ones would be created")
+            description = "Do not create links but only displays which ones would be created")
     boolean dryRun = false;
 
     @Option(
@@ -40,20 +38,20 @@ class LinkCommand implements Runnable {
                     + "conflicts")
     boolean force = false;
 
-    @NonNull
     private final CliConsole console;
 
-    @NonNull
     private final FileSystemReader fsReader;
 
-    @NonNull
     private final FileSystemWriter fileSystemWriter;
-
-    @NonNull
-    private final LinksFinder linksFinder;
 
     private int updates;
     private Context context;
+
+    public LinkCommand(CliConsole console, FileSystemReader fsReader, FileSystemWriter fileSystemWriter) {
+        this.console = Objects.requireNonNull(console);
+        this.fsReader = Objects.requireNonNull(fsReader);
+        this.fileSystemWriter = Objects.requireNonNull(fileSystemWriter);
+    }
 
     @Override
     public void run() {
@@ -70,7 +68,6 @@ class LinkCommand implements Runnable {
                 context.repositories().repositories());
         FileSystemWriter mutator = getFilesMutatorService();
         createLinks(mutator);
-        deleteOrphans(mutator);
         if (updates == 0) {
             console.printf("Everything is already up to date%n");
         }
@@ -84,52 +81,37 @@ class LinkCommand implements Runnable {
     }
 
     private void createLinks(FileSystemWriter fsWriter) {
-        for (Link link : context.links()) {
-            Status status = link.status(fsReader);
-            List<Action> actions = status.toActions(fsReader, force);
-            for (Action action : actions) {
-                Result<Path, Action.Code> result = action.apply(fsReader, fsWriter);
-                if (!action.type().equals(Action.Type.UP_TO_DATE)) {
+        try (var linkStates = context.status(fsReader)) {
+            linkStates.forEach(linkState -> {
+                if (linkState.type() != LinkState.Type.UP_TO_DATE) {
                     updates++;
                 }
-                printStatus(action, result);
-            }
+                List<Action> actions = linkState.toActions(fsReader, force);
+                for (Action action : actions) {
+                    Result<Void, Action.Code> result = action.apply(fsReader, fsWriter);
+                    printStatus(linkState, action, result);
+                }
+            });
         }
     }
 
-    private void deleteOrphans(FileSystemWriter mutator) {
-        Stream<Link> orphans = linksFinder.findOrphans(
-                context.mainDirectory().toPath(), context.orphanMaxDepth(), context.repositories());
-        orphans.forEach(orphan -> {
-            updates++;
-            deleteOrphan(orphan, mutator);
-        });
+    private void printStatus(LinkState linkState, Action action, Result<Void, Action.Code> result) {
+        result.accept(success -> printAction(action), error -> printError(linkState, action, error));
     }
 
-    private void deleteOrphan(Link orphan, FileSystemWriter mutator) {
-        Action action = Action.delete(orphan);
-        Result<Path, Action.Code> status = action.apply(fsReader, mutator);
-        printStatus(action, status);
-    }
-
-    private void printStatus(Action action, Result<Path, Action.Code> result) {
-        result.accept(previousLink -> printAction(action, previousLink), error -> printError(action, error));
-    }
-
-    private void printAction(Action action, Path previousLink) {
-        Link link = action.link();
-        switch (action.type()) {
-            case UP_TO_DATE -> printAction(Level.DEBUG, "up-to-date", link);
-            case CREATE -> printAction(Level.INFO, "added", link);
-            case MODIFY -> {
-                if (previousLink == null) {
-                    throw new IllegalStateException("Expecting a previous link to be found for " + link.source());
-                }
-                printAction(Level.INFO, "deleted", new Link(link.source(), previousLink));
-                printAction(Level.INFO, "added", link);
-            }
-            case DELETE -> printAction(Level.INFO, "deleted", link);
-            case CONFLICT -> printAction(Level.INFO, "!conflict", link);
+    private void printAction(Action action) {
+        if (action instanceof NoOpAction a) {
+            printAction(Level.DEBUG, "up-to-date", a.link());
+        } else if (action instanceof CreateLinkAction a) {
+            printAction(Level.INFO, "added", a.link());
+        } else if (action instanceof DeleteLinkAction a) {
+            printAction(Level.INFO, "deleted", a.link());
+        } else if (action instanceof DeleteAction a) {
+            printAction(Level.INFO, "deleted", new Link(a.path(), null));
+        } else if (action instanceof ConflictAction a) {
+            printAction(Level.INFO, "!conflict", a.link());
+        } else {
+            throw new IllegalStateException("Not reachable, normally " + action);
         }
     }
 
@@ -137,22 +119,21 @@ class LinkCommand implements Runnable {
         console.printf(level, "%-12s %s%n", actionType + ":", link.toString(context.mainDirectory()));
     }
 
-    private void printError(Action action, Action.Code error) {
-        printAction(action, error.previousPath());
-        Link link = action.link();
+    private void printError(LinkState linkState, Action action, Action.Code error) {
+        printAction(action);
         String details =
                 switch (error.state()) {
-                    case INVALID_SOURCE -> String.format("Source %s does not exist", link.source());
-                    case INVALID_DESTINATION -> String.format("Destination %s does not exist", link.target());
-                    case CONFLICT -> String.format(
-                            "Regular file %s already exist. To overwrite it, use the -f (--force) option.",
-                            link.source());
-                    case ERROR -> String.format("An error occurred during linkage: - %s", error.details());
+                    case INVALID_SOURCE -> "Source %s does not exist".formatted(action.path());
+                    case INVALID_DESTINATION -> "Destination %s does not exist".formatted(linkState.desiredTarget());
+                    case CONFLICT -> "Regular file %s already exist. To overwrite it, use the -f (--force) option."
+                            .formatted(action.path());
+                    case ERROR -> "An error occurred during linkage: - %s".formatted(error.details());
                 };
         if (dryRun) {
             console.eprintf("> %s%n", details);
         } else {
-            throw new SymlyExecutionException(String.format("Unable to create link %s%n> %s%n", link, details));
+            throw new SymlyExecutionException(
+                    "Unable to create link %s%n> %s%n".formatted(linkState.desired(), details));
         }
     }
 }

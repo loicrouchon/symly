@@ -1,0 +1,32 @@
+= Features
+
+.Commands
+* [x] link: link the content of the repositories into the directory
+* [x] unlink: unlink the content of the repositories into the directory
+* [x] status: displays the status of the links
+
+.Flexible repositories
+* [x] Support for multiple repositories
+* [x] Layering of repositories allowing for a default layer and zero to many custom ones on top
+* [x] Ignored files in repositories via .symlyignore
+
+.Core features
+* [x] Replication of the repository files tree structure in the directory
+* [x] Symbolic link creation/update/deletion for simple files (default mode)
+* [x] Symbolic link creation/update/deletion for symbolic links (default mode)
+* [x] Symbolic link creation/update/deletion for directories (on demand only)
+* [x] Orphan links detection/deletion
+* [x] Optional forced link creation (overwriting destination file)
+
+.Integrations
+* [x] Seamless integration with editors, use your preferred editor or command line tools to alter your files.
+They don't even need to be aware of Symly
+* [x] Seamless integration with synchronization, diff and merge tools.
+No need to learn a new one
+* [x] Not limited to dotfiles, can be used for any other directory/file types
+
+== Roadmap
+
+* [ ] Command to add and link a new file to a repository
+* [ ] Command to restore a file in the directory
+* [ ] Command to restore a full repository

@@ -1,3 +1,6 @@
+import net.ltgt.gradle.errorprone.errorprone
+import org.symly.doc.AsciiDocIncludeUpdaterTask
+
 plugins {
     application
     `jvm-test-suite`
@@ -6,6 +9,7 @@ plugins {
     id("com.diffplug.spotless") version "6.7.2"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
     id("nebula.ospackage") version "9.0.0"
+    id("net.ltgt.errorprone") version "2.0.2"
 }
 
 val appModuleName = "org.${project.name}"
@@ -33,8 +37,8 @@ spotless {
 
 tasks.withType<AbstractArchiveTask>().configureEach {
     // Enable reproducible builds
-    setPreserveFileTimestamps(false)
-    setReproducibleFileOrder(true)
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
 }
 
 tasks.processResources {
@@ -43,6 +47,10 @@ tasks.processResources {
     filesMatching("**/application.properties") {
         expand(props)
     }
+}
+
+tasks.withType<JavaCompile> {
+    options.errorprone.disable("InvalidParam")
 }
 
 repositories {
@@ -55,8 +63,6 @@ testing {
             useJUnitJupiter(libs.versions.junit.get())
 
             dependencies {
-                compileOnly(libs.lombok)
-                // annotationProcessor(libs.lombok)
                 implementation(libs.assertj)
             }
         }
@@ -65,8 +71,6 @@ testing {
             useJUnitJupiter(libs.versions.junit.get())
 
             dependencies {
-                compileOnly(libs.lombok)
-                // annotationProcessor(libs.lombok)
                 implementation(libs.assertj)
                 implementation(project)
                 implementation(libs.picocli.core)
@@ -87,14 +91,16 @@ testing {
 }
 
 dependencies {
-    compileOnly(libs.lombok)
-    annotationProcessor(libs.lombok)
-    testAnnotationProcessor(libs.lombok)
-    configurations["integrationTestAnnotationProcessor"](libs.lombok)
+    configurations["errorprone"](libs.errorprone)
 
     implementation(libs.picocli.core)
     annotationProcessor(libs.picocli.codegen)
 }
+
+val updateDocSnippets = tasks.register<AsciiDocIncludeUpdaterTask>("updateDocSnippets") {
+    dependsOn(testing.suites.named("integrationTest"))
+}
+tasks.check.get().dependsOn(updateDocSnippets)
 
 tasks.jacocoTestReport {
     dependsOn(testing.suites.named("test"), testing.suites.named("integrationTest"))

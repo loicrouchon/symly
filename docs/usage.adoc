@@ -1,0 +1,395 @@
+= Usage
+
+== General commands overview
+
+// include::docs/snippets/symly-default-output.adoc[]
+----
+$ symly
+Usage: symly [-hvV] [COMMAND]
+Symly creates, updates and removes links allowing for centralized management of
+sparse file-trees.
+  -h, --help      Prints this help message and exits
+  -v, --verbose   Be verbose.
+  -V, --version   Prints version information.
+Commands:
+  link, ln    Create/update/delete links from 'directory' to the 'repositories'.
+
+              Repositories should be specified with base layers first and
+                overriding layers next. In case two repositories contain a file
+                with the same path, the file in the latest repository will be
+                used as the target for the link for the given path
+  status, st  Displays the current links' synchronization status
+  unlink      Remove links in the 'directory' pointing to the 'repositories'.
+
+              Note this operation does not restore files in the destination. If
+                that is the desired behavior, use the 'restore' command instead.
+
+----
+// end::include
+
+== The `symly.config` file
+
+It might be annoying to give the `--dir` and `--repositories` options every time you're calling Symly; even when using the short names.
+To this end, it is possible to define a `symly.config` file that will automatically be picked up by symly.
+
+_For the file to be detected by symly, it needs to be present in the current working directory._
+
+The following entries are supported:
+
+* `directory`: the main directory.
+* `repositories`: the list of repositories, separated by a `,`.
+Repositories are ordered as per the `--repositories` command line option.
+The first layer in the list will be the base one.
+Subsequent layers will be overriding ones, the last one having the highest priority.
+* `orphans.max-depth.search`: the max depth to lookup for orphan links.
+
+For example:
+
+[source,properties]
+----
+directory=~
+repositories=defaults, linux, work
+----
+
+Paths defined in this file can be:
+
+* absolute paths.
+* relative to the user directory when starting with `~`.
+* relative to the `symly.config` file's parent directory.
+
+=== Combining the `symly.config` file with command line arguments.
+
+When both command line arguments are given and a `symly.config` file is present, the command line argument has precedence over the value in the configuration file.
+This is done on a per-value basis, meaning it is possible to specify some parameters in the `symly.config` file and to override some of them on the command line.
+
+== The `.symlyignore` file
+
+In some circumstances, it is desirable to tell symly not to consider some files for the linking process.
+A typical example is the macOS `.DS_Store` file which is better not to link.
+
+Symly has `.symlyignore` files to support such use cases.
+
+=== Content of a `.symlyignore` file: ignore rules
+
+A `.symlyignore` file is composed of ignore rules and comments.
+
+Ignore rules can be of 3 types:
+
+* Static ignore rules: ignore files or directory with an exact match.
+For example: `.DS_Store`, `.git`, ...
+* Pattern ignore rules: where a `*` wildcard can be used.
+For example: `*.log`, `log-*`
+
+Comments start with `#`.
+Everything after the `#` is ignored until the end of the line.
+
+For example:
+
+[source,.symlyignore]
+----
+# full line comment
+
+.DS_Store # static rule, ignore macOS folder's custom attributes
+
+*.log # pattern rule, ignore all files which extension is .log
+----
+
+=== Where to define a `.symlyignore` file
+
+It is possible to define `.symlyignore` files in any folders within a repository.
+The ignore rules contained in a `.symlyignore` file only apply to the folder it is in as well as all of its children (direct or indirect).
+In case a folder contains a `.symlyignore` and its parent folder does too, the ignore rules from both files will apply.
+
+== The `link` command
+
+The `link` command is the main command.
+It links every file from the `repositories` into the main `directory` by preserving the file-tree structure.
+
+It will:
+
+* Create new links
+* Update existing links
+* Delete unnecessary links (orphan ones)
+
+=== `link` command synopsis
+
+// include::docs/snippets/symly-link-help.adoc[]
+----
+$ symly link --help
+Usage: symly link [-fhv] [--dry-run] [-d=<main-directory>]
+                  [--max-depth=<max-depth>] [-r[=<repositories>...]]...
+Create/update/delete links from 'directory' to the 'repositories'.
+
+Repositories should be specified with base layers first and overriding layers
+next. In case two repositories contain a file with the same path, the file in
+the latest repository will be used as the target for the link for the given path
+  -d, --dir, --directory=<main-directory>
+                  Main directory in which links will be created. If not given
+                    as a command line argument, symly will look for the
+                    'directory' property in the symly.config file present in
+                    the current working directory
+      --dry-run   Do not create links but only displays which ones would be
+                    created
+  -f, --force     Force existing files and directories to be overwritten
+                    instead of failing in case of conflicts
+  -h, --help      Prints this help message and exits
+      --max-depth=<max-depth>
+                  Depth of the lookup for orphans deletion.If not given as a
+                    command line argument, symly will look for the 'orphans.
+                    max-depth.search' property in the symly.config file present
+                    in the current working directory. If no property is found,
+                    default value will be used.
+                    Default: 2
+  -r, --repositories[=<repositories>...]
+                  Repositories containing files to link in the main directory.
+                    Repositories are to be listed by decreasing priority as the
+                    first ones will override the content of the later ones. If
+                    not given as a command line argument, symly will look for
+                    the 'repositories' property in the symly.config file
+                    present in the current working directory
+  -v, --verbose   Be verbose.
+----
+// end::include
+
+=== `link` command usage
+
+Consider the following example.
+The folder `/home/user/repository` contains a file-tree to be linked in `/home/user`.
+
+// include::docs/snippets/symly-link-basic-example.adoc[]
+----
+$ tree /home/user
+/home/user:
+\-- repository/
+    |-- .bashrc
+    |-- .config/
+    |   |-- fish/
+    |   |   \-- config.fish
+    |   \-- starship.toml
+    \-- .gitconfig
+
+$ symly link --dir ~ --repositories repository
+added:       .bashrc -> /home/user/repository/.bashrc
+added:       .config/fish/config.fish -> /home/user/repository/.config/fish/config.fish
+added:       .config/starship.toml -> /home/user/repository/.config/starship.toml
+added:       .gitconfig -> /home/user/repository/.gitconfig
+
+$ tree /home/user
+/home/user:
+|-- .bashrc -> /home/user/repository/.bashrc
+|-- .config/
+|   |-- fish/
+|   |   \-- config.fish -> /home/user/repository/.config/fish/config.fish
+|   \-- starship.toml -> /home/user/repository/.config/starship.toml
+|-- .gitconfig -> /home/user/repository/.gitconfig
+\-- repository/
+    |-- .bashrc
+    |-- .config/
+    |   |-- fish/
+    |   |   \-- config.fish
+    |   \-- starship.toml
+    \-- .gitconfig
+----
+// end::include
+
+Symly supports more than a single `repository`.
+When more than one `repository` is defined, they will be applied in layers.
+The first one in the list is the base layer.
+Subsequent repositories will be overriding layers, the last one having the highest priority.
+
+The notion of layers' priority is important to understand how Symly will resolve conflicts.
+When two repositories define a link, Symly will point the link to the repository with the higher priority.
+
+// include::docs/snippets/symly-link-multiple-repositories-example.adoc[]
+----
+$ tree /home/user
+/home/user:
+\-- repositories/
+    |-- custom/
+    |   \-- .bashrc
+    \-- defaults/
+        |-- .config/
+        |   \-- starship.toml
+        \-- .gitconfig
+
+$ symly link --dir ~ --repositories repositories/defaults repositories/custom
+added:       .bashrc -> /home/user/repositories/custom/.bashrc
+added:       .config/starship.toml -> /home/user/repositories/defaults/.config/starship.toml
+added:       .gitconfig -> /home/user/repositories/defaults/.gitconfig
+
+$ touch repositories/custom/.gitconfig
+
+$ symly link --dir ~ --repositories repositories/defaults repositories/custom
+deleted:     .gitconfig -> /home/user/repositories/defaults/.gitconfig
+added:       .gitconfig -> /home/user/repositories/custom/.gitconfig
+----
+// end::include
+
+On top of supporting links creation for files, Symly can also link directories themselves.
+This can be achieved by creating an empty `.symlink` file in the directory of a repository you want to link.
+When linking a directory, Symly will not create links for the directory's content.
+
+// include::docs/snippets/symly-link-directory-linking-example.adoc[]
+----
+$ tree /home/user
+/home/user:
+\-- repository/
+    \-- .config/
+        \-- fish/
+            |-- .symlink
+            \-- config.fish
+
+$ symly link --dir ~ --repositories repository
+added:       .config/fish -> /home/user/repository/.config/fish
+----
+// end::include
+
+One advantage of linking a directory instead of linking each file is when you expect external tools or processes to create files in this directory.
+By linking the directory itself, those new files will automatically be visible to the synchronization tool which is watching over the repositories.
+
+[NOTE]
+====
+The content of lower layers will be ignored when a higher layer defines a `.symlink` file for a directory in a particular repository layer.
+====
+
+== The `status` command
+
+The `status` command gives an overview over the current synchronization status.
+It will show links which should be created, updated or deleted.
+
+=== `status` command synopsis
+
+// include::docs/snippets/symly-status-help.adoc[]
+----
+$ symly status --help
+Usage: symly status [-hv] [-d=<main-directory>] [--max-depth=<max-depth>] [-r
+                    [=<repositories>...]]...
+Displays the current links' synchronization status
+  -d, --dir, --directory=<main-directory>
+                  Main directory in which links will be created. If not given
+                    as a command line argument, symly will look for the
+                    'directory' property in the symly.config file present in
+                    the current working directory
+  -h, --help      Prints this help message and exits
+      --max-depth=<max-depth>
+                  Depth of the lookup for orphans deletion.If not given as a
+                    command line argument, symly will look for the 'orphans.
+                    max-depth.search' property in the symly.config file present
+                    in the current working directory. If no property is found,
+                    default value will be used.
+                    Default: 2
+  -r, --repositories[=<repositories>...]
+                  Repositories containing files to link in the main directory.
+                    Repositories are to be listed by decreasing priority as the
+                    first ones will override the content of the later ones. If
+                    not given as a command line argument, symly will look for
+                    the 'repositories' property in the symly.config file
+                    present in the current working directory
+  -v, --verbose   Be verbose.
+----
+// end::include
+
+=== `status` command usage
+
+Consider the following example.
+The folder `/home/user/repository` contains a file-tree to be linked in `/home/user`.
+
+* The `.bashrc` was added to the repository but is not yet linked
+* The `.zshrc` was previously linked but has since been removed from the repository
+
+The `status` command reports those respectively as `missing`, and `orphan`.
+
+// include::docs/snippets/symly-status-basic-example.adoc[]
+----
+$ tree /home/user
+/home/user:
+|-- .gitconfig -> /home/user/repository/.gitconfig
+|-- .zshrc -> /home/user/repository/.zshrc
+\-- repository/
+    |-- .bashrc
+    \-- .gitconfig
+
+$ symly status --dir ~ --repositories repository
+missing:     .bashrc -> /home/user/repository/.bashrc
+orphan:      .zshrc
+----
+// end::include
+
+== The `unlink` command
+
+The `unlink` command deletes the links from the directory that point to any of the repositories.
+
+[NOTE]
+====
+The unlink command does not restore files in the directory.
+It only deletes links.
+If you want to remove the links and replace them by the actual files the links where pointing to, you shall use the `restore` command.
+====
+
+=== `unlink` command synopsis
+
+// include::docs/snippets/symly-unlink-help.adoc[]
+----
+$ symly unlink --help
+Usage: symly unlink [-hv] [--dry-run] [-d=<main-directory>]
+                    [--max-depth=<max-depth>] [-r[=<repositories>...]]...
+Remove links in the 'directory' pointing to the 'repositories'.
+
+Note this operation does not restore files in the destination. If that is the
+desired behavior, use the 'restore' command instead.
+
+  -d, --dir, --directory=<main-directory>
+                  Main directory in which links will be created. If not given
+                    as a command line argument, symly will look for the
+                    'directory' property in the symly.config file present in
+                    the current working directory
+      --dry-run   Do not actually remove links but only displays which ones
+                    would be removed
+  -h, --help      Prints this help message and exits
+      --max-depth=<max-depth>
+                  Depth of the lookup for orphans deletion.If not given as a
+                    command line argument, symly will look for the 'orphans.
+                    max-depth.search' property in the symly.config file present
+                    in the current working directory. If no property is found,
+                    default value will be used.
+                    Default: 2
+  -r, --repositories[=<repositories>...]
+                  Repositories containing files to link in the main directory.
+                    Repositories are to be listed by decreasing priority as the
+                    first ones will override the content of the later ones. If
+                    not given as a command line argument, symly will look for
+                    the 'repositories' property in the symly.config file
+                    present in the current working directory
+  -v, --verbose   Be verbose.
+----
+// end::include
+
+=== `unlink` command usage
+
+Consider the following example.
+The folder `/home/user/repository` contains a file-tree that was previously linked in `/home/user`.
+
+* The `.bashrc` was added to the repository but is not yet linked and therefore does not need to be unlinked
+* The `.gitconfig` is currently linked and will be removed
+* The `.zshrc` was previously linked but has since been removed from the repository.
+It is an orphan link and will be removed
+
+// include::docs/snippets/symly-unlink-basic-example.adoc[]
+----
+$ tree /home/user
+/home/user:
+|-- .gitconfig -> /home/user/repository/.gitconfig
+|-- .zshrc -> /home/user/repository/.zshrc
+\-- repository/
+    |-- .bashrc
+    \-- .gitconfig
+
+$ symly unlink --dir ~ --repositories repository
+unlink:      .gitconfig -> /home/user/repository/.gitconfig
+unlink:      .zshrc -> /home/user/repository/.zshrc
+----
+// end::include
+
+=== The `restore` command
+
+**_Coming soon..._**

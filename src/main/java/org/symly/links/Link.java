@@ -1,8 +1,6 @@
 package org.symly.links;
 
 import java.nio.file.Path;
-import java.util.Objects;
-import org.symly.files.FileSystemReader;
 import org.symly.repositories.MainDirectory;
 
 /**
@@ -12,20 +10,6 @@ import org.symly.repositories.MainDirectory;
  * @param target the {@link Path} pointed by the link.
  */
 public record Link(Path source, Path target) {
-
-    public Status status(FileSystemReader fsReader) {
-        if (fsReader.isSymbolicLink(source)) {
-            Path fromRealDestination = fsReader.readSymbolicLink(source);
-            if (Objects.equals(fromRealDestination, target)) {
-                return new Status(Status.Type.UP_TO_DATE, this);
-            }
-            return new Status(Status.Type.LINK_CONFLICT, this);
-        }
-        if (fsReader.exists(source)) {
-            return new Status(Status.Type.FILE_CONFLICT, this);
-        }
-        return new Status(Status.Type.MISSING, this);
-    }
 
     @Override
     public String toString() {

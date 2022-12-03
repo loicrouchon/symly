@@ -1,0 +1,5 @@
+----
+$ symly link --dir ~ --repositories .
+deleted:     .bashrc -> /home/user/mydotfiles/.bashrc
+added:       .config/fish/config.fish -> /home/user/mydotfiles/.config/fish/config.fish
+----

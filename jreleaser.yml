@@ -1,17 +1,23 @@
 project:
   name: symly
-  description: Symbolic link management tool
-  website: https://github.com/loicrouchon/symly
+  description: A tool for managing symbolic links
+  longDescription: |
+    Symly is a tool helping to centralize sparse file trees.
+    It replicates and maintains a file tree structure of one
+    or more repository layers into a directory by creating
+    symbolic links.
+
+  links:
+    homepage: https://github.com/loicrouchon/symly
+  license: Apache-2.0
+  inceptionYear: 2021
   authors:
     - Loïc Rouchon
-  license: Apache-2.0
   java:
     groupId: org.symly
     artifactId: symly
     version: 17
     mainClass: org.symly.cli.Main
-  extraProperties:
-    inceptionYear: 2021
 
 release:
   github:
@@ -26,6 +32,7 @@ distributions:
   jvm:
     artifacts:
       - path: build/distributions/{{projectName}}-{{projectVersion}}.zip
+      - path: build/distributions/{{projectName}}-{{projectVersion}}.tar
 
   deb:
     type: NATIVE_PACKAGE
@@ -39,7 +46,8 @@ distributions:
 
   homebrew:
     type: JAVA_BINARY
-    executable: symly
+    executable:
+      name: symly
     artifacts:
       - path: build/distributions/{{projectName}}-{{projectVersion}}-homebrew-bottle.zip
     brew:
@@ -53,7 +61,7 @@ distributions:
         name: homebrew-symly
       multiPlatform: true
       extraProperties:
-        skipJava: true # Avoids automatic dependency on ffixed JDK
+        skipJava: true # Avoids automatic dependency on fixed JDK
       dependencies:
         coreutils:
         openjdk: # latest JDK

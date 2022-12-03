@@ -29,7 +29,7 @@ class IgnoreListTest {
         // given/when
         var ignoreRules = parse("some-file");
         // then
-        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^some-file$"));
+        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^\\Qsome-file\\E$"));
     }
 
     @Test
@@ -37,7 +37,7 @@ class IgnoreListTest {
         // given/when
         var ignoreRules = parse("some-file # comment");
         // then
-        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^some-file$"));
+        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^\\Qsome-file\\E$"));
     }
 
     @Test
@@ -45,15 +45,31 @@ class IgnoreListTest {
         // given/when
         var ignoreRules = parse("file.ext");
         // then
-        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^file\\.ext$"));
+        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^\\Qfile.ext\\E$"));
     }
 
     @Test
-    void parseIgnoreList_shouldParse_patternWithWildcard() {
+    void parseIgnoreList_shouldParse_patternWithWildcardPrefix() {
         // given/when
         var ignoreRules = parse("*.ext");
         // then
-        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^.*\\.ext$"));
+        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^.*\\Q.ext\\E$"));
+    }
+
+    @Test
+    void parseIgnoreList_shouldParse_patternWithWildcardSuffix() {
+        // given/when
+        var ignoreRules = parse("file-*");
+        // then
+        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^\\Qfile-\\E.*$"));
+    }
+
+    @Test
+    void parseIgnoreList_shouldParse_patternContainingEscapeSequence() {
+        // given/when
+        var ignoreRules = parse("fi\\E.\\Qle");
+        // then
+        assertThat(ignoreRules).hasSize(1).first().isEqualTo(IgnoreRule.ofRegex("^\\Qfi\\E\\\\E\\Q.\\Qle\\E$"));
     }
 
     private List<IgnoreRule> parse(String... lines) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import org.symly.cli.SymlyExecutionException;
 import org.symly.files.FileSystemReader;
 
 /**
@@ -25,7 +26,7 @@ import org.symly.files.FileSystemReader;
  */
 public class ContextConfig {
 
-    private static final String SYMLY_CONFIG = "symly.config";
+    static final String SYMLY_CONFIG = "symly.config";
 
     /**
      * The main directory path.
@@ -42,7 +43,7 @@ public class ContextConfig {
      */
     private static final String ORPHANS_MAX_DEPTH_PROPERTY = "orphans.max-depth.search";
 
-    private static final String ORPHAN_MAX_DEPTH_DEFAULT_VALUE = "2";
+    public static final String ORPHAN_MAX_DEPTH_DEFAULT_VALUE = "2";
 
     /**
      * The {@link Path} to consider as the parent directory of relative paths found in Symly configuration.
@@ -91,7 +92,8 @@ public class ContextConfig {
                 properties.load(br);
                 properties.forEach((key, value) -> props.put((String) key, (String) value));
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new SymlyExecutionException(
+                        "Failed to read the symly configuration file %s: %s".formatted(config, e.getMessage()), e);
             }
         }
         return new ContextConfig(config.getParent(), props);

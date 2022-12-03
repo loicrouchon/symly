@@ -1,0 +1,5 @@
+----
+$ symly link
+deleted:     .gitconfig -> /home/user/mydotfiles/defaults/.gitconfig
+added:       .gitconfig -> /home/user/mydotfiles/work/.gitconfig
+----

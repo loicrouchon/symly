@@ -1,15 +1,18 @@
 package org.symly.repositories;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
-import lombok.RequiredArgsConstructor;
 
 /**
  * A representation of an "ignore rule" from the .symlyignore file.
  */
-@RequiredArgsConstructor
 class IgnoreRule {
 
     private final Pattern pattern;
+
+    IgnoreRule(Pattern pattern) {
+        this.pattern = Objects.requireNonNull(pattern);
+    }
 
     public boolean match(String name) {
         return pattern.matcher(name).matches();

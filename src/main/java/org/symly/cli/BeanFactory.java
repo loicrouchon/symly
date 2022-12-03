@@ -1,13 +1,14 @@
 package org.symly.cli;
 
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.FileSystemWriterImpl;
-import org.symly.repositories.LinksFinder;
 import picocli.CommandLine;
 
 public class BeanFactory implements CommandLine.IFactory {
@@ -18,42 +19,44 @@ public class BeanFactory implements CommandLine.IFactory {
 
     private final CommandLine.IFactory parentFactory = CommandLine.defaultFactory();
 
+    @SuppressWarnings({
+        // Standard outputs should not be used directly to log anything: CLI tool
+        "java:S106"
+    })
     public BeanFactory() {
-        registerBean(Config.class, Config::new);
-        registerBean(CliConsole.class, () -> new CliConsole(new PrintWriter(System.out), new PrintWriter(System.err)));
-        registerBean(FileSystemReader.class, FileSystemReader.RealFileSystemReader::new);
-        registerBean(FileSystemWriter.class, FileSystemWriterImpl::new);
-        registerBean(LinksFinder.class, () -> new LinksFinder(create(FileSystemReader.class)));
-        registerBean(VersionProvider.class, () -> new VersionProvider(create(Config.class)));
-        registerBean(MainCommand.class, () -> new MainCommand(create(Config.class), create(CliConsole.class)));
-        registerBean(
-                ExceptionHandler.class, () -> new ExceptionHandler(create(Config.class), create(CliConsole.class)));
-        registerBean(
+        register(Config.class, Config::new);
+        register(CliConsole.class, () -> new CliConsole(printWriter(System.out), printWriter(System.err)));
+        register(FileSystemReader.class, FileSystemReader.RealFileSystemReader::new);
+        register(FileSystemWriter.class, FileSystemWriterImpl::new);
+        register(VersionProvider.class, () -> new VersionProvider(get(Config.class)));
+        register(MainCommand.class, () -> new MainCommand(get(Config.class), get(CliConsole.class)));
+        register(ExceptionHandler.class, () -> new ExceptionHandler(get(Config.class), get(CliConsole.class)));
+        register(
                 LinkCommand.class,
-                () -> new LinkCommand(
-                        create(CliConsole.class),
-                        create(FileSystemReader.class),
-                        create(FileSystemWriter.class),
-                        create(LinksFinder.class)));
-        registerBean(
+                () -> new LinkCommand(get(CliConsole.class), get(FileSystemReader.class), get(FileSystemWriter.class)));
+        register(
                 UnlinkCommand.class,
                 () -> new UnlinkCommand(
-                        create(CliConsole.class),
-                        create(FileSystemReader.class),
-                        create(FileSystemWriter.class),
-                        create(LinksFinder.class)));
-        registerBean(
-                StatusCommand.class, () -> new StatusCommand(create(CliConsole.class), create(FileSystemReader.class)));
-        registerBean(ContextInput.class, () -> new ContextInput(create(FileSystemReader.class)));
+                        get(CliConsole.class), get(FileSystemReader.class), get(FileSystemWriter.class)));
+        register(StatusCommand.class, () -> new StatusCommand(get(CliConsole.class), get(FileSystemReader.class)));
+        register(ContextInput.class, () -> new ContextInput(get(FileSystemReader.class)));
     }
 
-    @Override
+    private static PrintWriter printWriter(PrintStream outputStream) {
+        return new PrintWriter(outputStream, true, StandardCharsets.UTF_8);
+    }
+
     @SuppressWarnings("unchecked")
-    public <K> K create(Class<K> cls) {
+    private <K> K get(Class<K> cls) {
         if (!beans.containsKey(cls)) {
             loadBean(cls);
         }
         return (K) beans.get(cls);
+    }
+
+    @Override
+    public <K> K create(Class<K> cls) {
+        return get(cls);
     }
 
     private void loadBean(Class<?> cls) {
@@ -68,7 +71,7 @@ public class BeanFactory implements CommandLine.IFactory {
         }
     }
 
-    public <K> void registerBean(Class<K> cls, Supplier<K> constructor) {
+    public <K> void register(Class<K> cls, Supplier<K> constructor) {
         constructors.put(cls, constructor);
     }
 }

@@ -9,9 +9,14 @@ public class VersionBumper {
     private static final String VERSION_SEPARATOR = ".";
     private static final String VERSION_SPLIT = "\\.";
 
+    @SuppressWarnings({
+        // Standard outputs should not be used directly to log anything: CLI tool
+        "java:S106"
+    })
     public static void main(String[] args) throws IOException {
         if (args.length != 1) {
-            System.out.println("""
+            System.out.println(
+                    """
                 Finds the highest existing version and increment the last digit by one.
 
                 Usage:
@@ -24,12 +29,12 @@ public class VersionBumper {
         Version baseVersion = Version.parse(args[0]);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
             String subVersion = br.lines()
-                .map(version -> version.replaceFirst("^v", ""))
-                .filter(version -> version.startsWith(baseVersion.version() + "."))
-                .map(version -> version.substring(baseVersion.version().length() + 1))
-                .max(VersionBumper::compareVersion)
-                .map(VersionBumper::increment)
-                .orElse("1");
+                    .map(version -> version.replaceFirst("^v", ""))
+                    .filter(version -> version.startsWith(baseVersion.version() + "."))
+                    .map(version -> version.substring(baseVersion.version().length() + 1))
+                    .max(VersionBumper::compareVersion)
+                    .map(VersionBumper::increment)
+                    .orElse("1");
             System.out.println(baseVersion.subversion(subVersion));
         }
     }
@@ -51,7 +56,7 @@ public class VersionBumper {
         return String.join(VERSION_SEPARATOR, parts);
     }
 
-    private static record Version (String version, String suffix) {
+    private static record Version(String version, String suffix) {
 
         public Version subversion(String subversion) {
             return new Version(version + "." + subversion, suffix);

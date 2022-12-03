@@ -1,24 +1,26 @@
 package org.symly.cli;
 
 import java.lang.System.Logger.Level;
-import java.nio.file.Path;
-import java.util.Comparator;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
+import java.util.stream.Stream;
 import org.symly.Result;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 import org.symly.files.NoOpFileSystemWriter;
-import org.symly.links.Action;
-import org.symly.links.Link;
-import org.symly.repositories.Context;
-import org.symly.repositories.LinksFinder;
+import org.symly.links.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Mixin;
 import picocli.CommandLine.Option;
 
-@Command(name = "unlink", description = "Remove links in 'directory' pointing to the 'to' repositories")
-@RequiredArgsConstructor
+@Command(
+        name = "unlink",
+        description =
+                """
+    Remove links in the 'directory' pointing to the 'repositories'.
+
+    Note this operation does not restore files in the destination. \
+    If that is the desired behavior, use the 'restore' command instead.
+    """)
 class UnlinkCommand implements Runnable {
 
     @Mixin
@@ -29,19 +31,19 @@ class UnlinkCommand implements Runnable {
             description = "Do not actually remove links but only displays which ones would be removed")
     boolean dryRun = false;
 
-    @NonNull
     private final CliConsole console;
 
-    @NonNull
     private final FileSystemReader fsReader;
 
-    @NonNull
     private final FileSystemWriter fileSystemWriter;
 
-    @NonNull
-    private final LinksFinder linksFinder;
-
     private Context context;
+
+    UnlinkCommand(CliConsole console, FileSystemReader fsReader, FileSystemWriter fileSystemWriter) {
+        this.console = Objects.requireNonNull(console);
+        this.fsReader = Objects.requireNonNull(fsReader);
+        this.fileSystemWriter = Objects.requireNonNull(fileSystemWriter);
+    }
 
     @Override
     public void run() {
@@ -67,41 +69,41 @@ class UnlinkCommand implements Runnable {
     }
 
     private void unlink(FileSystemWriter mutator) {
-        linksFinder
-                .findLinks(context.mainDirectory().toPath(), context.orphanMaxDepth(), context.repositories())
-                .sorted(Comparator.comparing(Link::source))
-                .distinct()
-                .forEach(orphan -> unlink(orphan, mutator));
-    }
-
-    private void unlink(Link orphan, FileSystemWriter mutator) {
-        Action action = Action.delete(orphan);
-        Result<Path, Action.Code> status = action.apply(fsReader, mutator);
-        printStatus(action, status);
-    }
-
-    private void printStatus(Action action, Result<Path, Action.Code> result) {
-        result.accept(previousLink -> printAction(action), error -> printError(action, error));
-    }
-
-    private void printAction(Action action) {
-        Link link = action.link();
-        if (!action.type().equals(Action.Type.DELETE)) {
-            throw new SymlyExecutionException(
-                    String.format("Unable to unlink %s%n> Invalid action type %s%n", link, action.type()));
+        try (Stream<LinkState> linkStates = context.status(fsReader)) {
+            linkStates
+                    .filter(ls -> ls.currentState() instanceof LinkState.Entry.LinkEntry le
+                            && context.repositories().containsPath(le.target()))
+                    .forEach(ls -> unlink(ls, mutator));
         }
-        console.printf("%-12s %s%n", "unlink" + ":", link.toString(context.mainDirectory()));
     }
 
-    private void printError(Action action, Action.Code error) {
-        printAction(action);
-        Link link = action.link();
-        String details = String.format(
-                "An error occurred while deleting link: %s%n> - %s: %s", link, error.state(), error.details());
+    private void unlink(LinkState linkState, FileSystemWriter mutator) {
+        Action action = Action.deleteLink(
+                new Link(linkState.source(), ((LinkState.Entry.LinkEntry) linkState.currentState()).target()));
+        Result<Void, Action.Code> result = action.apply(fsReader, mutator);
+        printStatus(linkState, action, result);
+    }
+
+    private void printStatus(LinkState linkState, Action action, Result<Void, Action.Code> result) {
+        result.accept(previousLink -> printAction(linkState, action), error -> printError(linkState, action, error));
+    }
+
+    private void printAction(LinkState linkState, Action action) {
+        if (!(action instanceof DeleteLinkAction dla)) {
+            throw new SymlyExecutionException(
+                    "Unable to unlink %s%n> Invalid action type %s%n".formatted(linkState, action.getClass()));
+        }
+        console.printf("%-12s %s%n", "unlink" + ":", dla.link().toString(context.mainDirectory()));
+    }
+
+    private void printError(LinkState linkState, Action action, Action.Code error) {
+        printAction(linkState, action);
+        String details = "An error occurred while deleting link: %s%n> - %s: %s"
+                .formatted(linkState.source(), error.state(), error.details());
         if (dryRun) {
             console.eprintf("> %s%n", details);
         } else {
-            throw new SymlyExecutionException(String.format("Unable to unlink %s%n> %s%n", link, details));
+            throw new SymlyExecutionException("Unable to unlink %s%n> %s%n".formatted(linkState.source(), details));
         }
     }
 }

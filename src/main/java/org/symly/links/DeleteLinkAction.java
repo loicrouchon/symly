@@ -6,16 +6,20 @@ import org.symly.Result;
 import org.symly.files.FileSystemReader;
 import org.symly.files.FileSystemWriter;
 
-public record DeleteLinkAction(Type type, Link link) implements Action {
+public record DeleteLinkAction(Link link) implements Action {
 
     @Override
-    public Result<Path, Code> apply(FileSystemReader fsReader, FileSystemWriter fsWriter) {
-        Path source = link.source();
+    public Path path() {
+        return link.source();
+    }
+
+    @Override
+    public Result<Void, Code> apply(FileSystemReader fsReader, FileSystemWriter fsWriter) {
         try {
-            fsWriter.deleteIfExists(source);
+            fsWriter.deleteIfExists(link.source());
             return Result.success(null);
         } catch (IOException e) {
-            return Result.error(new Code(Code.State.ERROR, "Unable to delete link " + e.getMessage(), link.target()));
+            return Result.error(new Code(Code.State.ERROR, "Unable to delete link " + e.getMessage()));
         }
     }
 }

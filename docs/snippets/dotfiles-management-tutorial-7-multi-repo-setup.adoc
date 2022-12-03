@@ -1,0 +1,9 @@
+----
+$ symly link
+deleted:     .config/fish/config.fish -> /home/user/mydotfiles/.config/fish/config.fish
+added:       .config/fish/config.fish -> /home/user/mydotfiles/defaults/.config/fish/config.fish
+deleted:     .config/starship.toml -> /home/user/mydotfiles/.config/starship.toml
+added:       .config/starship.toml -> /home/user/mydotfiles/defaults/.config/starship.toml
+deleted:     .gitconfig -> /home/user/mydotfiles/.gitconfig
+added:       .gitconfig -> /home/user/mydotfiles/defaults/.gitconfig
+----

@@ -1,0 +1,33 @@
+----
+$ tree /home/user
+/home/user:
+\-- repository/
+    |-- .bashrc
+    |-- .config/
+    |   |-- fish/
+    |   |   \-- config.fish
+    |   \-- starship.toml
+    \-- .gitconfig
+
+$ symly link --dir ~ --repositories repository
+added:       .bashrc -> /home/user/repository/.bashrc
+added:       .config/fish/config.fish -> /home/user/repository/.config/fish/config.fish
+added:       .config/starship.toml -> /home/user/repository/.config/starship.toml
+added:       .gitconfig -> /home/user/repository/.gitconfig
+
+$ tree /home/user
+/home/user:
+|-- .bashrc -> /home/user/repository/.bashrc
+|-- .config/
+|   |-- fish/
+|   |   \-- config.fish -> /home/user/repository/.config/fish/config.fish
+|   \-- starship.toml -> /home/user/repository/.config/starship.toml
+|-- .gitconfig -> /home/user/repository/.gitconfig
+\-- repository/
+    |-- .bashrc
+    |-- .config/
+    |   |-- fish/
+    |   |   \-- config.fish
+    |   \-- starship.toml
+    \-- .gitconfig
+----

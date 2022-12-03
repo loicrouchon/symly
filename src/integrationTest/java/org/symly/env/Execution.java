@@ -7,58 +7,41 @@ import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-import lombok.AccessLevel;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import org.symly.doc.ExecutionDocReport;
 import org.symly.files.FileTree;
 import org.symly.files.FileTree.Diff;
 
 @SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
 })
-@RequiredArgsConstructor
-public class Execution {
-
-    @NonNull
-    private final FileTree snapshot;
-
-    @NonNull
-    private final Path rootDir;
-
-    @NonNull
-    private final Path workingDir;
-
-    private final int exitCode;
-
-    @NonNull
-    private final List<String> stdOut;
-
-    @NonNull
-    private final List<String> stdErr;
+public record Execution(
+        FileTree snapshot,
+        Path rootDir,
+        Path workingDir,
+        List<String> command,
+        int exitCode,
+        List<String> stdOut,
+        List<String> stdErr) {
 
     public Diff fileSystemEntriesDiff() {
-        return snapshot.diff(FileTree.fromPath(rootDir));
+        return snapshot.diff(currentFileTree());
     }
 
-    public Path workingDir() {
-        return workingDir;
-    }
-
-    public int exitCode() {
-        return this.exitCode;
-    }
-
-    public List<String> stdOut() {
-        return this.stdOut;
-    }
-
-    public List<String> stdErr() {
-        return this.stdErr;
+    public FileTree currentFileTree() {
+        return FileTree.fromPath(rootDir);
     }
 
     public static Execution of(
-            FileTree rootFileTreeSnapshot, Path rootDir, Path workingDir, int exitCode, Reader stdOut, Reader stdErr) {
-        return new Execution(rootFileTreeSnapshot, rootDir, workingDir, exitCode, lines(stdOut), lines(stdErr));
+            FileTree rootFileTreeSnapshot,
+            Path rootDir,
+            Path workingDir,
+            List<String> command,
+            int exitCode,
+            Reader stdOut,
+            Reader stdErr) {
+        return new Execution(
+                rootFileTreeSnapshot, rootDir, workingDir, command, exitCode, lines(stdOut), lines(stdErr));
     }
 
     private static List<String> lines(Reader reader) {
@@ -69,15 +52,17 @@ public class Execution {
         return new ExitCodeAssert(this);
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ExitCodeAssert {
 
         private static final int SUCCESS = 0;
         private static final int RUN_ERROR = 1;
         private static final int CONFIGURATION_ERROR = 2;
 
-        @NonNull
         private final Execution execution;
+
+        public ExitCodeAssert(Execution execution) {
+            this.execution = Objects.requireNonNull(execution);
+        }
 
         public OutputAssert succeed() {
             OutputAssert outputAssert = assertExitCodeIs(SUCCESS);
@@ -116,45 +101,52 @@ public class Execution {
         }
     }
 
-    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class OutputAssert {
+    public record OutputAssert(Execution execution) {
 
-        @NonNull
-        private final Execution execution;
-
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withMessage(String message) {
             assertThat(execution.stdOut()).contains(message);
             return this;
         }
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withoutMessage(String message) {
             assertThat(execution.stdOut()).doesNotContain(message);
             return this;
         }
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withMessages(List<String> messages) {
             messages.forEach(this::withMessage);
             return this;
         }
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withErrorMessage(String message) {
             assertThat(execution.stdErr()).contains(message);
             return this;
         }
 
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
         public OutputAssert withErrorMessages(List<String> messages) {
             messages.forEach(this::withErrorMessage);
             return this;
         }
 
-        public void withFileTreeDiff(Diff diff) {
+        @SuppressWarnings("CanIgnoreReturnValueSuggester")
+        public OutputAssert withFileTreeDiff(Diff diff) {
             Diff actual = execution.fileSystemEntriesDiff();
-            assertThat(actual.getNewPaths())
+            assertThat(actual.newPaths())
                     .describedAs("Should create the following file system entries")
-                    .containsExactlyInAnyOrderElementsOf(diff.getNewPaths());
-            assertThat(actual.getRemovedPaths())
+                    .containsExactlyInAnyOrderElementsOf(diff.newPaths());
+            assertThat(actual.removedPaths())
                     .describedAs("Should remove the following file system entries")
-                    .containsExactlyInAnyOrderElementsOf(diff.getRemovedPaths());
+                    .containsExactlyInAnyOrderElementsOf(diff.removedPaths());
+            return this;
+        }
+
+        public ExecutionDocReport executionReport() {
+            return new ExecutionDocReport(execution);
         }
     }
 }
