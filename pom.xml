@@ -101,9 +101,11 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven-assembly-plugin.version}</version>
                 <configuration>
+                    <outputDirectory>${project.build.directory}/assembly</outputDirectory>
+                    <attach>false</attach>
                     <descriptors>
-                        <descriptor>src/assembly/bin-with-dependencies.xml</descriptor>
-                        <descriptor>src/assembly/bin-without-dependencies.xml</descriptor>
+                        <descriptor>src/assembly/binary.xml</descriptor>
+                        <descriptor>src/assembly/homebrew.xml</descriptor>
                     </descriptors>
                 </configuration>
                 <executions>
@@ -203,13 +205,6 @@
                                     </arguments>
                                 </configuration>
                             </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-                        <version>${exec-maven-plugin.version}</version>
-                        <executions>
                             <execution>
                                 <id>generate-asciidoc-manpage</id>
                                 <goals>
