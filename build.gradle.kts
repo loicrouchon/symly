@@ -39,12 +39,17 @@ spotless {
             .configFile(".metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs")
     }
 }
-
 tasks.withType<AbstractArchiveTask>().configureEach {
     // Enable reproducible builds
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
 }
+
+val installGitHooks by tasks.registering(Copy::class) {
+    from("git/hooks")
+    into(".git/hooks")
+}
+tasks.processResources.get().dependsOn(installGitHooks)
 
 tasks.processResources {
     val props = mapOf("version" to project.version)
