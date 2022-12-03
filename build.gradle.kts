@@ -33,6 +33,11 @@ spotless {
     java {
         palantirJavaFormat()
     }
+    format("xml") {
+        target("**/*.xml")
+        eclipseWtp(com.diffplug.spotless.extra.wtp.EclipseWtpFormatterStep.XML)
+            .configFile(".metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs")
+    }
 }
 
 tasks.withType<AbstractArchiveTask>().configureEach {

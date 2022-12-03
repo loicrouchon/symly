@@ -6,7 +6,7 @@ out/
 # Eclipse
 .project
 .classpath
-.settings
+/.settings
 bin/
 
 # IntelliJ
