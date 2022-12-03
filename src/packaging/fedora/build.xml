@@ -1,69 +1,31 @@
 <project basedir="../../.." default="assemble">
-    <property name="project.name" value="symly" />
-    <property name="build-dir" value="build/ant/fedora" />
-    <property name="build-dir.classes"
-        value="${build-dir}/classes" />
-    <property name="build-dir.jars" value="${build-dir}/jars" />
-    <property name="build-dir.distributions"
-        value="${build-dir}/distributions" />
-    <property name="manpage" value="build/docs/manpage/manpage" />
-
-    <property name="jar-file"
-        value="${build-dir.jars}/${project.name}.jar" />
-    <property name="module-name" value="org.${project.name}" />
-    <property name="main-class"
-        value="org.${project.name}.cli.Main" />
-    <property name="main-module-path" value="${jar-file}" />
-
+    <property name="distribution" value="fedora"/>
     <property name="modulepath"
-        value="/usr/share/java/picocli/picocli.jar" />
+        value="/usr/share/java/picocli/picocli.jar"/>
+    <include file="../ant/properties.xml"/>
 
-    <target name="clean">
-        <delete dir="${build-dir}" />
-    </target>
-
-    <target name="compile" depends="clean">
-        <mkdir dir="${build-dir.classes}" />
-        <javac includeantruntime="false" srcdir="src/main/java"
-            destdir="${build-dir.classes}" release="17">
-            <modulepath location="${modulepath}" />
-        </javac>
-    </target>
-
-    <target name="jar" depends="compile">
-        <mkdir dir="${build-dir.jars}" />
-        <jar destfile="${jar-file}" basedir="${build-dir.classes}">
-            <manifest>
-                <attribute name="Main-Class"
-                    value="${main-class}" />
-            </manifest>
-            <fileset dir="src/main/resources" />
-        </jar>
+    <target name="jar">
+        <ant antfile="${basedir}/src/packaging/ant/clean.xml"/>
+        <ant antfile="${basedir}/src/packaging/ant/modular-jar.xml"/>
     </target>
 
     <target name="assemble" depends="jar"
         description="generate the distribution">
-        <mkdir dir="${build-dir.distributions}" />
+
+        <mkdir dir="${build-dir.distributions}"/>
         <copy todir="${build-dir.distributions}">
-            <file file="LICENSE" />
+            <file file="LICENSE"/>
         </copy>
         <copy
             todir="${build-dir.distributions}/usr/share/${project.name}/lib">
-            <fileset dir="${build-dir.jars}" />
+            <fileset dir="${build-dir.jars}"/>
         </copy>
         <copy todir="${build-dir.distributions}/usr/share/doc">
-            <fileset dir="${manpage}" />
+            <fileset dir="${manpage}"/>
         </copy>
         <apply executable="gzip" parallel="false">
             <fileset
-                dir="${build-dir.distributions}/usr/share/doc" />
+                dir="${build-dir.distributions}/usr/share/doc"/>
         </apply>
-    </target>
-
-    <target name="run">
-        <java fork="true" module="${module-name}/${main-class}">
-            <modulepath location="${main-module-path}" />
-            <modulepath location="${modulepath}" />
-        </java>
     </target>
 </project>

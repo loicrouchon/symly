@@ -1,0 +1,18 @@
+<project>
+    <property name="project.name" value="symly" />
+
+    <property name="build-dir" value="build/ant/${distribution}" />
+    <property name="build-dir.classes"
+        value="${build-dir}/classes" />
+    <property name="build-dir.jars" value="${build-dir}/jars" />
+    <property name="build-dir.distributions"
+        value="${build-dir}/distributions" />
+    <property name="manpage" value="build/docs/manpage/manpage" />
+
+    <property name="jar-file"
+        value="${build-dir.jars}/${project.name}.jar" />
+    <property name="module-name" value="org.${project.name}" />
+    <property name="main-class"
+        value="org.${project.name}.cli.Main" />
+    <property name="main-module-path" value="${jar-file}" />
+</project>

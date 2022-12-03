@@ -1,0 +1,20 @@
+<project default="jar">
+    <target name="compile">
+        <mkdir dir="${build-dir.classes}"/>
+        <javac includeantruntime="false" srcdir="src/main/java"
+            destdir="${build-dir.classes}" release="17">
+            <modulepath location="${modulepath}"/>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile">
+        <mkdir dir="${build-dir.jars}"/>
+        <jar destfile="${jar-file}" basedir="${build-dir.classes}">
+            <manifest>
+                <attribute name="Main-Class"
+                    value="${main-class}"/>
+            </manifest>
+            <fileset dir="src/main/resources"/>
+        </jar>
+    </target>
+</project>
