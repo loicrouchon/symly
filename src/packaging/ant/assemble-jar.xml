@@ -1,0 +1,6 @@
+<project>
+    <property file="${basedir}/src/packaging/ant/properties.properties" />
+    <import file="${basedir}/src/packaging/ant/clean.xml" />
+    <import file="${basedir}/src/packaging/ant/compile-${compile.mode}.xml" />
+    <import file="${basedir}/src/packaging/ant/jar.xml" />
+</project>

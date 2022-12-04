@@ -1,11 +1,12 @@
 <project basedir="../../.." default="assemble">
-    <property name="distribution" value="fedora" />
-    <property name="project.module-path" value="/usr/share/java/picocli/picocli.jar" />
-    <property name="compile.mode" value="module-path" />
+    <property name="distribution" value="debian" />
+    <property name="project.classpath" value="/usr/share/java/picocli.jar" />
+    <property name="compile.mode" value="classpath" />
 
     <import file="${basedir}/src/packaging/ant/assemble-jar.xml" />
 
     <target name="assemble" depends="jar" description="generate the distribution">
+
         <mkdir dir="${build-dir.distributions}" />
         <copy todir="${build-dir.distributions}">
             <file file="LICENSE" />

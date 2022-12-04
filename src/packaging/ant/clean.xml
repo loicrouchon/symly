@@ -1,5 +1,5 @@
-<project default="clean">
+<project>
     <target name="clean">
-        <delete dir="${build-dir}"/>
+        <delete dir="${build-dir}" />
     </target>
 </project>

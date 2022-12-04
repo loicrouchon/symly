@@ -1,0 +1,11 @@
+<project>
+    <target name="jar" depends="compile">
+        <mkdir dir="${build-dir.jars}" />
+        <jar destfile="${project.jar-file}" basedir="${build-dir.classes}">
+            <manifest>
+                <attribute name="Main-Class" value="${project.main-class}" />
+            </manifest>
+            <fileset dir="src/main/resources" />
+        </jar>
+    </target>
+</project>
