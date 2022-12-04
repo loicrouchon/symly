@@ -82,7 +82,7 @@ testing {
 
             dependencies {
                 implementation(libs.assertj)
-                implementation(project)
+                implementation(project())
                 implementation(libs.picocli.core)
             }
 
