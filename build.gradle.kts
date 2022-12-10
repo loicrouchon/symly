@@ -18,7 +18,7 @@ application {
     mainModule.set(appModuleName)
     mainClass.set(appMainClassName)
     applicationDefaultJvmArgs = listOf(
-        // the cli is short lived, so let's enable a fast JVM startup
+        // the cli is short-lived, so let's enable a fast JVM startup
         "-XX:+NeverActAsServerClassMachine",
     )
 }
@@ -34,7 +34,7 @@ spotless {
         palantirJavaFormat()
     }
     format("xml") {
-        target("**/*.xml")
+        target("src/**/*.xml")
         eclipseWtp(com.diffplug.spotless.extra.wtp.EclipseWtpFormatterStep.XML)
             .configFile(".metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs")
     }
