@@ -10,14 +10,17 @@
         <copy todir="${build-dir.distributions}">
             <file file="LICENSE" />
         </copy>
-        <copy todir="${build-dir.distributions}/usr/share/${project.name}/lib">
+        <copy todir="${build-dir.distributions}/usr/bin">
+            <file file="src/packaging/fedora/usr/bin/${project.name}" />
+        </copy>
+        <copy todir="${build-dir.distributions}/usr/share/java/${project.name}">
             <fileset dir="${build-dir.jars}" />
         </copy>
-        <copy todir="${build-dir.distributions}/usr/share/doc">
+        <copy todir="${build-dir.distributions}/usr/share/man/man1">
             <fileset dir="${src-dir.manpage}" />
         </copy>
         <apply executable="gzip" parallel="false">
-            <fileset dir="${build-dir.distributions}/usr/share/doc" />
+            <fileset dir="${build-dir.distributions}/usr/share/man/man1" />
         </apply>
     </target>
 </project>

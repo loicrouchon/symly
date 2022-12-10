@@ -216,6 +216,29 @@ val buildHomebrewBottle = tasks.register<Zip>("buildHomebrewBottle") {
 }
 tasks.assemble.get().dependsOn(buildHomebrewBottle)
 
+val generateSrcArchive = tasks.register<Tar>("generateSrcArchive") {
+    val artifactName = "${project.name}-${project.version}.src"
+    from(".", closureOf<CopySpec> {
+        into("${artifactName}")
+        include(
+            "LICENSE",
+            "src/main/java/**",
+            "src/test/**",
+            "src/integrationTest/**",
+            "src/packaging/**",
+        )
+    })
+    from("build/resources/main", closureOf<CopySpec> {
+        into("${artifactName}/src/main/resources")
+    })
+    from(generateManpageManual) {
+        into("${artifactName}/doc/manpage")
+    }
+    destinationDirectory.set(file("${buildDir}/distributions/"))
+    archiveFileName.set("${artifactName}.tar")
+}
+tasks.assemble.get().dependsOn(generateSrcArchive)
+
 ospackage {
     packageName = "symly"
     packageDescription = "Manages symbolic links."

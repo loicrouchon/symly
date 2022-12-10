@@ -1,67 +1,77 @@
 project:
-  name: symly
-  description: A tool for managing symbolic links
-  longDescription: |
-    Symly is a tool helping to centralize sparse file trees.
-    It replicates and maintains a file tree structure of one
-    or more repository layers into a directory by creating
-    symbolic links.
+    name: symly
+    description: A tool for managing symbolic links
+    longDescription: |
+        Symly is a tool helping to centralize sparse file trees.
+        It replicates and maintains a file tree structure of one
+        or more repository layers into a directory by creating
+        symbolic links.
 
-  links:
-    homepage: https://github.com/loicrouchon/symly
-  license: Apache-2.0
-  inceptionYear: 2021
-  authors:
-    - Loïc Rouchon
-  java:
-    groupId: org.symly
-    artifactId: symly
-    version: 17
-    mainClass: org.symly.cli.Main
+    links:
+        homepage: https://github.com/loicrouchon/symly
+    license: Apache-2.0
+    inceptionYear: 2021
+    authors:
+        - Loïc Rouchon
+    java:
+        groupId: org.symly
+        artifactId: symly
+        version: 17
+        mainClass: org.symly.cli.Main
 
 release:
-  github:
-    owner: loicrouchon
-    changelog:
-      formatted: ALWAYS
-      preset: 'conventional-commits'
-      format: '- {{commitShortHash}} {{commitTitle}}'
+    github:
+        owner: loicrouchon
+        changelog:
+            formatted: ALWAYS
+            preset: 'conventional-commits'
+            format: '- {{commitShortHash}} {{commitTitle}}'
 
 distributions:
 
-  jvm:
-    artifacts:
-      - path: build/distributions/{{projectName}}-{{projectVersion}}.zip
-      - path: build/distributions/{{projectName}}-{{projectVersion}}.tar
+    jvm:
+        artifacts:
+            -   path: build/distributions/{{projectName}}-{{projectVersion}}.zip
+            -   path: build/distributions/{{projectName}}-{{projectVersion}}.tar
 
-  deb:
-    type: NATIVE_PACKAGE
-    artifacts:
-      - path: build/distributions/{{projectName}}_{{projectVersion}}-1_all.deb
+    src:
+        artifacts:
+            -   path: build/distributions/{{projectName}}-{{projectVersion}}.src.tar
+        spec:
+            active: ALWAYS
+            packageName: symly
+            requires:
+                - java
+                - picocli
 
-  rpm:
-    type: NATIVE_PACKAGE
-    artifacts:
-      - path: build/distributions/{{projectName}}-{{projectVersion}}-1.noarch.rpm
+    deb:
+        type: NATIVE_PACKAGE
+        artifacts:
+            -   path: build/distributions/{{projectName}}_{{projectVersion}}-1_all.deb
 
-  homebrew:
-    type: JAVA_BINARY
-    executable:
-      name: symly
-    artifacts:
-      - path: build/distributions/{{projectName}}-{{projectVersion}}-homebrew-bottle.zip
-    brew:
-      active: ALWAYS
-      formulaName: "{{projectName}}"
-      commitAuthor:
-        name: jreleaserbot
-        email: loicrouchon+jreleaser@gmail.com
-      tap:
-        owner: loicrouchon
-        name: homebrew-symly
-      multiPlatform: true
-      extraProperties:
-        skipJava: true # Avoids automatic dependency on fixed JDK
-      dependencies:
-        coreutils:
-        openjdk: # latest JDK
+    rpm:
+        type: NATIVE_PACKAGE
+        artifacts:
+            -   path: build/distributions/{{projectName}}-{{projectVersion}}-1.noarch.rpm
+
+    homebrew:
+        type: JAVA_BINARY
+        executable:
+            name: symly
+        artifacts:
+            -   path: build/distributions/{{projectName}}-{{projectVersion}}-homebrew-bottle.zip
+        brew:
+            active: ALWAYS
+            formulaName: "{{projectName}}"
+            commitAuthor:
+                name: jreleaserbot
+                email: loicrouchon+jreleaser@gmail.com
+            tap:
+                owner: loicrouchon
+                name: homebrew-symly
+            multiPlatform: true
+            extraProperties:
+                skipJava: true # Avoids automatic dependency on fixed JDK
+            dependencies:
+                coreutils:
+                openjdk: # latest JDK
