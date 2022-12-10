@@ -6,10 +6,10 @@ plugins {
     `jvm-test-suite`
     idea
     jacoco
-    id("com.diffplug.spotless") version "6.7.2"
+    id("com.diffplug.spotless") version "6.12.0"
     id("org.asciidoctor.jvm.convert") version "3.3.2"
-    id("nebula.ospackage") version "9.0.0"
-    id("net.ltgt.errorprone") version "2.0.2"
+    id("com.netflix.nebula.ospackage") version "10.0.0"
+    id("net.ltgt.errorprone") version "3.0.1"
 }
 
 val appModuleName = "org.${project.name}"
