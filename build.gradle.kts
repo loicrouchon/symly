@@ -35,6 +35,7 @@ spotless {
     }
     format("xml") {
         target("src/**/*.xml")
+        targetExclude("src/docs/**")
         eclipseWtp(com.diffplug.spotless.extra.wtp.EclipseWtpFormatterStep.XML)
             .configFile(".metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs")
     }
