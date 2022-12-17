@@ -1,0 +1,77 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Symly Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= symly-unlink(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+symly-unlink - Remove links in the 'directory' pointing to the 'repositories'.
+
+Note this operation does not restore files in the destination. If that is the desired behavior, use the 'restore' command instead.
+
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*symly unlink* [*-hv*] [*--dry-run*] [*-d*=_<main-directory>_] [*--max-depth*=_<max-depth>_]
+             [*-r*[=_<repositories>_...]]...
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Remove links in the 'directory' pointing to the 'repositories'.
+
+Note this operation does not restore files in the destination. If that is the desired behavior, use the 'restore' command instead.
+
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*-d*, *--dir, --directory*=_<main-directory>_::
+  Main directory in which links will be created. If not given as a command line argument, symly will look for the 'directory' property in the symly.config file present in the current working directory
+
+*--dry-run*::
+  Do not actually remove links but only displays which ones would be removed
+
+*-h*, *--help*::
+  Prints this help message and exits
+
+*--max-depth*=_<max-depth>_::
+  Depth of the lookup for orphans deletion.If not given as a command line argument, symly will look for the 'orphans.max-depth.search' property in the symly.config file present in the current working directory. If no property is found, default value will be used.
++
+  Default: 2
+
+*-r*, *--repositories*[=_<repositories>_...]::
+  Repositories containing files to link in the main directory. Repositories are to be listed by decreasing priority as the first ones will override the content of the later ones. If not given as a command line argument, symly will look for the 'repositories' property in the symly.config file present in the current working directory
+
+*-v*, *--verbose*::
+  Be verbose.
+
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
+// tag::picocli-generated-man-section-commands[]
+// end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
+
+// end::picocli-generated-full-manpage[]

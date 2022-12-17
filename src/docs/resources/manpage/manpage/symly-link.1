@@ -1,0 +1,83 @@
+'\" t
+.\"     Title: symly-link
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.10
+.\"    Manual: Symly Manual
+.\"    Source: 
+.\"  Language: English
+.\"
+.TH "SYMLY\-LINK" "1" "" "" "Symly Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+symly\-link \- Create/update/delete links from \(aqdirectory\(aq to the \(aqrepositories\(aq.
+.sp
+Repositories should be specified with base layers first and overriding layers next. In case two repositories contain a file with the same path, the file in the latest repository will be used as the target for the link for the given path
+.SH "SYNOPSIS"
+.sp
+\fBsymly link\fP [\fB\-fhv\fP] [\fB\-\-dry\-run\fP] [\fB\-d\fP=\fI<main\-directory>\fP] [\fB\-\-max\-depth\fP=\fI<max\-depth>\fP]
+[\fB\-r\fP[=\fI<repositories>\fP...]]...
+.SH "DESCRIPTION"
+.sp
+Create/update/delete links from \(aqdirectory\(aq to the \(aqrepositories\(aq.
+.sp
+Repositories should be specified with base layers first and overriding layers next. In case two repositories contain a file with the same path, the file in the latest repository will be used as the target for the link for the given path
+.SH "OPTIONS"
+.sp
+\fB\-d\fP, \fB\-\-dir, \-\-directory\fP=\fI<main\-directory>\fP
+.RS 4
+Main directory in which links will be created. If not given as a command line argument, symly will look for the \(aqdirectory\(aq property in the symly.config file present in the current working directory
+.RE
+.sp
+\fB\-\-dry\-run\fP
+.RS 4
+Do not create links but only displays which ones would be created
+.RE
+.sp
+\fB\-f\fP, \fB\-\-force\fP
+.RS 4
+Force existing files and directories to be overwritten instead of failing in case of conflicts
+.RE
+.sp
+\fB\-h\fP, \fB\-\-help\fP
+.RS 4
+Prints this help message and exits
+.RE
+.sp
+\fB\-\-max\-depth\fP=\fI<max\-depth>\fP
+.RS 4
+Depth of the lookup for orphans deletion.If not given as a command line argument, symly will look for the \(aqorphans.max\-depth.search\(aq property in the symly.config file present in the current working directory. If no property is found, default value will be used.
+.sp
+.if n .RS 4
+.nf
+Default: 2
+.fi
+.if n .RE
+.RE
+.sp
+\fB\-r\fP, \fB\-\-repositories\fP[=\fI<repositories>\fP...]
+.RS 4
+Repositories containing files to link in the main directory. Repositories are to be listed by decreasing priority as the first ones will override the content of the later ones. If not given as a command line argument, symly will look for the \(aqrepositories\(aq property in the symly.config file present in the current working directory
+.RE
+.sp
+\fB\-v\fP, \fB\-\-verbose\fP
+.RS 4
+Be verbose.
+.RE

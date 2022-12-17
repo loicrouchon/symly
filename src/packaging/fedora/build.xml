@@ -1,7 +1,6 @@
 <project basedir="../../.." default="assemble">
     <property name="distribution" value="fedora" />
     <property name="project.module-path" value="/usr/share/java/picocli/picocli.jar" />
-    <property name="project.codegen.module-path" value="/usr/share/java/picocli/picocli-codegen.jar" />
     <property name="compile.mode" value="module-path" />
 
     <import file="${basedir}/src/packaging/ant/assemble-jar.xml" />
@@ -18,7 +17,7 @@
             <fileset dir="${build-dir.jars}" />
         </copy>
         <copy todir="${build-dir.distributions}/usr/share/man/man1">
-            <fileset dir="${build-dir.manpage.gz}" />
+            <fileset dir="${manpage.gz.dir}" />
         </copy>
     </target>
 </project>

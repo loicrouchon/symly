@@ -1,0 +1,80 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: Symly version unspecified
+:manmanual: Symly Manual
+:mansource: Symly version unspecified
+:man-linkstyle: pass:[blue R < >]
+= symly(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+symly - Symly creates, updates and removes links allowing for centralized management of sparse file-trees.
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*symly* [*-hvV*] [COMMAND]
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Symly creates, updates and removes links allowing for centralized management of sparse file-trees.
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*-h*, *--help*::
+  Prints this help message and exits
+
+*-v*, *--verbose*::
+  Be verbose.
+
+*-V*, *--version*::
+  Prints version information.
+
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
+// tag::picocli-generated-man-section-commands[]
+== Commands
+
+xref:symly-link.adoc[*link*, *ln*]::
+  Create/update/delete links from 'directory' to the 'repositories'.
++
+
++
+Repositories should be specified with base layers first and overriding layers next. In case two repositories contain a file with the same path, the file in the latest repository will be used as the target for the link for the given path
+
+xref:symly-status.adoc[*status*, *st*]::
+  Displays the current links' synchronization status
+
+xref:symly-unlink.adoc[*unlink*]::
+  Remove links in the 'directory' pointing to the 'repositories'.
++
+
++
+Note this operation does not restore files in the destination. If that is the desired behavior, use the 'restore' command instead.
++
+
+
+// end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
+
+// end::picocli-generated-full-manpage[]

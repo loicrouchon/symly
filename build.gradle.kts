@@ -136,16 +136,20 @@ val generateManualStructure = tasks.register<JavaExec>("generateManualStructure"
     args(
         "org.${project.name}.cli.MainCommand",
         "--factory=org.${project.name}.cli.BeanFactory",
-        "--outdir=${buildDir}/docs/manpage/adoc"
+        "--outdir=${file("src/docs/resources/manpage/adoc")}"
     )
-    outputs.dir("${buildDir}/docs/manpage/adoc")
+    outputs.dir("src/docs/resources/manpage/adoc")
 }
 
-fun generateManual(output: String, backend: String): TaskProvider<org.asciidoctor.gradle.jvm.AsciidoctorTask> {
-    return tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generate${output.capitalize()}Manual") {
+fun generateManual(
+    name: String,
+    backend: String,
+    output: String
+): TaskProvider<org.asciidoctor.gradle.jvm.AsciidoctorTask> {
+    return tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generate${name.capitalize()}Manual") {
         inputs.files(generateManualStructure)
-        sourceDir(file("${buildDir}/docs/manpage/adoc"))
-        setOutputDir(file("${buildDir}/docs/manpage/${output}"))
+        sourceDir("src/docs/resources/manpage/adoc")
+        setOutputDir(output)
         attributes(mapOf("reproducible" to true))
         outputOptions {
             backends(backend)
@@ -153,14 +157,20 @@ fun generateManual(output: String, backend: String): TaskProvider<org.asciidocto
     }
 }
 
-val generateManpageManual = generateManual("manpage", "manpage")
-val generateHtmlManual = generateManual("html", "html5")
+val generateManpageManual = generateManual("manpage", "manpage", "src/docs/resources/manpage/manpage")
+val generateHtmlManual = generateManual("html", "html5", "${buildDir}/docs/manpage/html")
 
 val compressManpageManual = tasks.register<Exec>("compressManpageManual") {
+    val manpage = "src/docs/resources/manpage/manpage"
+    val gz = "${buildDir}/docs/manpage/gz"
     inputs.files(generateManpageManual)
-    outputs.dir("${buildDir}/docs/manpage/gz")
-    workingDir("${buildDir}/docs/manpage")
-    commandLine("/bin/sh", "-c", "rm -rf gz && cp -R manpage gz && gzip -n -9 gz/*")
+    outputs.dir(gz)
+    workingDir(".")
+    commandLine(
+        "/bin/sh",
+        "-c",
+        "rm -rf ${gz} && mkdir -p ${gz} && cp -R ${manpage}/* ${gz} && gzip -n -9 ${gz}/*"
+    )
 }
 
 val generateShellCompletions = tasks.register<JavaExec>("generateShellCompletions") {

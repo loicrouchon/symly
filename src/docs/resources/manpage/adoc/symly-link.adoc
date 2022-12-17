@@ -1,0 +1,78 @@
+// tag::picocli-generated-full-manpage[]
+// tag::picocli-generated-man-section-header[]
+:doctype: manpage
+:revnumber: 
+:manmanual: Symly Manual
+:mansource: 
+:man-linkstyle: pass:[blue R < >]
+= symly-link(1)
+
+// end::picocli-generated-man-section-header[]
+
+// tag::picocli-generated-man-section-name[]
+== Name
+
+symly-link - Create/update/delete links from 'directory' to the 'repositories'.
+
+Repositories should be specified with base layers first and overriding layers next. In case two repositories contain a file with the same path, the file in the latest repository will be used as the target for the link for the given path
+
+// end::picocli-generated-man-section-name[]
+
+// tag::picocli-generated-man-section-synopsis[]
+== Synopsis
+
+*symly link* [*-fhv*] [*--dry-run*] [*-d*=_<main-directory>_] [*--max-depth*=_<max-depth>_]
+           [*-r*[=_<repositories>_...]]...
+
+// end::picocli-generated-man-section-synopsis[]
+
+// tag::picocli-generated-man-section-description[]
+== Description
+
+Create/update/delete links from 'directory' to the 'repositories'.
+
+Repositories should be specified with base layers first and overriding layers next. In case two repositories contain a file with the same path, the file in the latest repository will be used as the target for the link for the given path
+
+// end::picocli-generated-man-section-description[]
+
+// tag::picocli-generated-man-section-options[]
+== Options
+
+*-d*, *--dir, --directory*=_<main-directory>_::
+  Main directory in which links will be created. If not given as a command line argument, symly will look for the 'directory' property in the symly.config file present in the current working directory
+
+*--dry-run*::
+  Do not create links but only displays which ones would be created
+
+*-f*, *--force*::
+  Force existing files and directories to be overwritten instead of failing in case of conflicts
+
+*-h*, *--help*::
+  Prints this help message and exits
+
+*--max-depth*=_<max-depth>_::
+  Depth of the lookup for orphans deletion.If not given as a command line argument, symly will look for the 'orphans.max-depth.search' property in the symly.config file present in the current working directory. If no property is found, default value will be used.
++
+  Default: 2
+
+*-r*, *--repositories*[=_<repositories>_...]::
+  Repositories containing files to link in the main directory. Repositories are to be listed by decreasing priority as the first ones will override the content of the later ones. If not given as a command line argument, symly will look for the 'repositories' property in the symly.config file present in the current working directory
+
+*-v*, *--verbose*::
+  Be verbose.
+
+// end::picocli-generated-man-section-options[]
+
+// tag::picocli-generated-man-section-arguments[]
+// end::picocli-generated-man-section-arguments[]
+
+// tag::picocli-generated-man-section-commands[]
+// end::picocli-generated-man-section-commands[]
+
+// tag::picocli-generated-man-section-exit-status[]
+// end::picocli-generated-man-section-exit-status[]
+
+// tag::picocli-generated-man-section-footer[]
+// end::picocli-generated-man-section-footer[]
+
+// end::picocli-generated-full-manpage[]

@@ -1,0 +1,72 @@
+'\" t
+.\"     Title: symly
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.10
+.\"    Manual: Symly Manual
+.\"    Source: Symly version unspecified
+.\"  Language: English
+.\"
+.TH "SYMLY" "1" "" "Symly version unspecified" "Symly Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+symly \- Symly creates, updates and removes links allowing for centralized management of sparse file\-trees.
+.SH "SYNOPSIS"
+.sp
+\fBsymly\fP [\fB\-hvV\fP] [COMMAND]
+.SH "DESCRIPTION"
+.sp
+Symly creates, updates and removes links allowing for centralized management of sparse file\-trees.
+.SH "OPTIONS"
+.sp
+\fB\-h\fP, \fB\-\-help\fP
+.RS 4
+Prints this help message and exits
+.RE
+.sp
+\fB\-v\fP, \fB\-\-verbose\fP
+.RS 4
+Be verbose.
+.RE
+.sp
+\fB\-V\fP, \fB\-\-version\fP
+.RS 4
+Prints version information.
+.RE
+.SH "COMMANDS"
+.sp
+\fBlink\fP, \fBln\fP
+.RS 4
+Create/update/delete links from \(aqdirectory\(aq to the \(aqrepositories\(aq.
+.sp
+Repositories should be specified with base layers first and overriding layers next. In case two repositories contain a file with the same path, the file in the latest repository will be used as the target for the link for the given path
+.RE
+.sp
+\fBstatus\fP, \fBst\fP
+.RS 4
+Displays the current links\(aq synchronization status
+.RE
+.sp
+\fBunlink\fP
+.RS 4
+Remove links in the \(aqdirectory\(aq pointing to the \(aqrepositories\(aq.
+.sp
+Note this operation does not restore files in the destination. If that is the desired behavior, use the \(aqrestore\(aq command instead.
+.RE
