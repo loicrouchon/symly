@@ -26,11 +26,11 @@ jobs:
         run: |
           VERSION=$(./src/build-tools/compute-next-version.sh)
           echo "Setting version to $VERSION"
-          echo ::set-output name=version::$VERSION
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - id: gradle
         name: Compute gradlew args
-        run: echo ::set-output name=args::"-Pversion=${{ steps.version.outputs.version }} --info --console=plain"
+        run: echo "args=-Pversion=${{ steps.version.outputs.version }} --info --console=plain" >> $GITHUB_OUTPUT
 
   test:
     name: Test
@@ -86,10 +86,10 @@ jobs:
           DEB_FILENAME=$(basename $DEB_PATH)
           RPM_PATH=$(find build/distributions/ -name "*.rpm")
           RPM_FILENAME=$(basename $RPM_PATH)
-          echo ::set-output name=deb-path::$DEB_PATH
-          echo ::set-output name=deb-filename::$DEB_FILENAME
-          echo ::set-output name=rpm-path::$RPM_PATH
-          echo ::set-output name=rpm-filename::$RPM_FILENAME
+          echo "deb-path=$DEB_PATH" >> $GITHUB_OUTPUT
+          echo "deb-filename=$DEB_FILENAME" >> $GITHUB_OUTPUT
+          echo "rpm-path=$RPM_PATH" >> $GITHUB_OUTPUT
+          echo "rpm-filename=$RPM_FILENAME" >> $GITHUB_OUTPUT
 
       - name: Debian package inspection
         run: |
