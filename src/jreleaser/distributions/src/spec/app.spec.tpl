@@ -9,7 +9,7 @@ URL:       {{projectWebsite}}
 Source0:   {{distributionUrl}}
 
 BuildArch: noarch
-BuildRequires: java-17-openjdk-devel, ant, picocli
+BuildRequires: java-17-openjdk-devel, ant, picocli, picocli-codegen, asciidoctor
 Requires: java, picocli
 {{#specRequires}}
 #Requires:  {{.}}

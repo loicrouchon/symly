@@ -1,11 +1,12 @@
 <project basedir="../../.." default="assemble">
     <property name="distribution" value="debian" />
     <property name="project.classpath" value="/usr/share/java/picocli.jar" />
+    <property name="project.codegen.classpath" value="/usr/share/java/picocli-codegen.jar" />
     <property name="compile.mode" value="classpath" />
 
     <import file="${basedir}/src/packaging/ant/assemble-jar.xml" />
 
-    <target name="assemble" depends="jar" description="generate the distribution">
+    <target name="assemble" depends="jar, manpage" description="generate the distribution">
 
         <mkdir dir="${build-dir.distributions}" />
         <copy todir="${build-dir.distributions}">
@@ -15,10 +16,7 @@
             <fileset dir="${build-dir.jars}" />
         </copy>
         <copy todir="${build-dir.distributions}/usr/share/doc">
-            <fileset dir="${src-dir.manpage}" />
+            <fileset dir="${build-dir.manpage.gz}" />
         </copy>
-        <apply executable="gzip" parallel="false">
-            <fileset dir="${build-dir.distributions}/usr/share/doc" />
-        </apply>
     </target>
 </project>

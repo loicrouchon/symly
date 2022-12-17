@@ -1,0 +1,30 @@
+<project>
+    <target name="manpage" depends="jar">
+        <java classname="picocli.codegen.docgen.manpage.ManPageGenerator" fork="true">
+            <arg value="${project.commands.main-command}" />
+            <arg value="--factory=${project.commands.bean-factory}" />
+            <arg value="--outdir=${build-dir.manpage.adoc}" />
+            <classpath>
+                <pathelement location="${project.jar-file}" />
+                <pathelement location="${project.module-path}" />
+                <pathelement location="${project.codegen.module-path}" />
+                <pathelement location="${project.classpath}" />
+                <pathelement location="${project.codegen.classpath}" />
+            </classpath>
+        </java>
+
+        <exec executable="asciidoctor">
+            <arg value="--backend=manpage" />
+            <arg value="--destination-dir=${build-dir.manpage.manpage}" />
+            <arg value="${build-dir.manpage.adoc}/*" />
+        </exec>
+
+        <copy todir="${build-dir.manpage.gz}">
+            <fileset dir="${build-dir.manpage.manpage}" />
+        </copy>
+
+        <apply executable="gzip" parallel="false">
+            <fileset dir="${build-dir.manpage.gz}" />
+        </apply>
+    </target>
+</project>

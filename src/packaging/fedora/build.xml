@@ -1,11 +1,12 @@
 <project basedir="../../.." default="assemble">
     <property name="distribution" value="fedora" />
     <property name="project.module-path" value="/usr/share/java/picocli/picocli.jar" />
+    <property name="project.codegen.module-path" value="/usr/share/java/picocli/picocli-codegen.jar" />
     <property name="compile.mode" value="module-path" />
 
     <import file="${basedir}/src/packaging/ant/assemble-jar.xml" />
 
-    <target name="assemble" depends="jar" description="generate the distribution">
+    <target name="assemble" depends="jar, manpage" description="generate the distribution">
         <mkdir dir="${build-dir.distributions}" />
         <copy todir="${build-dir.distributions}">
             <file file="LICENSE" />
@@ -17,10 +18,7 @@
             <fileset dir="${build-dir.jars}" />
         </copy>
         <copy todir="${build-dir.distributions}/usr/share/man/man1">
-            <fileset dir="${src-dir.manpage}" />
+            <fileset dir="${build-dir.manpage.gz}" />
         </copy>
-        <apply executable="gzip" parallel="false">
-            <fileset dir="${build-dir.distributions}/usr/share/man/man1" />
-        </apply>
     </target>
 </project>
