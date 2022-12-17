@@ -75,6 +75,10 @@ jobs:
             build/reports
             build/test-results
 
+      - id: dirty-doc-check
+        name: Check for potentially dirty documentation
+        run: make dirty-check
+
       - id: create-pkg
         name: Build deb/rpm packages application
         run: |
