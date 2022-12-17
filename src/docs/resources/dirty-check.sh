@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+set -e
 
 DIRS="docs src/docs"
 DIRTY_CHECK="git --no-pager diff --name-status --no-color ${DIRS}"
