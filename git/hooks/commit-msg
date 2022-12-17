@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+
+TYPES="build chore ci docs feat fix perf refactor style test"
+INPUT_FILE=$1
+COMMIT_MESSAGE=$(head -n1 "$INPUT_FILE")
+
+REGEXP="^[.0-9]+$|"
+REGEXP="^([Rr]evert|[Mm]erge):? .*$|^("
+for TYPE in ${TYPES}; do
+    REGEXP="${REGEXP}$TYPE|"
+done
+REGEXP="${REGEXP%|})(\(.+\))?: "
+
+
+print_error() {
+  echo -e "\n\e[31m[Invalid Commit Message]"
+  echo -e "------------------------\033[0m\e[0m"
+  echo -e "Valid types: \e[36m${TYPES}\033[0m"
+  echo -e "\e[37mActual commit message: \e[33m\"${COMMIT_MESSAGE}\"\033[0m"
+  echo -e "\e[37mExample valid commit message: \e[36m\"fix(subject): message\"\033[0m"
+  echo -e "\e[37mRegex: \e[33m\"${REGEXP}\"\033[0m"
+}
+
+if [[ ! "${COMMIT_MESSAGE}" =~ ${REGEXP} ]]; then
+  # commit message is invalid according to config - block commit
+  print_error
+  exit 1
+fi
