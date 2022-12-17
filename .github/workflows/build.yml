@@ -31,7 +31,21 @@ jobs:
             -   id: gradle
                 name: Compute gradlew args
                 run: echo "args=-Pversion=${{ steps.version.outputs.version }} --info --console=plain" >> $GITHUB_OUTPUT
+    dirty-check:
+        name: Dirty Check
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v3
 
+            -   uses: actions/setup-java@v3
+                with:
+                    distribution: 'temurin'
+                    java-version: '17'
+
+            -   id: dirty-doc-check
+                name: Check for potentially dirty documentation
+                run: make dirty-check
     test:
         name: Test
         needs: [ env ]
@@ -113,7 +127,7 @@ jobs:
     release:
         name: Release
         if: startsWith(github.ref, 'refs/heads/release/')
-        needs: [ env, test ]
+        needs: [ env, test, dirty-check ]
 
         runs-on: ubuntu-latest
 

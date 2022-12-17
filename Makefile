@@ -7,7 +7,7 @@ build:
 clean:
 	@./gradlew clean --console=plain
 
-dirty-check:
+dirty-check: build
 	@./src/docs/resources/dirty-check.sh
 
 release:
