@@ -10,6 +10,6 @@ if [ "$(${DIRTY_CHECK} | wc -l)" -gt 0 ]; then
     echo "Please re-generate it and add it to source control"
     echo ""
     echo "Dirty files:"
-    ${DIRTY_CHECK}
+    git --no-pager diff ${DIRS}
     exit 1
 fi
