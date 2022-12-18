@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 set -eu
 MAIN_BRANCH="main"
 DIR="$(dirname "$0")"
