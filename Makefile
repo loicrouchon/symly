@@ -8,7 +8,7 @@ clean:
 	@./gradlew clean --console=plain
 
 release:
-	@./src/build-tools/release.sh
+	@java ./buildSrc/src/main/java/Releaser.java
 
 install-git-hooks:
 	mkdir -p .git/hooks
