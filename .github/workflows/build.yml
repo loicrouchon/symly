@@ -3,7 +3,7 @@ name: Build
 on: push
 
 env:
-    GRADLE_OPTS: "--info --console=plain"
+    GRADLEW_OPTIONS: "--info --console=plain"
 
 jobs:
     env:
@@ -42,12 +42,12 @@ jobs:
             -   name: Build application
                 uses: gradle/gradle-build-action@v2
                 with:
-                    arguments: ${{ env.GRADLE_OPTS }} build
+                    arguments: ${{ env.GRADLEW_OPTIONS }} build
 
             -   name: Re-run integration tests in opaque testing mode
                 uses: gradle/gradle-build-action@v2
                 with:
-                    arguments: ${{ env.GRADLE_OPTS }} integrationTest -PopaqueTesting=true
+                    arguments: ${{ env.GRADLEW_OPTIONS }} integrationTest -PopaqueTesting=true
 
             -   name: Publish Unit Test Results
                 uses: EnricoMi/publish-unit-test-result-action@v1
@@ -126,7 +126,7 @@ jobs:
             -   name: Build application
                 uses: gradle/gradle-build-action@v2
                 with:
-                    arguments: ${{ env.GRADLE_OPTS }} build
+                    arguments: ${{ env.GRADLEW_OPTIONS }} build
 
             -   name: Run JReleaser
                 uses: jreleaser/release-action@v2
