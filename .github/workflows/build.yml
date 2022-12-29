@@ -71,10 +71,10 @@ jobs:
                     DEB_FILENAME=$(basename $DEB_PATH)
                     RPM_PATH=$(find build/distributions/ -name "*.rpm")
                     RPM_FILENAME=$(basename $RPM_PATH)
-                    echo ::set-output name=deb-path::$DEB_PATH
-                    echo ::set-output name=deb-filename::$DEB_FILENAME
-                    echo ::set-output name=rpm-path::$RPM_PATH
-                    echo ::set-output name=rpm-filename::$RPM_FILENAME
+                    echo "deb-path=$DEB_PATH" >> $GITHUB_OUTPUT
+                    echo "deb-filename=$DEB_FILENAME" >> $GITHUB_OUTPUT
+                    echo "rpm-path=$RPM_PATH" >> $GITHUB_OUTPUT
+                    echo "rpm-filename=$RPM_FILENAME" >> $GITHUB_OUTPUT
 
             -   name: Debian package inspection
                 run: |
@@ -118,6 +118,11 @@ jobs:
                     distribution: 'temurin'
                     java-version: '17'
 
+            -   id: read-version
+                run: |
+                    $VERSION=$(make version)
+                    echo "version=$VERSION" >> $GITHUB_OUTPUT
+
             -   name: Build application
                 uses: gradle/gradle-build-action@v2
                 with:
@@ -128,7 +133,7 @@ jobs:
                 with:
                     version: 1.2.0
                 env:
-                    JRELEASER_PROJECT_VERSION: ${{ make version }}
+                    JRELEASER_PROJECT_VERSION: ${{ steps.cread-version.outputs.version }}
                     JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.HOMEBREW_SYMLY_TOKEN }}
             -   name: JReleaser release output
