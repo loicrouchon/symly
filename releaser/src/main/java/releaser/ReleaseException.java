@@ -1,3 +1,5 @@
+package releaser;
+
 class ReleaseException extends RuntimeException {
 
     public ReleaseException(String message) {

@@ -1,3 +1,5 @@
+package releaser;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -5,7 +7,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-record Command(List<String> command, int exitCode, List<String> stdout) {
+public record Command(List<String> command, int exitCode, List<String> stdout) {
 
     public boolean successful() {
         return exitCode == 0;

@@ -1,7 +1,9 @@
+package releaser;
+
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-record Version(String version, String suffix) {
+public record Version(String version, String suffix) {
 
     private static final String VERSION_SEPARATOR = ".";
     private static final String SUFFIX_SEPARATOR = "-";

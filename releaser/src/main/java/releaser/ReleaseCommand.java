@@ -1,105 +1,29 @@
-import static gui.Color.*;
+package releaser;
 
-import gui.Choice;
-import gui.IO;
-import java.util.*;
-import java.util.function.Consumer;
+import static releaser.Color.*;
 
-public class Releaser {
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+public class ReleaseCommand {
     private static final String PADDING = "%-32s";
 
     private final IO io;
     private final GitRepository repo;
     private final Application application;
 
-    public Releaser(IO io, GitRepository repo, Application application) {
+    public ReleaseCommand(IO io, GitRepository repo, Application application) {
         this.io = io;
         this.repo = repo;
         this.application = application;
-    }
-
-    public static void main(String[] args) {
-        IO io = new IO();
-        try {
-            parse(io, new LinkedList<>(Arrays.asList(args)));
-        } catch (ReleaseException e) {
-            io.eprintln(e.getMessage());
-        } catch (Exception e) {
-            io.eprintln(e.getMessage(), e);
-        }
-    }
-
-    private static void parse(IO io, Deque<String> args) {
-        boolean dryRun = false;
-        Consumer<Context> command = null;
-        while (!args.isEmpty()) {
-            String arg = args.pop();
-            switch (arg) {
-                case "-d", "--dry-run" -> dryRun = true;
-                case "release" -> {
-                    if (command == null) {
-                        command = Releaser::release;
-                    } else {
-                        throw usage();
-                    }
-                }
-                case "check" -> {
-                    if (command == null) {
-                        command = Releaser::check;
-                    } else {
-                        throw usage();
-                    }
-                }
-                default -> throw usage();
-            }
-        }
-        if (command == null) {
-            throw usage();
-        }
-        command.accept(context(io, dryRun));
-    }
-
-    private static ReleaseException usage() {
-        return new ReleaseException(
-                """
-    Usage: releaser [MODE] [-d|--dry-run]
-      - MODE: release|check
-         * release: starts a release (version bump and release trigger)
-         * check: runs basic checks (branch type/version number consistency)
-      -d, --dry-run: dry-run mode""");
-    }
-
-    private record Context(IO io, Application application, GitRepository repository) {}
-
-    private static Context context(IO io, boolean dryRun) {
-        GitRepository repository;
-        Application application;
-        if (dryRun) {
-            application = Application.create();
-            repository = GitRepository.create("origin", "main", "release");
-        } else {
-            application = Application.createDryRun();
-            repository = GitRepository.createDryRun("origin", "main", "release");
-        }
-        return new Context(io, application, repository);
-    }
-
-    private static void release(Context context) {
-        Releaser releaser = new Releaser(context.io, context.repository, context.application);
-        releaser.preReleaseChecks();
-        releaser.release();
-    }
-
-    private static void check(Context context) {
-        ConsistencyChecker consistencyChecker = new ConsistencyChecker();
-        consistencyChecker.check(context.repository, context.application);
     }
 
     private String pad(String message) {
         return String.format(PADDING, message);
     }
 
-    private void preReleaseChecks() {
+    void preReleaseChecks() {
         io.println(ACTION.str("Fetching all branches and tags from remote..."));
         repo.fetchRemote();
         pull();
@@ -122,19 +46,19 @@ public class Releaser {
             if (!Objects.equals(repo.headOfLocalBranch(), repo.headOfRemoteBranch())) {
                 throw new ReleaseException(
                         """
-                        Release from the main branch can only be triggered if the main branch commits \
-                        have been sync with the remote.
-                        Please pull and push to the remote first.""");
+                    Release from the main branch can only be triggered if the main branch commits \
+                    have been sync with the remote.
+                    Please pull and push to the remote first.""");
             }
         } else if (repo.isReleaseBranch()) {
             // TODO check latest remote commit is present in local branch
         } else {
             throw new ReleaseException(
                     """
-                Release can only be triggered from the main branch or from a release branch.
-                Current branch is %s
-                Use:
-                    git switch %s"""
+            Release can only be triggered from the main branch or from a release branch.
+            Current branch is %s
+            Use:
+                git switch %s"""
                             .formatted(repo.currentBranch(), repo.mainBranch()));
         }
         checkForUncommittedChanges();
@@ -149,21 +73,22 @@ public class Releaser {
             String choice = io.readChoice(
                     List.of(new Choice("y", "Proceed with uncommitted changes%n"), new Choice("n", "Abort release%n")),
                     """
-                            There are uncommitted changes. Would you like to continue the release?
+                        There are uncommitted changes. Would you like to continue the release?
 
-                            %s%n""",
+                        %s%n""",
                     COMMENT.str(status.stdOutAsString()));
             if (!Objects.equals(choice, "y")) {
                 throw new ReleaseException(
                         """
-                    There are uncommitted changes, commit them before releasing:
-                    %s"""
+                There are uncommitted changes, commit them before releasing:
+                %s"""
                                 .formatted(status.stdOutAsString()));
             }
         }
     }
 
-    private void release() {
+    void release() {
+        preReleaseChecks();
         if (repo.isMainBranch()) {
             Version baseVersion = application.version();
             io.printf("%s %s%n", pad("Current base version:"), INFO.str(baseVersion));
@@ -187,10 +112,10 @@ public class Releaser {
         } else {
             throw new ReleaseException(
                     """
-            Release can only be triggered from the main branch or from a release branch.
-            Current branch is %s
-            Use:
-                git switch %s"""
+        Release can only be triggered from the main branch or from a release branch.
+        Current branch is %s
+        Use:
+            git switch %s"""
                             .formatted(repo.currentBranch(), repo.mainBranch()));
         }
     }
@@ -232,10 +157,7 @@ public class Releaser {
     }
 
     private Version next(Version baseVersion) {
-        return repo.tags(baseVersion).stream()
-                .map(tag -> tag.replaceFirst("^v", ""))
-                .max(Version::compare)
-                .map(Version::parse)
+        return repo.latestTaggedVersionForBaseVersion(baseVersion)
                 .map(Version::increment)
                 .orElse(baseVersion.subversion("0"));
     }
@@ -243,10 +165,7 @@ public class Releaser {
     private void performReleaseFromReleaseBranch() {
         Version baseVersion = repo.releaseBranchNumber();
         io.printf("%s %s%n", pad("Release branch base version:"), INFO.str(baseVersion));
-        Optional<Version> latestVersion = repo.tags(baseVersion).stream()
-                .map(tag -> tag.replaceFirst("^v", ""))
-                .max(Version::compare)
-                .map(Version::parse);
+        Optional<Version> latestVersion = repo.latestTaggedVersionForBaseVersion(baseVersion);
         latestVersion.ifPresent(version ->
                 io.printf("%s %s%n", pad("Latest tag for release %s is:".formatted(baseVersion)), INFO.str(version)));
         Version nextVersion = latestVersion.map(Version::increment).orElse(baseVersion.subversion("0"));
@@ -260,12 +179,9 @@ public class Releaser {
                         new Choice("y", "Proceed with release%n".formatted()),
                         new Choice("n", "Abort release%n".formatted())),
                 "Proceed (%s) or Abort (%s) the release? ".formatted(CHOICE.str("y"), CHOICE.str("n")));
-        switch (choice) {
-            case "y" -> {
-                repo.push();
-                io.printf("Release pushed to the remote. Release pipeline should start automatically.");
-            }
-            default -> {}
+        if (Objects.equals(choice, "y")) {
+            repo.push();
+            io.printf("Release pushed to the remote. Release pipeline should start automatically.");
         }
     }
 

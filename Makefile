@@ -11,11 +11,14 @@ build:
 clean:
 	@$(MAIN_GW) --quiet clean
 
+version: $(RELEASER)
+	@$(RELEASER) version
+
 version-check: $(RELEASER)
-	@$(RELEASER) check --dry-run
+	@$(RELEASER) check
 
 release: $(RELEASER)
-	@$(RELEASER) release --dry-run
+	@$(RELEASER) release
 
 $(RELEASER): clean
 	@$(RELEASER_GW) --quiet clean installDist

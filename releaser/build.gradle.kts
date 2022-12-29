@@ -4,7 +4,7 @@ plugins {
     id("com.diffplug.spotless") version "6.7.2"
 }
 
-val appMainClassName = "Releaser"
+val appMainClassName = "releaser.Releaser"
 application {
     mainClass.set(appMainClassName)
 }

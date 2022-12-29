@@ -1,26 +1,20 @@
+package releaser;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 abstract class GitRepository {
 
-    protected final String remote;
-    protected final String mainBranch;
-    protected final String releaseBranchPrefix;
-    protected final Pattern releaseBranchPattern;
+    protected final BranchingModel branchingModel;
     protected String currentBranch;
 
-    protected GitRepository(String remote, String mainBranch, String releaseBranchPrefix) {
-        this.remote = remote;
-        this.mainBranch = mainBranch;
-        this.releaseBranchPrefix = releaseBranchPrefix;
-        this.releaseBranchPattern = Pattern.compile("^" + releaseBranchPrefix + "/([0-9]+(:?\\.[0-9]+)*)$");
+    protected GitRepository(BranchingModel branchingModel) {
+        this.branchingModel = branchingModel;
     }
 
     public String mainBranch() {
-        return mainBranch;
+        return branchingModel.mainBranch();
     }
 
     public String currentBranch() {
@@ -31,15 +25,15 @@ abstract class GitRepository {
     }
 
     public String remoteBranch() {
-        return remote + "/" + currentBranch();
+        return branchingModel.remote() + "/" + currentBranch();
     }
 
     public boolean isMainBranch() {
-        return Objects.equals(mainBranch, currentBranch());
+        return Objects.equals(branchingModel.mainBranch(), currentBranch());
     }
 
     public String releaseBranch(Version version) {
-        return "%s/%s".formatted(releaseBranchPrefix, version);
+        return "%s/%s".formatted(branchingModel.releaseBranchPrefix(), version);
     }
 
     public boolean isReleaseBranch() {
@@ -47,7 +41,7 @@ abstract class GitRepository {
     }
 
     private boolean isReleaseBranch(String branch) {
-        return releaseBranchPattern.matcher(branch).matches();
+        return branchingModel.isAReleaseBranch(branch);
     }
 
     public Version releaseBranchNumber() {
@@ -56,11 +50,7 @@ abstract class GitRepository {
     }
 
     private Version releaseBranchNumber(String branch) {
-        Matcher matcher = releaseBranchPattern.matcher(branch);
-        if (!matcher.matches()) {
-            throw new IllegalStateException("%s is not a release branch".formatted(branch));
-        }
-        return Version.parse(matcher.group(1));
+        return branchingModel.releaseBranchNumber(branch);
     }
 
     public abstract void switchToBranch(String branch);
@@ -71,7 +61,7 @@ abstract class GitRepository {
     }
 
     public void fetchRemote() {
-        Command.exec("git", "fetch", "--tags", remote);
+        Command.exec("git", "fetch", "--tags", branchingModel.remote());
     }
 
     public String headOfLocalBranch() {
@@ -93,38 +83,45 @@ abstract class GitRepository {
     public abstract void commitAll(String message);
 
     public void pull() {
-        Command.exec("git", "pull", "--set-upstream", remote, currentBranch());
+        Command.exec("git", "pull", "--set-upstream", branchingModel.remote(), currentBranch());
     }
 
     public abstract void push();
 
     public Optional<Version> latestReleaseBranchVersion(Version baseVersion) {
-        Command command = Command.exec("git", "branch", "-r", "--list", remote + "/*");
+        Command command = Command.exec("git", "branch", "-r", "--list", branchingModel.remote() + "/*");
         return command.stdout().stream()
-                .map(branch -> branch.trim().replaceFirst("^" + remote + "/", ""))
+                .map(branch -> branch.trim().replaceFirst("^" + branchingModel.remote() + "/", ""))
                 .filter(this::isReleaseBranch)
                 .map(this::releaseBranchNumber)
                 .filter(version -> version.isSubVersion(baseVersion))
                 .max(Version::compare);
     }
 
-    public List<String> tags(Version baseVersion) {
+    public Optional<Version> latestTaggedVersionForBaseVersion(Version baseVersion) {
+        return tags(baseVersion).stream()
+                .map(tag -> tag.replaceFirst("^v", ""))
+                .max(Version::compare)
+                .map(Version::parse);
+    }
+
+    private List<String> tags(Version baseVersion) {
         return Command.exec("git", "tag", "-l", "v%s.*".formatted(baseVersion)).stdout();
     }
 
-    public static GitRepository create(String remote, String mainBranch, String releaseBranchPrefix) {
-        return new ReadWriteGitRepository(remote, mainBranch, releaseBranchPrefix);
+    public static GitRepository create(BranchingModel branchingModel) {
+        return new ReadWriteGitRepository(branchingModel);
     }
 
-    public static GitRepository createDryRun(String remote, String mainBranch, String releaseBranchPrefix) {
-        return new ReadOnlyGitRepository(remote, mainBranch, releaseBranchPrefix);
+    public static GitRepository createDryRun(BranchingModel branchingModel) {
+        return new ReadOnlyGitRepository(branchingModel);
     }
 }
 
 class ReadWriteGitRepository extends GitRepository {
 
-    public ReadWriteGitRepository(String remote, String mainBranch, String releaseBranchPrefix) {
-        super(remote, mainBranch, releaseBranchPrefix);
+    public ReadWriteGitRepository(BranchingModel branchingModel) {
+        super(branchingModel);
     }
 
     @Override
@@ -141,14 +138,14 @@ class ReadWriteGitRepository extends GitRepository {
 
     @Override
     public void push() {
-        Command.exec("git", "push", "--set-upstream", remote, currentBranch());
+        Command.exec("git", "push", "--set-upstream", branchingModel.remote(), currentBranch());
     }
 }
 
 class ReadOnlyGitRepository extends GitRepository {
 
-    public ReadOnlyGitRepository(String remote, String mainBranch, String releaseBranchPrefix) {
-        super(remote, mainBranch, releaseBranchPrefix);
+    public ReadOnlyGitRepository(BranchingModel branchingModel) {
+        super(branchingModel);
     }
 
     @Override

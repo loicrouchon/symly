@@ -1,3 +1,5 @@
+package releaser;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -88,7 +90,6 @@ class ReadWriteApplication extends Application {
 }
 
 class ReadOnlyApplication extends Application {
-
     @Override
     protected void writeApplicationProperties() {
         // NO-OP

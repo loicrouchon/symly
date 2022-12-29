@@ -1,7 +1,8 @@
-package gui;
+package releaser;
 
-import static gui.Color.CHOICE;
-import static gui.Color.ERROR;
+import static releaser.Color.CHOICE;
+import static releaser.Color.DEFAULT;
+import static releaser.Color.ERROR;
 
 import java.io.Console;
 import java.util.List;
@@ -43,7 +44,7 @@ public class IO {
     }
 
     public IO resetColor() {
-        console.printf(Color.DEFAULT.code);
+        console.printf(DEFAULT.code);
         return this;
     }
 
@@ -59,7 +60,8 @@ public class IO {
         Set<String> validChoices = choices.stream().map(Choice::key).collect(Collectors.toSet());
         String selection;
         do {
-            choices.forEach(choice -> printf("  %s) %s", CHOICE.str(choice.key()), choice.message().formatted()));
+            choices.forEach(choice -> printf(
+                    "  %s) %s", CHOICE.str(choice.key()), choice.message().formatted()));
             selection = console.readLine("> " + message, args);
         } while (!validChoices.contains(selection));
         return selection;

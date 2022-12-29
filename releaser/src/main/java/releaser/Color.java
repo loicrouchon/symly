@@ -1,4 +1,4 @@
-package gui;
+package releaser;
 
 public enum Color {
     RED("\033[31m"),
