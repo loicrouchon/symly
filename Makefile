@@ -1,15 +1,21 @@
 
-.PHONY: clean build release install-git-hooks
+.PHONY: clean build version-check release $(RELEASER)
+
+MAIN_GW=./gradlew --console=plain
+RELEASER_GW=./gradlew --console=plain --build-file=releaser/build.gradle.kts
+RELEASER=releaser/build/install/releaser/bin/releaser
 
 build:
-	@./gradlew build --console=plain
+	@$(MAIN_GW) build
 
 clean:
-	@./gradlew clean --console=plain
+	@$(MAIN_GW) --quiet clean
 
-release:
-	@java ./buildSrc/src/main/java/Releaser.java
+version-check: $(RELEASER)
+	@$(RELEASER) check --dry-run
 
-install-git-hooks:
-	mkdir -p .git/hooks
-	ln -s "$(PWD)/git/hooks/pre-commit" ".git/hooks/pre-commit"
+release: $(RELEASER)
+	@$(RELEASER) release --dry-run
+
+$(RELEASER): clean
+	@$(RELEASER_GW) --quiet clean installDist
