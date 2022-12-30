@@ -80,6 +80,9 @@ class Cmd {
     }
 
     public void execute() {
+        if (command == null) {
+            throw usage();
+        }
         command.accept(this);
     }
 
