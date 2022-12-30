@@ -18,9 +18,15 @@ jobs:
                     distribution: 'temurin'
                     java-version: '17'
 
+            -   name: Build application
+                uses: gradle/gradle-build-action@v2
+                with:
+                    arguments: ${{ env.GRADLEW_OPTIONS }} installDist
+                    build-root-directory: releaser
+
             -   id: version
                 name: Ensure version number is consistent with branch type
-                run: make version-check
+                run: releaser/build/install/releaser/bin/releaser version-check
 
     test:
         name: Test
@@ -118,9 +124,15 @@ jobs:
                     distribution: 'temurin'
                     java-version: '17'
 
+            -   name: Build application
+                uses: gradle/gradle-build-action@v2
+                with:
+                    arguments: ${{ env.GRADLEW_OPTIONS }} installDist
+                    build-root-directory: releaser
+
             -   id: read-version
                 run: |
-                    $VERSION=$(make version)
+                    $VERSION=$(releaser/build/install/releaser/bin/releaser version)
                     echo "version=$VERSION" >> $GITHUB_OUTPUT
 
             -   name: Build application
