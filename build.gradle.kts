@@ -82,9 +82,9 @@ testing {
             useJUnitJupiter(libs.versions.junit.get())
 
             dependencies {
-                implementation(libs.assertj)
                 implementation(project())
                 implementation(libs.picocli.core)
+                implementation(libs.assertj)
             }
 
             targets {

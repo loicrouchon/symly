@@ -25,8 +25,8 @@ class IgnoreList {
 
     private static final Collection<UnaryOperator<String>> PATTERN_CONVERSIONS = List.of(
             // trimming leading/trailing whitespaces
-            new RegexConversion("^\s+", ""),
-            new RegexConversion("\s+$", ""),
+            new RegexConversion("^\\s+", ""),
+            new RegexConversion("\\s+$", ""),
             // wildcard support
             IgnoreList::processWildcards);
 
