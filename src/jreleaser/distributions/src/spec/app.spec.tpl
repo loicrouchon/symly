@@ -9,7 +9,7 @@ URL:       {{projectWebsite}}
 Source0:   {{distributionUrl}}
 
 BuildArch: noarch
-BuildRequires: java-17-openjdk-devel, ant, picocli, picocli-codegen, asciidoctor
+BuildRequires: java-17-openjdk-devel, ant, picocli
 Requires: java, picocli
 {{#specRequires}}
 #Requires:  {{.}}
@@ -22,7 +22,7 @@ Requires: java, picocli
 
 %setup -q -n {{distributionArtifactFileName}}
 %build
-ant -f src/packaging/fedora/build.xml -Dsrc-dir.manpage=doc/manpage
+ant -f src/packaging/fedora/build.xml
 
 %install
 %define distdir build/ant/fedora/distributions

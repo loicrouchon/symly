@@ -5,7 +5,6 @@
             <manifest>
                 <attribute name="Main-Class" value="${project.main-class}" />
             </manifest>
-            <fileset dir="src/main/resources" />
         </jar>
     </target>
 </project>

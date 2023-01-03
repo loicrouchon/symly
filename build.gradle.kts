@@ -232,22 +232,15 @@ val generateSrcArchive = tasks.register<Tar>("generateSrcArchive") {
     from(".", closureOf<CopySpec> {
         into("${artifactName}")
         include(
+            "src/**",
             "LICENSE",
-            "src/main/java/**",
-            "src/test/**",
-            "src/integrationTest/**",
-            "src/packaging/**",
+            "gradle.properties"
         )
     })
-    from("build/resources/main", closureOf<CopySpec> {
-        into("${artifactName}/src/main/resources")
-    })
-    from(generateManpageManual) {
-        into("${artifactName}/doc/manpage")
-    }
     destinationDirectory.set(file("${buildDir}/distributions/"))
     archiveFileName.set("${artifactName}.tar")
 }
+generateSrcArchive.get().dependsOn(generateManpageManual)
 tasks.assemble.get().dependsOn(generateSrcArchive)
 
 ospackage {
