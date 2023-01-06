@@ -104,8 +104,9 @@ class Cmd {
                 """
 Usage: releaser [MODE] [-d|--dry-run]
   - MODE: release|check
-     * release: starts a release (version bump and release trigger)
      * check: runs basic checks (branch type/version number consistency)
+     * release: starts a release (version bump and release trigger)
+     * version: Displays the app version
   -d, --dry-run: dry-run mode""");
     }
 }
