@@ -20,5 +20,5 @@ version-check: $(RELEASER)
 release: $(RELEASER)
 	@$(RELEASER) release
 
-$(RELEASER): clean
+$(RELEASER):
 	@$(RELEASER_GW) --quiet clean installDist
