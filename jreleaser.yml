@@ -43,6 +43,9 @@ distributions:
             requires:
                 - java
                 - picocli
+            repository:
+                active: ALWAYS
+                name: fedora-copr-symly
 
     deb:
         type: NATIVE_PACKAGE

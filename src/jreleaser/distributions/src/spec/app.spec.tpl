@@ -6,7 +6,7 @@ Summary:   {{projectDescription}}
 
 License:   {{projectLicense}}
 URL:       {{projectWebsite}}
-Source0:   {{distributionUrl}}
+Source0:   https://github.com/loicrouchon/symly/archive/refs/tags/v{{projectVersion}}.tar.gz
 
 BuildArch: noarch
 BuildRequires: java-17-openjdk-devel, ant, picocli
@@ -20,7 +20,7 @@ Requires: java, picocli
 
 %prep
 
-%setup -q -n {{distributionArtifactFileName}}
+%setup -q -n {{specPackageName}}-{{projectVersion}}
 %build
 ant -f src/packaging/fedora/build.xml
 
