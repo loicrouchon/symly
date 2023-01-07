@@ -31,6 +31,10 @@ class GitRepository {
         return branchingModel.remote() + "/" + currentBranch();
     }
 
+    public boolean remoteBranchExists() {
+        return git.branchExists(remoteBranch());
+    }
+
     public boolean isMainBranch() {
         return Objects.equals(branchingModel.mainBranch(), currentBranch());
     }
@@ -62,6 +66,10 @@ class GitRepository {
     }
 
     public void createBranchAndSwitch(String branch) {
+        if (git.branchExists(branch)) {
+            throw new ReleaseException(
+                    "Branch %s already exists. Please ensure it can be deleted and resume when done".formatted(branch));
+        }
         git.createBranch(branch);
         switchToBranch(branch);
     }

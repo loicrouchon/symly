@@ -1,6 +1,7 @@
 package releaser;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 abstract class Git {
 
@@ -23,12 +24,15 @@ abstract class Git {
     }
 
     public String currentBranch() {
-        return gitExecCommand("git", "rev-parse", "--verify", "--abbrev-ref", "HEAD")
-                .stdOutAsString();
+        return gitExecCommand("git", "branch", "--show-current").stdOutAsString();
     }
 
     public Command branches(String pattern) {
-        return gitExecCommand("git", "branch", "-r", "--list", pattern);
+        return gitExecCommand("git", "branch", "--remotes", "--list", pattern);
+    }
+
+    public boolean branchExists(String branch) {
+        return branches(branch).stdout().stream().anyMatch(b -> Objects.equals(b, branch));
     }
 
     public Command createBranch(String branch) {

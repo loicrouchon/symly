@@ -50,9 +50,7 @@ public class ReleaseCommand {
                     have been sync with the remote.
                     Please pull and push to the remote first.""");
             }
-        } else if (repo.isReleaseBranch()) {
-            // TODO check latest remote commit is present in local branch
-        } else {
+        } else if (!repo.isReleaseBranch()) {
             throw new ReleaseException(
                     """
             Release can only be triggered from the main branch or from a release branch.
@@ -132,7 +130,7 @@ public class ReleaseCommand {
                                 .formatted(INFO.str(latestReleaseBranch), INFO.str(next(version)))),
                 new Choice(
                         "2",
-                        "Start with %s, next version will be %s%n"
+                        "Start with %s (bump), next version will be %s%n"
                                 .formatted(
                                         INFO.str(incrementedVersionBranchName), INFO.str(next(incrementedVersion)))));
         String choice =
@@ -147,7 +145,9 @@ public class ReleaseCommand {
 
     private void pull() {
         io.printf(ACTION.str("Pulling branch %s...%n".formatted(repo.currentBranch())));
-        repo.pull();
+        if (repo.remoteBranchExists()) {
+            repo.pull();
+        }
     }
 
     private void handleNonExistingReleaseBranch(Version nextBaseVersion) {
