@@ -21,12 +21,12 @@ jobs:
             -   name: Build application
                 uses: gradle/gradle-build-action@v2
                 with:
-                    arguments: ${{ env.GRADLEW_OPTIONS }} installDist
+                    arguments: ${{ env.GRADLEW_OPTIONS }} build
                     build-root-directory: releaser
 
             -   id: version
                 name: Ensure version number is consistent with branch type
-                run: releaser/build/install/releaser/bin/releaser version-check
+                run: make version-check
 
     test:
         name: Test
@@ -127,12 +127,12 @@ jobs:
             -   name: Build application
                 uses: gradle/gradle-build-action@v2
                 with:
-                    arguments: ${{ env.GRADLEW_OPTIONS }} installDist
+                    arguments: ${{ env.GRADLEW_OPTIONS }} build
                     build-root-directory: releaser
 
             -   id: read-version
                 run: |
-                    $VERSION=$(releaser/build/install/releaser/bin/releaser version)
+                    $VERSION=$(make version)
                     echo "version=$VERSION" >> $GITHUB_OUTPUT
 
             -   name: Build application

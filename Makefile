@@ -3,7 +3,8 @@
 
 MAIN_GW=./gradlew --console=plain
 RELEASER_GW=./gradlew --console=plain --build-file=releaser/build.gradle.kts
-RELEASER=releaser/build/install/releaser/bin/releaser
+RELEASER_JAR=releaser/build/libs/releaser.jar
+RELEASER=java -cp $(RELEASER_JAR)
 
 build:
 	@$(MAIN_GW) build
@@ -11,14 +12,20 @@ build:
 clean:
 	@$(MAIN_GW) --quiet clean
 
-version: $(RELEASER)
-	@$(RELEASER) version
+version: $(RELEASER_JAR)
+	@$(RELEASER) releaser.Releaser version
 
-version-check: $(RELEASER)
-	@$(RELEASER) check
+version-check: $(RELEASER_JAR)
+	@$(RELEASER) releaser.Releaser check
+
+release: $(RELEASER_JAR)
+	@$(RELEASER) releaser.Releaser release
 
 release: $(RELEASER)
 	@$(RELEASER) release
 
-$(RELEASER):
-	@$(RELEASER_GW) --quiet clean installDist
+$(RELEASER_JAR):
+	@$(RELEASER_GW) --quiet build
+
+clean-releaser:
+	@$(RELEASER_GW) --quiet clean

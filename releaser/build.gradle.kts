@@ -1,12 +1,7 @@
 plugins {
-    application
+    java
     idea
     id("com.diffplug.spotless") version "6.7.2"
-}
-
-val appMainClassName = "releaser.Releaser"
-application {
-    mainClass.set(appMainClassName)
 }
 
 java {
