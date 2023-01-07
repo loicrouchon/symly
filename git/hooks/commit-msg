@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-TYPES="build chore ci docs feat fix perf refactor style test"
+TYPES="build chore ci docs feat fix perf refactor release style test"
 INPUT_FILE=$1
 COMMIT_MESSAGE=$(head -n1 "$INPUT_FILE")
 
