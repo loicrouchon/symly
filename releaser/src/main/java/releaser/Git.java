@@ -2,6 +2,7 @@ package releaser;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 abstract class Git {
 
@@ -27,12 +28,13 @@ abstract class Git {
         return gitExecCommand("git", "branch", "--show-current").stdOutAsString();
     }
 
-    public Command branches(String pattern) {
-        return gitExecCommand("git", "branch", "--remotes", "--list", pattern);
+    public Stream<String> branches(String pattern) {
+        return gitExecCommand("git", "branch", "--all", "--list", pattern).stdout().stream()
+                .map(branch -> branch.trim().replaceFirst("^remotes/", ""));
     }
 
     public boolean branchExists(String branch) {
-        return branches(branch).stdout().stream().anyMatch(b -> Objects.equals(b, branch));
+        return branches(branch).anyMatch(b -> Objects.equals(b, branch));
     }
 
     public Command createBranch(String branch) {

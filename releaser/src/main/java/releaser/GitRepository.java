@@ -107,8 +107,8 @@ class GitRepository {
     }
 
     public Optional<Version> latestReleaseBranchVersion(Version baseVersion) {
-        return git.branches(branchingModel.remote() + "/*").stdout().stream()
-                .map(branch -> branch.trim().replaceFirst("^" + branchingModel.remote() + "/", ""))
+        return git.branches(branchingModel.remote() + "/*")
+                .map(branch -> branch.replaceFirst("^" + branchingModel.remote() + "/", ""))
                 .filter(this::isReleaseBranch)
                 .map(this::releaseBranchNumber)
                 .filter(version -> version.isSubVersion(baseVersion))
