@@ -1,26 +1,26 @@
-# {{jreleaserCreationStamp}}
-Name:      {{specPackageName}}
-Version:   {{projectVersion}}
-Release:   {{specRelease}}
-Summary:   {{projectDescription}}
+Name:      symly
+Version:   ${version}
+Release:   1%{?dist}
+Summary:   A tool for managing symbolic links
 
-License:   {{projectLicense}}
-URL:       {{projectWebsite}}
-Source0:   https://github.com/loicrouchon/symly/archive/refs/tags/v{{projectVersion}}.tar.gz
+License:   Apache-2.0
+URL:       https://github.com/loicrouchon/symly
+Source0:   https://github.com/loicrouchon/symly/archive/refs/tags/v${version}.tar.gz
 
 BuildArch: noarch
 BuildRequires: java-17-openjdk-devel, ant, picocli
 Requires: java, picocli
-{{#specRequires}}
-#Requires:  {{.}}
-{{/specRequires}}
 
 %description
-{{projectLongDescription}}
+Symly is a tool helping to centralize sparse file trees.
+It replicates and maintains a file tree structure of one
+or more repository layers into a directory by creating
+symbolic links.
+
 
 %prep
 
-%setup -q -n {{specPackageName}}-{{projectVersion}}
+%setup -q -n symly-${version}
 %build
 ant -f src/packaging/fedora/build.xml
 

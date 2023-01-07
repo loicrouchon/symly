@@ -227,21 +227,15 @@ val buildHomebrewBottle = tasks.register<Zip>("buildHomebrewBottle") {
 }
 tasks.assemble.get().dependsOn(buildHomebrewBottle)
 
-val generateSrcArchive = tasks.register<Tar>("generateSrcArchive") {
-    val artifactName = "${project.name}-${project.version}.src"
-    from(".", closureOf<CopySpec> {
-        into("${artifactName}")
-        include(
-            "src/**",
-            "LICENSE",
-            "gradle.properties"
-        )
+val rpmSpec = tasks.register<Copy>("rpmSpec") {
+    val props = mapOf("version" to project.version)
+    inputs.properties(props)
+    from("src/packaging/fedora/${project.name}.spec", closureOf<CopySpec> {
+        expand(props)
     })
-    destinationDirectory.set(file("${buildDir}/distributions/"))
-    archiveFileName.set("${artifactName}.tar")
+    into(file("${buildDir}/distributions/"))
 }
-generateSrcArchive.get().dependsOn(generateManpageManual)
-tasks.assemble.get().dependsOn(generateSrcArchive)
+tasks.assemble.get().dependsOn(rpmSpec)
 
 ospackage {
     packageName = "symly"
