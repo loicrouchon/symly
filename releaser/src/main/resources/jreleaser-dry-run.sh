@@ -3,7 +3,7 @@
 set -eu
 
 DIR="$(dirname "$0")"
-ROOT_DIR="${DIR}/../.."
+ROOT_DIR="${DIR}/../../../.."
 cd "${ROOT_DIR}"
 
 echo "Enter GitHub public repositories read-only token:"
