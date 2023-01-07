@@ -132,7 +132,7 @@ jobs:
 
             -   id: read-version
                 run: |
-                    $VERSION=$(make version)
+                    VERSION=$(make version)
                     echo "version=$VERSION" >> $GITHUB_OUTPUT
 
             -   name: Build application
