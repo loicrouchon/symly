@@ -1,15 +1,18 @@
 package releaser;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-abstract class GitRepository {
+class GitRepository {
 
+    private final Git git;
     protected final BranchingModel branchingModel;
     protected String currentBranch;
 
-    protected GitRepository(BranchingModel branchingModel) {
+    protected GitRepository(Git git, BranchingModel branchingModel) {
+        this.git = git;
         this.branchingModel = branchingModel;
     }
 
@@ -19,7 +22,7 @@ abstract class GitRepository {
 
     public String currentBranch() {
         if (currentBranch == null) {
-            currentBranch = Command.output("git", "rev-parse", "--verify", "--abbrev-ref", "HEAD");
+            currentBranch = git.currentBranch();
         }
         return currentBranch;
     }
@@ -53,15 +56,18 @@ abstract class GitRepository {
         return branchingModel.releaseBranchNumber(branch);
     }
 
-    public abstract void switchToBranch(String branch);
+    public void switchToBranch(String branch) {
+        git.switchToBranch(branch);
+        currentBranch = null;
+    }
 
     public void createBranchAndSwitch(String branch) {
-        Command.exec("git", "branch", branch);
+        git.createBranch(branch);
         switchToBranch(branch);
     }
 
     public void fetchRemote() {
-        Command.exec("git", "fetch", "--tags", branchingModel.remote());
+        git.fetchTags(branchingModel.remote());
     }
 
     public String headOfLocalBranch() {
@@ -73,24 +79,27 @@ abstract class GitRepository {
     }
 
     public String headCommit(String branchName) {
-        return Command.output("git", "rev-parse", "--verify", "--short", branchName);
+        return git.headCommit(branchName);
     }
 
     public Command status() {
-        return Command.exec("git", "status", "--porcelain");
+        return git.status();
     }
-
-    public abstract void commitAll(String message);
 
     public void pull() {
-        Command.exec("git", "pull", "--set-upstream", branchingModel.remote(), currentBranch());
+        git.pull(branchingModel.remote(), currentBranch());
     }
 
-    public abstract void push();
+    public void commitAll(String message) {
+        git.commitAll(message);
+    }
+
+    public void push() {
+        git.push(branchingModel.remote(), currentBranch());
+    }
 
     public Optional<Version> latestReleaseBranchVersion(Version baseVersion) {
-        Command command = Command.exec("git", "branch", "-r", "--list", branchingModel.remote() + "/*");
-        return command.stdout().stream()
+        return git.branches(branchingModel.remote() + "/*").stdout().stream()
                 .map(branch -> branch.trim().replaceFirst("^" + branchingModel.remote() + "/", ""))
                 .filter(this::isReleaseBranch)
                 .map(this::releaseBranchNumber)
@@ -106,60 +115,14 @@ abstract class GitRepository {
     }
 
     private List<String> tags(Version baseVersion) {
-        return Command.exec("git", "tag", "-l", "v%s.*".formatted(baseVersion)).stdout();
+        return git.tags(baseVersion).stdout();
     }
 
     public static GitRepository create(BranchingModel branchingModel) {
-        return new ReadWriteGitRepository(branchingModel);
+        return new GitRepository(new Git.ReadWriteGit(Path.of(".")), branchingModel);
     }
 
     public static GitRepository createDryRun(BranchingModel branchingModel) {
-        return new ReadOnlyGitRepository(branchingModel);
-    }
-}
-
-class ReadWriteGitRepository extends GitRepository {
-
-    public ReadWriteGitRepository(BranchingModel branchingModel) {
-        super(branchingModel);
-    }
-
-    @Override
-    public void switchToBranch(String branch) {
-        Command.exec("git", "switch", branch);
-        currentBranch = null;
-    }
-
-    @Override
-    public void commitAll(String message) {
-        Command.exec("git", "add", ".");
-        Command.exec("git", "commit", "-m", message);
-    }
-
-    @Override
-    public void push() {
-        Command.exec("git", "push", "--set-upstream", branchingModel.remote(), currentBranch());
-    }
-}
-
-class ReadOnlyGitRepository extends GitRepository {
-
-    public ReadOnlyGitRepository(BranchingModel branchingModel) {
-        super(branchingModel);
-    }
-
-    @Override
-    public void switchToBranch(String branch) {
-        currentBranch = branch;
-    }
-
-    @Override
-    public void commitAll(String message) {
-        // NO-OP
-    }
-
-    @Override
-    public void push() {
-        // NO-OP
+        return new GitRepository(new Git.ReadOnlyGit(Path.of(".")), branchingModel);
     }
 }
