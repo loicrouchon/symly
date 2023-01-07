@@ -9,7 +9,7 @@ Source0:   https://github.com/loicrouchon/symly/archive/refs/tags/v${version}.ta
 
 BuildArch: noarch
 BuildRequires: java-17-openjdk-devel, ant, picocli
-Requires: java, picocli
+Requires: java-latest-openjdk-headless, picocli
 
 %description
 Symly is a tool helping to centralize sparse file trees.

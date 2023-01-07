@@ -10,7 +10,14 @@ sudo apt update
 sudo apt install symly
 ----
 
-.RPM: Fedora, CentOS, Red Hat, ...
+.RPM: Fedora
+----
+dnf install 'dnf-command(copr)'
+dnf copr enable loicrouchon/symly
+dnf install symly
+----
+
+.Other RPM-based distributions: CentOS, Red Hat, ...
 ----
 sudo sh -c 'curl -1sLf https://packages.loicrouchon.com/rpm/Release.gpg.key > /tmp/symly.gpg.key'
 sudo rpm --import /tmp/symly.gpg.key
