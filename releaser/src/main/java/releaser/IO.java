@@ -16,8 +16,7 @@ public class IO {
     private final Console console = System.console();
     private final PrintWriter writer;
 
-    @SuppressWarnings({
-        "java:S106" // Need to write to stdout
+    @SuppressWarnings({"java:S106" // Need to write to stdout
     })
     public IO() {
         if (console != null) {

@@ -1,5 +1,5 @@
 
-.PHONY: clean build version-check release $(RELEASER)
+.PHONY: clean build version version-check build-releaser release publish-spec
 
 MAIN_GW=./gradlew --console=plain
 RELEASER_GW=./gradlew --console=plain --build-file=releaser/build.gradle.kts
@@ -21,8 +21,8 @@ version-check: $(RELEASER_JAR)
 release: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Releaser release
 
-release: $(RELEASER)
-	@$(RELEASER) release
+publish-spec: $(RELEASER_JAR)
+	@$(RELEASER) releaser.Publisher
 
 $(RELEASER_JAR):
 	@$(RELEASER_GW) --quiet build

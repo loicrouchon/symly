@@ -147,7 +147,7 @@ jobs:
                 env:
                     JRELEASER_PROJECT_VERSION: ${{ steps.read-version.outputs.version }}
                     JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                    JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.HOMEBREW_SYMLY_TOKEN }}
+                    JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
             -   name: JReleaser release output
                 if: always()
                 uses: actions/upload-artifact@v3
@@ -157,3 +157,9 @@ jobs:
                         out/jreleaser/output.properties
                         out/jreleaser/trace.log
                         out/jreleaser/release/CHANGELOG.md
+
+            -   id: publish
+                env:
+                    REPO_FEDORA_COPR_SYMLY_USERNAME: loicrouchon
+                    REPO_FEDORA_COPR_SYMLY_PASSWORD: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
+                run: make publish-spec
