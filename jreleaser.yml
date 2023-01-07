@@ -34,19 +34,6 @@ distributions:
             -   path: build/distributions/{{projectName}}-{{projectVersion}}.zip
             -   path: build/distributions/{{projectName}}-{{projectVersion}}.tar
 
-    src:
-        artifacts:
-            -   path: build/distributions/{{projectName}}-{{projectVersion}}.src.tar
-        spec:
-            active: ALWAYS
-            packageName: symly
-            requires:
-                - java
-                - picocli
-            repository:
-                active: ALWAYS
-                name: fedora-copr-symly
-
     deb:
         type: NATIVE_PACKAGE
         artifacts:
@@ -78,3 +65,7 @@ distributions:
             dependencies:
                 coreutils:
                 openjdk: # latest JDK
+
+files:
+    artifacts:
+        - path: build/distributions/{{projectName}}.spec
