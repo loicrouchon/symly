@@ -94,12 +94,16 @@ class GitRepository {
         return git.status();
     }
 
-    public void pull() {
-        git.pull(branchingModel.remote(), currentBranch());
+    public void mergeBranch(String branch) {
+        git.mergeBranch(branch);
     }
 
     public void commitAll(String message) {
         git.commitAll(message);
+    }
+
+    public void pull() {
+        git.pull(branchingModel.remote(), currentBranch());
     }
 
     public void push() {
