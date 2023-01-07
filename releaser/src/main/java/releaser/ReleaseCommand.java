@@ -136,7 +136,11 @@ public class ReleaseCommand {
         String choice =
                 io.readChoice(choices, "Re-use (%s) or Bump (%s)? ".formatted(CHOICE.str("1"), CHOICE.str("2")));
         switch (choice) {
-            case "1" -> repo.switchToBranch(latestReleaseBranch);
+            case "1" -> {
+                repo.switchToBranch(latestReleaseBranch);
+                io.printf("Merging %s into %s", INFO.str(repo.mainBranch()), INFO.str(latestReleaseBranch));
+                repo.mergeBranch(repo.mainBranch());
+            }
             case "2" -> repo.createBranchAndSwitch(incrementedVersionBranchName);
             default -> throw new IllegalStateException("Unreachable statement");
         }

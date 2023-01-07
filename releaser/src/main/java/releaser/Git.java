@@ -56,6 +56,8 @@ abstract class Git {
         return gitExecCommand("git", "status", "--porcelain");
     }
 
+    public abstract void mergeBranch(String branch);
+
     public abstract void commitAll(String message);
 
     public void pull(String remote, String branch) {
@@ -86,6 +88,11 @@ abstract class Git {
         }
 
         @Override
+        public void mergeBranch(String branch) {
+            gitExec("git", "merge", branch);
+        }
+
+        @Override
         public void commitAll(String message) {
             gitExec("git", "add", ".");
             gitExec("git", "commit", "-m", message);
@@ -110,6 +117,11 @@ abstract class Git {
 
         @Override
         public void switchToBranch(String branch) {
+            // NO-OP
+        }
+
+        @Override
+        public void mergeBranch(String branch) {
             // NO-OP
         }
 
