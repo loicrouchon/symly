@@ -8,10 +8,10 @@ if [ -d "/usr/lib/jvm" ]; then
 fi
 
 JAVACMD="${JAVA_HOME}/bin/java"
-MODULE_PATH=/usr/share/java/symly/symly.jar:/usr/share/java/picocli/picocli.jar
-MAIN_MODULE="org.symly/org.symly.cli.Main"
+MODULE_PATH=/usr/share/java/symly.jar:/usr/share/java/picocli.jar
+MAIN_CLASS="org.symly.cli.Main"
 
 exec "$JAVACMD" \
-    --module-path "$MODULE_PATH" \
-    --module "${MAIN_MODULE}" \
+    --class-path "$MODULE_PATH" \
+    "${MAIN_CLASS}" \
     "$@"

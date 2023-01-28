@@ -237,6 +237,64 @@ val rpmSpec = tasks.register<Copy>("rpmSpec") {
 }
 tasks.assemble.get().dependsOn(rpmSpec)
 
+val sources = tasks.register<Copy>("sources") {
+    // this is not 100% accurate according to .gitignore and should
+    // be fixed accordingly
+    from(
+        ".editorconfig",
+        ".gitattributes",
+        ".gitignore",
+        "build.gradle.kts",
+        "gradle.properties",
+        "gradlew",
+        "gradlew.bat",
+        "jreleaser.yml",
+        "LICENSE",
+        "Makefile",
+        "README.adoc",
+        "settings.gradle.kts"
+    )
+    for (dir in listOf(
+        ".github",
+        ".metadata",
+        "buildSrc",
+        "docs",
+        "git",
+        "gradle",
+        "releaser",
+        "src"
+    )) {
+        from(dir) {
+            into(dir)
+        }
+    }
+    into(file("${buildDir}/distributions/sources"))
+}
+tasks.assemble.get().dependsOn(sources)
+
+val sourcesTar = tasks.register<Tar>("sourcesTar") {
+    archiveExtension.set("tar.gz")
+    from(sources)
+    compression = org.gradle.api.tasks.bundling.Compression.GZIP
+}
+tasks.assemble.get().dependsOn(sourcesTar)
+
+val debianSourcePackage = tasks.register<Copy>("debianSourcePackage") {
+    from(sourcesTar) {
+        rename(Transformer { name: String ->
+            "symly_${version}.orig.tar.gz"
+        })
+    }
+    from(sources) {
+        into("symly-${version}")
+    }
+    from("src/packaging/debian/debian") {
+        into("symly-${version}/debian")
+    }
+    into(file("${buildDir}/distributions/debian"))
+}
+tasks.assemble.get().dependsOn(debianSourcePackage)
+
 ospackage {
     packageName = "symly"
     packageDescription = "Manages symbolic links."

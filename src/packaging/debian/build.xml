@@ -6,15 +6,14 @@
     <import file="${basedir}/src/packaging/ant/assemble-jar.xml" />
 
     <target name="assemble" depends="jar, manpage" description="generate the distribution">
-
         <mkdir dir="${build-dir.distributions}" />
-        <copy todir="${build-dir.distributions}">
-            <file file="LICENSE" />
+        <copy todir="${build-dir.distributions}/usr/bin">
+            <file file="src/packaging/debian/usr/bin/${project.name}" />
         </copy>
-        <copy todir="${build-dir.distributions}/usr/share/${project.name}/lib">
+        <copy todir="${build-dir.distributions}/usr/share/java">
             <fileset dir="${build-dir.jars}" />
         </copy>
-        <copy todir="${build-dir.distributions}/usr/share/doc">
+        <copy todir="${build-dir.distributions}/usr/share/man/man1">
             <fileset dir="${manpage.gz.dir}" />
         </copy>
     </target>

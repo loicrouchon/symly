@@ -1,0 +1,8 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: symly
+Upstream-Contact: <loic@loicrouchon.com>
+Source: https://github.com/loicrouchon/symly
+
+Files: *
+Copyright: 2020, Loïc Rouchon
+License: Apache-2.0

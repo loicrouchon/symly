@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+
+ANT=ant -f $(CURDIR)/src/packaging/debian/build.xml
+DISTRIBUTION=$(CURDIR)/build/ant/debian/distributions
+DESTDIR=$(CURDIR)/debian/symly
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	$(ANT) clean
+
+override_dh_auto_build:
+	$(ANT) assemble
+
+override_dh_auto_install:
+	mkdir -p $(DESTDIR)/usr/share/doc/symly
+	mkdir -p $(DESTDIR)/usr/bin
+	mkdir -p $(DESTDIR)/usr/share/java
+	mkdir -p $(DESTDIR)/usr/share/man/man1
+	install -p -m 755 $(DISTRIBUTION)/usr/bin/symly $(DESTDIR)/usr/bin/symly
+	install -p -m 644 $(DISTRIBUTION)/usr/share/java/symly.jar $(DESTDIR)/usr/share/java/symly.jar
+	install -p -m 644 $(DISTRIBUTION)/usr/share/man/man1/symly.1.gz $(DESTDIR)/usr/share/man/man1/symly.1.gz
+	install -p -m 644 $(DISTRIBUTION)/usr/share/man/man1/symly-link.1.gz $(DESTDIR)/usr/share/man/man1/symly-link.1.gz
+	install -p -m 644 $(DISTRIBUTION)/usr/share/man/man1/symly-status.1.gz $(DESTDIR)/usr/share/man/man1/symly-status.1.gz
+	install -p -m 644 $(DISTRIBUTION)/usr/share/man/man1/symly-unlink.1.gz $(DESTDIR)/usr/share/man/man1/symly-unlink.1.gz

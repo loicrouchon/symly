@@ -1,0 +1,20 @@
+Source: symly
+Section: utils
+Priority: standard
+Maintainer: Loïc Rouchon <loic@loicrouchon.com>
+Build-Depends: debhelper (>= 11), openjdk-17-jdk-headless, ant, libpicocli-java
+Standards-Version: 4.5.1
+Homepage: https://github.com/loicrouchon/symly
+Vcs-Git: https://github.com/loicrouchon/symly.git
+Vcs-Browser: https://github.com/loicrouchon/symly
+
+Package: symly
+Architecture: all
+Depends: openjdk-17-jre-headless, libpicocli-java
+Description: symly is a command-line tool for managing symbolic links.
+ .
+ It provides a simple and efficient way to organize and
+ manage symbolic links, making it ideal for dotfile management.
+ .
+ With symly, you can for example centralize the dotfiles you care
+ about in a single folder and manage them with Git.
