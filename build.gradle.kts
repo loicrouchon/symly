@@ -238,37 +238,21 @@ val rpmSpec = tasks.register<Copy>("rpmSpec") {
 tasks.assemble.get().dependsOn(rpmSpec)
 
 val sources = tasks.register<Copy>("sources") {
-    // this is not 100% accurate according to .gitignore and should
-    // be fixed accordingly
-    from(
-        ".editorconfig",
-        ".gitattributes",
-        ".gitignore",
-        "build.gradle.kts",
-        "gradle.properties",
-        "gradlew",
-        "gradlew.bat",
-        "jreleaser.yml",
-        "LICENSE",
-        "Makefile",
-        "README.adoc",
-        "settings.gradle.kts"
+    from(".")
+    exclude(
+        // build systems
+        "**/.gradle",
+        "**/build",
+        "**/out",
+        // IDEs
+        "**/.idea",
+        "**/.fleet",
+        "**/.project",
+        "**/.classpath",
+        "**/.settings",
+        "**/bin"
     )
-    for (dir in listOf(
-        ".github",
-        ".metadata",
-        "buildSrc",
-        "docs",
-        "git",
-        "gradle",
-        "releaser",
-        "src"
-    )) {
-        from(dir) {
-            into(dir)
-        }
-    }
-    into(file("${buildDir}/distributions/sources"))
+    into("${buildDir}/distributions/sources")
 }
 tasks.assemble.get().dependsOn(sources)
 
