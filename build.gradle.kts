@@ -10,6 +10,7 @@ plugins {
     id("org.asciidoctor.jvm.convert") version "4.0.0-alpha.1"
     id("com.netflix.nebula.ospackage") version "11.0.0"
     id("net.ltgt.errorprone") version "3.0.1"
+    id("org.sonarqube") version "3.5.0.2730"
 }
 
 val appModuleName = "org.${project.name}"
@@ -40,6 +41,15 @@ spotless {
             .configFile(".metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs")
     }
 }
+
+sonarqube {
+    properties {
+        property("sonar.projectKey", "symly_symly")
+        property("sonar.organization", "symly")
+        property("sonar.host.url", "https://sonarcloud.io")
+    }
+}
+
 tasks.withType<AbstractArchiveTask>().configureEach {
     // Enable reproducible builds
     isPreserveFileTimestamps = false
