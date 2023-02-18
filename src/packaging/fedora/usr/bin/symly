@@ -14,5 +14,4 @@ MAIN_MODULE="org.symly/org.symly.cli.Main"
 exec "$JAVACMD" \
     --module-path "$MODULE_PATH" \
     --module "${MAIN_MODULE}" \
-    -XX:+NeverActAsServerClassMachine \
     "$@"
