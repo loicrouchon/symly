@@ -4,7 +4,7 @@ junit = "5.8.1"
 
 [libraries]
 
-errorprone = "com.google.errorprone:error_prone_core:2.15.0"
+errorprone = "com.google.errorprone:error_prone_core:2.18.0"
 
 picocli-core = { module = "info.picocli:picocli", version.ref = "picocli" }
 picocli-codegen = { module = "info.picocli:picocli-codegen", version.ref = "picocli" }

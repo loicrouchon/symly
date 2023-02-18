@@ -60,10 +60,6 @@ tasks.processResources {
     }
 }
 
-tasks.withType<JavaCompile> {
-    options.errorprone.disable("InvalidParam")
-}
-
 repositories {
     mavenCentral()
 }
