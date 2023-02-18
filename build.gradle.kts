@@ -1,4 +1,3 @@
-import net.ltgt.gradle.errorprone.errorprone
 import org.symly.doc.AsciiDocIncludeUpdaterTask
 
 plugins {
@@ -98,8 +97,7 @@ testing {
 }
 
 dependencies {
-    configurations["errorprone"](libs.errorprone)
-
+    errorprone(libs.errorprone)
     implementation(libs.picocli.core)
     annotationProcessor(libs.picocli.codegen)
 }
