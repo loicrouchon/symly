@@ -2,12 +2,12 @@ import net.ltgt.gradle.errorprone.errorprone
 import org.symly.doc.AsciiDocIncludeUpdaterTask
 
 plugins {
-    application
-    `jvm-test-suite`
-    idea
-    jacoco
+    id("application")
+    id("jvm-test-suite")
+    id("idea")
+    id("jacoco")
     id("com.diffplug.spotless") version "6.15.0"
-    id("org.asciidoctor.jvm.convert") version "3.3.2"
+    id("org.asciidoctor.jvm.convert") version "4.0.0-alpha.1"
     id("com.netflix.nebula.ospackage") version "11.0.0"
     id("net.ltgt.errorprone") version "3.0.1"
 }

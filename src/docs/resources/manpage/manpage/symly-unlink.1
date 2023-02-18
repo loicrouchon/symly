@@ -1,7 +1,7 @@
 '\" t
 .\"     Title: symly-unlink
 .\"    Author: [see the "AUTHOR(S)" section]
-.\" Generator: Asciidoctor 2.0.10
+.\" Generator: Asciidoctor 2.0.18
 .\"    Manual: Symly Manual
 .\"    Source: 
 .\"  Language: English
@@ -27,23 +27,23 @@
 .  LINKSTYLE blue R < >
 .\}
 .SH "NAME"
-symly\-unlink \- Remove links in the \(aqdirectory\(aq pointing to the \(aqrepositories\(aq.
+symly-unlink \- Remove links in the \*(Aqdirectory\*(Aq pointing to the \*(Aqrepositories\*(Aq.
 .sp
-Note this operation does not restore files in the destination. If that is the desired behavior, use the \(aqrestore\(aq command instead.
+Note this operation does not restore files in the destination. If that is the desired behavior, use the \*(Aqrestore\*(Aq command instead.
 .SH "SYNOPSIS"
 .sp
 \fBsymly unlink\fP [\fB\-hv\fP] [\fB\-\-dry\-run\fP] [\fB\-d\fP=\fI<main\-directory>\fP] [\fB\-\-max\-depth\fP=\fI<max\-depth>\fP]
 [\fB\-r\fP[=\fI<repositories>\fP...]]...
 .SH "DESCRIPTION"
 .sp
-Remove links in the \(aqdirectory\(aq pointing to the \(aqrepositories\(aq.
+Remove links in the \*(Aqdirectory\*(Aq pointing to the \*(Aqrepositories\*(Aq.
 .sp
-Note this operation does not restore files in the destination. If that is the desired behavior, use the \(aqrestore\(aq command instead.
+Note this operation does not restore files in the destination. If that is the desired behavior, use the \*(Aqrestore\*(Aq command instead.
 .SH "OPTIONS"
 .sp
 \fB\-d\fP, \fB\-\-dir, \-\-directory\fP=\fI<main\-directory>\fP
 .RS 4
-Main directory in which links will be created. If not given as a command line argument, symly will look for the \(aqdirectory\(aq property in the symly.config file present in the current working directory
+Main directory in which links will be created. If not given as a command line argument, symly will look for the \*(Aqdirectory\*(Aq property in the symly.config file present in the current working directory
 .RE
 .sp
 \fB\-\-dry\-run\fP
@@ -58,18 +58,20 @@ Prints this help message and exits
 .sp
 \fB\-\-max\-depth\fP=\fI<max\-depth>\fP
 .RS 4
-Depth of the lookup for orphans deletion.If not given as a command line argument, symly will look for the \(aqorphans.max\-depth.search\(aq property in the symly.config file present in the current working directory. If no property is found, default value will be used.
+Depth of the lookup for orphans deletion.If not given as a command line argument, symly will look for the \*(Aqorphans.max\-depth.search\*(Aq property in the symly.config file present in the current working directory. If no property is found, default value will be used.
 .sp
 .if n .RS 4
 .nf
+.fam C
 Default: 2
+.fam
 .fi
 .if n .RE
 .RE
 .sp
 \fB\-r\fP, \fB\-\-repositories\fP[=\fI<repositories>\fP...]
 .RS 4
-Repositories containing files to link in the main directory. Repositories are to be listed by decreasing priority as the first ones will override the content of the later ones. If not given as a command line argument, symly will look for the \(aqrepositories\(aq property in the symly.config file present in the current working directory
+Repositories containing files to link in the main directory. Repositories are to be listed by decreasing priority as the first ones will override the content of the later ones. If not given as a command line argument, symly will look for the \*(Aqrepositories\*(Aq property in the symly.config file present in the current working directory
 .RE
 .sp
 \fB\-v\fP, \fB\-\-verbose\fP
