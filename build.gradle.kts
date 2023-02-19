@@ -231,48 +231,6 @@ val rpmSpec = tasks.register<Copy>("rpmSpec") {
 }
 tasks.assemble.get().dependsOn(rpmSpec)
 
-val sources = tasks.register<Copy>("sources") {
-    from(".")
-    exclude(
-        // build systems
-        "**/.gradle",
-        "**/build",
-        "**/out",
-        // IDEs
-        "**/.idea",
-        "**/.fleet",
-        "**/.project",
-        "**/.classpath",
-        "**/.settings",
-        "**/bin"
-    )
-    into("${buildDir}/distributions/sources")
-}
-tasks.assemble.get().dependsOn(sources)
-
-val sourcesTar = tasks.register<Tar>("sourcesTar") {
-    archiveExtension.set("tar.gz")
-    from(sources)
-    compression = org.gradle.api.tasks.bundling.Compression.GZIP
-}
-tasks.assemble.get().dependsOn(sourcesTar)
-
-val debianSourcePackage = tasks.register<Copy>("debianSourcePackage") {
-    from(sourcesTar) {
-        rename(Transformer { name: String ->
-            "symly_${version}.orig.tar.gz"
-        })
-    }
-    from(sources) {
-        into("symly-${version}")
-    }
-    from("src/packaging/debian/debian") {
-        into("symly-${version}/debian")
-    }
-    into(file("${buildDir}/distributions/debian"))
-}
-tasks.assemble.get().dependsOn(debianSourcePackage)
-
 ospackage {
     packageName = "symly"
     packageDescription = "Manages symbolic links."
