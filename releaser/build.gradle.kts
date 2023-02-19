@@ -1,7 +1,7 @@
 plugins {
-    java
-    idea
-    id("com.diffplug.spotless") version "6.7.2"
+    id("java")
+    id("idea")
+    id("com.diffplug.spotless") version "6.15.0"
 }
 
 java {
