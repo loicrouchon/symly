@@ -35,8 +35,10 @@ public class Publisher {
                     Set.of("v%s".formatted(app.version())));
         } catch (ReleaseException e) {
             io.eprintln(e.getMessage());
+            System.exit(1);
         } catch (Exception e) {
             io.eprintln(e.getMessage(), e);
+            System.exit(1);
         }
     }
 
