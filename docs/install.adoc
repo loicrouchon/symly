@@ -4,29 +4,18 @@ Symly is available through different package managers for Linux and macOS
 
 .DEB: Debian, Ubuntu, Linux Mint, ...
 ----
-sudo sh -c 'curl -1sLf https://packages.loicrouchon.com/deb/dists/latest/Release.gpg.key | gpg --dearmor | tee -a /usr/share/keyrings/packages-loicrouchon.com.gpg > /dev/null'
-sudo sh -c 'echo "deb [signed-by=/usr/share/keyrings/packages-loicrouchon.com.gpg] https://packages.loicrouchon.com/deb latest main" | tee /etc/apt/sources.list.d/symly.list'
+sudo apt install software-properties-common
+sudo add-apt-repository ppa:loicrouchon/symly
 sudo apt update
 sudo apt install symly
 ----
 
 .RPM: Fedora
 ----
-dnf install 'dnf-command(copr)'
-dnf copr enable loicrouchon/symly
-dnf install symly
-----
-
-.Other RPM-based distributions: CentOS, Red Hat, ...
-----
-sudo sh -c 'curl -1sLf https://packages.loicrouchon.com/rpm/Release.gpg.key > /tmp/symly.gpg.key'
-sudo rpm --import /tmp/symly.gpg.key
-sudo dnf install 'dnf-command(config-manager)'
-sudo dnf config-manager --add-repo https://packages.loicrouchon.com/rpm
+sudo dnf install 'dnf-command(copr)'
+sudo dnf copr enable loicrouchon/symly
 sudo dnf install symly
 ----
-
-It is also available via HomeBrew for macOS and other Linux distributions.
 
 .Homebrew (macOS/Linux)
 ----
