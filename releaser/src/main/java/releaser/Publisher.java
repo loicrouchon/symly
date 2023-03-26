@@ -57,7 +57,7 @@ public class Publisher {
         }
         for (String tag : tags) {
             io.printf("Pushing tag %s to remote %s%n", tag, remote);
-            git.pushTag("origin", tag);
+            git.pushTag(repo.authenticatedHttpsRemote(), tag);
         }
     }
 
