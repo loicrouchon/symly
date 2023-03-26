@@ -68,6 +68,8 @@ abstract class Git {
 
     public abstract void push(String repository, String branch);
 
+    public abstract void pushTag(String repository, String tag);
+
     protected Command gitExecCommand(String... command) {
         return Command.exec(new ProcessBuilder(command).directory(dir.toFile()));
     }
@@ -107,6 +109,12 @@ abstract class Git {
         public void push(String repository, String branch) {
             gitExec("git", "push", "--set-upstream", repository, branch);
         }
+
+        @Override
+        public void pushTag(String repository, String tag) {
+            gitExec("git", "tag", tag);
+            gitExec("git", "push", repository, tag);
+        }
     }
 
     static class ReadOnlyGit extends Git {
@@ -137,6 +145,11 @@ abstract class Git {
 
         @Override
         public void push(String repository, String branch) {
+            // NO-OP
+        }
+
+        @Override
+        public void pushTag(String repository, String tag) {
             // NO-OP
         }
     }

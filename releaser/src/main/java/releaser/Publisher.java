@@ -7,6 +7,8 @@ import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public class Publisher {
 
@@ -21,10 +23,16 @@ public class Publisher {
     public static void main(String[] args) {
         IO io = new IO();
         try {
-            Publisher publisher = new Publisher(io, Application.create());
+            Application app = Application.create();
+            Publisher publisher = new Publisher(io, app);
             publisher.publish(
                     "https://github.com/loicrouchon/fedora-copr-symly.git",
-                    Map.of("build/distributions/symly.spec", "symly.spec"));
+                    Map.of("build/distributions/symly.spec", "symly.spec"),
+                    Set.of());
+            publisher.publish(
+                    "https://github.com/loicrouchon/symly-debian.git",
+                    Map.of("src/packaging/debian/debian", "debian"),
+                    Set.of("v%s".formatted(app.version())));
         } catch (ReleaseException e) {
             io.eprintln(e.getMessage());
         } catch (Exception e) {
@@ -32,7 +40,7 @@ public class Publisher {
         }
     }
 
-    private void publish(String remote, Map<String, String> files) throws IOException {
+    private void publish(String remote, Map<String, String> files, Set<String> tags) throws IOException {
         Repo repo = new Repo(remote);
         Git.ReadWriteGit git = new Git.ReadWriteGit(Files.createTempDirectory(repo.name()));
         git.clone(remote);
@@ -45,9 +53,13 @@ public class Publisher {
         } else {
             io.printf("Changes already published to %s%n", remote);
         }
+        for (String tag : tags) {
+            io.printf("Pushing tag %s to remote %s%n", tag, remote);
+            git.pushTag("origin", tag);
+        }
     }
 
-    private static void copyFiles(IO io, Map<String, String> map, Path destDir) throws IOException {
+    private void copyFiles(IO io, Map<String, String> map, Path destDir) throws IOException {
         for (Map.Entry<String, String> file : map.entrySet()) {
             Path source = Path.of(file.getKey());
             Path dest = destDir.resolve(file.getValue());
@@ -57,7 +69,25 @@ public class Publisher {
             io.printf(
                     "Copying %s to %s%n",
                     source.toAbsolutePath().normalize(), dest.toAbsolutePath().normalize());
-            Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+            copy(source, dest);
+        }
+    }
+
+    private void copy(Path source, Path dest) throws IOException {
+        Files.createDirectories(dest.getParent());
+        try (Stream<Path> stream = Files.walk(source)) {
+            stream.forEach(path -> copyFile(path, dest.resolve(source.relativize(path))));
+        }
+    }
+
+    private void copyFile(Path source, Path dest) {
+        try {
+            if (!(Files.isDirectory(source) && Files.exists(dest))) {
+                Files.copy(source, dest, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (Exception e) {
+            throw new ReleaseException("Failed to copy files from %s to %s: %s %s%n"
+                    .formatted(source, dest, e.getClass(), e.getMessage()));
         }
     }
 

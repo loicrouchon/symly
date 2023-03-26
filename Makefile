@@ -21,7 +21,7 @@ version-check: $(RELEASER_JAR)
 release: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Releaser release
 
-publish-spec: $(RELEASER_JAR)
+publish: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Publisher
 
 $(RELEASER_JAR):
