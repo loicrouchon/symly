@@ -1,5 +1,11 @@
+symly (0.10.0-1) kinetic; urgency=low
+
+  * First official debian source package release
+
+ -- Loïc Rouchon <loic@loicrouchon.com>  Sun, 26 Jan 2023 17:57:07 +0100
+
 symly (0.9.5-3) kinetic; urgency=low
 
-  * First debian source package
+  * First debian source package attempt
 
  -- Loïc Rouchon <loic@loicrouchon.com>  Sat, 14 Jan 2023 20:01:32 +0200
