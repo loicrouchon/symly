@@ -162,6 +162,8 @@ jobs:
                 env:
                     REPO_FEDORA_COPR_SYMLY_USERNAME: loicrouchon
                     REPO_FEDORA_COPR_SYMLY_PASSWORD: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
+                    REPO_SYMLY_DEBIAN_USERNAME: loicrouchon
+                    REPO_SYMLY_DEBIAN_PASSWORD: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
                 run: |
                     git config --global user.email "noreply@github.com"
                     git config --global user.name "GitHub CI publisher bot"
