@@ -11,6 +11,9 @@ plugins {
     id("net.ltgt.errorprone") version "3.0.1"
 }
 
+group = "org.symly"
+version = providers.fileContents(layout.projectDirectory.file("gradle/version.txt")).asText.getOrElse("").trim()
+
 val appModuleName = "org.${project.name}"
 val appMainClassName = "org.${project.name}.cli.Main"
 application {

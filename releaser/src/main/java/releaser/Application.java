@@ -3,18 +3,12 @@ package releaser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 abstract class Application {
 
-    protected static final Pattern VERSION_PATTERN = Pattern.compile("^version\\s*=\\s*(\\S+)\\s*$");
+    protected final Path path = Path.of("gradle/version.txt");
 
-    protected final Path path = Path.of("gradle.properties");
-
-    protected String content;
+    protected String version;
 
     protected Application() {
         refresh();
@@ -22,41 +16,23 @@ abstract class Application {
 
     public void refresh() {
         try {
-            this.content = Files.readString(path);
+            this.version = Files.readString(path).trim();
         } catch (IOException e) {
-            throw new ReleaseFailure("Unable to read Gradle property file " + path.toAbsolutePath(), e);
+            throw new ReleaseFailure("Unable to read application version " + path.toAbsolutePath(), e);
         }
     }
 
     public Version version() {
-        return content.lines()
-                .flatMap(line -> {
-                    Matcher matcher = VERSION_PATTERN.matcher(line);
-                    if (matcher.matches()) {
-                        return Stream.of(matcher.group(1));
-                    }
-                    return Stream.empty();
-                })
-                .findFirst()
-                .map(Version::parse)
-                .orElseThrow();
+        return Version.parse(version);
     }
 
     public void updateVersion(Version newVersion) {
-        content = content.lines()
-                .map(line -> {
-                    Matcher matcher = VERSION_PATTERN.matcher(line);
-                    if (matcher.matches()) {
-                        return "version = " + newVersion;
-                    }
-                    return line;
-                })
-                .collect(Collectors.joining("\n"));
-        writeApplicationProperties();
+        version = newVersion.toString();
+        writeVersion();
         updateFilesAfterVersionUpdate();
     }
 
-    protected abstract void writeApplicationProperties();
+    protected abstract void writeVersion();
 
     private void updateFilesAfterVersionUpdate() {
         test();
@@ -80,9 +56,9 @@ abstract class Application {
 class ReadWriteApplication extends Application {
 
     @Override
-    protected void writeApplicationProperties() {
+    protected void writeVersion() {
         try {
-            Files.writeString(path, content);
+            Files.writeString(path, version);
         } catch (IOException e) {
             throw new ReleaseFailure("Unable to write to Gradle property file " + path.toAbsolutePath(), e);
         }
@@ -91,7 +67,7 @@ class ReadWriteApplication extends Application {
 
 class ReadOnlyApplication extends Application {
     @Override
-    protected void writeApplicationProperties() {
+    protected void writeVersion() {
         // NO-OP
     }
 }
