@@ -1,6 +1,6 @@
 project:
     name: symly
-    description: A tool for managing symbolic links
+    description: Utility for centralizing sparse file trees with symbolic links
     longDescription: |
         Symly is a tool helping to centralize sparse file trees.
         It replicates and maintains a file tree structure of one
@@ -52,7 +52,7 @@ distributions:
             -   path: build/distributions/{{projectName}}-{{projectVersion}}-homebrew-bottle.zip
         brew:
             active: ALWAYS
-            formulaName: "{{projectName}}"
+            formulaName: symly
             commitAuthor:
                 name: jreleaserbot
                 email: loicrouchon+jreleaser@gmail.com
@@ -68,4 +68,4 @@ distributions:
 
 files:
     artifacts:
-        - path: build/distributions/{{projectName}}.spec
+        -   path: build/distributions/{{projectName}}.spec
