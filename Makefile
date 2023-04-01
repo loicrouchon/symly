@@ -1,5 +1,5 @@
 
-.PHONY: clean build version version-check build-releaser release publish-spec
+.PHONY: clean build version version-check jreleaser-dry-run release publish clean-releaser
 
 MAIN_GW=./gradlew --console=plain
 RELEASER_GW=./gradlew --console=plain --build-file=releaser/build.gradle.kts
@@ -17,6 +17,9 @@ version: $(RELEASER_JAR)
 
 version-check: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Releaser check
+
+jreleaser-dry-run: build
+	@echo "fake token" | ./releaser/src/main/resources/jreleaser-dry-run.sh "$(shell make version)"
 
 release: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Releaser release
