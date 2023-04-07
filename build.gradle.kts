@@ -1,6 +1,6 @@
-import org.symly.doc.AsciiDocIncludeUpdaterTask
-
 plugins {
+    id("org.symly.base")
+    id("org.symly.doc")
     id("application")
     id("jvm-test-suite")
     id("idea")
@@ -12,7 +12,6 @@ plugins {
 }
 
 group = "org.symly"
-version = providers.fileContents(layout.projectDirectory.file("gradle/version.txt")).asText.getOrElse("").trim()
 
 val appModuleName = "org.${project.name}"
 val appMainClassName = "org.${project.name}.cli.Main"
@@ -42,17 +41,6 @@ spotless {
             .configFile(".metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs")
     }
 }
-tasks.withType<AbstractArchiveTask>().configureEach {
-    // Enable reproducible builds
-    isPreserveFileTimestamps = false
-    isReproducibleFileOrder = true
-}
-
-val installGitHooks by tasks.registering(Copy::class) {
-    from("git/hooks")
-    into(".git/hooks")
-}
-tasks.processResources.get().dependsOn(installGitHooks)
 
 tasks.processResources {
     val props = mapOf("version" to project.version)
@@ -104,11 +92,6 @@ dependencies {
     implementation(libs.picocli.core)
     annotationProcessor(libs.picocli.codegen)
 }
-
-val updateDocSnippets = tasks.register<AsciiDocIncludeUpdaterTask>("updateDocSnippets") {
-    dependsOn(testing.suites.named("integrationTest"))
-}
-tasks.check.get().dependsOn(updateDocSnippets)
 
 tasks.jacocoTestReport {
     dependsOn(testing.suites.named("test"), testing.suites.named("integrationTest"))

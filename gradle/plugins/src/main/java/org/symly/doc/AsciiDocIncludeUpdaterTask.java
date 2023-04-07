@@ -9,7 +9,7 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 
 /**
- * <p>Execute after all tests are executed to process includes from asciidoc files.</p>
+ * <p>Replaces the content of include blocks in AsciiDoc files by the content of the include target.</p>
  * <p>This is unfortunately necessary as GitHub does not process asciidoc includes online and would otherwise only
  * display a link to the content.</p>
  */
@@ -19,11 +19,11 @@ public class AsciiDocIncludeUpdaterTask extends DefaultTask {
     public void run() {
         try (Stream<String> paths = Stream.of("README.adoc", "docs/")) {
             paths.map(Path::of)
-                    .flatMap(AsciiDocIncludeUpdaterTask::walk)
-                    .filter(path -> path.getFileName().toString().endsWith(".adoc"))
-                    .sorted()
-                    .map(AsciiDocFile::new)
-                    .forEach(AsciiDocFile::processIncludes);
+                .flatMap(AsciiDocIncludeUpdaterTask::walk)
+                .filter(path -> path.getFileName().toString().endsWith(".adoc"))
+                .sorted()
+                .map(AsciiDocFile::new)
+                .forEach(AsciiDocFile::processIncludes);
         }
     }
 
@@ -63,7 +63,7 @@ class AsciiDocFile {
                 String includeId = content.substring(index + INCLUDE_START.length(), bracketIndex);
                 if (includeId.indexOf('\n') >= 0) {
                     throw new IllegalStateException("include id at %s should not contain line breaks but was:%n%n%s%n"
-                            .formatted(location(content, index), includeId));
+                        .formatted(location(content, index), includeId));
                 }
                 int startIndex = bracketIndex + BRACKETS.length();
                 int endIndex = mandatoryIndex(content, INCLUDE_END, startIndex);
@@ -83,7 +83,7 @@ class AsciiDocFile {
             return Files.readString(includePath);
         } catch (IOException e) {
             throw new AsciiDocIncludeException("Unable to read content for include %s at %s. %s"
-                    .formatted(includePath, location(content, index), e));
+                .formatted(includePath, location(content, index), e));
         }
     }
 
@@ -95,7 +95,7 @@ class AsciiDocFile {
         int index = content.indexOf(substring, indexFrom);
         if (index < 0) {
             throw new IllegalStateException("Expecting %s to be found after %s but none could be found"
-                    .formatted(substring, location(content, index)));
+                .formatted(substring, location(content, index)));
         }
         return index;
     }
