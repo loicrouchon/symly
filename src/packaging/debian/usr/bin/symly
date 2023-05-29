@@ -1,17 +1,11 @@
 #!/usr/bin/env sh
+set -x
 
-if [ -d "/usr/lib/jvm" ]; then
-    JVM="/usr/lib/jvm/$(ls /usr/lib/jvm | grep -E "java-[0-9]+" | sort -V -r | head -n 1)"
-    if [ $JVM != "/usr/lib/jvm/" ]; then
-        JAVA_HOME=$JVM
-    fi
-fi
-
-JAVACMD="${JAVA_HOME}/bin/java"
+JAVA_CMD="$(jvm-finder --min-java-version 17)"
 MODULE_PATH=/usr/share/java/symly.jar:/usr/share/java/picocli.jar
 MAIN_CLASS="org.symly.cli.Main"
 
-exec "$JAVACMD" \
+exec "{$JAVA_CMD}" \
     --class-path "$MODULE_PATH" \
     "${MAIN_CLASS}" \
     "$@"
