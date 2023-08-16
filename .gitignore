@@ -2,6 +2,7 @@
 .gradle/
 build/
 out/
+target/
 
 # Eclipse
 .project
