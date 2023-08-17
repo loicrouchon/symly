@@ -1,6 +1,6 @@
 package org.symly.env;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.symly.testing.Assertions.assertThat;
 
 import java.io.BufferedReader;
 import java.io.Reader;
@@ -137,10 +137,10 @@ public record Execution(
         public OutputAssert withFileTreeDiff(Diff diff) {
             Diff actual = execution.fileSystemEntriesDiff();
             assertThat(actual.newPaths())
-                    .describedAs("Should create the following file system entries")
+                    // FIXME .describedAs("Should create the following file system entries")
                     .containsExactlyInAnyOrderElementsOf(diff.newPaths());
             assertThat(actual.removedPaths())
-                    .describedAs("Should remove the following file system entries")
+                    // FIXME .describedAs("Should remove the following file system entries")
                     .containsExactlyInAnyOrderElementsOf(diff.removedPaths());
             return this;
         }

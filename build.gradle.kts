@@ -58,19 +58,17 @@ testing {
     suites {
         val test by getting(JvmTestSuite::class) {
             useJUnitJupiter(libs.versions.junit.get())
-
-            dependencies {
-                implementation(libs.assertj)
-            }
         }
 
         val integrationTest by registering(JvmTestSuite::class) {
             useJUnitJupiter(libs.versions.junit.get())
-
+            sources {
+                compileClasspath += sourceSets.test.get().output
+                runtimeClasspath += sourceSets.test.get().output
+            }
             dependencies {
                 implementation(project())
                 implementation(libs.picocli.core)
-                implementation(libs.assertj)
             }
 
             targets {

@@ -1,6 +1,6 @@
 package org.symly.env;
 
-import static org.assertj.core.api.Fail.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.*;
 import java.nio.file.Path;
