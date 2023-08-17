@@ -100,8 +100,8 @@ tasks.jacocoTestReport {
     classDirectories.from(files(sourceSets.main.get().output))
     executionData.from(
         files(
-            "${layout.buildDirectory}/jacoco/test.exec",
-            "${layout.buildDirectory}/jacoco/integrationTest.exec",
+            layout.buildDirectory.dir("jacoco/test.exec").get(),
+            layout.buildDirectory.dir("jacoco/integrationTest.exec").get(),
         )
     )
 
@@ -125,7 +125,7 @@ val generateManualStructure = tasks.register<JavaExec>("generateManualStructure"
 fun generateManual(
     name: String,
     backend: String,
-    output: String
+    output: Any
 ): TaskProvider<org.asciidoctor.gradle.jvm.AsciidoctorTask> {
     return tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generate${name.replaceFirstChar { c -> c.uppercaseChar() }}Manual") {
         inputs.files(generateManualStructure)
@@ -139,18 +139,18 @@ fun generateManual(
 }
 
 val generateManpageManual = generateManual("manpage", "manpage", "src/docs/resources/manpage/manpage")
-val generateHtmlManual = generateManual("html", "html5", "${layout.buildDirectory}/docs/manpage/html")
+val generateHtmlManual = generateManual("html", "html5", layout.buildDirectory.dir("docs/manpage/html"))
 
 val compressManpageManual = tasks.register<Exec>("compressManpageManual") {
     val manpage = "src/docs/resources/manpage/manpage"
-    val gz = "${layout.buildDirectory}/docs/manpage/gz"
+    val gz = layout.buildDirectory.dir("docs/manpage/gz").get()
     inputs.files(generateManpageManual)
     outputs.dir(gz)
     workingDir(".")
     commandLine(
         "/bin/sh",
         "-c",
-        "rm -rf ${gz} && mkdir -p ${gz} && cp -R ${manpage}/* ${gz} && gzip -n -9 ${gz}/*"
+        "rm -rf $gz && mkdir -p $gz && cp -R ${manpage}/* $gz && gzip -n -9 ${gz}/*"
     )
 }
 
@@ -160,10 +160,10 @@ val generateShellCompletions = tasks.register<JavaExec>("generateShellCompletion
     args(
         "org.${project.name}.cli.MainCommand",
         "--factory=org.${project.name}.cli.BeanFactory",
-        "--completionScript=${layout.buildDirectory}/shell/completions/${project.name}",
+        "--completionScript=${layout.buildDirectory.file("shell/completions/${project.name}").get()}",
         "--force"
     )
-    outputs.file("${layout.buildDirectory}/shell/completions/${project.name}")
+    outputs.file(layout.buildDirectory.file("shell/completions/${project.name}"))
 }
 
 distributions {
@@ -197,12 +197,12 @@ val prepareHomebrewBottle = tasks.register<Sync>("prepareHomebrewBottle") {
     from(generateHtmlManual) {
         into("share/doc/${project.name}")
     }
-    into("${layout.buildDirectory}/distributions-preparation/homebrew")
+    into(layout.buildDirectory.dir("distributions-preparation/homebrew"))
 }
 
 val buildHomebrewBottle = tasks.register<Zip>("buildHomebrewBottle") {
     from(prepareHomebrewBottle)
-    destinationDirectory.set(file("${layout.buildDirectory}/distributions/"))
+    destinationDirectory.set(layout.buildDirectory.dir("distributions/"))
     archiveFileName.set("${project.name}-${project.version}-homebrew-bottle.zip")
 }
 tasks.assemble.get().dependsOn(buildHomebrewBottle)
@@ -213,7 +213,7 @@ val rpmSpec = tasks.register<Copy>("rpmSpec") {
     from("src/packaging/fedora/${project.name}.spec", closureOf<CopySpec> {
         expand(props)
     })
-    into(file("${layout.buildDirectory}/distributions/"))
+    into(layout.buildDirectory.dir("distributions/"))
 }
 tasks.assemble.get().dependsOn(rpmSpec)
 
@@ -233,10 +233,10 @@ ospackage {
         fileType = org.redline_rpm.payload.Directive.LICENSE
     })
     from("src/packaging/linux")
-    from("${layout.buildDirectory}/install/${project.name}/bin/symly", closureOf<CopySpec> {
+    from(layout.buildDirectory.file("install/${project.name}/bin/symly"), closureOf<CopySpec> {
         into("usr/share/${project.name}/bin")
     })
-    from("${layout.buildDirectory}/install/${project.name}/lib", closureOf<CopySpec> {
+    from(layout.buildDirectory.dir("install/${project.name}/lib"), closureOf<CopySpec> {
         into("usr/share/${project.name}/lib")
     })
     from(compressManpageManual, closureOf<CopySpec> {
