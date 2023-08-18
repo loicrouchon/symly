@@ -1,6 +1,6 @@
 package org.symly.files;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.symly.testing.Assertions.assertThat;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

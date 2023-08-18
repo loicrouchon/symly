@@ -7,7 +7,7 @@ plugins {
     id("jacoco")
     id("com.diffplug.spotless") version "6.15.0"
     id("org.asciidoctor.jvm.convert") version "4.0.0-alpha.1"
-    id("com.netflix.nebula.ospackage") version "11.0.0"
+    id("com.netflix.nebula.ospackage") version "11.4.0"
     id("net.ltgt.errorprone") version "3.0.1"
 }
 
@@ -58,19 +58,17 @@ testing {
     suites {
         val test by getting(JvmTestSuite::class) {
             useJUnitJupiter(libs.versions.junit.get())
-
-            dependencies {
-                implementation(libs.assertj)
-            }
         }
 
         val integrationTest by registering(JvmTestSuite::class) {
             useJUnitJupiter(libs.versions.junit.get())
-
+            sources {
+                compileClasspath += sourceSets.test.get().output
+                runtimeClasspath += sourceSets.test.get().output
+            }
             dependencies {
                 implementation(project())
                 implementation(libs.picocli.core)
-                implementation(libs.assertj)
             }
 
             targets {
@@ -100,8 +98,8 @@ tasks.jacocoTestReport {
     classDirectories.from(files(sourceSets.main.get().output))
     executionData.from(
         files(
-            "${buildDir}/jacoco/test.exec",
-            "${buildDir}/jacoco/integrationTest.exec",
+            layout.buildDirectory.dir("jacoco/test.exec").get(),
+            layout.buildDirectory.dir("jacoco/integrationTest.exec").get(),
         )
     )
 
@@ -125,9 +123,9 @@ val generateManualStructure = tasks.register<JavaExec>("generateManualStructure"
 fun generateManual(
     name: String,
     backend: String,
-    output: String
+    output: Any
 ): TaskProvider<org.asciidoctor.gradle.jvm.AsciidoctorTask> {
-    return tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generate${name.capitalize()}Manual") {
+    return tasks.register<org.asciidoctor.gradle.jvm.AsciidoctorTask>("generate${name.replaceFirstChar { c -> c.uppercaseChar() }}Manual") {
         inputs.files(generateManualStructure)
         sourceDir("src/docs/resources/manpage/adoc")
         setOutputDir(output)
@@ -139,18 +137,18 @@ fun generateManual(
 }
 
 val generateManpageManual = generateManual("manpage", "manpage", "src/docs/resources/manpage/manpage")
-val generateHtmlManual = generateManual("html", "html5", "${buildDir}/docs/manpage/html")
+val generateHtmlManual = generateManual("html", "html5", layout.buildDirectory.dir("docs/manpage/html"))
 
 val compressManpageManual = tasks.register<Exec>("compressManpageManual") {
     val manpage = "src/docs/resources/manpage/manpage"
-    val gz = "${buildDir}/docs/manpage/gz"
+    val gz = layout.buildDirectory.dir("docs/manpage/gz").get()
     inputs.files(generateManpageManual)
     outputs.dir(gz)
     workingDir(".")
     commandLine(
         "/bin/sh",
         "-c",
-        "rm -rf ${gz} && mkdir -p ${gz} && cp -R ${manpage}/* ${gz} && gzip -n -9 ${gz}/*"
+        "rm -rf $gz && mkdir -p $gz && cp -R ${manpage}/* $gz && gzip -n -9 ${gz}/*"
     )
 }
 
@@ -160,10 +158,10 @@ val generateShellCompletions = tasks.register<JavaExec>("generateShellCompletion
     args(
         "org.${project.name}.cli.MainCommand",
         "--factory=org.${project.name}.cli.BeanFactory",
-        "--completionScript=${buildDir}/shell/completions/${project.name}",
+        "--completionScript=${layout.buildDirectory.file("shell/completions/${project.name}").get()}",
         "--force"
     )
-    outputs.file("${buildDir}/shell/completions/${project.name}")
+    outputs.file(layout.buildDirectory.file("shell/completions/${project.name}"))
 }
 
 distributions {
@@ -197,12 +195,12 @@ val prepareHomebrewBottle = tasks.register<Sync>("prepareHomebrewBottle") {
     from(generateHtmlManual) {
         into("share/doc/${project.name}")
     }
-    into("${buildDir}/distributions-preparation/homebrew")
+    into(layout.buildDirectory.dir("distributions-preparation/homebrew"))
 }
 
 val buildHomebrewBottle = tasks.register<Zip>("buildHomebrewBottle") {
     from(prepareHomebrewBottle)
-    destinationDirectory.set(file("${buildDir}/distributions/"))
+    destinationDirectory.set(layout.buildDirectory.dir("distributions/"))
     archiveFileName.set("${project.name}-${project.version}-homebrew-bottle.zip")
 }
 tasks.assemble.get().dependsOn(buildHomebrewBottle)
@@ -213,7 +211,7 @@ val rpmSpec = tasks.register<Copy>("rpmSpec") {
     from("src/packaging/fedora/${project.name}.spec", closureOf<CopySpec> {
         expand(props)
     })
-    into(file("${buildDir}/distributions/"))
+    into(layout.buildDirectory.dir("distributions/"))
 }
 tasks.assemble.get().dependsOn(rpmSpec)
 
@@ -233,10 +231,10 @@ ospackage {
         fileType = org.redline_rpm.payload.Directive.LICENSE
     })
     from("src/packaging/linux")
-    from("${buildDir}/install/${project.name}/bin/symly", closureOf<CopySpec> {
+    from(layout.buildDirectory.file("install/${project.name}/bin/symly"), closureOf<CopySpec> {
         into("usr/share/${project.name}/bin")
     })
-    from("${buildDir}/install/${project.name}/lib", closureOf<CopySpec> {
+    from(layout.buildDirectory.dir("install/${project.name}/lib"), closureOf<CopySpec> {
         into("usr/share/${project.name}/lib")
     })
     from(compressManpageManual, closureOf<CopySpec> {

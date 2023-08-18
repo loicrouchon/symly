@@ -1,6 +1,6 @@
 package org.symly.repositories;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.symly.testing.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.List;

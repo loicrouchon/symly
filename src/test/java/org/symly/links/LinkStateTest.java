@@ -1,7 +1,7 @@
 package org.symly.links;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.symly.testing.Assertions.assertThat;
+import static org.symly.testing.Assertions.assertThatCode;
 
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
@@ -20,8 +20,8 @@ class LinkStateTest {
     void linkState_cannotBeCreated_whenSourceDoesNotBelongToMainDir() {
         Path source = Path.of("/main-dir2/name");
         Entry missingEntry = Entry.missingEntry();
-        assertThatThrownBy(() -> new LinkState(mainDir, source, missingEntry, desiredTarget))
-                .isInstanceOf(IllegalStateException.class)
+        assertThatCode(() -> new LinkState(mainDir, source, missingEntry, desiredTarget))
+                .throwsThrowableOfType(IllegalStateException.class)
                 .hasMessage("Source /main-dir2/name must be a sub-path of /main-dir");
     }
 
@@ -29,8 +29,8 @@ class LinkStateTest {
     void linkState_cannotBeCreated_whenSourceIsNotAnAbsolutePath() {
         Path source = Path.of("name");
         Entry missingEntry = Entry.missingEntry();
-        assertThatThrownBy(() -> new LinkState(mainDir, source, missingEntry, desiredTarget))
-                .isInstanceOf(IllegalStateException.class)
+        assertThatCode(() -> new LinkState(mainDir, source, missingEntry, desiredTarget))
+                .throwsThrowableOfType(IllegalStateException.class)
                 .hasMessage("Source name must be an absolute path");
     }
 
@@ -38,8 +38,8 @@ class LinkStateTest {
     void linkState_cannotBeCreated_whenDesiredTargetIsNotAnAbsolutePath() {
         Path desiredTarget = Path.of("desired/target");
         Entry missingEntry = Entry.missingEntry();
-        assertThatThrownBy(() -> new LinkState(mainDir, source, missingEntry, desiredTarget))
-                .isInstanceOf(IllegalStateException.class)
+        assertThatCode(() -> new LinkState(mainDir, source, missingEntry, desiredTarget))
+                .throwsThrowableOfType(IllegalStateException.class)
                 .hasMessage("Desired target desired/target must be an absolute path");
     }
 
@@ -51,8 +51,8 @@ class LinkStateTest {
     }
 
     private void linkStateShouldThrowWhenNotAMeaningfulEntry(Entry currentState) {
-        assertThatThrownBy(() -> new LinkState(mainDir, source, currentState, null))
-                .isInstanceOf(IllegalStateException.class)
+        assertThatCode(() -> new LinkState(mainDir, source, currentState, null))
+                .throwsThrowableOfType(IllegalStateException.class)
                 .hasMessageStartingWith(
                         "Such LinkStatus makes no sense, they don't exist and should not be created either: /main-dir/dir/name ["
                                 + currentState.getClass().getSimpleName());
