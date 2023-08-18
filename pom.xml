@@ -25,18 +25,9 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <java.version>17</java.version>
-    <!-- dependencies -->
+    <!-- dependencies versions -->
     <picocli.version>4.7.1</picocli.version>
     <junit.version>5.10.0</junit.version>
-    <!-- official maven plugins https://maven.apache.org/plugins/index.html -->
-    <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
-    <maven-surefire-report-plugin.version>3.1.2</maven-surefire-report-plugin.version>
-    <maven-project-info-reports-plugin.version>3.4.5</maven-project-info-reports-plugin.version>
-    <maven-jxr-plugin.version>3.3.0</maven-jxr-plugin.version>
-    <!-- external maven plugins -->
-    <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
-    <spotless-maven-plugin.version>2.38.0</spotless-maven-plugin.version>
   </properties>
 
   <dependencies>
@@ -54,6 +45,7 @@
   </dependencies>
 
   <build>
+    <!-- plugins -->
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -62,13 +54,21 @@
           <release>${java.version}</release>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-      </plugin>
     </plugins>
+
+    <!-- plugin management -->
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven-clean-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${maven-resources-plugin.version}</version>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
@@ -81,39 +81,36 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
-          <version>${maven-project-info-reports-plugin.version}</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>${maven-surefire-report-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>${jacoco-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>com.diffplug.spotless</groupId>
-          <artifactId>spotless-maven-plugin</artifactId>
-          <version>${spotless-maven-plugin.version}</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-jxr-plugin</artifactId>
-          <version>${maven-jxr-plugin.version}</version>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven-jar-plugin.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
   </build>
+
   <profiles>
     <profile>
+      <!-- dev profile: used to build locally and in the CI -->
       <id>dev</id>
       <activation>
-        <activeByDefault>true</activeByDefault>
+        <property>
+          <name>!packager</name>
+        </property>
       </activation>
+      <properties>
+        <!-- official maven plugins https://maven.apache.org/plugins/index.html -->
+        <maven-clean-plugin.version>3.3.1</maven-clean-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
+        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+        <maven-surefire-report-plugin.version>3.1.2</maven-surefire-report-plugin.version>
+        <maven-project-info-reports-plugin.version>3.4.5</maven-project-info-reports-plugin.version>
+        <maven-jxr-plugin.version>3.3.0</maven-jxr-plugin.version>
+        <!-- external maven plugins -->
+        <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
+        <spotless-maven-plugin.version>2.38.0</spotless-maven-plugin.version>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -140,7 +137,7 @@
             <version>${spotless-maven-plugin.version}</version>
             <configuration>
               <!-- optional: limit format enforcement to just the files changed by this feature
-              branch -->
+            branch -->
               <!-- <ratchetFrom>origin/main</ratchetFrom> -->
               <formats>
                 <format>
@@ -169,6 +166,35 @@
             </executions>
           </plugin>
         </plugins>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-project-info-reports-plugin</artifactId>
+              <version>${maven-project-info-reports-plugin.version}</version>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-surefire-report-plugin</artifactId>
+              <version>${maven-surefire-report-plugin.version}</version>
+            </plugin>
+            <plugin>
+              <groupId>org.jacoco</groupId>
+              <artifactId>jacoco-maven-plugin</artifactId>
+              <version>${jacoco-maven-plugin.version}</version>
+            </plugin>
+            <plugin>
+              <groupId>com.diffplug.spotless</groupId>
+              <artifactId>spotless-maven-plugin</artifactId>
+              <version>${spotless-maven-plugin.version}</version>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-jxr-plugin</artifactId>
+              <version>${maven-jxr-plugin.version}</version>
+            </plugin>
+          </plugins>
+        </pluginManagement>
       </build>
       <reporting>
         <plugins>
@@ -200,6 +226,26 @@
           </plugin>
         </plugins>
       </reporting>
+    </profile>
+    <profile>
+      <!-- debian profile: used to build locally and in the CI -->
+      <id>debian</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+            <dependencies>
+              <dependency>
+                <!-- See bug https://issues.apache.org/jira/browse/MNG-6965 -->
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-utils</artifactId>
+                <version>debian</version>
+              </dependency>
+            </dependencies>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>
