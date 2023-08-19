@@ -32,3 +32,25 @@ $(RELEASER_JAR):
 
 clean-releaser:
 	@$(RELEASER_GW) --quiet clean
+
+.PHONY: build-local
+build-local:
+	mvn spotless:apply clean verify
+
+.PHONY: build-ci
+build-ci:
+	mvn clean verify -Pstandard,ci
+
+.PHONY: build-debian
+build-debian:
+	mvn --settings settings-debian.xml clean verify
+
+.PHONY: debian-build-env
+debian-build-env:
+	@podman run -ti \
+		-v "$(shell pwd):/workspace" \
+		-w /workspace \
+		debian:bookworm \
+		bash -c "apt update \
+			&& apt install openjdk-17-jdk-headless maven maven-debian-helper libpicocli-java -y \
+			&& bash"
