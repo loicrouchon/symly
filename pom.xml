@@ -27,6 +27,8 @@
         <!-- dependencies versions -->
         <picocli.version>4.7.1</picocli.version>
         <junit.version>5.10.0</junit.version>
+        <!-- paths -->
+        <manpage.src.basedir>${project.basedir}/src/docs/resources/manpage</manpage.src.basedir>
         <!-- application options -->
         <symly.main.class>org.symly.cli.Main</symly.main.class>
         <symly.java.options>-XX:+NeverActAsServerClassMachine</symly.java.options>
@@ -47,6 +49,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <!-- plugins -->
         <plugins>
             <plugin>
@@ -166,7 +174,7 @@
                                         <type>XML</type>
                                         <files>
                                             <file>
-                                                ${basedir}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs
+                                                ${project.basedir}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs
                                             </file>
                                         </files>
                                     </eclipseWtp>
@@ -286,12 +294,105 @@
                                 </goals>
                                 <phase>initialize</phase>
                                 <configuration>
-                                    <outputDirectory>${basedir}/.git/hooks</outputDirectory>
+                                    <outputDirectory>${project.basedir}/.git/hooks</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>${basedir}/gradle/plugins/src/main/resources/git/hooks</directory>
+                                            <directory>${project.basedir}/gradle/plugins/src/main/resources/git/hooks</directory>
                                         </resource>
                                     </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>codegen</id>
+            <properties>
+                <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
+                <asciidoctor-maven-plugin.version>2.2.4</asciidoctor-maven-plugin.version>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>info.picocli</groupId>
+                    <artifactId>picocli-codegen</artifactId>
+                    <version>${picocli.version}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>asciidoc-documentation-includes-update</id>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <phase>post-integration-test</phase>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <workingDirectory>${project.basedir}</workingDirectory>
+                                    <arguments>
+                                        <argument>${project.basedir}/src/build-tools/AsciiDocIncludeUpdater.java</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>generate-asciidoc-manpage</id>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <phase>prepare-package</phase>
+                                <configuration>
+                                    <mainClass>picocli.codegen.docgen.manpage.ManPageGenerator</mainClass>
+                                    <classpathScope>compile</classpathScope>
+                                    <arguments>
+                                        <argument>org.symly.cli.MainCommand</argument>
+                                        <argument>--factory=org.symly.cli.BeanFactory</argument>
+                                        <argument>--outdir=${manpage.src.basedir}/adoc</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctor-maven-plugin</artifactId>
+                        <version>${asciidoctor-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>asciidoc-manpage-to-manpage</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>process-asciidoc</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceDirectory>${manpage.src.basedir}/adoc</sourceDirectory>
+                                    <outputDirectory>${manpage.src.basedir}/manpage</outputDirectory>
+                                    <backend>manpage</backend>
+                                    <attributes>
+                                        <reproducible>true</reproducible>
+                                    </attributes>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>asciidoc-manpage-to-html</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>process-asciidoc</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceDirectory>${manpage.src.basedir}/adoc</sourceDirectory>
+                                    <outputDirectory>${manpage.src.basedir}/html</outputDirectory>
+                                    <backend>html5</backend>
+                                    <attributes>
+                                        <reproducible>true</reproducible>
+                                    </attributes>
                                 </configuration>
                             </execution>
                         </executions>

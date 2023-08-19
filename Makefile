@@ -37,6 +37,10 @@ clean-releaser:
 build-local:
 	mvn spotless:apply clean verify
 
+.PHONY: codegen
+codegen:
+	mvn spotless:apply clean verify -Pstandard,codegen
+
 .PHONY: build-ci
 build-ci:
 	mvn clean verify -Pstandard,ci
