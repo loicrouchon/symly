@@ -148,7 +148,8 @@
                                 </format>
                                 <format>
                                     <includes>
-                                        <include>**/*.xml</include>
+                                        <include>*.xml</include>
+                                        <include>src/**/*.xml</include>
                                     </includes>
                                     <trimTrailingWhitespace />
                                     <endWithNewline />
