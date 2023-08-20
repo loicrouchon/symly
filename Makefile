@@ -6,7 +6,7 @@ build: build-local
 
 .PHONY: clean
 clean:
-	@mvn clean
+	@./mvnw clean
 
 .PHONY: version
 version: $(RELEASER_JAR)
@@ -29,27 +29,27 @@ publish: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Publisher
 
 $(RELEASER_JAR):
-	@cd tools/releaser && mvn -q verify
+	@cd tools/releaser && ../../mvnw -q verify
 
 .PHONY: clean-releaser
 clean-releaser:
-	@cd tools/releaser && mvn -q clean
+	@cd tools/releaser && ../../mvnw -q clean
 
 .PHONY: build-local
 build-local:
-	mvn spotless:apply clean verify
+	./mvnw spotless:apply clean verify
 
 .PHONY: codegen
 codegen:
-	mvn spotless:apply clean verify -Pstandard,codegen
+	./mvnw spotless:apply clean verify -Pstandard,codegen
 
 .PHONY: build-ci
 build-ci:
-	mvn clean verify -Pstandard,ci
+	./mvnw clean verify -Pstandard,ci
 
 .PHONY: build-debian
 build-debian:
-	mvn --settings settings-debian.xml clean verify
+	./mvnw --settings settings-debian.xml clean verify
 
 .PHONY: debian-build-env
 debian-build-env:

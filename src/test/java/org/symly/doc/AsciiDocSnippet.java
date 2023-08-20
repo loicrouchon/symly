@@ -14,7 +14,7 @@ import org.symly.files.RIOException;
  * // end::include
  * }</pre>
  * <p>Where {@code <ID>} is the name of the snippet.</p>
- * <p>Processing of those AsciiDoc includes is performed as part of the Gradle build and
+ * <p>Processing of those AsciiDoc includes is performed as part of the build and
  * any changes in those should be committed to the version control system.</p>
  */
 class AsciiDocSnippet {

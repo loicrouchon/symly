@@ -2,9 +2,6 @@ name: Build
 
 on: push
 
-env:
-    GRADLEW_OPTIONS: "--info --console=plain"
-
 jobs:
     env:
         name: Environment consistency checks
@@ -17,12 +14,6 @@ jobs:
                 with:
                     distribution: 'temurin'
                     java-version: '17'
-
-            -   name: Build application
-                uses: gradle/gradle-build-action@v2
-                with:
-                    arguments: ${{ env.GRADLEW_OPTIONS }} build
-                    build-root-directory: releaser
 
             -   id: version
                 name: Ensure version number is consistent with branch type
@@ -40,26 +31,17 @@ jobs:
                     distribution: 'temurin'
                     java-version: '17'
 
-            -   name: Environment check
-                uses: gradle/gradle-build-action@v2
-                with:
-                    arguments: -v
-
             -   name: Build application
-                uses: gradle/gradle-build-action@v2
-                with:
-                    arguments: ${{ env.GRADLEW_OPTIONS }} build
+                run: ./mvnw verify
 
             -   name: Re-run integration tests in opaque testing mode
-                uses: gradle/gradle-build-action@v2
-                with:
-                    arguments: ${{ env.GRADLEW_OPTIONS }} integrationTest -PopaqueTesting=true
+                run: ./mvnw verify -DopaqueTesting=true
 
             -   name: Publish Unit Test Results
                 uses: EnricoMi/publish-unit-test-result-action@v2
                 if: always()
                 with:
-                    junit_files: build/test-results/**/*.xml
+                    junit_files: target/surefire-reports/TEST-*.xml
 
             -   name: Upload test reports
                 uses: actions/upload-artifact@v3
@@ -67,8 +49,7 @@ jobs:
                 with:
                     name: test-reports
                     path: |
-                        build/reports
-                        build/test-results
+                        target/surefire-reports/
 
             -   id: create-pkg
                 name: Build deb/rpm packages application
@@ -124,21 +105,13 @@ jobs:
                     distribution: 'temurin'
                     java-version: '17'
 
-            -   name: Build application
-                uses: gradle/gradle-build-action@v2
-                with:
-                    arguments: ${{ env.GRADLEW_OPTIONS }} build
-                    build-root-directory: releaser
-
             -   id: read-version
                 run: |
                     VERSION=$(make version)
                     echo "version=$VERSION" >> $GITHUB_OUTPUT
 
             -   name: Build application
-                uses: gradle/gradle-build-action@v2
-                with:
-                    arguments: ${{ env.GRADLEW_OPTIONS }} build
+                run: ./mvnw verify
 
             -   name: Run JReleaser
                 uses: jreleaser/release-action@v2

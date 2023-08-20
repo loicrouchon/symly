@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public class ConsistencyChecker {
 
     private static final Pattern RELEASE_VERSION_PATTERN = Pattern.compile("^[0-9]+(?:\\.[0-9]+)*$");
-    private static final Pattern DEV_VERSION_PATTERN = Pattern.compile("^[0-9]+(?:\\.[0-9]+)*-dev$");
+    private static final Pattern DEV_VERSION_PATTERN = Pattern.compile("^[0-9]+(?:\\.[0-9]+)*-SNAPSHOT$");
 
     public void check(GitRepository repository, Application application) {
         Version version = application.version();

@@ -8,14 +8,14 @@ You can also clone this repository and build Symly using the instructions below:
 
 == Packaging and running the application
 
-The application can be built using the `installDist` task:
+The application can be built using the maven `verify` goal:
 
 ----
-./gradlew clean check installDist
+./mvnw clean verify
 ----
 
-This will install the application locally in the `./build/install/symly/`.
-The application can be run using `./build/install/symly/bin/symly <ARGS>` or using `./build/install/symly/bin/symly.bat` on Windows.
+This will install the application locally in the `./target/assembly/symly-$VERSION-binary/`.
+The application can be run using `./target/assembly/symly-$VERSION-binary/bin/symly <ARGS>`.
 
 // include::docs/snippets/locally-built-symly-default-output.adoc[]
 ----
