@@ -297,7 +297,7 @@
                                     <outputDirectory>${project.basedir}/.git/hooks</outputDirectory>
                                     <resources>
                                         <resource>
-                                            <directory>${project.basedir}/gradle/plugins/src/main/resources/git/hooks</directory>
+                                            <directory>${project.basedir}/tools/git/hooks</directory>
                                         </resource>
                                     </resources>
                                 </configuration>
