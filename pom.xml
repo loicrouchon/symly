@@ -338,7 +338,7 @@
                                     <executable>java</executable>
                                     <workingDirectory>${project.basedir}</workingDirectory>
                                     <arguments>
-                                        <argument>${project.basedir}/src/build-tools/AsciiDocIncludeUpdater.java</argument>
+                                        <argument>${project.basedir}/tools/docs/AsciiDocIncludeUpdater.java</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
