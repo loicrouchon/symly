@@ -10,8 +10,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
-})
 public class FileTree {
 
     private final SortedSet<FileRef> layout;

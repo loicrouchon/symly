@@ -9,7 +9,6 @@ import org.symly.env.IntegrationTest;
 @SuppressWarnings({
     "java:S100", // Method names should comply with a naming convention (test method names)
     "java:S1192", // String literals should not be duplicated
-    "java:S5960", // Assertions should not be used in production code (This is test code)
 })
 class FileTreeTest extends IntegrationTest {
 

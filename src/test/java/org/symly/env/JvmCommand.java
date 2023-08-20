@@ -14,8 +14,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import org.symly.files.FileTree;
 
-@SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
-})
 public class JvmCommand {
 
     private static final long TIMEOUT = 5L;

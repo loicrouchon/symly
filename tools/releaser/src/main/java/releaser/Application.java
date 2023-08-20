@@ -1,12 +1,6 @@
 package releaser;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 abstract class Application {
-
-    protected final Path path = Path.of("gradle/version.txt");
 
     protected String version;
 
@@ -15,11 +9,8 @@ abstract class Application {
     }
 
     public void refresh() {
-        try {
-            this.version = Files.readString(path).trim();
-        } catch (IOException e) {
-            throw new ReleaseFailure("Unable to read application version " + path.toAbsolutePath(), e);
-        }
+        this.version = Command.output("mvn", "help:evaluate", "-Dexpression=project.version", "-q", "-DforceStdout")
+                .trim();
     }
 
     public Version version() {
@@ -39,9 +30,8 @@ abstract class Application {
     }
 
     public void test() {
-        Command.exec(new ProcessBuilder()
-                .command("./gradlew", "clean", "build", "updateDocSnippets")
-                .inheritIO());
+        Command.exec(
+                new ProcessBuilder().command("make", "codegen", "build-local").inheritIO());
     }
 
     public static Application create() {
@@ -57,11 +47,9 @@ class ReadWriteApplication extends Application {
 
     @Override
     protected void writeVersion() {
-        try {
-            Files.writeString(path, version);
-        } catch (IOException e) {
-            throw new ReleaseFailure("Unable to write to Gradle property file " + path.toAbsolutePath(), e);
-        }
+        Command.exec(new ProcessBuilder()
+                .command("mvn", "versions:set", "-DnewVersion=" + version)
+                .inheritIO());
     }
 }
 

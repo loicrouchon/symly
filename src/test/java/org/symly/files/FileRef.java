@@ -82,9 +82,6 @@ public sealed interface FileRef permits FileRef.LinkFileRef, FileRef.SimpleFileR
         }
     }
 
-    @SuppressWarnings({
-        "java:S5960", // Assertions should not be used in production code (This is test code)
-    })
     record LinkFileRef(Path name, Path target) implements FileRef {
         public LinkFileRef {
             Objects.requireNonNull(name);

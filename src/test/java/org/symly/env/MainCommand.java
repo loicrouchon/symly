@@ -12,8 +12,6 @@ import org.symly.files.FileTree;
 import org.symly.repositories.PathAdapter;
 import picocli.CommandLine;
 
-@SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
-})
 public class MainCommand {
 
     private final Path rootDir;

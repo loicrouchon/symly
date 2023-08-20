@@ -13,8 +13,6 @@ import org.symly.doc.ExecutionDocReport;
 import org.symly.files.FileTree;
 import org.symly.files.FileTree.Diff;
 
-@SuppressWarnings({"java:S5960" // Assertions should not be used in production code (this is test code)
-})
 public record Execution(
         FileTree snapshot,
         Path rootDir,

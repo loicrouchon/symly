@@ -1,37 +1,39 @@
-
-.PHONY: clean build version version-check jreleaser-dry-run release publish clean-releaser
-
-MAIN_GW=./gradlew --console=plain
-RELEASER_GW=./gradlew --console=plain --build-file=releaser/build.gradle.kts
-RELEASER_JAR=releaser/build/libs/releaser.jar
+RELEASER_JAR=tools/releaser/target/releaser-*.jar
 RELEASER=java -cp $(RELEASER_JAR)
 
-build:
-	@$(MAIN_GW) build
+.PHONY: build
+build: build-local
 
+.PHONY: clean
 clean:
-	@$(MAIN_GW) --quiet clean
+	@mvn clean
 
+.PHONY: version
 version: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Releaser version
 
+.PHONY: version-check
 version-check: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Releaser check
 
+.PHONY: jreleaser-dry-run
 jreleaser-dry-run: build
 	@echo "fake token" | ./releaser/src/main/resources/jreleaser-dry-run.sh "$(shell make version)"
 
+.PHONY: release
 release: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Releaser release
 
+.PHONY: publish
 publish: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Publisher
 
 $(RELEASER_JAR):
-	@$(RELEASER_GW) --quiet build
+	@cd tools/releaser && mvn -q verify
 
+.PHONY: clean-releaser
 clean-releaser:
-	@$(RELEASER_GW) --quiet clean
+	@cd tools/releaser && mvn -q clean
 
 .PHONY: build-local
 build-local:
