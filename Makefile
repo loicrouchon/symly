@@ -1,3 +1,5 @@
+MAVEN_WRAPPER=./mvnw
+MAVEN_RELEASER_WRAPPER=cd tools/releaser && ../../mvnw --batch-mode --quiet
 RELEASER_JAR=tools/releaser/target/releaser-*.jar
 RELEASER=java -cp $(RELEASER_JAR)
 
@@ -6,7 +8,7 @@ build: build-local
 
 .PHONY: clean
 clean:
-	@./mvnw clean
+	@$(MAVEN_WRAPPER) clean
 
 .PHONY: version
 version: $(RELEASER_JAR)
@@ -29,27 +31,27 @@ publish: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Publisher
 
 $(RELEASER_JAR):
-	@cd tools/releaser && ../../mvnw -q verify
+	@$(MAVEN_RELEASER_WRAPPER) verify
 
 .PHONY: clean-releaser
 clean-releaser:
-	@cd tools/releaser && ../../mvnw -q clean
+	@$(MAVEN_RELEASER_WRAPPER) clean
 
 .PHONY: build-local
 build-local:
-	./mvnw spotless:apply clean verify
+	$(MAVEN_WRAPPER) spotless:apply clean verify
 
 .PHONY: codegen
 codegen:
-	./mvnw spotless:apply clean verify -Pstandard,codegen
+	$(MAVEN_WRAPPER) spotless:apply clean verify -Pstandard,codegen
 
 .PHONY: build-ci
 build-ci:
-	./mvnw clean verify -Pstandard,ci
+	$(MAVEN_WRAPPER) clean verify -Pstandard,ci
 
 .PHONY: build-debian
 build-debian:
-	./mvnw --settings settings-debian.xml clean verify
+	$(MAVEN_WRAPPER) --settings settings-debian.xml clean verify
 
 .PHONY: debian-build-env
 debian-build-env:
