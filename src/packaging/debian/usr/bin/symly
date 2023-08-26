@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-set -x
+set -e
 
 JAVA_CMD="$(jvm-finder --min-java-version 17)"
 MODULE_PATH=/usr/share/java/symly.jar:/usr/share/java/picocli.jar
