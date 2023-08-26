@@ -20,8 +20,8 @@
             <filtered>true</filtered>
         </fileSet>
         <fileSet>
-            <directory>${project.build.directory}/docs/manpage</directory>
-            <outputDirectory>doc</outputDirectory>
+            <directory>${project.basedir}/src/docs/resources/manpage</directory>
+            <outputDirectory>docs</outputDirectory>
             <includes>
                 <include>manpage/**</include>
                 <include>html/**</include>
