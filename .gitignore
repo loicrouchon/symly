@@ -1,8 +1,9 @@
-#Gradle
+# Build tools
 .gradle/
 build/
 out/
 target/
+pom.xml.versionsBackup
 
 # Eclipse
 .project
