@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+if [ "$HOMEBREW_PREFIX" != "" ] && [ -d "$HOMEBREW_PREFIX/opt/openjdk" ]; then
+    JAVA_CMD="$HOMEBREW_PREFIX/opt/openjdk/bin/java"
+elif [ "$JAVA_HOME" != "" ]; then
+    JAVA_CMD="$JAVA_HOME/bin/java"
+else
+    JAVA_CMD="java"
+fi
+
+JAVA_CMD="$JAVA_HOME/bin/java"
+lib_dir="$(dirname "$(realpath "$0")")/../libexec/lib/"
+exec "$JAVA_CMD" \
+    --class-path "$lib_dir/*" \
+    ${symly.java.options} \
+    ${symly.main.class} \
+    "$@"
