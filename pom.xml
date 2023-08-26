@@ -202,9 +202,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
-                        <version>${maven-assembly-plugin.version}</version>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/assembly</outputDirectory>
                             <attach>false</attach>
                             <descriptors>
                                 <descriptor>src/assembly/binary.xml</descriptor>
@@ -412,7 +410,7 @@
             <id>ci</id>
         </profile>
         <profile>
-            <!-- debian profile: used to build locally and in the CI -->
+            <!-- debian profile -->
             <id>debian</id>
             <build>
                 <plugins>
@@ -431,9 +429,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
-                        <version>${maven-assembly-plugin.version}</version>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/assembly</outputDirectory>
                             <attach>false</attach>
                             <descriptors>
                                 <descriptor>tools/packaging/debian/assembly.xml</descriptor>

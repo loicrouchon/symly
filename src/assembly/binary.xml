@@ -12,13 +12,14 @@
         <file>
             <source>${project.basedir}/LICENSE</source>
         </file>
+        <file>
+            <source>${project.basedir}/src/assembly/binary/bin/symly</source>
+            <outputDirectory>bin</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>0755</fileMode>
+        </file>
     </files>
     <fileSets>
-        <fileSet>
-            <directory>${project.basedir}/src/assembly/binary</directory>
-            <outputDirectory />
-            <filtered>true</filtered>
-        </fileSet>
         <fileSet>
             <directory>${project.basedir}/src/docs/resources/manpage</directory>
             <outputDirectory>docs</outputDirectory>
