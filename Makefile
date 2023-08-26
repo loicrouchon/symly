@@ -48,17 +48,3 @@ codegen:
 .PHONY: build-ci
 build-ci:
 	$(MAVEN_WRAPPER) clean verify -Pstandard,ci
-
-.PHONY: build-debian
-build-debian:
-	$(MAVEN_WRAPPER) --settings settings-debian.xml clean verify
-
-.PHONY: debian-build-env
-debian-build-env:
-	@podman run -ti \
-		-v "$(shell pwd):/workspace" \
-		-w /workspace \
-		debian:bookworm \
-		bash -c "apt update \
-			&& apt install openjdk-17-jdk-headless maven maven-debian-helper libpicocli-java -y \
-			&& bash"
