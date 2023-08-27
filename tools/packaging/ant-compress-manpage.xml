@@ -1,11 +1,11 @@
-<project>
+<project default="manpage">
     <target name="manpage">
-        <copy todir="${manpage.gz.dir}">
+        <copy todir="${manpage.manpage.gz.dir}">
             <fileset dir="${manpage.manpage.dir}" />
         </copy>
 
         <apply executable="gzip" parallel="false">
-            <fileset dir="${manpage.gz.dir}" />
+            <fileset dir="${manpage.manpage.gz.dir}" />
         </apply>
     </target>
 </project>

@@ -26,7 +26,7 @@
     </files>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/src/docs/resources/manpage/manpage</directory>
+            <directory>${manpage.manpage.gz.dir}</directory>
             <outputDirectory>usr/share/man/man1</outputDirectory>
         </fileSet>
     </fileSets>

@@ -28,7 +28,11 @@
         <picocli.version>4.7.1</picocli.version>
         <junit.version>5.10.0</junit.version>
         <!-- paths -->
-        <manpage.src.basedir>${project.basedir}/src/docs/resources/manpage</manpage.src.basedir>
+        <manpage.basedir>${project.basedir}/src/docs/resources/manpage</manpage.basedir>
+        <manpage.adoc.dir>${manpage.basedir}/adoc</manpage.adoc.dir>
+        <manpage.html.dir>${manpage.basedir}/html</manpage.html.dir>
+        <manpage.manpage.gz.dir>${project.build.directory}/manpage/gz</manpage.manpage.gz.dir>
+        <manpage.manpage.dir>${manpage.basedir}/manpage</manpage.manpage.dir>
         <!-- application options -->
         <symly.main.class>org.symly.cli.Main</symly.main.class>
         <symly.java.options>-XX:+NeverActAsServerClassMachine</symly.java.options>
@@ -96,6 +100,11 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>${maven-antrun-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven-assembly-plugin.version}</version>
                 </plugin>
@@ -117,6 +126,7 @@
                 <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
                 <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
                 <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+                <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
                 <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
                 <maven-surefire-report-plugin.version>3.1.2</maven-surefire-report-plugin.version>
                 <maven-project-info-reports-plugin.version>3.4.5</maven-project-info-reports-plugin.version>
@@ -201,13 +211,24 @@
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <configuration>
+                                    <target>
+                                        <ant antfile="${project.basedir}/tools/packaging/ant-compress-manpage.xml" />
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
-                        <configuration>
-                            <attach>false</attach>
-                            <descriptors>
-                                <descriptor>src/assembly/binary.xml</descriptor>
-                            </descriptors>
-                        </configuration>
                         <executions>
                             <execution>
                                 <id>make-assembly</id>
@@ -215,6 +236,12 @@
                                     <goal>single</goal>
                                 </goals>
                                 <phase>package</phase>
+                                <configuration>
+                                    <attach>false</attach>
+                                    <descriptors>
+                                        <descriptor>src/assembly/binary.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -359,7 +386,7 @@
                                     <arguments>
                                         <argument>org.symly.cli.MainCommand</argument>
                                         <argument>--factory=org.symly.cli.BeanFactory</argument>
-                                        <argument>--outdir=${manpage.src.basedir}/adoc</argument>
+                                        <argument>--outdir=${manpage.adoc.dir}</argument>
                                     </arguments>
                                 </configuration>
                             </execution>
@@ -377,8 +404,8 @@
                                     <goal>process-asciidoc</goal>
                                 </goals>
                                 <configuration>
-                                    <sourceDirectory>${manpage.src.basedir}/adoc</sourceDirectory>
-                                    <outputDirectory>${manpage.src.basedir}/manpage</outputDirectory>
+                                    <sourceDirectory>${manpage.adoc.dir}</sourceDirectory>
+                                    <outputDirectory>${manpage.manpage.dir}</outputDirectory>
                                     <backend>manpage</backend>
                                     <attributes>
                                         <reproducible>true</reproducible>
@@ -392,8 +419,8 @@
                                     <goal>process-asciidoc</goal>
                                 </goals>
                                 <configuration>
-                                    <sourceDirectory>${manpage.src.basedir}/adoc</sourceDirectory>
-                                    <outputDirectory>${manpage.src.basedir}/html</outputDirectory>
+                                    <sourceDirectory>${manpage.adoc.dir}</sourceDirectory>
+                                    <outputDirectory>${manpage.html.dir}</outputDirectory>
                                     <backend>html5</backend>
                                     <attributes>
                                         <reproducible>true</reproducible>

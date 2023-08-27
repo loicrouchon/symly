@@ -21,11 +21,11 @@
     </files>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/src/docs/resources/manpage/manpage</directory>
+            <directory>${manpage.manpage.gz.dir}</directory>
             <outputDirectory>share/man/man1</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>${project.basedir}/src/docs/resources/manpage/html</directory>
+            <directory>${manpage.html.dir}</directory>
             <outputDirectory>share/doc/symly</outputDirectory>
         </fileSet>
     </fileSets>

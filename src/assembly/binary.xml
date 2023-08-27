@@ -21,12 +21,12 @@
     </files>
     <fileSets>
         <fileSet>
-            <directory>${project.basedir}/src/docs/resources/manpage</directory>
-            <outputDirectory>docs</outputDirectory>
-            <includes>
-                <include>manpage/**</include>
-                <include>html/**</include>
-            </includes>
+            <directory>${manpage.manpage.gz.dir}</directory>
+            <outputDirectory>docs/manpage</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${manpage.html.dir}</directory>
+            <outputDirectory>docs/html</outputDirectory>
         </fileSet>
     </fileSets>
     <dependencySets>
