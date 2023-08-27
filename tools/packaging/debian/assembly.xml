@@ -13,7 +13,7 @@
             <source>${project.basedir}/LICENSE</source>
         </file>
         <file>
-            <source>${packaging.buildscript.dir}/${assembly-type}/usr/bin/symly</source>
+            <source>${packaging.buildscript.dir}/debian/usr/bin/symly</source>
             <outputDirectory>usr/bin</outputDirectory>
             <filtered>true</filtered>
             <fileMode>0755</fileMode>

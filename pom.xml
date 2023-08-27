@@ -34,7 +34,6 @@
         <manpage.manpage.gz.dir>${project.build.directory}/manpage/gz</manpage.manpage.gz.dir>
         <manpage.manpage.dir>${manpage.basedir}/manpage</manpage.manpage.dir>
         <packaging.buildscript.dir>${project.basedir}/tools/packaging</packaging.buildscript.dir>
-        <ant.lib.dir>${packaging.buildscript.dir}/ant</ant.lib.dir>
         <distributions.dir>${project.build.directory}/distributions</distributions.dir>
         <assembly-type>standalone</assembly-type>
         <!-- application options -->
@@ -453,6 +452,36 @@
         <profile>
             <!-- ci profile: used for continuous integration -->
             <id>ci</id>
+        </profile>
+        <profile>
+            <!-- standard profile: used to build locally and in the CI -->
+            <id>all-assemblies</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <attach>false</attach>
+                                    <outputDirectory>${distributions.dir}</outputDirectory>
+                                    <descriptors>
+                                        <descriptor>${packaging.buildscript.dir}/standalone/assembly.xml</descriptor>
+                                        <descriptor>${packaging.buildscript.dir}/debian/assembly.xml</descriptor>
+                                        <descriptor>${packaging.buildscript.dir}/homebrew/assembly.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <!-- debian profile -->

@@ -47,4 +47,8 @@ codegen:
 
 .PHONY: build-ci
 build-ci:
-	$(MAVEN_WRAPPER) clean verify -Pstandard,ci
+	$(MAVEN_WRAPPER) clean verify -Pstandard,reporting,ci
+
+.PHONY: build-all-assemblies
+build-all-assemblies:
+	$(MAVEN_WRAPPER) clean verify -Pstandard,all-assemblies
