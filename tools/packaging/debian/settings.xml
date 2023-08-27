@@ -8,6 +8,7 @@
             <properties>
                 <picocli.version>debian</picocli.version>
                 <junit.version>debian</junit.version>
+                <assembly-type>debian</assembly-type>
                 <maven-clean-plugin.version>3.2.0</maven-clean-plugin.version>
                 <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
                 <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
@@ -19,6 +20,7 @@
         </profile>
     </profiles>
     <activeProfiles>
+        <activeProfile>standard</activeProfile>
         <activeProfile>debian</activeProfile>
     </activeProfiles>
 </settings>

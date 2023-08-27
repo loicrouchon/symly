@@ -33,6 +33,10 @@
         <manpage.html.dir>${manpage.basedir}/html</manpage.html.dir>
         <manpage.manpage.gz.dir>${project.build.directory}/manpage/gz</manpage.manpage.gz.dir>
         <manpage.manpage.dir>${manpage.basedir}/manpage</manpage.manpage.dir>
+        <packaging.buildscript.dir>${project.basedir}/tools/packaging</packaging.buildscript.dir>
+        <ant.lib.dir>${packaging.buildscript.dir}/ant</ant.lib.dir>
+        <distributions.dir>${project.build.directory}/distributions</distributions.dir>
+        <assembly-type>standalone</assembly-type>
         <!-- application options -->
         <symly.main.class>org.symly.cli.Main</symly.main.class>
         <symly.java.options>-XX:+NeverActAsServerClassMachine</symly.java.options>
@@ -128,6 +132,56 @@
                 <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
                 <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
                 <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>prepare-package</phase>
+                                <configuration>
+                                    <target>
+                                        <ant antfile="${packaging.buildscript.dir}/ant/compress-manpage.xml" />
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>make-assembly</id>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <phase>package</phase>
+                                <configuration>
+                                    <attach>false</attach>
+                                    <outputDirectory>${distributions.dir}</outputDirectory>
+                                    <descriptors>
+                                        <descriptor>${packaging.buildscript.dir}/${assembly-type}/assembly.xml</descriptor>
+                                    </descriptors>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <!-- reporting profile: used to generate reports locally and in the CI -->
+            <id>reporting</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
                 <maven-surefire-report-plugin.version>3.1.2</maven-surefire-report-plugin.version>
                 <maven-project-info-reports-plugin.version>3.4.5</maven-project-info-reports-plugin.version>
                 <maven-jxr-plugin.version>3.3.0</maven-jxr-plugin.version>
@@ -206,42 +260,6 @@
                                 <goals>
                                     <goal>check</goal>
                                 </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>prepare-package</phase>
-                                <configuration>
-                                    <target>
-                                        <ant antfile="${project.basedir}/tools/packaging/ant-compress-manpage.xml" />
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>make-assembly</id>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <phase>package</phase>
-                                <configuration>
-                                    <attach>false</attach>
-                                    <descriptors>
-                                        <descriptor>src/assembly/binary.xml</descriptor>
-                                    </descriptors>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -452,52 +470,6 @@
                                 <version>debian</version>
                             </dependency>
                         </dependencies>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <configuration>
-                            <attach>false</attach>
-                            <descriptors>
-                                <descriptor>tools/packaging/debian/assembly.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>make-assembly</id>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- homebrew profile -->
-            <id>homebrew</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <configuration>
-                            <attach>false</attach>
-                            <descriptors>
-                                <descriptor>tools/packaging/homebrew/assembly.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>make-assembly</id>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>

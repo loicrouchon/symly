@@ -1,5 +1,5 @@
-<project default="manpage">
-    <target name="manpage">
+<project default="compress-manpage">
+    <target name="compress-manpage">
         <copy todir="${manpage.manpage.gz.dir}">
             <fileset dir="${manpage.manpage.dir}" />
         </copy>

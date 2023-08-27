@@ -3,6 +3,9 @@
     <profiles>
         <profile>
             <id>homebrew</id>
+            <properties>
+                <assembly-type>homebrew</assembly-type>
+            </properties>
         </profile>
     </profiles>
     <activeProfiles>
