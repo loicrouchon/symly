@@ -5,7 +5,7 @@
 
     <groupId>org.symly</groupId>
     <artifactId>symly</artifactId>
-    <version>0.14.0-SNAPSHOT</version>
+    <version>0.11-SNAPSHOT</version>
 
     <name>Symly</name>
     <description>Utility for centralizing sparse file trees with symbolic links</description>
