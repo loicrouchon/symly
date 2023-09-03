@@ -51,40 +51,8 @@ jobs:
                     path: |
                         target/surefire-reports/
 
-            -   id: create-pkg
-                name: Build deb/rpm packages application
-                run: |
-                    DEB_PATH=$(find build/distributions/ -name "*.deb")
-                    DEB_FILENAME=$(basename $DEB_PATH)
-                    RPM_PATH=$(find build/distributions/ -name "*.rpm")
-                    RPM_FILENAME=$(basename $RPM_PATH)
-                    echo "deb-path=$DEB_PATH" >> $GITHUB_OUTPUT
-                    echo "deb-filename=$DEB_FILENAME" >> $GITHUB_OUTPUT
-                    echo "rpm-path=$RPM_PATH" >> $GITHUB_OUTPUT
-                    echo "rpm-filename=$RPM_FILENAME" >> $GITHUB_OUTPUT
-
-            -   name: Debian package inspection
-                run: |
-                    dpkg -I ${{ steps.create-pkg.outputs.deb-path }}
-                    dpkg -c ${{ steps.create-pkg.outputs.deb-path }}
-
-            -   name: RPM package inspection
-                run: rpm -qlpi ${{ steps.create-pkg.outputs.rpm-path }}
-
-            -   name: Debian package installation verification
-                run: |
-                    sudo apt install -y dpkg-dev
-                    sudo sh -c 'echo "deb [trusted=yes] file:/opt/local/debs ./" >> /etc/apt/sources.list'
-                    sudo mkdir -p /opt/local/debs
-                    sudo cp  ${{ steps.create-pkg.outputs.deb-path }} /opt/local/debs
-                    cd /opt/local/debs
-                    sudo sh -c 'dpkg-scanpackages . /dev/null > Release'
-                    sudo sh -c 'dpkg-scanpackages . /dev/null | gzip -9c > Packages.gz'
-                    sudo apt update
-                    sudo apt install -y symly
-
-            -   name: Debian package post-installation verification
-                run: symly --version
+            -   name: Test standalone symly version
+                run: target/distributions/symly-*-standalone/bin/symly --version
 
     release:
         name: Release
