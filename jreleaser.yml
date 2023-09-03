@@ -31,41 +31,40 @@ distributions:
 
     jvm:
         artifacts:
-            -   path: build/distributions/{{projectName}}-{{projectVersion}}.zip
-            -   path: build/distributions/{{projectName}}-{{projectVersion}}.tar
+            -   path: target/distributions/{{projectName}}-{{projectVersion}}-standalone.zip
 
-    deb:
-        type: NATIVE_PACKAGE
-        artifacts:
-            -   path: build/distributions/{{projectName}}_{{projectVersion}}-1_all.deb
-
-    rpm:
-        type: NATIVE_PACKAGE
-        artifacts:
-            -   path: build/distributions/{{projectName}}-{{projectVersion}}-1.noarch.rpm
-
-    homebrew:
-        type: JAVA_BINARY
-        executable:
-            name: symly
-        artifacts:
-            -   path: build/distributions/{{projectName}}-{{projectVersion}}-homebrew-bottle.zip
-        brew:
-            active: ALWAYS
-            formulaName: symly
-            commitAuthor:
-                name: jreleaserbot
-                email: loicrouchon+jreleaser@gmail.com
-            tap:
-                owner: loicrouchon
-                name: homebrew-symly
-            multiPlatform: true
-            extraProperties:
-                skipJava: true # Avoids automatic dependency on fixed JDK
-            dependencies:
-                coreutils:
-                openjdk: # latest JDK
-
-files:
-    artifacts:
-        -   path: build/distributions/{{projectName}}.spec
+#    deb:
+#        type: NATIVE_PACKAGE
+#        artifacts:
+#            -   path: build/distributions/{{projectName}}_{{projectVersion}}-1_all.deb
+#
+#    rpm:
+#        type: NATIVE_PACKAGE
+#        artifacts:
+#            -   path: build/distributions/{{projectName}}-{{projectVersion}}-1.noarch.rpm
+#
+#    homebrew:
+#        type: JAVA_BINARY
+#        executable:
+#            name: symly
+#        artifacts:
+#            -   path: build/distributions/{{projectName}}-{{projectVersion}}-homebrew-bottle.zip
+#        brew:
+#            active: ALWAYS
+#            formulaName: symly
+#            commitAuthor:
+#                name: jreleaserbot
+#                email: loicrouchon+jreleaser@gmail.com
+#            tap:
+#                owner: loicrouchon
+#                name: homebrew-symly
+#            multiPlatform: true
+#            extraProperties:
+#                skipJava: true # Avoids automatic dependency on fixed JDK
+#            dependencies:
+#                coreutils:
+#                openjdk: # latest JDK
+#
+#files:
+#    artifacts:
+#        -   path: build/distributions/{{projectName}}.spec
