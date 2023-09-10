@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+set -e
+
+if [ -d "/usr/lib/jvm" ]; then
+    JVM="/usr/lib/jvm/$(ls /usr/lib/jvm | grep -E "java-[0-9]+" | sort -V -r | head -n 1)"
+    if [ $JVM != "/usr/lib/jvm/" ]; then
+        JAVA_HOME="$JVM"
+    fi
+fi
+
+JAVA_CMD="$JAVA_HOME/bin/java"
+CLASSPATH=/usr/share/java/symly/symly.jar:/usr/share/java/picocli/picocli.jar
+
+exec "$JAVA_CMD" \
+    --class-path "$CLASSPATH" \
+    ${symly.java.options} \
+    ${symly.main.class} \
+    "$@"

@@ -35,7 +35,7 @@ jobs:
                 run: ./mvnw --batch-mode verify
 
             -   name: Re-run integration tests in opaque testing mode
-                run: ./mvnw --batch-mode verify -DopaqueTesting=true
+                run: ./mvnw --batch-mode verify -DopaqueTesting=true # TODO migrate this to a maven fail-safe execution
 
             -   name: Publish Unit Test Results
                 uses: EnricoMi/publish-unit-test-result-action@v2
