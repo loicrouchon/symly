@@ -1,5 +1,6 @@
 <project>
     <property file="${basedir}/tools/packaging/ant/properties.properties" />
+    <xmlproperty file="${basedir}/pom.xml" prefix="pom" />
     <import file="${basedir}/tools/packaging/ant/clean.xml" />
     <import file="${basedir}/tools/packaging/ant/compile.xml" />
     <import file="${basedir}/tools/packaging/ant/jar.xml" />

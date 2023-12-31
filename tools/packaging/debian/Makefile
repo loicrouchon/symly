@@ -8,8 +8,7 @@ build:
 	podman run -ti \
 		-v "$(HOST_ROOT_DIR):$(ROOT_DIR)" \
 		symly/debian-build-env:latest \
-		mvn --batch-mode --settings "$(PACKAGING_DIR)/settings.xml" \
-			clean verify
+		ant -v -f "$(PACKAGING_DIR)/build.xml"
 
 .PHONY: build-shell
 build-shell:

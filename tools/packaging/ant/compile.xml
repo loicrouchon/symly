@@ -4,12 +4,11 @@
         <copy todir="${build-dir.classes}">
             <fileset dir="src/main/resources" />
             <filterset begintoken="${" endtoken="}">
-                <filter token="project.version" value="${project.version}" />
+                <filter token="project.version" value="${pom.project.version}" />
             </filterset>
         </copy>
         <javac includeantruntime="false" sourcepath="" srcdir="src/main/java" destdir="${build-dir.classes}"
                release="17">
-            <exclude name="module-info.java" />
             <classpath location="${project.classpath}" />
         </javac>
     </target>
