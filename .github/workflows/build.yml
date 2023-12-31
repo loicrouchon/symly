@@ -50,7 +50,7 @@ jobs:
                 uses: actions/upload-artifact@v4
                 if: always()
                 with:
-                    name: test-reports
+                    name: test-reports-with-jdk-${{ matrix.java-version }}
                     path: |
                         target/surefire-reports/
 
@@ -89,8 +89,8 @@ jobs:
             -   name: Run JReleaser
                 uses: jreleaser/release-action@v2
                 with:
-                    version: 1.8.0
-                    arguments: release --dry-run
+                    version: 1.9.0
+                    arguments: release
                 env:
                     JRELEASER_PROJECT_VERSION: ${{ steps.read-version.outputs.version }}
                     JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
