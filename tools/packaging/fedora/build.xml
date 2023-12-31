@@ -10,12 +10,13 @@
             <file file="LICENSE" />
         </copy>
         <copy todir="${build-dir.distributions}/usr/bin">
-            <file file="tools/packaging/fedora/usr/bin/${project.name}" />
+            <file file="src/packaging/fedora/usr/bin/${project.name}" />
             <filterset begintoken="${" endtoken="}">
-                <filter token="symly.java.options" value="${project.java.options}" />
-                <filter token="symly.main.class" value="${project.main-class}" />
+                <filter token="symly.java.options" value="${pom.project.properties.symly.java.options}" />
+                <filter token="symly.main.class" value="${pom.project.properties.symly.main.class}" />
             </filterset>
         </copy>
+        <chmod file="${build-dir.distributions}/usr/bin/${project.name}" perm="755"/>
         <copy todir="${build-dir.distributions}/usr/share/java/${project.name}">
             <fileset dir="${build-dir.jars}" />
         </copy>

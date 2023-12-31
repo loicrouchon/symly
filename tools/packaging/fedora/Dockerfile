@@ -1,4 +1,4 @@
-FROM fedora:39
+FROM fedora:latest
 
 # Runtime dependencies
 RUN dnf install -y \
