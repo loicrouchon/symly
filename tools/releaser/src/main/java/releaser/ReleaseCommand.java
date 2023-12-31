@@ -175,7 +175,7 @@ public class ReleaseCommand {
         Version nextVersion = latestVersion.map(Version::increment).orElse(baseVersion.subversion("0"));
         bumpVersion(nextVersion);
         Command.exec(new ProcessBuilder()
-                .command("releaser/src/main/resources/jreleaser-dry-run.sh", nextVersion.toString())
+                .command("tools/releaser/src/main/resources/jreleaser-dry-run.sh", nextVersion.toString())
                 .inheritIO());
         io.printf("Push the release to the main repository?%n");
         String choice = io.readChoice(
