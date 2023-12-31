@@ -20,10 +20,10 @@ jobs:
                 run: make version-check
 
     test:
-        name: Test
         strategy:
             matrix:
                 java-version: [ 17, 21, 22 ]
+        name: Test ${{ matrix.java-version }}
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout code
