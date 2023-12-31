@@ -5,7 +5,7 @@ files_staged_for_commit="$(git --no-pager diff --name-status --no-color --staged
 files_in_working_index="$(git --no-pager diff --name-status --no-color | awk '$1 != "D" && $2 ~ /\.xml|\.kts|\.java|\.kt/ { print $NF}')"
 
 echo "Reformating code..."
-mvn spotless:apply
+./mvnw spotless:apply
 for file_staged_for_commit in $files_staged_for_commit
 do
   if ! printf "$files_in_working_index" | grep -q "$file_staged_for_commit"; then

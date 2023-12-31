@@ -18,6 +18,11 @@ version: $(RELEASER_JAR)
 version-check: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Releaser check
 
+.PHONY: check-for-versions-updates
+check-for-versions-updates:
+	@./mvnw versions:display-plugin-updates versions:display-dependency-updates
+
+
 .PHONY: jreleaser-dry-run
 jreleaser-dry-run: build
 	@echo "fake token" | ./releaser/src/main/resources/jreleaser-dry-run.sh "$(shell make version)"

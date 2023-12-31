@@ -25,8 +25,8 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>17</java.version>
         <!-- dependencies versions -->
-        <picocli.version>4.7.1</picocli.version>
-        <junit.version>5.10.0</junit.version>
+        <picocli.version>4.7.5</picocli.version>
+        <junit.version>5.10.1</junit.version>
         <!-- paths -->
         <manpage.basedir>${project.basedir}/src/docs/resources/manpage</manpage.basedir>
         <manpage.adoc.dir>${manpage.basedir}/adoc</manpage.adoc.dir>
@@ -111,6 +111,11 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven-assembly-plugin.version}</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>${maven-enforcer-plugin.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -124,13 +129,14 @@
             </activation>
             <properties>
                 <!-- official maven plugins https://maven.apache.org/plugins/index.html -->
-                <maven-clean-plugin.version>3.3.1</maven-clean-plugin.version>
+                <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
                 <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-                <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-                <maven-surefire-plugin.version>3.1.2</maven-surefire-plugin.version>
+                <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+                <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
                 <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
                 <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
                 <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
+                <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
             </properties>
             <build>
                 <plugins>
@@ -171,6 +177,25 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>enforce-maven</id>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <rules>
+                                        <requireMavenVersion>
+                                            <version>3.8.1</version>
+                                        </requireMavenVersion>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -181,12 +206,12 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <maven-surefire-report-plugin.version>3.1.2</maven-surefire-report-plugin.version>
-                <maven-project-info-reports-plugin.version>3.4.5</maven-project-info-reports-plugin.version>
-                <maven-jxr-plugin.version>3.3.0</maven-jxr-plugin.version>
+                <maven-surefire-report-plugin.version>3.2.3</maven-surefire-report-plugin.version>
+                <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
+                <maven-jxr-plugin.version>3.3.2</maven-jxr-plugin.version>
                 <!-- external maven plugins -->
-                <jacoco-maven-plugin.version>0.8.10</jacoco-maven-plugin.version>
-                <spotless-maven-plugin.version>2.38.0</spotless-maven-plugin.version>
+                <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
+                <spotless-maven-plugin.version>2.41.1</spotless-maven-plugin.version>
             </properties>
             <build>
                 <plugins>
@@ -359,7 +384,7 @@
         <profile>
             <id>codegen</id>
             <properties>
-                <exec-maven-plugin.version>3.1.0</exec-maven-plugin.version>
+                <exec-maven-plugin.version>3.1.1</exec-maven-plugin.version>
                 <asciidoctor-maven-plugin.version>2.2.4</asciidoctor-maven-plugin.version>
             </properties>
             <dependencies>
