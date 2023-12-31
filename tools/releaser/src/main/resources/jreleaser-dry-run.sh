@@ -23,4 +23,4 @@ jreleaser changelog
 echo "Changelog"
 CHANGELOG=out/jreleaser/release/CHANGELOG.md
 
-bat ${CHANGELOG}
+cat ${CHANGELOG}
