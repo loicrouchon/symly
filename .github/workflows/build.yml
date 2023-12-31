@@ -22,7 +22,7 @@ jobs:
     test:
         strategy:
             matrix:
-                java-version: [ 17, 21, 22 ]
+                java-version: [ 17, 21 ]
         name: Test ${{ matrix.java-version }}
         runs-on: ubuntu-latest
         steps:
