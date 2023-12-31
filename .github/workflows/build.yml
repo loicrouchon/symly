@@ -13,7 +13,7 @@ jobs:
             -   uses: actions/setup-java@v3
                 with:
                     distribution: 'temurin'
-                    java-version: '17'
+                    java-version: '21'
 
             -   id: version
                 name: Ensure version number is consistent with branch type
@@ -21,6 +21,9 @@ jobs:
 
     test:
         name: Test
+        strategy:
+            matrix:
+                java-version: [ 17, 21, 22 ]
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout code
@@ -29,13 +32,13 @@ jobs:
             -   uses: actions/setup-java@v3
                 with:
                     distribution: 'temurin'
-                    java-version: '17'
+                    java-version: ${{ matrix.java-version }}
 
             -   name: Build application
                 run: ./mvnw --batch-mode verify
 
             -   name: Re-run integration tests in opaque testing mode
-                run: ./mvnw --batch-mode verify -DopaqueTesting=true # TODO migrate this to a maven fail-safe execution
+                run: ./mvnw --batch-mode verify -DopaqueTesting=true
 
             -   name: Publish Unit Test Results
                 uses: EnricoMi/publish-unit-test-result-action@v2
@@ -52,11 +55,13 @@ jobs:
                         target/surefire-reports/
 
             -   name: Test standalone symly version
-                run: target/distributions/symly-*-standalone/bin/symly --version
+                run: |
+                    target/distributions/symly-*-standalone/bin/symly --version
+                    target/distributions/symly-*-standalone/bin/symly --help
 
     release:
         name: Release
-#        if: startsWith(github.ref, 'refs/heads/release/')
+        if: startsWith(github.ref, 'refs/heads/release/')
         needs: [ env, test ]
 
         runs-on: ubuntu-latest
@@ -89,7 +94,7 @@ jobs:
                 env:
                     JRELEASER_PROJECT_VERSION: ${{ steps.read-version.outputs.version }}
                     JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#                    JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
+                    JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
             -   name: JReleaser release output
                 if: always()
                 uses: actions/upload-artifact@v3
@@ -100,13 +105,13 @@ jobs:
                         out/jreleaser/trace.log
                         out/jreleaser/release/CHANGELOG.md
 
-#            -   id: publish
-#                env:
-#                    REPO_FEDORA_COPR_SYMLY_USERNAME: loicrouchon
-#                    REPO_FEDORA_COPR_SYMLY_PASSWORD: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
-#                    REPO_SYMLY_DEBIAN_USERNAME: loicrouchon
-#                    REPO_SYMLY_DEBIAN_PASSWORD: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
-#                run: |
-#                    git config --global user.email "noreply@github.com"
-#                    git config --global user.name "GitHub CI publisher bot"
-#                    make publish
+            -   id: publish
+                env:
+                    REPO_FEDORA_COPR_SYMLY_USERNAME: loicrouchon
+                    REPO_FEDORA_COPR_SYMLY_PASSWORD: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
+                    REPO_SYMLY_DEBIAN_USERNAME: loicrouchon
+                    REPO_SYMLY_DEBIAN_PASSWORD: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
+                run: |
+                    git config --global user.email "noreply@github.com"
+                    git config --global user.name "GitHub CI publisher bot"
+                    make publish
