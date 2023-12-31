@@ -9,7 +9,7 @@ abstract class Application {
     }
 
     public void refresh() {
-        this.version = Command.output("mvn", "help:evaluate", "-Dexpression=project.version", "-q", "-DforceStdout")
+        this.version = Command.output("./mvnw", "help:evaluate", "-Dexpression=project.version", "-q", "-DforceStdout")
                 .trim();
     }
 
@@ -48,7 +48,7 @@ class ReadWriteApplication extends Application {
     @Override
     protected void writeVersion() {
         Command.exec(new ProcessBuilder()
-                .command("mvn", "versions:set", "-DnewVersion=" + version)
+                .command("./mvnw", "versions:set", "-DnewVersion=" + version)
                 .inheritIO());
     }
 }
