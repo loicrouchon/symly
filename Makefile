@@ -10,6 +10,10 @@ build: build-local
 clean:
 	@$(MAVEN_WRAPPER) clean
 
+.PHONY: format
+format:
+	@$(MAVEN_WRAPPER) spotless:apply
+
 .PHONY: version
 version: $(RELEASER_JAR)
 	@$(RELEASER) releaser.Releaser version
@@ -20,8 +24,7 @@ version-check: $(RELEASER_JAR)
 
 .PHONY: check-for-versions-updates
 check-for-versions-updates:
-	@./mvnw versions:display-plugin-updates versions:display-dependency-updates
-
+	@$(MAVEN_WRAPPER) versions:display-plugin-updates versions:display-dependency-updates
 
 .PHONY: jreleaser-dry-run
 jreleaser-dry-run: build
@@ -44,11 +47,11 @@ clean-releaser:
 
 .PHONY: build-local
 build-local:
-	$(MAVEN_WRAPPER) spotless:apply clean verify
+	@$(MAVEN_WRAPPER) spotless:apply clean verify
 
 .PHONY: codegen
 codegen:
-	$(MAVEN_WRAPPER) spotless:apply clean verify -Pstandard,codegen
+	@$(MAVEN_WRAPPER) spotless:apply clean verify -Pstandard,codegen
 
 .PHONY: build-ci
 build-ci:
@@ -56,4 +59,4 @@ build-ci:
 
 .PHONY: build-all-assemblies
 build-all-assemblies:
-	$(MAVEN_WRAPPER) clean verify -Pstandard,all-assemblies
+	@$(MAVEN_WRAPPER) clean verify -Pstandard,all-assemblies

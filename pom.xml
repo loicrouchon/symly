@@ -76,45 +76,81 @@
         <!-- plugin management -->
         <pluginManagement>
             <plugins>
+                <!-- official maven plugins https://maven.apache.org/plugins/index.html -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.4.1</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
-                    <version>${maven-clean-plugin.version}</version>
+                    <version>3.3.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>${maven-resources-plugin.version}</version>
+                    <version>3.3.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${maven-compiler-plugin.version}</version>
+                    <version>3.12.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${maven-surefire-plugin.version}</version>
+                    <version>3.2.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-report-plugin</artifactId>
+                    <version>3.2.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.11</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>${maven-jar-plugin.version}</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-antrun-plugin</artifactId>
-                    <version>${maven-antrun-plugin.version}</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>${maven-assembly-plugin.version}</version>
+                    <version>3.6.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>${maven-enforcer-plugin.version}</version>
+                    <artifactId>maven-jxr-plugin</artifactId>
+                    <version>3.3.2</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>3.5.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>2.41.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>3.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.asciidoctor</groupId>
+                    <artifactId>asciidoctor-maven-plugin</artifactId>
+                    <version>2.2.4</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -127,17 +163,6 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <properties>
-                <!-- official maven plugins https://maven.apache.org/plugins/index.html -->
-                <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
-                <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-                <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-                <maven-surefire-plugin.version>3.2.3</maven-surefire-plugin.version>
-                <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-                <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-                <maven-assembly-plugin.version>3.6.0</maven-assembly-plugin.version>
-                <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -171,7 +196,8 @@
                                     <attach>false</attach>
                                     <outputDirectory>${distributions.dir}</outputDirectory>
                                     <descriptors>
-                                        <descriptor>${packaging.buildscript.dir}/${assembly-type}/assembly.xml</descriptor>
+                                        <descriptor>${packaging.buildscript.dir}/${assembly-type}/assembly.xml
+                                        </descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>
@@ -205,14 +231,6 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <properties>
-                <maven-surefire-report-plugin.version>3.2.3</maven-surefire-report-plugin.version>
-                <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
-                <maven-jxr-plugin.version>3.3.2</maven-jxr-plugin.version>
-                <!-- external maven plugins -->
-                <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
-                <spotless-maven-plugin.version>2.41.1</spotless-maven-plugin.version>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -236,7 +254,6 @@
                     <plugin>
                         <groupId>com.diffplug.spotless</groupId>
                         <artifactId>spotless-maven-plugin</artifactId>
-                        <version>${spotless-maven-plugin.version}</version>
                         <configuration>
                             <formats>
                                 <format>
@@ -288,35 +305,6 @@
                         </executions>
                     </plugin>
                 </plugins>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-project-info-reports-plugin</artifactId>
-                            <version>${maven-project-info-reports-plugin.version}</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-surefire-report-plugin</artifactId>
-                            <version>${maven-surefire-report-plugin.version}</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.jacoco</groupId>
-                            <artifactId>jacoco-maven-plugin</artifactId>
-                            <version>${jacoco-maven-plugin.version}</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>com.diffplug.spotless</groupId>
-                            <artifactId>spotless-maven-plugin</artifactId>
-                            <version>${spotless-maven-plugin.version}</version>
-                        </plugin>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-jxr-plugin</artifactId>
-                            <version>${maven-jxr-plugin.version}</version>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
             </build>
             <reporting>
                 <plugins>
@@ -383,10 +371,6 @@
         </profile>
         <profile>
             <id>codegen</id>
-            <properties>
-                <exec-maven-plugin.version>3.1.1</exec-maven-plugin.version>
-                <asciidoctor-maven-plugin.version>2.2.4</asciidoctor-maven-plugin.version>
-            </properties>
             <dependencies>
                 <dependency>
                     <groupId>info.picocli</groupId>
@@ -400,7 +384,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>${exec-maven-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>asciidoc-documentation-includes-update</id>
@@ -437,7 +420,6 @@
                     <plugin>
                         <groupId>org.asciidoctor</groupId>
                         <artifactId>asciidoctor-maven-plugin</artifactId>
-                        <version>${asciidoctor-maven-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>asciidoc-manpage-to-manpage</id>
@@ -498,7 +480,6 @@
                                     <outputDirectory>${distributions.dir}</outputDirectory>
                                     <descriptors>
                                         <descriptor>${packaging.buildscript.dir}/standalone/assembly.xml</descriptor>
-                                        <descriptor>${packaging.buildscript.dir}/debian/assembly.xml</descriptor>
                                         <descriptor>${packaging.buildscript.dir}/homebrew/assembly.xml</descriptor>
                                     </descriptors>
                                 </configuration>
