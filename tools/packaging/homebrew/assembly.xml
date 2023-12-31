@@ -13,7 +13,7 @@
             <source>${project.basedir}/LICENSE</source>
         </file>
         <file>
-            <source>${packaging.buildscript.dir}/homebrew/bin/symly</source>
+            <source>${project.basedir}/src/packaging/homebrew/bin/symly</source>
             <outputDirectory>bin</outputDirectory>
             <filtered>true</filtered>
             <fileMode>0755</fileMode>
