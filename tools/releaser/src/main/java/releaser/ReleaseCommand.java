@@ -96,7 +96,7 @@ public class ReleaseCommand {
                     .map(Version::parse)
                     .orElse(baseVersion);
             if (!Objects.equals(baseVersion, nextBaseVersion)) {
-                bumpVersion(nextBaseVersion.suffix("dev"));
+                bumpVersion(nextBaseVersion.suffix("SNAPSHOT"));
                 repo.push();
             } else {
                 io.printf("%s %s%n", pad("Using base version:"), INFO.str(nextBaseVersion));
@@ -155,7 +155,7 @@ public class ReleaseCommand {
     }
 
     private void handleNonExistingReleaseBranch(Version nextBaseVersion) {
-        Version nextVersion = nextBaseVersion.subversion("0").withoutSuffix();
+        Version nextVersion = nextBaseVersion.withoutSuffix();
         String branch = repo.releaseBranch(nextVersion);
         repo.createBranchAndSwitch(branch);
     }
