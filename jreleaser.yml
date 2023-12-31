@@ -31,7 +31,7 @@ distributions:
 
     jvm:
         artifacts:
-            -   path: target/distributions/{{projectName}}-{{projectVersion}}-standalone.zip
+            -   path: target/distributions/{{projectName}}-{{projectVersion}}-standalone.tar.gz
 
 #    deb:
 #        type: NATIVE_PACKAGE
