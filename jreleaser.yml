@@ -48,14 +48,14 @@ distributions:
         executable:
             name: symly
         artifacts:
-            -   path: target/distributions/{{projectName}}-{{projectVersion}}-homebrew.tar.gz
+            -   path: target/distributions/{{projectName}}-{{projectVersion}}-homebrew.zip
         brew:
             active: ALWAYS
             formulaName: symly
             commitAuthor:
                 name: jreleaserbot
                 email: loicrouchon+jreleaser@gmail.com
-            tap:
+            repository:
                 owner: loicrouchon
                 name: homebrew-symly
             multiPlatform: true
