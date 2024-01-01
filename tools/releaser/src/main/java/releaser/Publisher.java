@@ -27,7 +27,7 @@ public class Publisher {
             Publisher publisher = new Publisher(io, app);
             publisher.publish(
                     "https://github.com/loicrouchon/fedora-copr-symly.git",
-                    Map.of("build/distributions/symly.spec", "symly.spec"),
+                    Map.of("target/distributions/symly-%s-fedora/symly.spec".formatted(app.version()), "symly.spec"),
                     Set.of());
             publisher.publish(
                     "https://github.com/loicrouchon/symly-debian.git",

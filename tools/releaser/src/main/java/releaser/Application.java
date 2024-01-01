@@ -1,6 +1,6 @@
 package releaser;
 
-abstract class Application {
+public abstract class Application {
 
     protected String version;
 
