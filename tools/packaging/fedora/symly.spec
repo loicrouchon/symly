@@ -23,6 +23,9 @@ symbolic links.
 %setup -q -n symly-${version}
 
 %build
+ls -l /usr/lib/jvm
+java --version
+javac --version
 ant -f tools/packaging/fedora/build.xml -Dproject.version="${version}" -v
 
 %install
