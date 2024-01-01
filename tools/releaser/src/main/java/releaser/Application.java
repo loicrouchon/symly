@@ -30,8 +30,9 @@ public abstract class Application {
     }
 
     public void test() {
-        Command.exec(
-                new ProcessBuilder().command("make", "codegen", "build-local").inheritIO());
+        Command.exec(new ProcessBuilder()
+                .command("make", "codegen", "build-all-assemblies")
+                .inheritIO());
     }
 
     public static Application create() {
