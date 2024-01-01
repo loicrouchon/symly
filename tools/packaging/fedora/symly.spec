@@ -23,9 +23,11 @@ symbolic links.
 %setup -q -n symly-${version}
 
 %build
+cat /etc/fedora-release
 ls -l /usr/lib/jvm
 java --version
 javac --version
+echo "$JAVA_HOME"
 ant -f tools/packaging/fedora/build.xml -Dproject.version="${version}" -v
 
 %install
