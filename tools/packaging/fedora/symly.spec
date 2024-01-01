@@ -10,7 +10,7 @@ URL:       https://github.com/loicrouchon/symly
 Source0:   https://github.com/loicrouchon/symly/archive/refs/tags/v${version}.tar.gz
 
 BuildArch: noarch
-BuildRequires: java-latest-openjdk-devel, ant, picocli
+BuildRequires: java-17-openjdk-devel, ant, picocli
 Requires: java-latest-openjdk-headless, picocli
 
 %description
