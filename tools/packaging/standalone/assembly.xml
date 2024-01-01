@@ -13,7 +13,7 @@
             <source>${project.basedir}/LICENSE</source>
         </file>
         <file>
-            <source>${packaging.buildscript.dir}/standalone/bin/symly</source>
+            <source>src/packaging/standalone/bin/symly</source>
             <outputDirectory>bin</outputDirectory>
             <filtered>true</filtered>
             <fileMode>0755</fileMode>

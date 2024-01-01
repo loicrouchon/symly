@@ -3,7 +3,7 @@ set -e
 
 if [ -d "/usr/lib/jvm" ]; then
     JVM="/usr/lib/jvm/$(ls /usr/lib/jvm | grep -E "java-[0-9]+" | sort -V -r | head -n 1)"
-    if [ $JVM != "/usr/lib/jvm/" ]; then
+    if [ "$JVM" != "/usr/lib/jvm/" ]; then
         JAVA_HOME="$JVM"
     fi
 fi
