@@ -1,9 +1,9 @@
 // tag::picocli-generated-full-manpage[]
 // tag::picocli-generated-man-section-header[]
 :doctype: manpage
-:revnumber: Symly version 0.11.2
+:revnumber: Symly version 0.11.3
 :manmanual: Symly Manual
-:mansource: Symly version 0.11.2
+:mansource: Symly version 0.11.3
 :man-linkstyle: pass:[blue R < >]
 = symly(1)
 
