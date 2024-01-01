@@ -9,7 +9,6 @@
         </profile>
     </profiles>
     <activeProfiles>
-        <activeProfile>standard</activeProfile>
         <activeProfile>homebrew</activeProfile>
     </activeProfiles>
 </settings>
