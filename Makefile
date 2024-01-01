@@ -51,12 +51,8 @@ build-local:
 
 .PHONY: codegen
 codegen:
-	@$(MAVEN_WRAPPER) spotless:apply clean verify -Pstandard,codegen
-
-.PHONY: build-ci
-build-ci:
-	$(MAVEN_WRAPPER) clean verify -Pstandard,reporting,ci
+	@$(MAVEN_WRAPPER) spotless:apply clean verify -Pcodegen
 
 .PHONY: build-all-assemblies
 build-all-assemblies:
-	@$(MAVEN_WRAPPER) clean verify -Pstandard,all-assemblies
+	@$(MAVEN_WRAPPER) clean verify -Pall-assemblies

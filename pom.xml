@@ -71,6 +71,134 @@
                     <release>${java.version}</release>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <target>
+                                <ant antfile="${packaging.buildscript.dir}/ant/compress-manpage.xml" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.8.1</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <configuration>
+                    <formats>
+                        <format>
+                            <includes>
+                                <include>*.md</include>
+                                <include>.gitignore</include>
+                            </includes>
+                            <trimTrailingWhitespace />
+                            <endWithNewline />
+                            <indent>
+                                <tabs>true</tabs>
+                                <spacesPerTab>4</spacesPerTab>
+                            </indent>
+                        </format>
+                        <format>
+                            <includes>
+                                <include>*.xml</include>
+                                <include>src/**/*.xml</include>
+                            </includes>
+                            <trimTrailingWhitespace />
+                            <endWithNewline />
+                            <eclipseWtp>
+                                <type>XML</type>
+                                <files>
+                                    <file>
+                                        ${project.basedir}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs
+                                    </file>
+                                </files>
+                            </eclipseWtp>
+                        </format>
+                    </formats>
+                    <java>
+                        <includes>
+                            <include>src/**/*.java</include>
+                            <include>tools/releaser/src/**/*.java</include>
+                        </includes>
+                        <importOrder />
+                        <removeUnusedImports />
+                        <palantirJavaFormat />
+                        <formatAnnotations />
+                    </java>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <attach>false</attach>
+                            <outputDirectory>${distributions.dir}</outputDirectory>
+                            <descriptors>
+                                <descriptor>${packaging.buildscript.dir}/${assembly-type}/assembly.xml
+                                </descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
 
         <!-- plugin management -->
@@ -156,187 +284,39 @@
         </pluginManagement>
     </build>
 
+    <!-- reporting -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
     <profiles>
-        <profile>
-            <!-- standard profile: used to build locally and in the CI -->
-            <id>standard</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>prepare-package</phase>
-                                <configuration>
-                                    <target>
-                                        <ant antfile="${packaging.buildscript.dir}/ant/compress-manpage.xml" />
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>make-assembly</id>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <phase>package</phase>
-                                <configuration>
-                                    <attach>false</attach>
-                                    <outputDirectory>${distributions.dir}</outputDirectory>
-                                    <descriptors>
-                                        <descriptor>${packaging.buildscript.dir}/${assembly-type}/assembly.xml
-                                        </descriptor>
-                                    </descriptors>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-enforcer-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>enforce-maven</id>
-                                <goals>
-                                    <goal>enforce</goal>
-                                </goals>
-                                <configuration>
-                                    <rules>
-                                        <requireMavenVersion>
-                                            <version>3.8.1</version>
-                                        </requireMavenVersion>
-                                    </rules>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- reporting profile: used to generate reports locally and in the CI -->
-            <id>reporting</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>com.diffplug.spotless</groupId>
-                        <artifactId>spotless-maven-plugin</artifactId>
-                        <configuration>
-                            <formats>
-                                <format>
-                                    <includes>
-                                        <include>*.md</include>
-                                        <include>.gitignore</include>
-                                    </includes>
-                                    <trimTrailingWhitespace />
-                                    <endWithNewline />
-                                    <indent>
-                                        <tabs>true</tabs>
-                                        <spacesPerTab>4</spacesPerTab>
-                                    </indent>
-                                </format>
-                                <format>
-                                    <includes>
-                                        <include>*.xml</include>
-                                        <include>src/**/*.xml</include>
-                                    </includes>
-                                    <trimTrailingWhitespace />
-                                    <endWithNewline />
-                                    <eclipseWtp>
-                                        <type>XML</type>
-                                        <files>
-                                            <file>
-                                                ${project.basedir}/.metadata/.plugins/org.eclipse.core.runtime/.settings/org.eclipse.wst.xml.core.prefs
-                                            </file>
-                                        </files>
-                                    </eclipseWtp>
-                                </format>
-                            </formats>
-                            <java>
-                                <includes>
-                                    <include>src/**/*.java</include>
-                                    <include>tools/releaser/src/**/*.java</include>
-                                </includes>
-                                <importOrder />
-                                <removeUnusedImports />
-                                <palantirJavaFormat />
-                                <formatAnnotations />
-                            </java>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>check</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-            <reporting>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-report-plugin</artifactId>
-                        <reportSets>
-                            <reportSet>
-                                <reports>
-                                    <report>report</report>
-                                </reports>
-                            </reportSet>
-                        </reportSets>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-jxr-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <reportSets>
-                            <reportSet>
-                                <reports>
-                                    <report>report</report>
-                                </reports>
-                            </reportSet>
-                        </reportSets>
-                    </plugin>
-                </plugins>
-            </reporting>
-        </profile>
         <profile>
             <!-- dev profile: used to build locally -->
             <id>dev</id>
@@ -370,6 +350,9 @@
             </build>
         </profile>
         <profile>
+            <!-- codegen profile: used to update pre-generated content. pre-generated content is under source control so 
+                that the project can be built from source with minimal dependencies on additional codegen libraries which might not be available 
+                in package managers requiring air-gap builds. -->
             <id>codegen</id>
             <dependencies>
                 <dependency>
@@ -457,10 +440,6 @@
             </build>
         </profile>
         <profile>
-            <!-- ci profile: used for continuous integration -->
-            <id>ci</id>
-        </profile>
-        <profile>
             <!-- standard profile: used to build locally and in the CI -->
             <id>all-assemblies</id>
             <build>
@@ -481,6 +460,7 @@
                                     <descriptors>
                                         <descriptor>${packaging.buildscript.dir}/standalone/assembly.xml</descriptor>
                                         <descriptor>${packaging.buildscript.dir}/homebrew/assembly.xml</descriptor>
+                                        <descriptor>${packaging.buildscript.dir}/fedora/assembly.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                             </execution>
