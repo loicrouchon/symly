@@ -90,7 +90,7 @@ jobs:
                 uses: jreleaser/release-action@v2
                 with:
                     version: 1.9.0
-                    arguments: release
+                    arguments: full-release
                 env:
                     JRELEASER_PROJECT_VERSION: ${{ steps.read-version.outputs.version }}
                     JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
