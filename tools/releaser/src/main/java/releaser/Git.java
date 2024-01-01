@@ -97,7 +97,7 @@ abstract class Git {
         @Override
         public void commitAll(String message) {
             gitExec("git", "add", ".");
-            gitExec("git", "commit", "-m", message);
+            gitExec("git", "commit", "--allow-empty", "-m", message);
         }
 
         @Override
