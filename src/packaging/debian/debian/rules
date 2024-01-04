@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
-ANT=ant -f $(CURDIR)/src/packaging/debian/build.xml
-DISTRIBUTION=$(CURDIR)/build/ant/debian/distributions
+ANT=ant -f $(CURDIR)/tools/packaging/debian/build.xml -v
+DISTRIBUTION=$(CURDIR)/target/distributions/debian
 DESTDIR=$(CURDIR)/debian/symly
 
 %:

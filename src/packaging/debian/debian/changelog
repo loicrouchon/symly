@@ -1,8 +1,8 @@
-symly (0.11.1-1) mantic; urgency=low
+symly (0.11.6-2) mantic; urgency=low
 
   * Release for Mantic minotaur
 
- -- Loïc Rouchon <loic@loicrouchon.com>  Sun, 31 Dec 2023 14:26:42 +0100
+ -- Loïc Rouchon <loic@loicrouchon.com>  Thu, 04 Jan 2024 21:59:27 +0100
 
 symly (0.10.3-1) kinetic; urgency=low
 
