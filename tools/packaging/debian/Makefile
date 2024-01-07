@@ -7,15 +7,22 @@ PACKAGING_DIR=$(ROOT_DIR)/tools/packaging/debian
 build:
 	podman run -ti \
 		-v "$(HOST_ROOT_DIR):$(ROOT_DIR)" \
-		symly/debian-build-env:latest \
-		ant -v -f "$(PACKAGING_DIR)/build.xml"
+		symly/ubuntu-build-env:latest \
+		"$(PACKAGING_DIR)/build.sh" "$(VERSION)"
 
-.PHONY: build-shell
-build-shell:
+.PHONY: publish
+publish:
 	podman run -ti \
 		-v "$(HOST_ROOT_DIR):$(ROOT_DIR)" \
-		symly/debian-build-env:latest
+		symly/ubuntu-build-env:latest \
+		"$(PACKAGING_DIR)/publish.sh" "$(VERSION)"
+
+.PHONY: shell
+shell:
+	podman run -ti \
+		-v "$(HOST_ROOT_DIR):$(ROOT_DIR)" \
+		symly/ubuntu-build-env:latest
 
 .PHONY: build-env
 build-env:
-	podman build -t symly/debian-build-env:latest .
+	podman build -t symly/ubuntu-build-env:latest .
