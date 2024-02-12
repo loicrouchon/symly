@@ -7,7 +7,6 @@ else
     JAVA_CMD="java"
 fi
 
-JAVA_CMD="$JAVA_HOME/bin/java"
 lib_dir="$(dirname "$(realpath "$0")")/../libexec/lib/"
 exec "$JAVA_CMD" \
     --class-path "$lib_dir/*" \
