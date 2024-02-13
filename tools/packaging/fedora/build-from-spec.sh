@@ -33,7 +33,6 @@ rm -rf ~/rpmbuild
 rpmdev-setuptree
 
 sed "s/\${version}/$VERSION/" < "$ROOT_DIR/tools/packaging/fedora/symly.spec" > $SPEC
-#cat "$ROOT_DIR/src/jreleaser/distributions/rpm-spec/symly.spec" | sed "s/\${version}/$VERSION/" > $SPEC
 cp "$ROOT_DIR/.wip/symly-${VERSION}.tar.gz" "rpmbuild/SOURCES/v${VERSION}.tar.gz"
 
 rm -rf /workspace/.wip/rpmbuild/

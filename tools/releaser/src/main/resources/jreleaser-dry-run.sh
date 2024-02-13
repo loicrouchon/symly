@@ -15,12 +15,12 @@ echo "Performing build verification"
 rm -rf "out"
 
 echo "Performing jreleaser releasing verification"
-jreleaser assemble
-jreleaser sign
-jreleaser package
-jreleaser changelog
+./mvnw -Pjreleaser jreleaser:assemble
+./mvnw -Pjreleaser jreleaser:sign
+./mvnw -Pjreleaser jreleaser:package
+./mvnw -Pjreleaser jreleaser:changelog
 
 echo "Changelog"
-CHANGELOG=out/jreleaser/release/CHANGELOG.md
+CHANGELOG=target/jreleaser/release/CHANGELOG.md
 
 cat ${CHANGELOG}

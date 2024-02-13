@@ -87,23 +87,20 @@ jobs:
                 run: ./mvnw --batch-mode verify -Pall-assemblies
 
             -   name: Run JReleaser
-                uses: jreleaser/release-action@v2
-                with:
-                    version: 1.9.0
-                    arguments: full-release
                 env:
                     JRELEASER_PROJECT_VERSION: ${{ steps.read-version.outputs.version }}
                     JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
+                run: ./mvnw -Pjreleaser jreleaser:full-release
             -   name: JReleaser release output
                 if: always()
                 uses: actions/upload-artifact@v4
                 with:
                     name: jreleaser-release
                     path: |
-                        out/jreleaser/output.properties
-                        out/jreleaser/trace.log
-                        out/jreleaser/release/CHANGELOG.md
+                        target/jreleaser/output.properties
+                        target/jreleaser/trace.log
+                        target/jreleaser/release/CHANGELOG.md
 
             -   id: publish
                 env:
