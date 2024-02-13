@@ -21,6 +21,6 @@ echo "Performing jreleaser releasing verification"
 ./mvnw -Pjreleaser jreleaser:changelog
 
 echo "Changelog"
-CHANGELOG=out/jreleaser/release/CHANGELOG.md
+CHANGELOG=target/jreleaser/release/CHANGELOG.md
 
 cat ${CHANGELOG}

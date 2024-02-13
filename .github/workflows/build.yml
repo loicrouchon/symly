@@ -98,9 +98,9 @@ jobs:
                 with:
                     name: jreleaser-release
                     path: |
-                        out/jreleaser/output.properties
-                        out/jreleaser/trace.log
-                        out/jreleaser/release/CHANGELOG.md
+                        target/jreleaser/output.properties
+                        target/jreleaser/trace.log
+                        target/jreleaser/release/CHANGELOG.md
 
             -   id: publish
                 env:
