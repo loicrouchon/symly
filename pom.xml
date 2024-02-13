@@ -481,6 +481,9 @@
                     <plugin>
                         <groupId>org.jreleaser</groupId>
                         <artifactId>jreleaser-maven-plugin</artifactId>
+                        <configuration>
+                            <configFile>${project.basedir}/jreleaser.yml</configFile>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

@@ -91,7 +91,7 @@ jobs:
                     JRELEASER_PROJECT_VERSION: ${{ steps.read-version.outputs.version }}
                     JRELEASER_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                     JRELEASER_HOMEBREW_GITHUB_TOKEN: ${{ secrets.SYMLY_PUBLISH_REPOS_TOKEN }}
-                run: ./mvnw jreleaser:full-release
+                run: ./mvnw -Pjreleaser jreleaser:full-release
             -   name: JReleaser release output
                 if: always()
                 uses: actions/upload-artifact@v4
