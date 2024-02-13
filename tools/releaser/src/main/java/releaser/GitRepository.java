@@ -4,8 +4,11 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 class GitRepository {
+
+    private static final Pattern VERSION_TAG_PATTERN = Pattern.compile("^v[0-9]+(:?\\.[0-9]+)*$");
 
     private final Git git;
     protected final BranchingModel branchingModel;
@@ -121,6 +124,7 @@ class GitRepository {
 
     public Optional<Version> latestTaggedVersionForBaseVersion(Version baseVersion) {
         return tags(baseVersion).stream()
+                .filter(tag -> VERSION_TAG_PATTERN.matcher(tag).matches())
                 .map(tag -> tag.replaceFirst("^v", ""))
                 .max(Version::compare)
                 .map(Version::parse);
