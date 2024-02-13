@@ -32,10 +32,11 @@ public class Releaser {
                 .readChoice(
                         List.of(new Choice("1", "Real release%n"), new Choice("2", "Dry-run release%n")),
                         "Perform a real release?%n");
-        if (!Objects.equals(performRealRelease, "1")) {
+        boolean dryRun = !Objects.equals(performRealRelease, "1");
+        if (dryRun) {
             context.enableDryRun();
         }
-        new ReleaseCommand(context.io(), context.gitRepository(), context.application()).release();
+        new ReleaseCommand(context.io(), context.gitRepository(), context.application(), dryRun).release();
     }
 }
 

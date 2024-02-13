@@ -12,11 +12,13 @@ public class ReleaseCommand {
     private final IO io;
     private final GitRepository repo;
     private final Application application;
+    private final boolean dryRun;
 
-    public ReleaseCommand(IO io, GitRepository repo, Application application) {
+    public ReleaseCommand(IO io, GitRepository repo, Application application, boolean dryRun) {
         this.io = io;
         this.repo = repo;
         this.application = application;
+        this.dryRun = dryRun;
     }
 
     private String pad(String message) {
@@ -44,11 +46,19 @@ public class ReleaseCommand {
         io.printf("%s %s%n", pad("Branch type:"), INFO.str(branchType));
         if (repo.isMainBranch()) {
             if (!Objects.equals(repo.headOfLocalBranch(), repo.headOfRemoteBranch())) {
-                throw new ReleaseException(
-                        """
-                    Release from the main branch can only be triggered if the main branch commits \
-                    have been sync with the remote.
-                    Please pull and push to the remote first.""");
+                if (!dryRun) {
+                    throw new ReleaseException(
+                            """
+                            Release from the main branch can only be triggered if the main branch commits \
+                            have been sync with the remote.
+                            Please pull and push from/to the remote first.""");
+                } else {
+                    io.printf(
+                            GRAY.str(
+                                    """
+                Local and remote repo are not in sync. \
+                Don't forget to pull and push from/to the remote before doing a real release.%n"""));
+                }
             }
         } else if (!repo.isReleaseBranch()) {
             throw new ReleaseException(
