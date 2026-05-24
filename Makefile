@@ -49,6 +49,10 @@ clean-releaser:
 build-local:
 	@$(MAVEN_WRAPPER) spotless:apply clean verify
 
+.PHONY: integration-tests
+integration-tests: build-local
+	@$(MAVEN_WRAPPER) test -Dsymly.testing.opaque-testing=true
+
 .PHONY: codegen
 codegen:
 	@$(MAVEN_WRAPPER) spotless:apply clean verify -Pcodegen
