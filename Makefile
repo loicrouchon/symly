@@ -51,7 +51,7 @@ build-local:
 
 .PHONY: integration-tests
 integration-tests: build-local
-	@$(MAVEN_WRAPPER) test -Dsymly.testing.opaque-testing=true
+	@$(MAVEN_WRAPPER) test -Dsymly.testing.opaque-testing=true -Dsymly.runtime.classpath="target/symly-0.11-SNAPSHOT.jar:$(shell $(MAVEN_WRAPPER) dependency:build-classpath -DincludeScope=runtime -Dmdep.outputFile=/dev/stdout -q)"
 
 .PHONY: codegen
 codegen:
