@@ -65,14 +65,12 @@ public record Execution(
         public OutputAssert succeed() {
             OutputAssert outputAssert = assertExitCodeIs(SUCCESS);
             assertThat(execution.stdErr())
-                    .withFailMessage(
-                            """
+                    .withFailMessage("""
                         Expected no messages on stderr but got:
                         %s
                         stdout was:
                         %s
-                        """,
-                            lines(execution.stdErr()), lines(execution.stdOut()))
+                        """, lines(execution.stdErr()), lines(execution.stdOut()))
                     .isEmpty();
             return outputAssert;
         }

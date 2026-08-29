@@ -161,8 +161,7 @@ public class Assertions {
         %s
 
         Not to be found in:
-        %s"""
-                        .formatted(element, value));
+        %s""".formatted(element, value));
             }
             return this;
         }
@@ -170,19 +169,15 @@ public class Assertions {
         private void containsAll(Collection<? extends T> a, Collection<? extends T> b) {
             for (T element : b) {
                 if (!a.contains(element)) {
-                    failWithMessage(
-                            """
+                    failWithMessage("""
         Element:
         \t - %s
 
         Not found in collection:
         %s
-        """
-                                    .formatted(
-                                            element,
-                                            a.stream()
-                                                    .map(Objects::toString)
-                                                    .collect(Collectors.joining("\n\t - ", "\t - ", ""))));
+        """.formatted(
+                            element,
+                            a.stream().map(Objects::toString).collect(Collectors.joining("\n\t - ", "\t - ", ""))));
                 }
             }
         }
@@ -227,12 +222,10 @@ public class Assertions {
                 if (cls.isInstance(t)) {
                     return new ThrowableContainer<>(cls.cast(t));
                 } else {
-                    fail(
-                            """
+                    fail("""
                     Expected a throwable of type %s to be thrown, but %s was thrown instead:
 
-                    %s"""
-                                    .formatted(cls, t.getClass(), t));
+                    %s""".formatted(cls, t.getClass(), t));
                 }
             }
             fail("Expected a throwable of type %s to be thrown, but nothing was thrown".formatted(cls));
@@ -255,14 +248,12 @@ public class Assertions {
         public ThrowableContainer<T> hasMessageStartingWith(String message) {
             String actualMessage = value.getMessage();
             if (!actualMessage.startsWith(message)) {
-                failWithMessage(
-                        """
+                failWithMessage("""
                     Expected message:
                     %s
 
                     to start with:
-                    %s"""
-                                .formatted(actualMessage, message));
+                    %s""".formatted(actualMessage, message));
             }
             return this;
         }

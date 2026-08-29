@@ -47,27 +47,22 @@ public class ReleaseCommand {
         if (repo.isMainBranch()) {
             if (!Objects.equals(repo.headOfLocalBranch(), repo.headOfRemoteBranch())) {
                 if (!dryRun) {
-                    throw new ReleaseException(
-                            """
+                    throw new ReleaseException("""
                             Release from the main branch can only be triggered if the main branch commits \
                             have been sync with the remote.
                             Please pull and push from/to the remote first.""");
                 } else {
-                    io.printf(
-                            GRAY.str(
-                                    """
+                    io.printf(GRAY.str("""
                 Local and remote repo are not in sync. \
                 Don't forget to pull and push from/to the remote before doing a real release.%n"""));
                 }
             }
         } else if (!repo.isReleaseBranch()) {
-            throw new ReleaseException(
-                    """
+            throw new ReleaseException("""
             Release can only be triggered from the main branch or from a release branch.
             Current branch is %s
             Use:
-                git switch %s"""
-                            .formatted(repo.currentBranch(), repo.mainBranch()));
+                git switch %s""".formatted(repo.currentBranch(), repo.mainBranch()));
         }
         checkForUncommittedChanges();
     }
@@ -86,11 +81,9 @@ public class ReleaseCommand {
                         %s%n""",
                     COMMENT.str(status.stdOutAsString()));
             if (!Objects.equals(choice, "y")) {
-                throw new ReleaseException(
-                        """
+                throw new ReleaseException("""
                 There are uncommitted changes, commit them before releasing:
-                %s"""
-                                .formatted(status.stdOutAsString()));
+                %s""".formatted(status.stdOutAsString()));
             }
         }
     }
@@ -118,13 +111,11 @@ public class ReleaseCommand {
         } else if (repo.isReleaseBranch()) {
             performReleaseFromReleaseBranch();
         } else {
-            throw new ReleaseException(
-                    """
+            throw new ReleaseException("""
         Release can only be triggered from the main branch or from a release branch.
         Current branch is %s
         Use:
-            git switch %s"""
-                            .formatted(repo.currentBranch(), repo.mainBranch()));
+            git switch %s""".formatted(repo.currentBranch(), repo.mainBranch()));
         }
     }
 

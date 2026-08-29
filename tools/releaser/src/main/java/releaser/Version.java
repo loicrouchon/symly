@@ -43,11 +43,9 @@ public record Version(String version, String suffix) {
     public static Version parse(String fullVersion) {
         fullVersion = fullVersion.trim();
         if (!VERSION_PATTERN.matcher(fullVersion).matches()) {
-            throw new ReleaseException(
-                    """
+            throw new ReleaseException("""
                     Invalid version number: %s
-                    Version numbers must follow the following pattern: %s"""
-                            .formatted(fullVersion, VERSION_PATTERN.pattern()));
+                    Version numbers must follow the following pattern: %s""".formatted(fullVersion, VERSION_PATTERN.pattern()));
         }
         int suffixIndex = fullVersion.indexOf(SUFFIX_SEPARATOR);
         if (suffixIndex >= 0) {

@@ -87,9 +87,10 @@ public record LinkState(MainDirectory mainDirectory, Path source, Entry currentS
     public List<Action> toActions(FileSystemReader fsReader, boolean force) {
         return switch (type()) {
             case UP_TO_DATE -> List.of(Action.upToDate(desired()));
-            case LINK_CONFLICT -> List.of(
-                    Action.deleteLink(new Link(source, ((Entry.LinkEntry) currentState).target())),
-                    Action.create(desired()));
+            case LINK_CONFLICT ->
+                List.of(
+                        Action.deleteLink(new Link(source, ((Entry.LinkEntry) currentState).target())),
+                        Action.create(desired()));
             case FILE_CONFLICT -> resolveConflict(fsReader, force);
             case MISSING -> List.of(Action.create(desired()));
             case ORPHAN -> List.of(Action.deleteLink(new Link(source, ((Entry.LinkEntry) currentState).target())));

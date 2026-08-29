@@ -10,8 +10,7 @@ import picocli.CommandLine.Spec;
 
 @Command(
         name = "symly",
-        description =
-                """
+        description = """
             Symly creates, updates and removes links allowing for \
             centralized management of sparse file-trees.""",
         versionProvider = VersionProvider.class,

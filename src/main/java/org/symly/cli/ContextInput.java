@@ -24,8 +24,7 @@ public class ContextInput {
     @Option(
             names = {"-d", "--dir", "--directory"},
             paramLabel = "<main-directory>",
-            description =
-                    """
+            description = """
     Main directory in which links will be created. \
     If not given as a command line argument, symly will look for the 'directory' property \
     in the symly.config file present in the current working directory""")
@@ -34,8 +33,7 @@ public class ContextInput {
     @Option(
             names = {"-r", "--repositories"},
             paramLabel = "<repositories>",
-            description =
-                    """
+            description = """
         Repositories containing files to link in the main directory. \
         Repositories are to be listed by decreasing priority as the first ones will \
         override the content of the later ones. \
@@ -47,8 +45,7 @@ public class ContextInput {
     @Option(
             names = {"--max-depth"},
             paramLabel = "<max-depth>",
-            description =
-                    """
+            description = """
             Depth of the lookup for orphans deletion.\
             If not given as a command line argument, symly will look for the 'orphans.max-depth.search' property \
             in the symly.config file present in the current working directory. \

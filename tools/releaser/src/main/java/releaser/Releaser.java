@@ -101,8 +101,7 @@ class Cmd {
     }
 
     private static ReleaseException usage() {
-        return new ReleaseException(
-                """
+        return new ReleaseException("""
 Usage: releaser [MODE] [-d|--dry-run]
   - MODE: release|check
      * check: runs basic checks (branch type/version number consistency)

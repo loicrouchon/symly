@@ -78,8 +78,7 @@ class StatusCommandTest extends IntegrationTest {
     @Test
     void shouldParseArguments_whenArgumentsArePassed() {
         // given
-        given(env)
-                .withLayout("""
+        given(env).withLayout("""
             D main/dir
             D to/dir
             D to/other-dir

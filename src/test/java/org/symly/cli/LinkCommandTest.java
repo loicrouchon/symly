@@ -81,8 +81,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldParseArguments_whenArgumentsArePassed() {
         // given
-        given(env)
-                .withLayout("""
+        given(env).withLayout("""
             D main/dir
             D to/dir
             D to/other-dir
@@ -98,9 +97,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkFile_whenTargetFileDoesNotExist() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             F home/user/to/dir/file
             F home/user/to/dir/nested/file
             """);
@@ -110,9 +107,7 @@ class LinkCommandTest extends IntegrationTest {
                 .succeed()
                 .withMessage(msg.linkActionCreate("file", "home/user/to/dir/file"))
                 .withMessage(msg.linkActionCreate("nested/file", "home/user/to/dir/nested/file"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
                 +L home/user/file -> home/user/to/dir/file
                 +L home/user/nested/file -> home/user/to/dir/nested/file
                 """));
@@ -121,9 +116,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldLinkLink_whenTargetLinkDoesNotExist() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/to/dir/link -> opt/file
             L home/user/to/dir/nested/link -> opt/file
             F opt/file
@@ -134,9 +127,7 @@ class LinkCommandTest extends IntegrationTest {
                 .succeed()
                 .withMessage(msg.linkActionCreate("link", "home/user/to/dir/link"))
                 .withMessage(msg.linkActionCreate("nested/link", "home/user/to/dir/nested/link"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
                 +L home/user/link -> home/user/to/dir/link
                 +L home/user/nested/link -> home/user/to/dir/nested/link
                 """));
@@ -200,9 +191,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldUpdateLink_whenTargetIsAnExistingLink() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/file -> home/user/other-file
             F home/user/to/dir/file
             """);
@@ -211,9 +200,7 @@ class LinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessages(msg.linkActionUpdate("file", "home/user/to/dir/file", "home/user/other-file"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
                 +L home/user/file -> home/user/to/dir/file
                 -L home/user/file -> home/user/other-file
                 """));
@@ -222,9 +209,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldNotUpdateLinkFile_whenLinkIsAlreadyUpToDate() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/file -> home/user/to/dir/file
             F home/user/to/dir/file
             """);
@@ -250,9 +235,7 @@ class LinkCommandTest extends IntegrationTest {
                 .succeed()
                 .withMessages(
                         List.of(msg.linkActionDelete("file"), msg.linkActionCreate("file", "home/user/to/dir/file")))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
                 -F home/user/file
                 +L home/user/file -> home/user/to/dir/file
                 """));
@@ -261,9 +244,7 @@ class LinkCommandTest extends IntegrationTest {
     @Test
     void shouldReplaceFile_whenTarget_isAnExistingDirectory_andForceOption_isPassed() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             D home/user/file
             F home/user/file/dir/this-is-a-file
             F home/user/file/parent-is-a-dir
@@ -278,9 +259,7 @@ class LinkCommandTest extends IntegrationTest {
                         msg.linkActionDelete("file/dir/this-is-a-file"),
                         msg.linkActionDelete("file"),
                         msg.linkActionCreate("file", "home/user/to/dir/file")))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
                 -F home/user/file/dir/this-is-a-file
                 -F home/user/file/parent-is-a-dir
                 +L home/user/file -> home/user/to/dir/file

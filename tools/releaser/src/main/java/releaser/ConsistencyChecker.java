@@ -24,21 +24,17 @@ public class ConsistencyChecker {
     private static void checkVersionBranchConsistency(Pattern versionPattern, Version version, String branchType) {
         String versionStr = version.toString();
         if (!versionPattern.matcher(versionStr).matches()) {
-            throw new ReleaseException(
-                    """
+            throw new ReleaseException("""
                     Invalid version number for %s branch %s.
-                    Version numbers must follow pattern %s"""
-                            .formatted(branchType, versionStr, versionPattern.pattern()));
+                    Version numbers must follow pattern %s""".formatted(branchType, versionStr, versionPattern.pattern()));
         }
     }
 
     private void ensureVersionDoesNotAlreadyExist(Version version, Version tag) {
         if (Version.compare(version, tag) < 0) {
-            throw new ReleaseException(
-                    """
+            throw new ReleaseException("""
                 Invalid release version %s
-                Next release version should be greater than the latest released tag (%s)"""
-                            .formatted(version, tag));
+                Next release version should be greater than the latest released tag (%s)""".formatted(version, tag));
         }
     }
 }

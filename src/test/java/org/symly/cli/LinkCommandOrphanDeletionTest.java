@@ -32,9 +32,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldNotDelete_linksNotBeingOrphans() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/file -> to/dir/file
             D to/dir
             F to/dir/file
@@ -50,8 +48,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldIgnoreOrphans_notBelonging_toARepository() {
         // given
-        given(env)
-                .withLayout("""
+        given(env).withLayout("""
             L home/user/file -> to/otherdir/file
             D to/dir
             """);
@@ -82,9 +79,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundAtRoot_level1() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/level1/file -> to/dir/level1/file
             D to/dir
             """);
@@ -99,9 +94,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldNotDeleteOrphan_whenOrphanFile_isFoundAtRoot_level2() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/level1/level2/file -> to/dir/level1/level2/file
             D to/dir
             """);
@@ -117,9 +110,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundAtRoot_level2_withIncreased_lookupMaxDepth() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/level1/level2/file -> to/dir/level1/level2/file
             D to/dir
             """);
@@ -134,9 +125,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundInSubDirectory_level0() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/sub/dir/file -> to/dir/sub/dir/file
             D to/dir/sub/dir
             """);
@@ -151,9 +140,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundInSubDirectory_level1() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/sub/dir/level1/file -> to/dir/sub/dir/level1/file
             D to/dir/sub/dir
             """);
@@ -168,9 +155,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldNotDeleteOrphan_whenOrphanFile_isFoundInSubDirectory_level2() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/sub/dir/level1/level2/file -> to/dir/sub/dir/level1/level2/file
             D to/dir/sub/dir
             """);
@@ -187,9 +172,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_isFoundInSubDirectory_level2_withIncreased_lookupMaxDepth() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/sub/dir/level1/level2/file -> to/dir/sub/dir/level1/level2/file
             D to/dir/sub/dir
             """);
@@ -205,9 +188,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_parentDirectoryIsASymlink() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/dir -> outside
             D outside
             L outside/existingfile -> to-dir/dir/existingfile
@@ -227,9 +208,7 @@ class LinkCommandOrphanDeletionTest extends IntegrationTest {
     @Test
     void shouldDeleteOrphan_whenOrphanFile_oneParentDirectoryInHierarchyIsASymlink() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/sub -> outside
             D outside
             L outside/dir/existingfile    -> to-dir/sub/dir/existingfile

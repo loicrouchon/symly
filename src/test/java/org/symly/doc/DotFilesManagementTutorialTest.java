@@ -26,8 +26,7 @@ class DotFilesManagementTutorialTest extends IntegrationTest {
         given(env)
                 .withHome("home/user/")
                 .withWorkingDir(mydotfilesPath.toString())
-                .withLayout(
-                        """
+                .withLayout("""
                     F home/user/mydotfiles/.bashrc
                     F home/user/mydotfiles/.config/starship.toml
                     F home/user/mydotfiles/.gitconfig
@@ -41,10 +40,7 @@ class DotFilesManagementTutorialTest extends IntegrationTest {
 
         updatedRepoLink(mydotfilesPath);
 
-        given(env)
-                .withFileContent(
-                        "home/user/mydotfiles/symly.config",
-                        """
+        given(env).withFileContent("home/user/mydotfiles/symly.config", """
                 directory = ~
                 repositories = .
                 """);
@@ -55,16 +51,13 @@ class DotFilesManagementTutorialTest extends IntegrationTest {
                 .deleteFile("home/user/mydotfiles/.config/fish/config.fish")
                 .deleteFile("home/user/mydotfiles/.config/starship.toml")
                 .deleteFile("home/user/mydotfiles/.gitconfig")
-                .withLayout(
-                        """
+                .withLayout("""
                 F home/user/mydotfiles/defaults/.config/fish/config.fish
                 F home/user/mydotfiles/defaults/.config/starship.toml
                 F home/user/mydotfiles/defaults/.gitconfig
                 D home/user/mydotfiles/work
                 """)
-                .withFileContent(
-                        "home/user/mydotfiles/symly.config",
-                        """
+                .withFileContent("home/user/mydotfiles/symly.config", """
         directory = ~
         repositories = defaults, work
         """);
@@ -83,9 +76,7 @@ class DotFilesManagementTutorialTest extends IntegrationTest {
                 .withMessage(linkMsgs.linkActionCreate(
                         ".config/starship.toml", "home/user/mydotfiles/.config/starship.toml"))
                 .withMessage(linkMsgs.linkActionCreate(".gitconfig", "home/user/mydotfiles/.gitconfig"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
 +L home/user/.bashrc -> home/user/mydotfiles/.bashrc
 +L home/user/.config/starship.toml -> home/user/mydotfiles/.config/starship.toml
 +L home/user/.gitconfig -> home/user/mydotfiles/.gitconfig
@@ -109,9 +100,7 @@ class DotFilesManagementTutorialTest extends IntegrationTest {
                 .withMessage(linkMsgs.linkActionDelete(".bashrc", "home/user/mydotfiles/.bashrc"))
                 .withMessage(linkMsgs.linkActionCreate(
                         ".config/fish/config.fish", "home/user/mydotfiles/.config/fish/config.fish"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
 -L home/user/.bashrc -> home/user/mydotfiles/.bashrc
 +L home/user/.config/fish/config.fish -> home/user/mydotfiles/.config/fish/config.fish
 """))

@@ -50,10 +50,7 @@ class DocTest extends IntegrationTest {
     @Test
     void displayLinkBasicExample() {
         // given
-        given(env)
-                .withWorkingDir("home/user")
-                .withLayout(
-                        """
+        given(env).withWorkingDir("home/user").withLayout("""
     F home/user/repository/.config/fish/config.fish
     F home/user/repository/.config/starship.toml
     F home/user/repository/.bashrc
@@ -69,9 +66,7 @@ class DocTest extends IntegrationTest {
                         ".config/starship.toml", "home/user/repository/.config/starship.toml"))
                 .withMessage(linkMsgs.linkActionCreate(".bashrc", "home/user/repository/.bashrc"))
                 .withMessage(linkMsgs.linkActionCreate(".gitconfig", "home/user/repository/.gitconfig"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
     +L home/user/.config/fish/config.fish -> home/user/repository/.config/fish/config.fish
     +L home/user/.config/starship.toml -> home/user/repository/.config/starship.toml
     +L home/user/.bashrc -> home/user/repository/.bashrc
@@ -85,10 +80,7 @@ class DocTest extends IntegrationTest {
     @Test
     void displayLinkMultipleRepositoriesExample() {
         // given
-        given(env)
-                .withWorkingDir("home/user")
-                .withLayout(
-                        """
+        given(env).withWorkingDir("home/user").withLayout("""
 F home/user/repositories/custom/.bashrc
 F home/user/repositories/defaults/.config/starship.toml
 F home/user/repositories/defaults/.gitconfig
@@ -102,9 +94,7 @@ F home/user/repositories/defaults/.gitconfig
                         ".config/starship.toml", "home/user/repositories/defaults/.config/starship.toml"))
                 .withMessage(linkMsgs.linkActionCreate(".bashrc", "home/user/repositories/custom/.bashrc"))
                 .withMessage(linkMsgs.linkActionCreate(".gitconfig", "home/user/repositories/defaults/.gitconfig"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
 +L home/user/.config/starship.toml -> home/user/repositories/defaults/.config/starship.toml
 +L home/user/.bashrc -> home/user/repositories/custom/.bashrc
 +L home/user/.gitconfig -> home/user/repositories/defaults/.gitconfig
@@ -124,9 +114,7 @@ F home/user/repositories/defaults/.gitconfig
                 .succeed()
                 .withMessage(linkMsgs.linkActionDelete(".gitconfig", "home/user/repositories/defaults/.gitconfig"))
                 .withMessage(linkMsgs.linkActionCreate(".gitconfig", "home/user/repositories/custom/.gitconfig"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
 -L home/user/.gitconfig -> home/user/repositories/defaults/.gitconfig
 +L home/user/.gitconfig -> home/user/repositories/custom/.gitconfig
 """))
@@ -144,10 +132,7 @@ F home/user/repositories/defaults/.gitconfig
     @Test
     void displayLinkDirectoryLinkingExample() {
         // given
-        given(env)
-                .withWorkingDir("home/user")
-                .withLayout(
-                        """
+        given(env).withWorkingDir("home/user").withLayout("""
 F home/user/repository/.config/fish/config.fish
 F home/user/repository/.config/fish/.symlink
 """);
@@ -156,8 +141,7 @@ F home/user/repository/.config/fish/.symlink
                 .thenItShould()
                 .succeed()
                 .withMessage(linkMsgs.linkActionCreate(".config/fish", "home/user/repository/.config/fish"))
-                .withFileTreeDiff(
-                        Diff.ofChanges("""
+                .withFileTreeDiff(Diff.ofChanges("""
 +L home/user/.config/fish -> home/user/repository/.config/fish
 """))
                 .executionReport();
@@ -181,10 +165,7 @@ F home/user/repository/.config/fish/.symlink
     @Test
     void displayStatusBasicExample() {
         // given
-        given(env)
-                .withWorkingDir("home/user")
-                .withLayout(
-                        """
+        given(env).withWorkingDir("home/user").withLayout("""
 L home/user/.gitconfig -> home/user/repository/.gitconfig
 L home/user/.zshrc -> home/user/repository/.zshrc
 F home/user/repository/.bashrc
@@ -217,10 +198,7 @@ F home/user/repository/.gitconfig
     @Test
     void displayUnlinkBasicExample() {
         // given
-        given(env)
-                .withWorkingDir("home/user")
-                .withLayout(
-                        """
+        given(env).withWorkingDir("home/user").withLayout("""
 L home/user/.gitconfig -> home/user/repository/.gitconfig
 L home/user/.zshrc -> home/user/repository/.zshrc
 F home/user/repository/.bashrc

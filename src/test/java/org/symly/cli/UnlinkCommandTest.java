@@ -82,8 +82,7 @@ class UnlinkCommandTest extends IntegrationTest {
     @Test
     void shouldParseArguments_whenArgumentsArePassed() {
         // given
-        given(env)
-                .withLayout("""
+        given(env).withLayout("""
             D main/dir
             D to/dir
             D to/other-dir
@@ -99,9 +98,7 @@ class UnlinkCommandTest extends IntegrationTest {
     @Test
     void shouldIgnoreSimpleFiles() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             F home/user/file
             F home/user/other-file
             F home/user/nested/file
@@ -118,9 +115,7 @@ class UnlinkCommandTest extends IntegrationTest {
     @Test
     void shouldIgnoreLinks_whenLinkTargetNotInRepository() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/file -> non-repo/file
             L home/user/nested/file -> non-repo/nested/file
             F non-repo/file
@@ -137,9 +132,7 @@ class UnlinkCommandTest extends IntegrationTest {
     @Test
     void shouldUnlink_whenLinkTarget_pointsToRepository_andIsAnExistingFile() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/file -> to-dir/file
             L home/user/nested/file -> to-dir/nested/file
             F to-dir/file
@@ -151,9 +144,7 @@ class UnlinkCommandTest extends IntegrationTest {
                 .succeed()
                 .withMessage(msg.actionUnlink("file", "to-dir/file"))
                 .withMessage(msg.actionUnlink("nested/file", "to-dir/nested/file"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
                 -L home/user/file -> to-dir/file
                 -L home/user/nested/file -> to-dir/nested/file
                 """));
@@ -162,9 +153,7 @@ class UnlinkCommandTest extends IntegrationTest {
     @Test
     void shouldUnlink_whenLinkTarget_pointsToRepository_andIsAnExistingDirectory() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/some-dir -> to-dir/some-dir
             L home/user/nested/some-dir -> to-dir/nested/some-dir
             D to-dir/some-dir
@@ -176,9 +165,7 @@ class UnlinkCommandTest extends IntegrationTest {
                 .succeed()
                 .withMessage(msg.actionUnlink("some-dir", "to-dir/some-dir"))
                 .withMessage(msg.actionUnlink("nested/some-dir", "to-dir/nested/some-dir"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
                 -L home/user/some-dir -> to-dir/some-dir
                 -L home/user/nested/some-dir -> to-dir/nested/some-dir
                 """));
@@ -187,9 +174,7 @@ class UnlinkCommandTest extends IntegrationTest {
     @Test
     void shouldUnlink_whenLinkTarget_pointsToRepository_evenIfTargetDoesNotExist() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/some/file -> to-dir/some/file
             D to-dir
             """);
@@ -198,8 +183,7 @@ class UnlinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.actionUnlink("some/file", "to-dir/some/file"))
-                .withFileTreeDiff(Diff.ofChanges(
-                        """
+                .withFileTreeDiff(Diff.ofChanges("""
                 -L home/user/some/file -> to-dir/some/file
                 """));
     }
@@ -207,9 +191,7 @@ class UnlinkCommandTest extends IntegrationTest {
     @Test
     void shouldNotUnlink_whenLinkTarget_pointsToRepository_butNestingLevelIsHigherThanMaxDepthLookup() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/some/nested/file -> to-dir/some/nested/file
             D to-dir
             """);
@@ -223,9 +205,7 @@ class UnlinkCommandTest extends IntegrationTest {
     @Test
     void shouldUnlink_whenLinkTarget_pointsToRepository_withExtendedMaxDepthLookup() {
         // given
-        given(env)
-                .withLayout(
-                        """
+        given(env).withLayout("""
             L home/user/some/nested/file -> to-dir/some/nested/file
             D to-dir
             """);
@@ -234,9 +214,7 @@ class UnlinkCommandTest extends IntegrationTest {
                 .thenItShould()
                 .succeed()
                 .withMessage(msg.actionUnlink("some/nested/file", "to-dir/some/nested/file"))
-                .withFileTreeDiff(
-                        Diff.ofChanges(
-                                """
+                .withFileTreeDiff(Diff.ofChanges("""
                 -L home/user/some/nested/file -> to-dir/some/nested/file
                 """));
     }

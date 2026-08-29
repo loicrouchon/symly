@@ -15,11 +15,9 @@ public record Command(List<String> command, int exitCode, List<String> stdout) {
 
     public Command throwIfFailed() {
         if (!successful()) {
-            throw new IllegalStateException(
-                    """
+            throw new IllegalStateException("""
                 Command %s failed with exit code %d
-                %s"""
-                            .formatted(command, exitCode, stdOutAsString()));
+                %s""".formatted(command, exitCode, stdOutAsString()));
         }
         return this;
     }

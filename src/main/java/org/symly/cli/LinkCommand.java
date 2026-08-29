@@ -15,8 +15,7 @@ import picocli.CommandLine.Option;
 @Command(
         name = "link",
         aliases = {"ln"},
-        description =
-                """
+        description = """
             Create/update/delete links from 'directory' to the 'repositories'.
 
             Repositories should be specified with base layers first and overriding layers next. \
@@ -125,8 +124,9 @@ class LinkCommand implements Runnable {
                 switch (error.state()) {
                     case INVALID_SOURCE -> "Source %s does not exist".formatted(action.path());
                     case INVALID_DESTINATION -> "Destination %s does not exist".formatted(linkState.desiredTarget());
-                    case CONFLICT -> "Regular file %s already exist. To overwrite it, use the -f (--force) option."
-                            .formatted(action.path());
+                    case CONFLICT ->
+                        "Regular file %s already exist. To overwrite it, use the -f (--force) option."
+                                .formatted(action.path());
                     case ERROR -> "An error occurred during linkage: - %s".formatted(error.details());
                 };
         if (dryRun) {

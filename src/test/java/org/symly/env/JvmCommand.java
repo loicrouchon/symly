@@ -19,8 +19,7 @@ public class JvmCommand {
     private static final long TIMEOUT = 5L;
 
     private static final String JAVA_BINARY = "%s/bin/java".formatted(System.getProperty("java.home"));
-    private static final List<String> JVM_OPTIONS =
-            List.of("-XX:TieredStopAtLevel=1", "-Xmx8m", "-XX:+ShowCodeDetailsInExceptionMessages");
+    private static final List<String> JVM_OPTIONS = List.of("-Xmx8m", "-XX:+ShowCodeDetailsInExceptionMessages");
     private static final String CLASSPATH_SYSTEM_PROPERTY = "symly.runtime.classpath";
     private static final String MAIN_CLASS = "org.symly.cli.Main";
 
