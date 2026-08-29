@@ -4,6 +4,7 @@ build/
 out/
 target/
 pom.xml.versionsBackup
+tools/packaging/debian/gpg/
 
 # Eclipse
 .project
