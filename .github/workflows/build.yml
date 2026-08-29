@@ -44,7 +44,7 @@ jobs:
                 uses: EnricoMi/publish-unit-test-result-action@v2
                 if: always()
                 with:
-                    junit_files: target/surefire-reports/TEST-*.xml
+                    files: target/surefire-reports/TEST-*.xml
 
             -   name: Upload test reports
                 uses: actions/upload-artifact@v7
