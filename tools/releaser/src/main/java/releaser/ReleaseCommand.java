@@ -2,6 +2,7 @@ package releaser;
 
 import static releaser.Color.*;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -175,9 +176,11 @@ public class ReleaseCommand {
                 io.printf("%s %s%n", pad("Latest tag for release %s is:".formatted(baseVersion)), INFO.str(version)));
         Version nextVersion = latestVersion.map(Version::increment).orElse(baseVersion.subversion("0"));
         bumpVersion(nextVersion);
-        Command.exec(new ProcessBuilder()
-                .command("tools/releaser/src/main/resources/jreleaser-dry-run.sh", nextVersion.toString())
-                .inheritIO());
+        Command.exec(
+                new ProcessBuilder()
+                        .command("tools/releaser/src/main/resources/jreleaser-dry-run.sh", nextVersion.toString())
+                        .inheritIO(),
+                Duration.parse("PT60M"));
         io.printf("Push the release to the main repository?%n");
         String choice = io.readChoice(
                 List.of(

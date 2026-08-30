@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.time.Duration;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public record Command(List<String> command, int exitCode, List<String> stdout) {
 
@@ -31,15 +31,15 @@ public record Command(List<String> command, int exitCode, List<String> stdout) {
         return exec(pb).stdOutAsString();
     }
 
-    public static Command exec(String... command) {
-        return exec(new ProcessBuilder().command(command).redirectErrorStream(true));
+    public static Command exec(ProcessBuilder pb) {
+        return exec(pb, Duration.parse("PT60S"));
     }
 
-    public static Command exec(ProcessBuilder pb) {
+    public static Command exec(ProcessBuilder pb, Duration timeout) {
         List<String> command = pb.command();
         try {
             Process process = pb.start();
-            boolean finished = process.waitFor(60, TimeUnit.SECONDS);
+            boolean finished = process.waitFor(timeout);
             if (!finished) {
                 process.destroy();
             }
