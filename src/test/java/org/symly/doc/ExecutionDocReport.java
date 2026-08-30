@@ -55,7 +55,7 @@ public class ExecutionDocReport {
         Path entry = root.relativize(fileRef.name());
         int nameCount = entry.getNameCount() + 1;
         StringBuilder sb = new StringBuilder();
-        sb.append("|   ".repeat(Math.max(0, nameCount - 2)));
+        sb.repeat("|   ", Math.max(0, nameCount - 2));
         if (nameCount > 1) {
             sb.append("|-- ");
         }

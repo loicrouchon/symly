@@ -61,23 +61,19 @@ public record LinkState(MainDirectory mainDirectory, Path source, Entry currentS
                     "Such LinkStatus makes no sense, they don't exist and should not be created either: %s [%s]"
                             .formatted(source, currentState));
         }
-        if (currentState instanceof LinkState.Entry.MissingEntry) {
-            return LinkState.Type.MISSING;
-        } else if (currentState instanceof LinkState.Entry.FileEntry) {
-            return LinkState.Type.FILE_CONFLICT;
-        } else if (currentState instanceof LinkState.Entry.DirectoryEntry) {
-            return LinkState.Type.FILE_CONFLICT;
-        } else if (currentState instanceof LinkState.Entry.LinkEntry le) {
-            if (desiredTarget == null) {
-                return LinkState.Type.ORPHAN;
+        return switch (currentState) {
+            case Entry.MissingEntry _ -> Type.MISSING;
+            case Entry.FileEntry _, Entry.DirectoryEntry _ -> Type.FILE_CONFLICT;
+            case Entry.LinkEntry(Path target) -> {
+                if (desiredTarget == null) {
+                    yield LinkState.Type.ORPHAN;
+                }
+                if (!Objects.equals(target, desiredTarget)) {
+                    yield LinkState.Type.LINK_CONFLICT;
+                }
+                yield LinkState.Type.UP_TO_DATE;
             }
-            if (!Objects.equals(le.target, desiredTarget)) {
-                return LinkState.Type.LINK_CONFLICT;
-            }
-            return LinkState.Type.UP_TO_DATE;
-        }
-        throw new IllegalStateException(
-                "Such LinkStatus makes no sense: %s [%s] -> %s".formatted(source, currentState, desiredTarget));
+        };
     }
 
     public Link desired() {

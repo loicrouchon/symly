@@ -68,8 +68,8 @@ class UnlinkCommand implements Runnable {
     private void unlink(FileSystemWriter mutator) {
         try (Stream<LinkState> linkStates = context.status(fsReader)) {
             linkStates
-                    .filter(ls -> ls.currentState() instanceof LinkState.Entry.LinkEntry le
-                            && context.repositories().containsPath(le.target()))
+                    .filter(ls -> ls.currentState() instanceof LinkState.Entry.LinkEntry(java.nio.file.Path target)
+                            && context.repositories().containsPath(target))
                     .forEach(ls -> unlink(ls, mutator));
         }
     }
@@ -86,11 +86,11 @@ class UnlinkCommand implements Runnable {
     }
 
     private void printAction(LinkState linkState, Action action) {
-        if (!(action instanceof DeleteLinkAction dla)) {
+        if (!(action instanceof DeleteLinkAction(Link link))) {
             throw new SymlyExecutionException(
                     "Unable to unlink %s%n> Invalid action type %s%n".formatted(linkState, action.getClass()));
         }
-        console.printf("%-12s %s%n", "unlink" + ":", dla.link().toString(context.mainDirectory()));
+        console.printf("%-12s %s%n", "unlink" + ":", link.toString(context.mainDirectory()));
     }
 
     private void printError(LinkState linkState, Action action, Action.Code error) {

@@ -99,18 +99,12 @@ class LinkCommand implements Runnable {
     }
 
     private void printAction(Action action) {
-        if (action instanceof NoOpAction a) {
-            printAction(Level.DEBUG, "up-to-date", a.link());
-        } else if (action instanceof CreateLinkAction a) {
-            printAction(Level.INFO, "added", a.link());
-        } else if (action instanceof DeleteLinkAction a) {
-            printAction(Level.INFO, "deleted", a.link());
-        } else if (action instanceof DeleteAction a) {
-            printAction(Level.INFO, "deleted", new Link(a.path(), null));
-        } else if (action instanceof ConflictAction a) {
-            printAction(Level.INFO, "!conflict", a.link());
-        } else {
-            throw new IllegalStateException("Not reachable, normally " + action);
+        switch (action) {
+            case NoOpAction(Link link) -> printAction(Level.DEBUG, "up-to-date", link);
+            case CreateLinkAction a -> printAction(Level.INFO, "added", a.link());
+            case DeleteLinkAction a -> printAction(Level.INFO, "deleted", a.link());
+            case DeleteAction a -> printAction(Level.INFO, "deleted", new Link(a.path(), null));
+            case ConflictAction a -> printAction(Level.INFO, "!conflict", a.link());
         }
     }
 
