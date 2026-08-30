@@ -4,7 +4,7 @@ You can also clone this repository and build Symly using the instructions below:
 
 == Pre-requisites
 
-* JDK 17
+* JDK 25
 
 == Packaging and running the application
 

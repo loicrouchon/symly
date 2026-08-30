@@ -16,7 +16,7 @@ project:
     java:
         groupId: org.symly
         artifactId: symly
-        version: 17
+        version: 25
         mainClass: org.symly.cli.Main
 
 release:

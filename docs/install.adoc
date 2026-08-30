@@ -31,7 +31,7 @@ Artifacts can also be downloaded manually from link:https://github.com/loicrouch
 The following artifacts are available:
 
 * Jar application with a bootstrap script.
-Requires JVM 17+
+Requires JVM 25+
 * `.deb` and `.rpm` packages.
 --
 
